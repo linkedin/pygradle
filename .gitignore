@@ -11,3 +11,4 @@
 out/
 */bin/
 *.swp
+/ligradle/

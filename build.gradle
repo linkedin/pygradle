@@ -1,0 +1,43 @@
+apply plugin: 'groovy'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile localGroovy()
+    compile gradleApi()
+
+    testCompile('org.spockframework:spock-core:1.0-groovy-2.3') {
+        exclude group: 'org.codehaus.groovy'
+    }
+    testCompile 'cglib:cglib:3.1'
+    testCompile 'org.objenesis:objenesis:2.1'
+    testCompile 'org.ow2.asm:asm:5.0.3'
+    testCompile 'com.netflix.nebula:nebula-test:3.0.0'
+}
+
+sourceSets {
+    integTest {
+        groovy.srcDir file('src/integTest/groovy')
+        resources.srcDir file('src/integTest/resources')
+    }
+}
+
+configurations {
+    integTestCompile.extendsFrom testCompile
+    integTestRuntime.extendsFrom testRuntime
+}
+
+task integTest(type: Test, dependsOn: assemble) {
+    testClassesDir = sourceSets.integTest.output.classesDir
+    classpath = sourceSets.integTest.runtimeClasspath
+    description = 'Running integration tests'
+    group = JavaBasePlugin.VERIFICATION_GROUP
+    doFirst {
+        def files = []
+        files.addAll(configurations.getByName('archives').artifacts.files.collect { it.absolutePath })
+        files.addAll(configurations.getByName('compile').files.collect { it.absolutePath })
+        environment('test.dependencies', files.findAll{ !it.contains('wrapper/dists')}.join(","))
+    }
+}

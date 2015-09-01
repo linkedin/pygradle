@@ -2,16 +2,17 @@ package com.linkedin.gradle.python.plugin;
 
 import com.linkedin.gradle.python.PythonSourceSet;
 import com.linkedin.gradle.python.internal.DefaultPythonSourceSet;
-import com.linkedin.gradle.python.spec.DefaultPythonBinarySpec;
-import com.linkedin.gradle.python.spec.DefaultPythonComponent;
-import com.linkedin.gradle.python.spec.PythonBinarySpec;
-import com.linkedin.gradle.python.spec.PythonComponent;
+import com.linkedin.gradle.python.spec.DefaultPythonComponentSpec;
+import com.linkedin.gradle.python.spec.DefaultWheelBinarySpec;
+import com.linkedin.gradle.python.spec.PythonComponentSpec;
+import com.linkedin.gradle.python.spec.WheelBinarySpec;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
+import org.gradle.api.internal.file.FileResolver;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
+import org.gradle.internal.reflect.Instantiator;
 import org.gradle.internal.service.ServiceRegistry;
-import org.gradle.language.base.internal.registry.LanguageTransformContainer;
 import org.gradle.model.ModelMap;
 import org.gradle.model.Mutate;
 import org.gradle.model.RuleSource;
@@ -27,33 +28,55 @@ public class PythonRulePlugin extends RuleSource {
         builder.defaultImplementation(DefaultPythonSourceSet.class);
     }
 
-    @Mutate
-    public void registerLanguageTransform(LanguageTransformContainer languages, ServiceRegistry serviceRegistry) {
-        languages.add(new PythonLanguageTransform());
-    }
-
     @ComponentType
-    void defineType(ComponentTypeBuilder<PythonComponent> builder) {
-        builder.defaultImplementation(DefaultPythonComponent.class);
+    public void register(ComponentTypeBuilder<PythonComponentSpec> builder) {
+        builder.defaultImplementation(DefaultPythonComponentSpec.class);
     }
 
     @BinaryType
-    void registerPythonBinaryType(BinaryTypeBuilder<PythonBinarySpec> builder) {
-        builder.defaultImplementation(DefaultPythonBinarySpec.class);
+    public void registerJar(BinaryTypeBuilder<WheelBinarySpec> builder) {
+        builder.defaultImplementation(DefaultWheelBinarySpec.class);
     }
 
     @ComponentBinaries
-    void createBinariesForBinaryComponent(ModelMap<PythonBinarySpec> binaries, PythonComponent library) {
-        binaries.create("compilePython", new Action<PythonBinarySpec>() {
-            @Override
-            public void execute(PythonBinarySpec pythonBinarySpec) {
-                log.lifecycle("Creating component");
-            }
-        });
+    public void createBinaries(ModelMap<WheelBinarySpec> binaries,
+                               final PythonComponentSpec pythonComponent) {
+
+        binaries.create(pythonComponent.getName() + ".whl");
     }
 
     @BinaryTasks
-    public void createTasks(ModelMap<Task> tasks, final PythonBinarySpec executableBinary){
-        log.lifecycle("Creating tasks from: {}", executableBinary);
+    public void createTasks(ModelMap<Task> tasks, final WheelBinarySpec binary) {
+        tasks.create("buildWheel");
+    }
+
+    @Mutate
+    void createSampleLibraryComponents(ModelMap<PythonComponentSpec> componentSpecs) {
+        componentSpecs.create("python");
+    }
+
+    @Mutate
+    void createPythonSourceSets(ModelMap<PythonComponentSpec> binaries, final ServiceRegistry serviceRegistry) {
+        final FileResolver fileResolver = serviceRegistry.get(FileResolver.class);
+        final Instantiator instantiator = serviceRegistry.get(Instantiator.class);
+        binaries.all(new Action<PythonComponentSpec>() {
+            @Override
+            public void execute(PythonComponentSpec pythonComponentSpec) {
+                pythonComponentSpec.getSources().create("python", PythonSourceSet.class, new Action<PythonSourceSet>() {
+                    @Override
+                    public void execute(PythonSourceSet defaultPythonSourceSet) {
+                        defaultPythonSourceSet.getSource().srcDir("src/main/python");
+                        defaultPythonSourceSet.getSource().include("**/*.py");
+                    }
+                });
+                pythonComponentSpec.getSources().create("pythonTest", PythonSourceSet.class, new Action<PythonSourceSet>() {
+                    @Override
+                    public void execute(PythonSourceSet defaultPythonSourceSet) {
+                        defaultPythonSourceSet.getSource().srcDir("src/test/python");
+                        defaultPythonSourceSet.getSource().include("**/*.py");
+                    }
+                });
+            }
+        });
     }
 }

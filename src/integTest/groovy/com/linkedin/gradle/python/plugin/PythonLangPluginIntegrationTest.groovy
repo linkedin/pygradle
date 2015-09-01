@@ -12,10 +12,19 @@ class PythonLangPluginIntegrationTest extends IntegrationSpec {
             }
         }
         """.stripIndent()
-        buildFile << "apply plugin: 'python'"
+        buildFile << "apply plugin: 'python' \n"
+//        buildFile << "apply plugin: 'java' \n"
+        buildFile << """
+        model {
+            components {
+            }
+        }
+        """
+
+        file('src/main/python/example.py')
 
         when:
-        def executionResult = runTasks('model')
+        def executionResult = runTasks('model', 'properties', 'components')
 
         then:
         executionResult.standardOutput == ''

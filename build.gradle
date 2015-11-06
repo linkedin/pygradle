@@ -1,4 +1,5 @@
 apply plugin: 'groovy'
+apply plugin: 'maven-publish'
 
 repositories {
     mavenCentral()
@@ -7,6 +8,7 @@ repositories {
 dependencies {
     compile localGroovy()
     compile gradleApi()
+    compile 'commons-lang:commons-lang:2.6'
 
     testCompile('org.spockframework:spock-core:1.0-groovy-2.3') {
         exclude group: 'org.codehaus.groovy'
@@ -39,5 +41,16 @@ task integTest(type: Test, dependsOn: assemble) {
         files.addAll(configurations.getByName('archives').artifacts.files.collect { it.absolutePath })
         files.addAll(configurations.getByName('compile').files.collect { it.absolutePath })
         environment('test.dependencies', files.findAll{ !it.contains('wrapper/dists')}.join(","))
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        mavenLocal()
     }
 }

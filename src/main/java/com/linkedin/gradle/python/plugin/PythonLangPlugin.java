@@ -30,7 +30,7 @@ public class PythonLangPlugin implements Plugin<Project>  {
             @Override
             public void execute(IvyArtifactRepository ivyArtifactRepository) {
                 ivyArtifactRepository.setName("pipy-cache");
-                ivyArtifactRepository.setUrl("http://localhost:8000");
+                ivyArtifactRepository.setUrl("file:///Volumes/Workspace/pygradle/python-import/ivy-repo");
                 ivyArtifactRepository.layout("pattern", new OrgModuleRevision());
             }
         });

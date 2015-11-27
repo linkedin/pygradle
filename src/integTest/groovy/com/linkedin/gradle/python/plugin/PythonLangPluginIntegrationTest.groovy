@@ -13,7 +13,6 @@ class PythonLangPluginIntegrationTest extends IntegrationSpec {
         }
         """.stripIndent()
         buildFile << "apply plugin: 'python' \n"
-//        buildFile << "apply plugin: 'java' \n"
         buildFile << """
         model {
             components {

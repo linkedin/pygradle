@@ -25,4 +25,8 @@ public enum PythonVersion {
   public String getVersionString() {
     return versionString;
   }
+
+  public String getMajorVersion() {
+    return versionString.substring(0, 1);
+  }
 }

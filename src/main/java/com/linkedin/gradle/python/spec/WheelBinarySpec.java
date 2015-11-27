@@ -2,11 +2,10 @@ package com.linkedin.gradle.python.spec;
 
 import com.linkedin.gradle.python.internal.platform.PythonPlatform;
 import com.linkedin.gradle.python.internal.toolchain.PythonToolChain;
-import java.io.File;
-import java.util.Collection;
 import org.gradle.platform.base.BinarySpec;
-import org.gradle.platform.base.DependencySpec;
 import org.gradle.platform.base.Variant;
+
+import java.io.File;
 
 
 public interface WheelBinarySpec extends BinarySpec {
@@ -17,6 +16,10 @@ public interface WheelBinarySpec extends BinarySpec {
   void setTargetPlatform(PythonPlatform platform);
 
   PythonToolChain getToolChain();
+
+  void setComponentSpec(PythonComponentSpec spec);
+
+  PythonComponentSpec getComponentSpec();
 
   void setToolChain(PythonToolChain toolChain);
 

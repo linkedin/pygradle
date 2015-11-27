@@ -2,8 +2,9 @@ package com.linkedin.gradle.python.spec;
 
 import com.linkedin.gradle.python.internal.platform.PythonPlatform;
 import com.linkedin.gradle.python.internal.toolchain.PythonToolChain;
-import java.io.File;
 import org.gradle.platform.base.binary.BaseBinarySpec;
+
+import java.io.File;
 
 public class DefaultWheelBinarySpec extends BaseBinarySpec implements WheelBinarySpec {
 
@@ -11,6 +12,7 @@ public class DefaultWheelBinarySpec extends BaseBinarySpec implements WheelBinar
     private File pythonBuildDir;
     private PythonPlatform pythonPlatform;
     private PythonToolChain pythonToolchain;
+    private PythonComponentSpec pythonComponentSpec;
 
     @Override
     protected String getTypeName() {
@@ -30,6 +32,16 @@ public class DefaultWheelBinarySpec extends BaseBinarySpec implements WheelBinar
     @Override
     public PythonToolChain getToolChain() {
         return pythonToolchain;
+    }
+
+    @Override
+    public void setComponentSpec(PythonComponentSpec spec) {
+        this.pythonComponentSpec = spec;
+    }
+
+    @Override
+    public PythonComponentSpec getComponentSpec() {
+        return pythonComponentSpec;
     }
 
     @Override

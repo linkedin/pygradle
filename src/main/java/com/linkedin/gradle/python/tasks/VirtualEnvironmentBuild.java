@@ -1,10 +1,6 @@
 package com.linkedin.gradle.python.tasks;
 
-import com.linkedin.gradle.python.internal.toolchain.DefaultPythonExecutable;
 import com.linkedin.gradle.python.internal.toolchain.PythonExecutable;
-import java.io.File;
-import java.util.Set;
-import javax.inject.Inject;
 import org.gradle.api.Action;
 import org.gradle.api.GradleException;
 import org.gradle.api.artifacts.Configuration;
@@ -19,7 +15,12 @@ import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.internal.ExecAction;
+import org.gradle.util.GFileUtils;
 import org.gradle.util.VersionNumber;
+
+import javax.inject.Inject;
+import java.io.File;
+import java.util.Set;
 
 
 public class VirtualEnvironmentBuild extends BasePythonTask {
@@ -41,6 +42,11 @@ public class VirtualEnvironmentBuild extends BasePythonTask {
     return new File(getVenvDir(), "bin/python");
   }
 
+  @OutputFile
+  public File getActivateScript() {
+    return new File(getProject().getProjectDir(), "activate");
+  }
+
   @TaskAction
   public void doWork() {
     if(null == virtualEnvFiles) {
@@ -48,18 +54,23 @@ public class VirtualEnvironmentBuild extends BasePythonTask {
     }
 
     final File vendorDir = new File(getPythonBuilDir(), "vendor");
+    final String virtualEnvDependencyVersion = findVirtualEnvDependencyVersion();
 
     for (final File file : getVirtualEnvFiles()) {
       getFileOperations().copy(new Action<CopySpec>() {
         @Override
         public void execute(CopySpec copySpec) {
-          copySpec.from(getFileOperations().tarTree(file));
-          copySpec.into(vendorDir);
+          if(file.getName().endsWith(".whl")) {
+            copySpec.from(getFileOperations().zipTree(file));
+            copySpec.into(new File(vendorDir, "virtualenv-" + virtualEnvDependencyVersion));
+          } else {
+            copySpec.from(getFileOperations().tarTree(file));
+            copySpec.into(vendorDir);
+          }
         }
       });
     }
 
-    String virtualEnvDependencyVersion = findVirtualEnvDependencyVersion();
     final String path = String.format("%s/virtualenv-%s/virtualenv.py", vendorDir.getAbsolutePath(), virtualEnvDependencyVersion);
     final PythonExecutable pythonExecutable = getPythonToolChain().getPythonExecutable();
 
@@ -69,6 +80,11 @@ public class VirtualEnvironmentBuild extends BasePythonTask {
         execAction.args(path, "--python", pythonExecutable.getFile().getAbsolutePath(), getVenvDir().getAbsolutePath());
       }
     }).assertNormalExitValue();
+
+    File source = new File(venvDir, "bin/activate");
+    GFileUtils.copyFile(source, getActivateScript());
+
+    getActivateScript().setExecutable(true);
   }
 
   private String findVirtualEnvDependencyVersion() {

@@ -27,15 +27,15 @@ public class PythonPluginConfigurations {
     bootstrapConfiguration.defaultDependencies(new Action<DependencySet>() {
       @Override
       public void execute(DependencySet dependencies) {
-        dependencies.add(dependencyHandler.create("pypi:virtualenv:13.0.1"));
+        dependencies.add(dependencyHandler.create("pypi:virtualenv:13.1.2"));
       }
     });
 
     configurations.create(VIRTUAL_ENV_CONFIGURATION);
-    dependencyHandler.add(VIRTUAL_ENV_CONFIGURATION, "pypi:pip:7.1.2li");
+    dependencyHandler.add(VIRTUAL_ENV_CONFIGURATION, "pypi:pip:7.1.2");
     dependencyHandler.add(VIRTUAL_ENV_CONFIGURATION, "pypi:setuptools-git:1.1");
     dependencyHandler.add(VIRTUAL_ENV_CONFIGURATION, "pypi:flake8:2.4.0");
-    dependencyHandler.add(VIRTUAL_ENV_CONFIGURATION, "com.linkedin.pygradle-setuptools:distgradle:0.2.10");
+//    dependencyHandler.add(VIRTUAL_ENV_CONFIGURATION, "com.linkedin.pygradle-setuptools:distgradle:0.2.10");
 
 
     Configuration pythonConfiguration = configurations.create(PYTHON_CONFIGURATION);

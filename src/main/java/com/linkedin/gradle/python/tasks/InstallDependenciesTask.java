@@ -4,16 +4,14 @@ import com.linkedin.gradle.python.internal.toolchain.PythonExecutable;
 import com.linkedin.gradle.python.tasks.internal.PipDependencyInstallAction;
 import com.linkedin.gradle.python.tasks.internal.TaskUtils;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.tasks.InputFiles;
-import org.gradle.api.tasks.OutputDirectory;
-import org.gradle.api.tasks.OutputFile;
-import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.*;
 import org.gradle.process.ExecResult;
 import org.gradle.util.GFileUtils;
 
 import java.io.File;
 
 
+@ParallelizableTask
 public class InstallDependenciesTask extends BasePythonTask {
 
   private Configuration virtualEnvFiles;

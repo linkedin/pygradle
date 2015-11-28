@@ -1,5 +1,6 @@
-package com.linkedin.gradle.python.spec;
+package com.linkedin.gradle.python.spec.internal;
 
+import com.linkedin.gradle.python.spec.PythonEntryPoint;
 import org.gradle.platform.base.ComponentSpec;
 import org.gradle.platform.base.PlatformAwareComponentSpec;
 import org.gradle.platform.base.internal.PlatformRequirement;

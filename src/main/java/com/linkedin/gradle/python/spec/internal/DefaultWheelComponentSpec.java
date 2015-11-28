@@ -1,6 +1,8 @@
-package com.linkedin.gradle.python.spec;
+package com.linkedin.gradle.python.spec.internal;
 
 import com.linkedin.gradle.python.internal.PythonByteCode;
+import com.linkedin.gradle.python.spec.WheelComponentSpec;
+import com.linkedin.gradle.python.spec.PythonEntryPoint;
 import org.gradle.platform.base.TransformationFileType;
 import org.gradle.platform.base.component.BaseComponentSpec;
 import org.gradle.platform.base.internal.DefaultPlatformRequirement;
@@ -8,7 +10,7 @@ import org.gradle.platform.base.internal.PlatformRequirement;
 
 import java.util.*;
 
-public class DefaultPythonComponentSpec extends BaseComponentSpec implements PythonComponentSpec {
+public class DefaultWheelComponentSpec extends BaseComponentSpec implements WheelComponentSpec {
 
     private final Set<Class<? extends TransformationFileType>> languageOutputs = new HashSet<Class<? extends TransformationFileType>>();
     private final List<PlatformRequirement> targetPlatforms = new ArrayList<PlatformRequirement>();
@@ -16,7 +18,7 @@ public class DefaultPythonComponentSpec extends BaseComponentSpec implements Pyt
     private final List<PythonEntryPoint> consoleScripts = new ArrayList<PythonEntryPoint>();
     private boolean autoGenerateSetupPy = true;
 
-    public DefaultPythonComponentSpec() {
+    public DefaultWheelComponentSpec() {
         this.languageOutputs.add(PythonByteCode.class);
         keywords.addAll(Arrays.asList("setuptools", "development"));
     }

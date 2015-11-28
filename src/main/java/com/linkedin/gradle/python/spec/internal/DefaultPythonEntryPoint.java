@@ -1,4 +1,6 @@
-package com.linkedin.gradle.python.spec;
+package com.linkedin.gradle.python.spec.internal;
+
+import com.linkedin.gradle.python.spec.PythonEntryPoint;
 
 public class DefaultPythonEntryPoint implements PythonEntryPoint {
 

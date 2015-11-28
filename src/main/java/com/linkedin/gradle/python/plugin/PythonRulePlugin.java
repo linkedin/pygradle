@@ -4,14 +4,14 @@ import com.linkedin.gradle.python.PythonSourceSet;
 import com.linkedin.gradle.python.internal.DefaultPythonSourceSet;
 import com.linkedin.gradle.python.internal.PythonPlatformResolver;
 import com.linkedin.gradle.python.internal.platform.*;
-import com.linkedin.gradle.python.spec.DefaultPythonComponentSpec;
-import com.linkedin.gradle.python.spec.DefaultWheelBinarySpec;
-import com.linkedin.gradle.python.spec.PythonComponentSpec;
 import com.linkedin.gradle.python.spec.WheelBinarySpec;
-import com.linkedin.gradle.python.tasks.InstallDependenciesTask;
-import com.linkedin.gradle.python.tasks.InstallLocalProject;
-import com.linkedin.gradle.python.tasks.SetupPyTask;
-import com.linkedin.gradle.python.tasks.VirtualEnvironmentBuild;
+import com.linkedin.gradle.python.spec.WheelComponentSpec;
+import com.linkedin.gradle.python.spec.internal.DefaultWheelBinarySpec;
+import com.linkedin.gradle.python.spec.internal.DefaultWheelComponentSpec;
+import com.linkedin.gradle.python.spec.internal.PythonBinarySpec;
+import com.linkedin.gradle.python.spec.internal.PythonComponentSpec;
+import com.linkedin.gradle.python.tasks.*;
+import com.linkedin.gradle.python.tasks.internal.BasePythonTaskAction;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.Transformer;
@@ -35,6 +35,7 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class PythonRulePlugin extends RuleSource {
     public static final Logger log = Logging.getLogger(PythonLangPlugin.class);
+    public static final String GENERATE_SETUP_PY = "generateSetupPy";
 
     @LanguageType
     public void registerLanguage(LanguageTypeBuilder<PythonSourceSet> builder) {
@@ -43,18 +44,18 @@ public class PythonRulePlugin extends RuleSource {
     }
 
     @ComponentType
-    public void register(ComponentTypeBuilder<PythonComponentSpec> builder) {
-        builder.defaultImplementation(DefaultPythonComponentSpec.class);
+    public void register(ComponentTypeBuilder<WheelComponentSpec> builder) {
+        builder.defaultImplementation(DefaultWheelComponentSpec.class);
     }
 
     @BinaryType
-    public void registerJar(BinaryTypeBuilder<WheelBinarySpec> builder) {
+    public void registerWheel(BinaryTypeBuilder<WheelBinarySpec> builder) {
         builder.defaultImplementation(DefaultWheelBinarySpec.class);
     }
 
     @ComponentBinaries
     public void createBinaries(ModelMap<WheelBinarySpec> binaries, final PlatformResolvers platformResolver,
-                               BinaryNamingSchemeBuilder namingSchemeBuilder, final PythonComponentSpec pythonComponent,
+                               BinaryNamingSchemeBuilder namingSchemeBuilder, final WheelComponentSpec pythonComponent,
                                final BuildDirHolder buildDirHolder, final PythonToolChainRegistry pythonToolChainRegistry) {
 
         List<PythonPlatform> pythonPlatforms = resolvePlatforms(platformResolver, pythonComponent);
@@ -78,7 +79,7 @@ public class PythonRulePlugin extends RuleSource {
         }
     }
 
-    private String buildBinaryName(PythonComponentSpec pythonComponent, List<PythonPlatform> selectedPlatforms,
+    private String buildBinaryName(WheelComponentSpec pythonComponent, List<PythonPlatform> selectedPlatforms,
                                    PythonPlatform platform, BinaryNamingSchemeBuilder namingSchemeBuilder) {
         BinaryNamingSchemeBuilder componentBuilder = namingSchemeBuilder.withComponentName(pythonComponent.getName());
 
@@ -89,8 +90,8 @@ public class PythonRulePlugin extends RuleSource {
         return componentBuilder.build().getLifecycleTaskName();
     }
 
-    private List<PythonPlatform> resolvePlatforms(final PlatformResolvers platformResolver, PythonComponentSpec pythonComponentSpec) {
-        List<PlatformRequirement> targetPlatforms = pythonComponentSpec.getTargetPlatforms();
+    private List<PythonPlatform> resolvePlatforms(final PlatformResolvers platformResolver, PythonComponentSpec wheelComponentSpec) {
+        List<PlatformRequirement> targetPlatforms = wheelComponentSpec.getTargetPlatforms();
         if (targetPlatforms.isEmpty()) {
             targetPlatforms = Collections.singletonList(
                     DefaultPlatformRequirement.create(DefaultPythonPlatform.current().getName()));
@@ -102,95 +103,85 @@ public class PythonRulePlugin extends RuleSource {
             }
         });
     }
-
+    
     @BinaryTasks
     public void createTasks(ModelMap<Task> tasks, final WheelBinarySpec binary,
                             final PythonPluginConfigurations configurations,
                             final PlatformResolvers platformResolver) {
         final PythonVersion version = binary.getTargetPlatform().getVersion();
-        final String createVirtualEnv = "createVirtualEnv" + version.getVersionString();
-        final String generateSetupPy = "generateSetupPy";
-        final PythonComponentSpec componentSpec = binary.getComponentSpec();
+        final String createVirtualEnv = taskNameGenerator(binary, version, "createVirtualEnv");
+        final WheelComponentSpec componentSpec = binary.getComponentSpec();
 
-        if (tasks.get(generateSetupPy) == null) {
-            tasks.create(generateSetupPy, SetupPyTask.class, new Action<SetupPyTask>() {
-                @Override
-                public void execute(SetupPyTask setupPyTask) {
-                    setupPyTask.setComponentSpec(componentSpec);
-                    setupPyTask.setSourceDir((PythonSourceSet) componentSpec.getSources().get("python"));
-                    setupPyTask.setPythonPlatforms(resolvePlatforms(platformResolver, componentSpec));
-                }
-            });
-        }
-
-        tasks.create(createVirtualEnv, VirtualEnvironmentBuild.class, new Action<VirtualEnvironmentBuild>() {
+        tasks.create(GENERATE_SETUP_PY, SetupPyTask.class, new Action<SetupPyTask>() {
             @Override
-            public void execute(VirtualEnvironmentBuild task) {
-                task.setPythonToolChain(binary.getToolChain());
-                task.setVenvDir(binary.getVirtualEnvDir());
-                task.setPythonBuilDir(binary.getPythonBuildDir());
-                task.setVirtualEnvFiles(configurations.getBootstrap().getConfiguration());
+            public void execute(SetupPyTask setupPyTask) {
+                setupPyTask.setComponentSpec(componentSpec);
+                setupPyTask.setSourceDir((PythonSourceSet) componentSpec.getSources().get("python"));
+                setupPyTask.setPythonPlatforms(resolvePlatforms(platformResolver, componentSpec));
             }
         });
 
-        final String installDependencies = "installRequiredDependencies" + version.getVersionString();
-        tasks.create(installDependencies, InstallDependenciesTask.class, new Action<InstallDependenciesTask>() {
+        tasks.create(createVirtualEnv, VirtualEnvironmentBuild.class, new BasePythonTaskAction<VirtualEnvironmentBuild>(binary) {
             @Override
-            public void execute(InstallDependenciesTask task) {
+            public void configure(VirtualEnvironmentBuild task) {
+                task.setVirtualEnvFiles(configurations.getBootstrap().getConfiguration());
+                task.setActivateScriptName(String.format("activate-%s-%s", componentSpec.getName(), version.getVersionString()));
+            }
+        });
+
+        final String installDependencies = taskNameGenerator(binary, version, "installRequiredDependencies");
+        tasks.create(installDependencies, InstallDependenciesTask.class, new BasePythonTaskAction<InstallDependenciesTask>(binary) {
+            @Override
+            public void configure(InstallDependenciesTask task) {
                 task.dependsOn(createVirtualEnv);
-                task.setPythonToolChain(binary.getToolChain());
-                task.setPythonBuilDir(binary.getPythonBuildDir());
-                task.setVenvDir(binary.getVirtualEnvDir());
                 task.setVirtualEnvFiles(configurations.getVirtualEnv().getConfiguration());
                 task.setInstallDir(new File(binary.getVirtualEnvDir(), "requiredDependencies"));
             }
         });
 
-        final String installRuntimeDependencies = "installRuntimeDependencies" + version.getVersionString();
-        tasks.create(installRuntimeDependencies, InstallDependenciesTask.class, new Action<InstallDependenciesTask>() {
+        final String installRuntimeDependencies = taskNameGenerator(binary, version, "installRuntimeDependencies");
+        tasks.create(installRuntimeDependencies, InstallDependenciesTask.class, new BasePythonTaskAction<InstallDependenciesTask>(binary) {
             @Override
-            public void execute(InstallDependenciesTask task) {
+            public void configure(InstallDependenciesTask task) {
                 task.dependsOn(installDependencies);
-                task.setPythonToolChain(binary.getToolChain());
-                task.setPythonBuilDir(binary.getPythonBuildDir());
-                task.setVenvDir(binary.getVirtualEnvDir());
                 task.setVirtualEnvFiles(configurations.getPython().getConfiguration());
                 task.setInstallDir(new File(binary.getVirtualEnvDir(), "dependencies"));
             }
         });
 
-        final String installTestDependencies = "installTestDependencies" + version.getVersionString();
-        tasks.create(installTestDependencies, InstallDependenciesTask.class, new Action<InstallDependenciesTask>() {
+        final String installTestDependencies = taskNameGenerator(binary, version, "installTestDependencies");
+        tasks.create(installTestDependencies, InstallDependenciesTask.class, new BasePythonTaskAction<InstallDependenciesTask>(binary) {
             @Override
-            public void execute(InstallDependenciesTask task) {
+            public void configure(InstallDependenciesTask task) {
                 task.dependsOn(installRuntimeDependencies);
-                task.setPythonToolChain(binary.getToolChain());
-                task.setPythonBuilDir(binary.getPythonBuildDir());
-                task.setVenvDir(binary.getVirtualEnvDir());
                 task.setVirtualEnvFiles(configurations.getPyTest().getConfiguration());
                 task.setInstallDir(new File(binary.getVirtualEnvDir(), "testDependencies"));
             }
         });
 
-        final String installEditable = "installEditable" + version.getVersionString();
-        tasks.create(installEditable, InstallLocalProject.class, new Action<InstallLocalProject>() {
+        final String installEditable = taskNameGenerator(binary, version, "installEditable");
+        tasks.create(installEditable, InstallLocalProject.class, new BasePythonTaskAction<InstallLocalProject>(binary) {
             @Override
-            public void execute(InstallLocalProject task) {
-                task.dependsOn(generateSetupPy);
+            public void configure(InstallLocalProject task) {
+                task.dependsOn(GENERATE_SETUP_PY);
                 task.dependsOn(installTestDependencies);
-                task.setVenvDir(binary.getVirtualEnvDir());
-                task.setPythonToolChain(binary.getToolChain());
             }
         });
 
         String postFix = GUtil.toCamelCase(binary.getName());
-        String createWheel = "create" + postFix + "Wheel" + version.getVersionString();
+        String createWheel = taskNameGenerator(binary, version, "buildWheel");
         tasks.create(createWheel, new Action<Task>() {
             @Override
             public void execute(Task task) {
                 task.dependsOn(installEditable);
             }
         });
+    }
+
+    private String taskNameGenerator(PythonBinarySpec binarySpec, PythonVersion version, String taskName) {
+        String binaryName = GUtil.toLowerCamelCase(binarySpec.getName());
+        String camelCaseTaskName = GUtil.toCamelCase(taskName);
+        return String.format("%s%s%s", binaryName, camelCaseTaskName, version.getVersionString());
     }
 
     @Mutate
@@ -220,18 +211,18 @@ public class PythonRulePlugin extends RuleSource {
     }
 
     @Mutate
-    void createPythonSourceSets(ModelMap<PythonComponentSpec> binaries, final ServiceRegistry serviceRegistry) {
-        binaries.all(new Action<PythonComponentSpec>() {
+    void createPythonSourceSets(ModelMap<WheelComponentSpec> binaries) {
+        binaries.all(new Action<WheelComponentSpec>() {
             @Override
-            public void execute(PythonComponentSpec pythonComponentSpec) {
-                pythonComponentSpec.getSources().create("python", PythonSourceSet.class, new Action<PythonSourceSet>() {
+            public void execute(WheelComponentSpec wheelComponentSpec) {
+                wheelComponentSpec.getSources().create("python", PythonSourceSet.class, new Action<PythonSourceSet>() {
                     @Override
                     public void execute(PythonSourceSet defaultPythonSourceSet) {
                         defaultPythonSourceSet.getSource().srcDir("src/main/python");
                         defaultPythonSourceSet.getSource().include("**/*.py");
                     }
                 });
-                pythonComponentSpec.getSources().create("pythonTest", PythonSourceSet.class, new Action<PythonSourceSet>() {
+                wheelComponentSpec.getSources().create("pythonTest", PythonSourceSet.class, new Action<PythonSourceSet>() {
                     @Override
                     public void execute(PythonSourceSet defaultPythonSourceSet) {
                         defaultPythonSourceSet.getSource().srcDir("src/test/python");

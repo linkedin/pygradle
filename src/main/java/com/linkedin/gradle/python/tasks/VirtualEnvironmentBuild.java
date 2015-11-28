@@ -10,10 +10,7 @@ import org.gradle.api.artifacts.ResolvedDependency;
 import org.gradle.api.file.CopySpec;
 import org.gradle.api.internal.file.FileOperations;
 import org.gradle.api.specs.Spec;
-import org.gradle.api.tasks.InputFiles;
-import org.gradle.api.tasks.OutputDirectory;
-import org.gradle.api.tasks.OutputFile;
-import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.*;
 import org.gradle.process.internal.ExecAction;
 import org.gradle.util.GFileUtils;
 import org.gradle.util.VersionNumber;
@@ -24,101 +21,107 @@ import java.util.Set;
 
 
 public class VirtualEnvironmentBuild extends BasePythonTask {
-  private Configuration virtualEnvFiles;
 
-  @Inject
-  protected FileOperations getFileOperations() {
-    // Decoration takes care of the implementation
-    throw new UnsupportedOperationException();
-  }
+    private Configuration virtualEnvFiles;
+    private String activateScriptName;
 
-  @OutputDirectory
-  public File getVenvDir() {
-    return venvDir;
-  }
-
-  @OutputFile
-  public File getLocalPythonExecutable() {
-    return new File(getVenvDir(), "bin/python");
-  }
-
-  @OutputFile
-  public File getActivateScript() {
-    return new File(getProject().getProjectDir(), "activate");
-  }
-
-  @TaskAction
-  public void doWork() {
-    if(null == virtualEnvFiles) {
-      throw new GradleException("Virtual Env must be defined");
+    @Inject
+    protected FileOperations getFileOperations() {
+        // Decoration takes care of the implementation
+        throw new UnsupportedOperationException();
     }
 
-    final File vendorDir = new File(getPythonBuilDir(), "vendor");
-    final String virtualEnvDependencyVersion = findVirtualEnvDependencyVersion();
+    @OutputDirectory
+    public File getVenvDir() {
+        return venvDir;
+    }
 
-    for (final File file : getVirtualEnvFiles()) {
-      getFileOperations().copy(new Action<CopySpec>() {
-        @Override
-        public void execute(CopySpec copySpec) {
-          if(file.getName().endsWith(".whl")) {
-            copySpec.from(getFileOperations().zipTree(file));
-            copySpec.into(new File(vendorDir, "virtualenv-" + virtualEnvDependencyVersion));
-          } else {
-            copySpec.from(getFileOperations().tarTree(file));
-            copySpec.into(vendorDir);
-          }
+    @OutputFile
+    public File getLocalPythonExecutable() {
+        return new File(getVenvDir(), "bin/python");
+    }
+
+    @OutputFile
+    public File getActivateScript() {
+        return new File(getProject().getProjectDir(), activateScriptName);
+    }
+
+    @TaskAction
+    public void doWork() {
+        if (null == virtualEnvFiles) {
+            throw new GradleException("Virtual Env must be defined");
         }
-      });
+
+        final File vendorDir = new File(getPythonBuilDir(), "vendor");
+        final String virtualEnvDependencyVersion = findVirtualEnvDependencyVersion();
+
+        for (final File file : getVirtualEnvFiles()) {
+            getFileOperations().copy(new Action<CopySpec>() {
+                @Override
+                public void execute(CopySpec copySpec) {
+                    if (file.getName().endsWith(".whl")) {
+                        copySpec.from(getFileOperations().zipTree(file));
+                        copySpec.into(new File(vendorDir, "virtualenv-" + virtualEnvDependencyVersion));
+                    } else {
+                        copySpec.from(getFileOperations().tarTree(file));
+                        copySpec.into(vendorDir);
+                    }
+                }
+            });
+        }
+
+        final String path = String.format("%s/virtualenv-%s/virtualenv.py", vendorDir.getAbsolutePath(), virtualEnvDependencyVersion);
+        final PythonExecutable pythonExecutable = getPythonToolChain().getPythonExecutable();
+
+        pythonExecutable.execute(new Action<ExecAction>() {
+            @Override
+            public void execute(ExecAction execAction) {
+                execAction.args(path, "--python", pythonExecutable.getFile().getAbsolutePath(), getVenvDir().getAbsolutePath());
+            }
+        }).assertNormalExitValue();
+
+        File source = new File(venvDir, "bin/activate");
+        GFileUtils.copyFile(source, getActivateScript());
+
+        getActivateScript().setExecutable(true);
     }
 
-    final String path = String.format("%s/virtualenv-%s/virtualenv.py", vendorDir.getAbsolutePath(), virtualEnvDependencyVersion);
-    final PythonExecutable pythonExecutable = getPythonToolChain().getPythonExecutable();
+    private String findVirtualEnvDependencyVersion() {
+        ResolvedConfiguration resolvedConfiguration = getVirtualEnvFiles().getResolvedConfiguration();
+        Set<ResolvedDependency> virtualEnvDependencies = resolvedConfiguration.getFirstLevelModuleDependencies(new VirtualEvnSpec());
+        if (virtualEnvDependencies.isEmpty()) {
+            throw new GradleException("Unable to find virtualenv dependency");
+        }
 
-    pythonExecutable.execute(new Action<ExecAction>() {
-      @Override
-      public void execute(ExecAction execAction) {
-        execAction.args(path, "--python", pythonExecutable.getFile().getAbsolutePath(), getVenvDir().getAbsolutePath());
-      }
-    }).assertNormalExitValue();
+        VersionNumber highest = new VersionNumber(0, 0, 0, null);
+        for (ResolvedDependency resolvedDependency : virtualEnvDependencies) {
+            VersionNumber test = VersionNumber.parse(resolvedDependency.getModuleVersion());
+            if (test.compareTo(highest) > 0) {
+                highest = test;
+            }
+        }
 
-    File source = new File(venvDir, "bin/activate");
-    GFileUtils.copyFile(source, getActivateScript());
-
-    getActivateScript().setExecutable(true);
-  }
-
-  private String findVirtualEnvDependencyVersion() {
-    ResolvedConfiguration resolvedConfiguration = getVirtualEnvFiles().getResolvedConfiguration();
-    Set<ResolvedDependency> virtualEnvDependencies = resolvedConfiguration.getFirstLevelModuleDependencies(new VirtualEvnSpec());
-    if(virtualEnvDependencies.isEmpty()) {
-      throw new GradleException("Unable to find virtualenv dependency");
+        return highest.toString();
     }
 
-    VersionNumber highest = new VersionNumber(0, 0, 0, null);
-    for (ResolvedDependency resolvedDependency : virtualEnvDependencies) {
-      VersionNumber test = VersionNumber.parse(resolvedDependency.getModuleVersion());
-      if(test.compareTo(highest) > 0) {
-        highest = test;
-      }
+    @InputFiles
+    Configuration getVirtualEnvFiles() {
+        return virtualEnvFiles;
     }
 
-    return highest.toString();
-  }
-
-  @InputFiles
-  Configuration getVirtualEnvFiles(){
-    return virtualEnvFiles;
-  }
-
-  public void setVirtualEnvFiles(Configuration configuration) {
-    this.virtualEnvFiles = configuration;
-  }
-
-  private class VirtualEvnSpec implements Spec<Dependency> {
-
-    @Override
-    public boolean isSatisfiedBy(Dependency element) {
-      return "virtualenv".equals(element.getName());
+    public void setVirtualEnvFiles(Configuration configuration) {
+        this.virtualEnvFiles = configuration;
     }
-  }
+
+    public void setActivateScriptName(String activateScriptName) {
+        this.activateScriptName = activateScriptName;
+    }
+
+    private class VirtualEvnSpec implements Spec<Dependency> {
+
+        @Override
+        public boolean isSatisfiedBy(Dependency element) {
+            return "virtualenv".equals(element.getName());
+        }
+    }
 }

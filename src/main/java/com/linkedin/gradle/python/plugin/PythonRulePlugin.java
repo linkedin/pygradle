@@ -8,18 +8,16 @@ import com.linkedin.gradle.python.spec.DefaultPythonComponentSpec;
 import com.linkedin.gradle.python.spec.DefaultWheelBinarySpec;
 import com.linkedin.gradle.python.spec.PythonComponentSpec;
 import com.linkedin.gradle.python.spec.WheelBinarySpec;
-import com.linkedin.gradle.python.tasks.InstallDependencies;
+import com.linkedin.gradle.python.tasks.InstallDependenciesTask;
 import com.linkedin.gradle.python.tasks.InstallLocalProject;
 import com.linkedin.gradle.python.tasks.SetupPyTask;
 import com.linkedin.gradle.python.tasks.VirtualEnvironmentBuild;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.Transformer;
-import org.gradle.api.internal.file.FileResolver;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.plugins.ExtensionContainer;
-import org.gradle.internal.reflect.Instantiator;
 import org.gradle.internal.service.ServiceRegistry;
 import org.gradle.language.base.internal.BuildDirHolder;
 import org.gradle.model.*;
@@ -136,47 +134,52 @@ public class PythonRulePlugin extends RuleSource {
         });
 
         final String installDependencies = "installRequiredDependencies" + version.getVersionString();
-        tasks.create(installDependencies, InstallDependencies.class, new Action<InstallDependencies>() {
+        tasks.create(installDependencies, InstallDependenciesTask.class, new Action<InstallDependenciesTask>() {
             @Override
-            public void execute(InstallDependencies task) {
+            public void execute(InstallDependenciesTask task) {
                 task.dependsOn(createVirtualEnv);
                 task.setPythonToolChain(binary.getToolChain());
                 task.setPythonBuilDir(binary.getPythonBuildDir());
                 task.setVenvDir(binary.getVirtualEnvDir());
                 task.setVirtualEnvFiles(configurations.getVirtualEnv().getConfiguration());
+                task.setInstallDir(new File(binary.getVirtualEnvDir(), "requiredDependencies"));
             }
         });
 
         final String installRuntimeDependencies = "installRuntimeDependencies" + version.getVersionString();
-        tasks.create(installRuntimeDependencies, InstallDependencies.class, new Action<InstallDependencies>() {
+        tasks.create(installRuntimeDependencies, InstallDependenciesTask.class, new Action<InstallDependenciesTask>() {
             @Override
-            public void execute(InstallDependencies task) {
+            public void execute(InstallDependenciesTask task) {
                 task.dependsOn(installDependencies);
                 task.setPythonToolChain(binary.getToolChain());
                 task.setPythonBuilDir(binary.getPythonBuildDir());
                 task.setVenvDir(binary.getVirtualEnvDir());
                 task.setVirtualEnvFiles(configurations.getPython().getConfiguration());
+                task.setInstallDir(new File(binary.getVirtualEnvDir(), "dependencies"));
             }
         });
 
         final String installTestDependencies = "installTestDependencies" + version.getVersionString();
-        tasks.create(installTestDependencies, InstallDependencies.class, new Action<InstallDependencies>() {
+        tasks.create(installTestDependencies, InstallDependenciesTask.class, new Action<InstallDependenciesTask>() {
             @Override
-            public void execute(InstallDependencies task) {
+            public void execute(InstallDependenciesTask task) {
                 task.dependsOn(installRuntimeDependencies);
                 task.setPythonToolChain(binary.getToolChain());
                 task.setPythonBuilDir(binary.getPythonBuildDir());
                 task.setVenvDir(binary.getVirtualEnvDir());
                 task.setVirtualEnvFiles(configurations.getPyTest().getConfiguration());
+                task.setInstallDir(new File(binary.getVirtualEnvDir(), "testDependencies"));
             }
         });
 
         final String installEditable = "installEditable" + version.getVersionString();
         tasks.create(installEditable, InstallLocalProject.class, new Action<InstallLocalProject>() {
             @Override
-            public void execute(InstallLocalProject installLocalProject) {
-                installLocalProject.dependsOn(generateSetupPy);
-                installLocalProject.dependsOn(installTestDependencies);
+            public void execute(InstallLocalProject task) {
+                task.dependsOn(generateSetupPy);
+                task.dependsOn(installTestDependencies);
+                task.setVenvDir(binary.getVirtualEnvDir());
+                task.setPythonToolChain(binary.getToolChain());
             }
         });
 
@@ -218,8 +221,6 @@ public class PythonRulePlugin extends RuleSource {
 
     @Mutate
     void createPythonSourceSets(ModelMap<PythonComponentSpec> binaries, final ServiceRegistry serviceRegistry) {
-        final FileResolver fileResolver = serviceRegistry.get(FileResolver.class);
-        final Instantiator instantiator = serviceRegistry.get(Instantiator.class);
         binaries.all(new Action<PythonComponentSpec>() {
             @Override
             public void execute(PythonComponentSpec pythonComponentSpec) {

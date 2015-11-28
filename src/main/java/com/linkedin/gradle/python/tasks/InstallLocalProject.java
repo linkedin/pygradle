@@ -1,12 +1,12 @@
 package com.linkedin.gradle.python.tasks;
 
 import com.linkedin.gradle.python.internal.toolchain.PythonExecutable;
-import org.gradle.api.Action;
+import com.linkedin.gradle.python.tasks.internal.PipLocalInstallAction;
+import com.linkedin.gradle.python.tasks.internal.TaskUtils;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.process.internal.ExecAction;
-import org.gradle.util.GFileUtils;
+import org.gradle.process.ExecResult;
 
 import java.io.File;
 
@@ -16,27 +16,21 @@ public class InstallLocalProject extends BasePythonTask {
   @TaskAction
   public void doWork() {
     final PythonExecutable pythonExecutable = getPythonToolChain().getLocalPythonExecutable(venvDir);
-    final String pipCommand = new File(venvDir, "bin/pip").getAbsolutePath();
-    StringBuilder stringBuilder = new StringBuilder();
-
-    pythonExecutable.execute(new Action<ExecAction>() {
-        @Override
-        public void execute(ExecAction execAction) {
-          execAction.args(pipCommand, "install", "--editable", getProject().getProjectDir().getAbsolutePath());
-        }
-      });
-
-
-    GFileUtils.writeFile(stringBuilder.toString(), getInstalledDependencies());
+    PipLocalInstallAction pipLocalInstallAction = new PipLocalInstallAction(venvDir);
+    ExecResult execute = pythonExecutable.execute(pipLocalInstallAction.install(getProject().getProjectDir()));
+    if(execute.getExitValue() != 0) {
+      getLogger().lifecycle(pipLocalInstallAction.getWholeText());
+      execute.assertNormalExitValue();
+    }
   }
 
   @OutputFile
-  File getInstalledDependencies() {
-    return new File(getPythonBuilDir(), getName() + ".txt");
+  public File getEggLink() {
+    return new File(TaskUtils.sitePackage(venvDir, getPythonVersion()), String.format("%s.egg-link", getProject().getName()));
   }
 
   @InputFile
-  File getSetupPyFile() {
+  public File getSetupPyFile() {
     return new File(getProject().getProjectDir(), "setup.py");
   }
 

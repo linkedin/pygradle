@@ -5,6 +5,7 @@ import com.linkedin.gradle.python.internal.platform.PythonPlatform;
 import com.linkedin.gradle.python.internal.platform.PythonVersion;
 import com.linkedin.gradle.python.spec.PythonComponentSpec;
 import com.linkedin.gradle.python.spec.PythonEntryPoint;
+import com.linkedin.gradle.python.tasks.internal.TaskUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Task;
 import org.gradle.api.specs.Spec;
@@ -69,14 +70,7 @@ public class SetupPyTask extends DefaultTask {
     }
 
     private String getKeywords() {
-        StringBuilder sb = new StringBuilder();
-        for(int i = 0; i < componentSpec.getKeywords().size(); i++) {
-            sb.append(componentSpec.getKeywords().get(i));
-            if(i != componentSpec.getKeywords().size() - 1) {
-                sb.append(" ");
-            }
-        }
-        return sb.toString();
+        return TaskUtils.join(componentSpec.getKeywords(), " ");
     }
 
 

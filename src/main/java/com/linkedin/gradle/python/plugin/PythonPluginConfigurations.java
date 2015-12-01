@@ -59,26 +59,26 @@ public class PythonPluginConfigurations {
     return new PythonConfiguration(PYTEST_CONFIGURATION);
   }
 
-  class PythonConfiguration {
+  public class PythonConfiguration {
     private final String name;
 
     PythonConfiguration(String name) {
       this.name = name;
     }
 
-    Configuration getConfiguration() {
+    public Configuration getConfiguration() {
       return configurations.getByName(name);
     }
 
-    FileCollection getAllArtifacts() {
+    public FileCollection getAllArtifacts() {
       return getConfiguration();
     }
 
-    void addDependency(Object notation) {
+    public void addDependency(Object notation) {
       dependencyHandler.add(name, notation);
     }
 
-    void addArtifact(PublishArtifact artifact) {
+    public void addArtifact(PublishArtifact artifact) {
       configurations.getByName(name).getArtifacts().add(artifact);
     }
   }

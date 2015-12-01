@@ -1,8 +1,8 @@
 package com.linkedin.gradle.python.plugin;
 
 import com.linkedin.gradle.python.internal.platform.PythonToolChainRegistry;
-import com.linkedin.gradle.python.spec.WheelComponentSpec;
-import com.linkedin.gradle.python.spec.WheelBinarySpec;
+import com.linkedin.gradle.python.spec.component.WheelComponentSpec;
+import com.linkedin.gradle.python.spec.binary.WheelBinarySpec;
 import org.gradle.api.Action;
 import org.gradle.language.base.internal.BuildDirHolder;
 import org.gradle.model.Defaults;

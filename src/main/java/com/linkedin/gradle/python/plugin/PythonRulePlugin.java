@@ -4,13 +4,15 @@ import com.linkedin.gradle.python.PythonSourceSet;
 import com.linkedin.gradle.python.internal.DefaultPythonSourceSet;
 import com.linkedin.gradle.python.internal.PythonPlatformResolver;
 import com.linkedin.gradle.python.internal.platform.*;
-import com.linkedin.gradle.python.spec.WheelBinarySpec;
-import com.linkedin.gradle.python.spec.WheelComponentSpec;
-import com.linkedin.gradle.python.spec.internal.DefaultWheelBinarySpec;
-import com.linkedin.gradle.python.spec.internal.DefaultWheelComponentSpec;
-import com.linkedin.gradle.python.spec.internal.PythonBinarySpec;
-import com.linkedin.gradle.python.spec.internal.PythonComponentSpec;
-import com.linkedin.gradle.python.tasks.*;
+import com.linkedin.gradle.python.spec.binary.WheelBinarySpec;
+import com.linkedin.gradle.python.spec.binary.internal.DefaultWheelBinarySpec;
+import com.linkedin.gradle.python.spec.binary.internal.PythonBinarySpec;
+import com.linkedin.gradle.python.spec.component.WheelComponentSpec;
+import com.linkedin.gradle.python.spec.component.internal.DefaultWheelComponentSpec;
+import com.linkedin.gradle.python.spec.component.internal.PythonComponentSpec;
+import com.linkedin.gradle.python.tasks.InstallDependenciesTask;
+import com.linkedin.gradle.python.tasks.InstallLocalProject;
+import com.linkedin.gradle.python.tasks.VirtualEnvironmentBuild;
 import com.linkedin.gradle.python.tasks.internal.BasePythonTaskAction;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
@@ -60,7 +62,7 @@ public class PythonRulePlugin extends RuleSource {
 
         List<PythonPlatform> pythonPlatforms = resolvePlatforms(platformResolver, pythonComponent);
         for (final PythonPlatform pythonPlatform : pythonPlatforms) {
-            String binaryName = buildBinaryName(pythonComponent, pythonPlatforms, pythonPlatform, namingSchemeBuilder);
+            final String binaryName = buildBinaryName(pythonComponent, pythonPlatforms, pythonPlatform, namingSchemeBuilder);
             binaries.create(binaryName, new Action<WheelBinarySpec>() {
                 @Override
                 public void execute(WheelBinarySpec wheelBinarySpec) {
@@ -68,7 +70,7 @@ public class PythonRulePlugin extends RuleSource {
                     wheelBinarySpec.setToolChain(pythonToolChainRegistry.getForPlatform(pythonPlatform));
 
                     PythonPlatform platform = wheelBinarySpec.getTargetPlatform();
-                    final File pythonBuildDir = new File(buildDirHolder.getDir(), "python-" + platform.getVersion().getVersionString());
+                    final File pythonBuildDir = new File(buildDirHolder.getDir(), String.format("python-%s-%s", binaryName, platform.getVersion().getVersionString()));
                     final File virtualEnvDir = new File(pythonBuildDir, "venv");
 
                     wheelBinarySpec.setVirtualEnvDir(virtualEnvDir);
@@ -103,7 +105,7 @@ public class PythonRulePlugin extends RuleSource {
             }
         });
     }
-    
+
     @BinaryTasks
     public void createTasks(ModelMap<Task> tasks, final WheelBinarySpec binary,
                             final PythonPluginConfigurations configurations,
@@ -111,15 +113,6 @@ public class PythonRulePlugin extends RuleSource {
         final PythonVersion version = binary.getTargetPlatform().getVersion();
         final String createVirtualEnv = taskNameGenerator(binary, version, "createVirtualEnv");
         final WheelComponentSpec componentSpec = binary.getComponentSpec();
-
-        tasks.create(GENERATE_SETUP_PY, SetupPyTask.class, new Action<SetupPyTask>() {
-            @Override
-            public void execute(SetupPyTask setupPyTask) {
-                setupPyTask.setComponentSpec(componentSpec);
-                setupPyTask.setSourceDir((PythonSourceSet) componentSpec.getSources().get("python"));
-                setupPyTask.setPythonPlatforms(resolvePlatforms(platformResolver, componentSpec));
-            }
-        });
 
         tasks.create(createVirtualEnv, VirtualEnvironmentBuild.class, new BasePythonTaskAction<VirtualEnvironmentBuild>(binary) {
             @Override

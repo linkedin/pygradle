@@ -17,8 +17,7 @@ public class PipDependencyInstallAction {
     }
 
     public PipInstallExecAction install(File dependency) {
-        List<String> dependencies = Arrays.asList("--target", outputDir.getAbsolutePath(),
-                "--no-deps", dependency.getAbsolutePath());
+        List<String> dependencies = Arrays.asList("--no-deps", dependency.getAbsolutePath());
         return new PipInstallExecAction(venvDir, pipProcessor, dependencies);
     }
 

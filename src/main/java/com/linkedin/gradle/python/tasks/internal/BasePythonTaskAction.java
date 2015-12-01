@@ -1,6 +1,6 @@
 package com.linkedin.gradle.python.tasks.internal;
 
-import com.linkedin.gradle.python.spec.internal.PythonBinarySpec;
+import com.linkedin.gradle.python.spec.binary.internal.PythonBinarySpec;
 import com.linkedin.gradle.python.tasks.BasePythonTask;
 import org.gradle.api.Action;
 

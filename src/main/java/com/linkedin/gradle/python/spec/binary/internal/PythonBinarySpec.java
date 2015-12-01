@@ -1,7 +1,8 @@
-package com.linkedin.gradle.python.spec.internal;
+package com.linkedin.gradle.python.spec.binary.internal;
 
 import com.linkedin.gradle.python.internal.platform.PythonPlatform;
 import com.linkedin.gradle.python.internal.toolchain.PythonToolChain;
+import com.linkedin.gradle.python.spec.component.internal.PythonComponentSpec;
 import org.gradle.platform.base.BinarySpec;
 import org.gradle.platform.base.Variant;
 

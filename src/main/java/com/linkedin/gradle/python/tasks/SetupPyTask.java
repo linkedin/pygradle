@@ -4,7 +4,7 @@ import com.linkedin.gradle.python.PythonSourceSet;
 import com.linkedin.gradle.python.internal.platform.PythonPlatform;
 import com.linkedin.gradle.python.internal.platform.PythonVersion;
 import com.linkedin.gradle.python.spec.PythonEntryPoint;
-import com.linkedin.gradle.python.spec.internal.PythonComponentSpec;
+import com.linkedin.gradle.python.spec.component.internal.PythonComponentSpec;
 import com.linkedin.gradle.python.tasks.internal.TaskUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Task;
@@ -25,6 +25,7 @@ public class SetupPyTask extends DefaultTask {
     private List<PythonPlatform> pythonPlatforms;
     private PythonComponentSpec componentSpec;
     private PythonSourceSet sourceDir;
+    private File pythonBuildDir;
 
     public SetupPyTask() {
         onlyIf(new Spec<Task>() {
@@ -76,7 +77,7 @@ public class SetupPyTask extends DefaultTask {
 
     @OutputFile
     public File getSetupPyFile() {
-        return new File(getProject().getProjectDir(), "setup.py");
+        return new File(pythonBuildDir, "setup.py");
     }
 
     @Input
@@ -106,5 +107,9 @@ public class SetupPyTask extends DefaultTask {
 
     public void setComponentSpec(PythonComponentSpec componentSpec) {
         this.componentSpec = componentSpec;
+    }
+
+    public void setPythonBuildDir(File pythonBuildDir) {
+        this.pythonBuildDir = pythonBuildDir;
     }
 }

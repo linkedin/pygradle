@@ -31,11 +31,6 @@ public class VirtualEnvironmentBuild extends BasePythonTask {
         throw new UnsupportedOperationException();
     }
 
-    @OutputDirectory
-    public File getVenvDir() {
-        return venvDir;
-    }
-
     @OutputFile
     public File getLocalPythonExecutable() {
         return new File(getVenvDir(), "bin/python");

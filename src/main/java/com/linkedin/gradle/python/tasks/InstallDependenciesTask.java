@@ -6,9 +6,10 @@ import com.linkedin.gradle.python.tasks.internal.TaskUtils;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.tasks.*;
 import org.gradle.process.ExecResult;
-import org.gradle.util.GFileUtils;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 
 
 @ParallelizableTask
@@ -29,18 +30,22 @@ public class InstallDependenciesTask extends BasePythonTask {
         execute.assertNormalExitValue();
       }
     }
+  }
 
-    GFileUtils.writeFile(installDir.getAbsolutePath(), getPthFile());
+  @OutputDirectories
+  Set<File> dependencies() {
+    HashSet<File> files = new HashSet<File>();
+    for (String pckg : action.getPackages()) {
+      File e = new File(TaskUtils.sitePackage(venvDir, pythonToolChain.getVersion()), pckg);
+      getLogger().lifecycle("Dependency Directory: {}", e.getAbsolutePath());
+      files.add(e);
+    }
+    return files;
   }
 
   @OutputDirectory
   File getInstallDir() {
     return installDir;
-  }
-
-  @OutputFile
-  public File getPthFile() {
-    return new File(TaskUtils.sitePackage(venvDir, getPythonVersion()), String.format("%s.pth", getName()));
   }
 
   @InputFiles

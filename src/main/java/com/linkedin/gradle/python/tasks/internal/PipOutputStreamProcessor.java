@@ -36,12 +36,12 @@ public class PipOutputStreamProcessor extends OutputStream {
         Matcher installingPackageMatcher = installingPackage.matcher(line);
         if(installingPackageMatcher.find()) {
             logger.lifecycle("Installing {}", installingPackageMatcher.group(1));
+            packages.add(installingPackageMatcher.group(1));
         }
 
         Matcher installedPackageMatcher = installedPackage.matcher(line);
         if(installedPackageMatcher.find()) {
             logger.lifecycle("Successfully installed {}", installedPackageMatcher.group(1));
-            packages.add(installedPackageMatcher.group(1));
         }
     }
 

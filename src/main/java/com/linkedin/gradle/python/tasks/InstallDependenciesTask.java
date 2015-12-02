@@ -33,23 +33,22 @@ public class InstallDependenciesTask extends BasePythonTask {
   }
 
   @OutputDirectories
-  Set<File> dependencies() {
+  public Set<File> getDependencies() {
     HashSet<File> files = new HashSet<File>();
-    for (String pckg : action.getPackages()) {
+    for (String pckg : getAction().getPackages()) {
       File e = new File(TaskUtils.sitePackage(venvDir, pythonToolChain.getVersion()), pckg);
-      getLogger().lifecycle("Dependency Directory: {}", e.getAbsolutePath());
       files.add(e);
     }
     return files;
   }
 
   @OutputDirectory
-  File getInstallDir() {
+  public File getInstallDir() {
     return installDir;
   }
 
   @InputFiles
-  Configuration getVirtualEnvFiles(){
+  public Configuration getVirtualEnvFiles(){
     return virtualEnvFiles;
   }
 

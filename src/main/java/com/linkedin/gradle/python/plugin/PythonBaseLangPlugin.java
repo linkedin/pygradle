@@ -1,8 +1,8 @@
 package com.linkedin.gradle.python.plugin;
 
 import com.linkedin.gradle.python.plugin.internal.BasePythonRulePlugin;
-import com.linkedin.gradle.python.plugin.internal.PythonSourceDistRulePlugin;
-import com.linkedin.gradle.python.plugin.internal.PythonWheelRulePlugin;
+import com.linkedin.gradle.python.plugin.internal.source.PythonSourceDistRulePlugin;
+import com.linkedin.gradle.python.plugin.internal.wheel.PythonWheelRulePlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 

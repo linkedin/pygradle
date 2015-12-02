@@ -2,7 +2,9 @@ package com.linkedin.gradle.python.plugin.internal;
 
 import com.linkedin.gradle.python.internal.platform.DefaultPythonPlatform;
 import com.linkedin.gradle.python.internal.platform.PythonPlatform;
+import com.linkedin.gradle.python.internal.platform.PythonToolChainRegistry;
 import com.linkedin.gradle.python.internal.platform.PythonVersion;
+import com.linkedin.gradle.python.internal.toolchain.PythonToolChain;
 import com.linkedin.gradle.python.plugin.PythonPluginConfigurations;
 import com.linkedin.gradle.python.spec.binary.internal.PythonBinarySpec;
 import com.linkedin.gradle.python.spec.component.internal.PythonComponentSpec;
@@ -12,6 +14,7 @@ import com.linkedin.gradle.python.tasks.VirtualEnvironmentBuild;
 import com.linkedin.gradle.python.tasks.internal.BasePythonTaskAction;
 import org.gradle.api.Task;
 import org.gradle.api.Transformer;
+import org.gradle.language.base.internal.BuildDirHolder;
 import org.gradle.model.ModelMap;
 import org.gradle.platform.base.internal.DefaultPlatformRequirement;
 import org.gradle.platform.base.internal.PlatformRequirement;
@@ -39,66 +42,105 @@ public class SharedPythonInfrastructure {
             }
         });
     }
+    final PythonVersion version;
+    final String componentName;
+    final File pythonBuildDir;
+    final File virtualEnvDir;
+    final PythonPlatform pythonPlatform;
 
-    public static String installPythonEnv(ModelMap<Task> tasks,
-                                   final PythonBinarySpec binary,
-                                   final PythonVersion version,
+    public SharedPythonInfrastructure(final PythonPlatform pythonPlatform,
+                                      final PythonBinarySpec binary,
+                                      final BuildDirHolder buildDirHolder) {
+        this.pythonPlatform = pythonPlatform;
+        this.version = pythonPlatform.getVersion();
+        this.componentName = binary.getName();
+        this.pythonBuildDir = new File(buildDirHolder.getDir(), String.format("python-%s-%s", componentName, version.getVersionString()));
+        this.virtualEnvDir = new File(pythonBuildDir, "venv");
+    }
+
+    public String installPythonEnv(ModelMap<Task> tasks,
                                    final PythonPluginConfigurations configurations,
-                                   final String componentName) {
+                                   final PythonToolChainRegistry pythonToolChainRegistry) {
 
-        final String createVirtualEnv = taskNameGenerator(binary, version, "createVirtualEnv");
-        tasks.create(createVirtualEnv, VirtualEnvironmentBuild.class, new BasePythonTaskAction<VirtualEnvironmentBuild>(binary) {
-            @Override
-            public void configure(VirtualEnvironmentBuild task) {
-                task.setVirtualEnvFiles(configurations.getBootstrap().getConfiguration());
-                task.setActivateScriptName(String.format("activate-%s-%s", componentName, version.getVersionString()));
-            }
-        });
+        PythonToolChain toolChain = pythonToolChainRegistry.getForPlatform(pythonPlatform);
 
-        final String installDependencies = taskNameGenerator(binary, version, "installRequiredDependencies");
-        tasks.create(installDependencies, InstallDependenciesTask.class, new BasePythonTaskAction<InstallDependenciesTask>(binary) {
-            @Override
-            public void configure(InstallDependenciesTask task) {
-                task.dependsOn(createVirtualEnv);
-                task.setVirtualEnvFiles(configurations.getVirtualEnv().getConfiguration());
-                task.setInstallDir(new File(binary.getVirtualEnvDir(), "requiredDependencies"));
-            }
-        });
+        final String createVirtualEnv = taskNameGenerator(version, "createVirtualEnv");
+        tasks.create(createVirtualEnv, VirtualEnvironmentBuild.class,
+                new BasePythonTaskAction<VirtualEnvironmentBuild>(pythonBuildDir, virtualEnvDir, toolChain) {
+                    @Override
+                    public void configure(VirtualEnvironmentBuild task) {
+                        task.setVirtualEnvFiles(configurations.getBootstrap().getConfiguration());
+                        task.setActivateScriptName(String.format("activate-%s-%s", componentName, version.getVersionString()));
+                    }
+                });
 
-        final String installRuntimeDependencies = taskNameGenerator(binary, version, "installRuntimeDependencies");
-        tasks.create(installRuntimeDependencies, InstallDependenciesTask.class, new BasePythonTaskAction<InstallDependenciesTask>(binary) {
-            @Override
-            public void configure(InstallDependenciesTask task) {
-                task.dependsOn(installDependencies);
-                task.setVirtualEnvFiles(configurations.getPython().getConfiguration());
-                task.setInstallDir(new File(binary.getVirtualEnvDir(), "dependencies"));
-            }
-        });
+        final String installDependencies = taskNameGenerator(version, "installRequiredDependencies");
+        tasks.create(installDependencies, InstallDependenciesTask.class,
+                new BasePythonTaskAction<InstallDependenciesTask>(pythonBuildDir, virtualEnvDir, toolChain) {
+                    @Override
+                    public void configure(InstallDependenciesTask task) {
+                        task.dependsOn(createVirtualEnv);
+                        task.setVirtualEnvFiles(configurations.getVirtualEnv().getConfiguration());
+                        task.setInstallDir(new File(virtualEnvDir, "requiredDependencies"));
+                    }
+                });
 
-        final String installTestDependencies = taskNameGenerator(binary, version, "installTestDependencies");
-        tasks.create(installTestDependencies, InstallDependenciesTask.class, new BasePythonTaskAction<InstallDependenciesTask>(binary) {
-            @Override
-            public void configure(InstallDependenciesTask task) {
-                task.dependsOn(installRuntimeDependencies);
-                task.setVirtualEnvFiles(configurations.getPyTest().getConfiguration());
-                task.setInstallDir(new File(binary.getVirtualEnvDir(), "testDependencies"));
-            }
-        });
+        final String installRuntimeDependencies = taskNameGenerator(version, "installRuntimeDependencies");
+        tasks.create(installRuntimeDependencies, InstallDependenciesTask.class,
+                new BasePythonTaskAction<InstallDependenciesTask>(pythonBuildDir, virtualEnvDir, toolChain) {
+                    @Override
+                    public void configure(InstallDependenciesTask task) {
+                        task.dependsOn(installDependencies);
+                        task.setVirtualEnvFiles(configurations.getPython().getConfiguration());
+                        task.setInstallDir(new File(virtualEnvDir, "dependencies"));
+                    }
+                });
 
-        final String installEditable = taskNameGenerator(binary, version, "installEditable");
-        tasks.create(installEditable, InstallLocalProject.class, new BasePythonTaskAction<InstallLocalProject>(binary) {
-            @Override
-            public void configure(InstallLocalProject task) {
-                task.dependsOn(installTestDependencies);
-            }
-        });
+        final String installTestDependencies = taskNameGenerator(version, "installTestDependencies");
+        tasks.create(installTestDependencies, InstallDependenciesTask.class,
+                new BasePythonTaskAction<InstallDependenciesTask>(pythonBuildDir, virtualEnvDir, toolChain) {
+                    @Override
+                    public void configure(InstallDependenciesTask task) {
+                        task.dependsOn(installRuntimeDependencies);
+                        task.setVirtualEnvFiles(configurations.getPyTest().getConfiguration());
+                        task.setInstallDir(new File(virtualEnvDir, "testDependencies"));
+                    }
+                });
+
+        final String installEditable = taskNameGenerator(version, "installEditable");
+        tasks.create(installEditable, InstallLocalProject.class,
+                new BasePythonTaskAction<InstallLocalProject>(pythonBuildDir, virtualEnvDir, toolChain) {
+                    @Override
+                    public void configure(InstallLocalProject task) {
+                        task.dependsOn(installTestDependencies);
+                    }
+                });
 
         return installEditable;
     }
 
-    public static String taskNameGenerator(PythonBinarySpec binarySpec, PythonVersion version, String taskName) {
-        String binaryName = GUtil.toLowerCamelCase(binarySpec.getName());
-        String camelCaseTaskName = GUtil.toCamelCase(taskName);
-        return String.format("%s%s%s", binaryName, camelCaseTaskName, version.getVersionString());
+    public PythonVersion getVersion() {
+        return version;
+    }
+
+    public String getComponentName() {
+        return componentName;
+    }
+
+    public File getPythonBuildDir() {
+        return pythonBuildDir;
+    }
+
+    public File getVirtualEnvDir() {
+        return virtualEnvDir;
+    }
+
+    public PythonPlatform getPythonPlatform() {
+        return pythonPlatform;
+    }
+
+    public static String taskNameGenerator(PythonVersion version, String taskName) {
+        String camelCaseTaskName = GUtil.toLowerCamelCase(taskName);
+        return String.format("%s%s", camelCaseTaskName, version.getVersionString());
     }
 }

@@ -9,16 +9,21 @@ public class PipDependencyInstallAction {
 
     final File venvDir;
     final PipOutputStreamProcessor pipProcessor = new PipOutputStreamProcessor();
-    final File outputDir;
 
-    public PipDependencyInstallAction(File venvDir, File outputDir) {
+    public PipDependencyInstallAction(File venvDir) {
         this.venvDir = venvDir;
-        this.outputDir = outputDir;
     }
 
     public PipInstallExecAction install(File dependency) {
-        List<String> dependencies = Arrays.asList("--no-deps", dependency.getAbsolutePath());
-        return new PipInstallExecAction(venvDir, pipProcessor, dependencies);
+        return doInstall(Arrays.asList("--no-deps", dependency.getAbsolutePath()));
+    }
+
+    public PipInstallExecAction forceInstall(File dependency) {
+        return doInstall(Arrays.asList("--no-deps", "--force-reinstall", dependency.getAbsolutePath()));
+    }
+
+    private PipInstallExecAction doInstall(List<String> arguments) {
+        return new PipInstallExecAction(venvDir, pipProcessor, arguments);
     }
 
     public String getWholeText() {

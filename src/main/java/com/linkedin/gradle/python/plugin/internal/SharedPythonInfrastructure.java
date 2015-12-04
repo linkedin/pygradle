@@ -81,7 +81,6 @@ public class SharedPythonInfrastructure {
                     public void configure(InstallDependenciesTask task) {
                         task.dependsOn(createVirtualEnv);
                         task.setVirtualEnvFiles(configurations.getVirtualEnv().getConfiguration());
-                        task.setInstallDir(new File(virtualEnvDir, "requiredDependencies"));
                     }
                 });
 
@@ -92,7 +91,6 @@ public class SharedPythonInfrastructure {
                     public void configure(InstallDependenciesTask task) {
                         task.dependsOn(installDependencies);
                         task.setVirtualEnvFiles(configurations.getPython().getConfiguration());
-                        task.setInstallDir(new File(virtualEnvDir, "dependencies"));
                     }
                 });
 
@@ -103,7 +101,6 @@ public class SharedPythonInfrastructure {
                     public void configure(InstallDependenciesTask task) {
                         task.dependsOn(installRuntimeDependencies);
                         task.setVirtualEnvFiles(configurations.getPyTest().getConfiguration());
-                        task.setInstallDir(new File(virtualEnvDir, "testDependencies"));
                     }
                 });
 

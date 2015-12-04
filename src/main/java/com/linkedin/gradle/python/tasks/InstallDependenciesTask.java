@@ -1,69 +1,70 @@
 package com.linkedin.gradle.python.tasks;
 
 import com.linkedin.gradle.python.internal.toolchain.PythonExecutable;
+import com.linkedin.gradle.python.tasks.internal.InstallDependenciesIncrementalAction;
 import com.linkedin.gradle.python.tasks.internal.PipDependencyInstallAction;
+import com.linkedin.gradle.python.tasks.internal.PipInstallHelper;
 import com.linkedin.gradle.python.tasks.internal.TaskUtils;
-import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.tasks.*;
-import org.gradle.process.ExecResult;
-
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
+import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.artifacts.DependencySet;
+import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.OutputDirectories;
+import org.gradle.api.tasks.ParallelizableTask;
+import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.incremental.IncrementalTaskInputs;
+import org.gradle.process.ExecResult;
 
 
 @ParallelizableTask
 public class InstallDependenciesTask extends BasePythonTask {
 
   private Configuration virtualEnvFiles;
-  private File installDir;
-  private PipDependencyInstallAction action;
 
   @TaskAction
-  public void doWork() {
+  public void installDependencies(IncrementalTaskInputs inputs) {
     final PythonExecutable pythonExecutable = getPythonToolChain().getLocalPythonExecutable(venvDir);
+    PipInstallHelper pipInstallHelper = new PipInstallHelper(pythonExecutable, new PipDependencyInstallAction(venvDir));
 
+    if (inputs.isIncremental()) {
+      InstallDependenciesIncrementalAction incrementalAction = new InstallDependenciesIncrementalAction(pipInstallHelper);
+      inputs.outOfDate(incrementalAction);
+      inputs.removed(incrementalAction);
+    } else {
+      preformFullInstall(pipInstallHelper);
+    }
+  }
+
+  private void preformFullInstall(PipInstallHelper pipInstallHelper) {
     for (final File dependency : getVirtualEnvFiles()) {
-      ExecResult execute = pythonExecutable.execute(getAction().install(dependency));
-      if(execute.getExitValue() != 0) {
-        getLogger().lifecycle(getAction().getWholeText());
-        execute.assertNormalExitValue();
-      }
+      pipInstallHelper.install(dependency);
     }
   }
 
   @OutputDirectories
   public Set<File> getDependencies() {
-    HashSet<File> files = new HashSet<File>();
-    for (String pckg : getAction().getPackages()) {
-      File e = new File(TaskUtils.sitePackage(venvDir, pythonToolChain.getVersion()), pckg);
-      files.add(e);
-    }
-    return files;
+    Set<File> insalledSitePackages = createFileDir(virtualEnvFiles.getDependencies());
+    getLogger().info("Packages dir: {}", insalledSitePackages);
+    return insalledSitePackages;
   }
 
-  @OutputDirectory
-  public File getInstallDir() {
-    return installDir;
+  private Set<File> createFileDir(DependencySet dependencies) {
+    HashSet<File> sitePackages = new HashSet<File>();
+    for (Dependency dependency : dependencies) {
+      sitePackages.add(new File(TaskUtils.sitePackage(venvDir, pythonToolChain.getVersion()), dependency.getName()));
+    }
+    return sitePackages;
   }
 
   @InputFiles
-  public Configuration getVirtualEnvFiles(){
+  public Configuration getVirtualEnvFiles() {
     return virtualEnvFiles;
-  }
-
-  public PipDependencyInstallAction getAction() {
-    if(action == null) {
-      action = new PipDependencyInstallAction(venvDir, getInstallDir());
-    }
-    return action;
   }
 
   public void setVirtualEnvFiles(Configuration configuration) {
     this.virtualEnvFiles = configuration;
-  }
-
-  public void setInstallDir(File installDir) {
-    this.installDir = installDir;
   }
 }

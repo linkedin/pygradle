@@ -45,7 +45,7 @@ public class PythonWheelRulePlugin extends RuleSource {
 
         List<PythonPlatform> pythonPlatforms = SharedPythonInfrastructure.resolvePlatforms(platformResolver, pythonComponent);
         for (final PythonPlatform pythonPlatform : pythonPlatforms) {
-            binaries.create("wheel" + pythonPlatform.getVersion().getVersionString(),new PythonWheelSpecAction(pythonPlatform));
+            binaries.create(pythonComponent.getName() + pythonPlatform.getVersion().getVersionString(),new PythonWheelSpecAction(pythonPlatform));
         }
     }
 

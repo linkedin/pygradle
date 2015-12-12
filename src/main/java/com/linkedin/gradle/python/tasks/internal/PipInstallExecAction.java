@@ -1,5 +1,7 @@
 package com.linkedin.gradle.python.tasks.internal;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import org.gradle.api.Action;
 import org.gradle.process.internal.ExecAction;
 
@@ -25,8 +27,10 @@ public class PipInstallExecAction implements Action<ExecAction> {
         execAction.setIgnoreExitValue(true);
         execAction.setStandardOutput(outputStream);
         execAction.setErrorOutput(outputStream);
-        execAction.args(pipExecutable.getAbsolutePath(), "install");
-        execAction.args(arguments);
+        ArrayList<String> argumentList = new ArrayList<String>();
+        argumentList.addAll(Arrays.asList(pipExecutable.getAbsolutePath(), "install"));
+        argumentList.addAll(arguments);
+        execAction.args(argumentList);
 
         outputStream.addCommand(TaskUtils.join(execAction.getArgs(), " "));
     }

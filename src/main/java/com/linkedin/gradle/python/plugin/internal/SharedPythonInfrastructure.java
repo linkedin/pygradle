@@ -9,7 +9,7 @@ import com.linkedin.gradle.python.plugin.PythonPluginConfigurations;
 import com.linkedin.gradle.python.spec.binary.internal.PythonBinarySpec;
 import com.linkedin.gradle.python.spec.component.internal.PythonComponentSpec;
 import com.linkedin.gradle.python.tasks.InstallDependenciesTask;
-import com.linkedin.gradle.python.tasks.InstallLocalProject;
+import com.linkedin.gradle.python.tasks.InstallLocalProjectTask;
 import com.linkedin.gradle.python.tasks.VirtualEnvironmentBuild;
 import com.linkedin.gradle.python.tasks.internal.BasePythonTaskAction;
 import org.gradle.api.Task;
@@ -80,7 +80,7 @@ public class SharedPythonInfrastructure {
                     @Override
                     public void configure(InstallDependenciesTask task) {
                         task.dependsOn(createVirtualEnv);
-                        task.setVirtualEnvFiles(configurations.getVirtualEnv().getConfiguration());
+                        task.setDependencyConfiguration(configurations.getVirtualEnv().getConfiguration());
                     }
                 });
 
@@ -90,7 +90,7 @@ public class SharedPythonInfrastructure {
                     @Override
                     public void configure(InstallDependenciesTask task) {
                         task.dependsOn(installDependencies);
-                        task.setVirtualEnvFiles(configurations.getPython().getConfiguration());
+                        task.setDependencyConfiguration(configurations.getPython().getConfiguration());
                     }
                 });
 
@@ -100,15 +100,15 @@ public class SharedPythonInfrastructure {
                     @Override
                     public void configure(InstallDependenciesTask task) {
                         task.dependsOn(installRuntimeDependencies);
-                        task.setVirtualEnvFiles(configurations.getPyTest().getConfiguration());
+                        task.setDependencyConfiguration(configurations.getPyTest().getConfiguration());
                     }
                 });
 
         final String installEditable = taskNameGenerator(version, "installEditable");
-        tasks.create(installEditable, InstallLocalProject.class,
-                new BasePythonTaskAction<InstallLocalProject>(pythonBuildDir, virtualEnvDir, toolChain) {
+        tasks.create(installEditable, InstallLocalProjectTask.class,
+                new BasePythonTaskAction<InstallLocalProjectTask>(pythonBuildDir, virtualEnvDir, toolChain) {
                     @Override
-                    public void configure(InstallLocalProject task) {
+                    public void configure(InstallLocalProjectTask task) {
                         task.dependsOn(installTestDependencies);
                     }
                 });

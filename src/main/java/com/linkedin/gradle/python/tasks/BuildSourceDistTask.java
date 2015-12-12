@@ -2,6 +2,7 @@ package com.linkedin.gradle.python.tasks;
 
 import org.gradle.api.Action;
 import org.gradle.api.file.SourceDirectorySet;
+import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputFiles;
 import org.gradle.api.tasks.TaskAction;
@@ -15,14 +16,16 @@ import java.util.List;
 
 public class BuildSourceDistTask extends BasePythonTask {
 
-    List<File> outputFiles = new ArrayList<File>();
+    @Input
+    public File distributablePath = new File(getProject().getBuildDir(), "distributable");
+
+    public List<File> outputFiles = new ArrayList<File>();
 
     @InputFiles
-    List<File> sourceSet = new ArrayList<File>();
+    public List<File> sourceSet = new ArrayList<File>();
 
     @TaskAction
-    public void doWork() {
-        final File distributable = new File(getProject().getBuildDir(), "distributable");
+    public void buildSourceDist() {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         ExecResult sdist = getPythonToolChain().getPythonExecutable().execute(new Action<ExecAction>() {
@@ -31,7 +34,7 @@ public class BuildSourceDistTask extends BasePythonTask {
                 execAction.setIgnoreExitValue(true);
                 execAction.setStandardOutput(outputStream);
                 execAction.setErrorOutput(outputStream);
-                execAction.args("setup.py", "sdist", "--dist-dir", distributable.getAbsolutePath(), "--formats=gztar,zip");
+                execAction.args("setup.py", "sdist", "--dist-dir", distributablePath.getAbsolutePath(), "--formats=gztar,zip");
             }
         });
 
@@ -40,7 +43,7 @@ public class BuildSourceDistTask extends BasePythonTask {
         }
         sdist.assertNormalExitValue();
 
-        outputFiles.addAll(getProject().fileTree(distributable).getFiles());
+        outputFiles.addAll(getProject().fileTree(distributablePath).getFiles());
     }
 
     @OutputFiles

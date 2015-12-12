@@ -11,17 +11,17 @@ import org.gradle.process.ExecResult;
 import java.io.File;
 
 
-public class InstallLocalProject extends BasePythonTask {
+public class InstallLocalProjectTask extends BasePythonTask {
 
   @TaskAction
-  public void doWork() {
+  public void installLocalProject() {
     final PythonExecutable pythonExecutable = getPythonToolChain().getLocalPythonExecutable(venvDir);
     PipLocalInstallAction pipLocalInstallAction = new PipLocalInstallAction(venvDir);
     ExecResult execute = pythonExecutable.execute(pipLocalInstallAction.install(getProject().getProjectDir()));
     if(execute.getExitValue() != 0) {
       getLogger().lifecycle(pipLocalInstallAction.getWholeText());
-      execute.assertNormalExitValue();
     }
+    execute.assertNormalExitValue();
   }
 
   @OutputFile

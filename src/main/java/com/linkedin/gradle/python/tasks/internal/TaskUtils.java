@@ -8,6 +8,10 @@ import java.util.List;
 public class TaskUtils {
 
     public static String join(List<String> args, String separator) {
+        if (args == null) {
+            return "";
+        }
+
         StringBuilder sb = new StringBuilder();
         for(int i = 0; i < args.size(); i++) {
             sb.append(args.get(i));

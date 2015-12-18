@@ -34,10 +34,10 @@ public class BasePythonRulePlugin extends RuleSource {
         builder.defaultImplementation(DefaultPythonSourceSet.class);
     }
 
-    @Mutate
-    public void registerPlatformResolver(PlatformResolvers platformResolvers) {
-        platformResolvers.register(new PythonPlatformResolver());
-    }
+//    @Mutate
+//    public void registerPlatformResolver(PlatformResolvers platformResolvers) {
+//        platformResolvers.register(new PythonPlatformResolver());
+//    }
 
     @Model
     public BinaryNamingSchemeBuilder binaryNamingSchemeBuilder() {

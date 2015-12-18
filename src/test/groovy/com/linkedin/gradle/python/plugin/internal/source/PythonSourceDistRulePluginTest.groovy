@@ -6,6 +6,8 @@ import com.linkedin.gradle.python.plugin.internal.AbstractBaseRuleSourcePluginTe
 import com.linkedin.gradle.python.plugin.internal.BasePythonRulePlugin
 import com.linkedin.gradle.python.plugin.internal.DefaultPythonTaskRule
 import com.linkedin.gradle.python.plugin.internal.wheel.PythonWheelRulePlugin
+import com.linkedin.gradle.python.spec.component.internal.DefaultPythonTargetPlatform
+import org.gradle.internal.os.OperatingSystem
 import org.gradle.model.ModelMap
 import org.gradle.platform.base.internal.DefaultPlatformRequirement
 
@@ -30,10 +32,10 @@ class PythonSourceDistRulePluginTest extends AbstractBaseRuleSourcePluginTest {
     then:
     def components = realizeComponents()
     def source = components.source
-    source.targetPlatforms == [DefaultPlatformRequirement.create("python2.7")]
+    source.targetPlatforms == [new DefaultPythonTargetPlatform(OperatingSystem.current(), "python2.7")]
     source.sources instanceof ModelMap
     source.sources.python instanceof PythonSourceSet
-    source.sources.python.source.srcDirs == [project.getPythonPath("src/main/python")] as Set
+    source.sources.python.source.srcDirs == [project.file("src/main/python")] as Set
 
     and:
     def sources = realizeSourceSets()
@@ -51,7 +53,6 @@ class PythonSourceDistRulePluginTest extends AbstractBaseRuleSourcePluginTest {
           source(com.linkedin.gradle.python.spec.component.SourceDistComponentSpec) {
             targetPlatform 'python2.7'
             targetPlatform 'python2.6'
-            targetPlatform 'python3.1'
           }
         }
       }
@@ -61,8 +62,8 @@ class PythonSourceDistRulePluginTest extends AbstractBaseRuleSourcePluginTest {
     def components = realizeComponents()
     def binaries = realizeBinaries()
     def source = components.source
-    ['2.7', '2.6', '3.1'].each { version ->
-      assert source.targetPlatforms.contains(DefaultPlatformRequirement.create("python$version"))
+    ['2.7', '2.6'].each { version ->
+      assert source.targetPlatforms.contains(new DefaultPythonTargetPlatform(OperatingSystem.current(), "python$version"))
       def binary = binaries.get("source")
       assert binary != null
       assert (binary.tasks.toList().collect { it.name } as Set).containsAll(defaultTasks(version))

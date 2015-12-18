@@ -1,24 +1,17 @@
 package com.linkedin.gradle.python.spec.component.internal;
 
 import com.linkedin.gradle.python.internal.platform.PythonVersion;
-import com.linkedin.gradle.python.internal.toolchain.DefaultPythonExecutable;
-import com.linkedin.gradle.python.internal.toolchain.PythonExecutable;
-import com.linkedin.gradle.python.internal.toolchain.PythonToolChainInternal;
 import java.io.File;
 import org.gradle.api.GradleException;
 import org.gradle.internal.os.OperatingSystem;
-import org.gradle.process.internal.ExecActionFactory;
 
 
-public class DefaultPythonTargetPlatform implements PythonTargetPlatform, PythonToolChainInternal {
+public class DefaultPythonTargetPlatform implements PythonTargetPlatform {
 
-  private final ExecActionFactory execActionFactory;
   private final PythonVersion version;
   private final File systemPython;
 
-  DefaultPythonTargetPlatform(ExecActionFactory execActionFactory, OperatingSystem operatingSystem, String python) {
-    this.execActionFactory = execActionFactory;
-
+  public DefaultPythonTargetPlatform(OperatingSystem operatingSystem, String python) {
     if(new File(python).exists()) {
       systemPython = new File(python);
     } else if(python.startsWith("python")) {
@@ -37,13 +30,8 @@ public class DefaultPythonTargetPlatform implements PythonTargetPlatform, Python
   }
 
   @Override
-  public PythonExecutable getSystemPythonExecutable() {
-    return new DefaultPythonExecutable(execActionFactory, systemPython);
-  }
-
-  @Override
-  public PythonExecutable getLocalPythonExecutable(File venvDir) {
-    return new DefaultPythonExecutable(execActionFactory, new File(venvDir, "bin/python"));
+  public File getSystemPython() {
+    return systemPython;
   }
 
   @Override
@@ -59,5 +47,37 @@ public class DefaultPythonTargetPlatform implements PythonTargetPlatform, Python
   @Override
   public String getName() {
     return getDisplayName();
+  }
+
+  @Override
+  public String toString() {
+    return "DefaultPythonTargetPlatform{" +
+        "version=" + version +
+        ", systemPython=" + systemPython +
+        '}';
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    DefaultPythonTargetPlatform that = (DefaultPythonTargetPlatform) o;
+
+    if (version != that.version) {
+      return false;
+    }
+    return systemPython != null ? systemPython.equals(that.systemPython) : that.systemPython == null;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = version != null ? version.hashCode() : 0;
+    result = 31 * result + (systemPython != null ? systemPython.hashCode() : 0);
+    return result;
   }
 }

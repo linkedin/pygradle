@@ -1,14 +1,13 @@
 package com.linkedin.gradle.python.internal.platform;
 
 import com.linkedin.gradle.python.internal.toolchain.PythonToolChain;
+import com.linkedin.gradle.python.spec.component.internal.PythonTargetPlatform;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.process.internal.ExecActionFactory;
 
 
 public class DefaultPythonToolChainRegistry implements PythonToolChainRegistry {
-
-  private static final Logger logger = Logging.getLogger(DefaultPythonToolChainRegistry.class);
 
   private final ExecActionFactory execActionFactory;
 
@@ -18,7 +17,7 @@ public class DefaultPythonToolChainRegistry implements PythonToolChainRegistry {
   }
 
   @Override
-  public PythonToolChain getForPlatform(PythonPlatform targetPlatform) {
-    return null;
+  public PythonToolChain getForPlatform(PythonTargetPlatform targetPlatform) {
+    return new DefaultPythonToolChain(execActionFactory, targetPlatform);
   }
 }

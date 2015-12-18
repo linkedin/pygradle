@@ -1,6 +1,5 @@
 package com.linkedin.gradle.python.plugin.internal;
 
-import com.linkedin.gradle.python.internal.platform.DefaultPythonToolChain;
 import com.linkedin.gradle.python.internal.platform.PythonToolChainRegistry;
 import com.linkedin.gradle.python.internal.toolchain.PythonToolChain;
 import com.linkedin.gradle.python.plugin.PythonPluginConfigurations;
@@ -103,7 +102,7 @@ public class DefaultPythonTaskRule extends RuleSource {
 
     @Override
     public void execute(BinaryTasksCollection tasks) {
-      final PythonToolChain toolChain = targetPlatform;
+      final PythonToolChain toolChain = pythonToolChainRegistry.getForPlatform(targetPlatform);
 
       String createVirtualEnvTask = CREATE_VIRTUAL_ENV_TASK + taskPostfix;
       tasks.create(createVirtualEnvTask, VirtualEnvironmentBuild.class,

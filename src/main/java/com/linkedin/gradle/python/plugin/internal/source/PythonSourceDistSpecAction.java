@@ -1,6 +1,5 @@
 package com.linkedin.gradle.python.plugin.internal.source;
 
-import com.linkedin.gradle.python.internal.platform.PythonPlatform;
 import com.linkedin.gradle.python.plugin.internal.PythonBinarySpecAction;
 import com.linkedin.gradle.python.spec.binary.SourceDistBinarySpec;
 

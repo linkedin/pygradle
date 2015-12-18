@@ -23,12 +23,6 @@ public class DefaultPythonComponentSpec extends BaseComponentSpec implements Pyt
         this.languageOutputs.add(PythonByteCode.class);
     }
 
-    @Inject
-    protected ExecActionFactory getExecActionFactory() {
-        // Decoration takes care of the implementation
-        throw new UnsupportedOperationException();
-    }
-
     @Override
     protected String getTypeName() {
         return "Python application";
@@ -43,6 +37,6 @@ public class DefaultPythonComponentSpec extends BaseComponentSpec implements Pyt
     }
 
     public void targetPlatform(String targetPlatform) {
-        targetPlatforms.add(new DefaultPythonTargetPlatform(getExecActionFactory(), operatingSystem, targetPlatform));
+        targetPlatforms.add(new DefaultPythonTargetPlatform(operatingSystem, targetPlatform));
     }
 }

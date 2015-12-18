@@ -2,18 +2,13 @@ package com.linkedin.gradle.python.plugin.internal.wheel;
 
 import com.linkedin.gradle.python.internal.platform.PythonToolChainRegistry;
 import com.linkedin.gradle.python.internal.platform.PythonVersion;
-import com.linkedin.gradle.python.internal.toolchain.PythonToolChain;
 import com.linkedin.gradle.python.plugin.PythonPluginConfigurations;
-import com.linkedin.gradle.python.plugin.internal.SharedPythonInfrastructure;
 import com.linkedin.gradle.python.spec.binary.WheelBinarySpec;
 import com.linkedin.gradle.python.spec.binary.internal.DefaultWheelBinarySpec;
 import com.linkedin.gradle.python.spec.component.WheelComponentSpec;
 import com.linkedin.gradle.python.spec.component.internal.DefaultWheelComponentSpec;
 import com.linkedin.gradle.python.spec.component.internal.PythonTargetPlatform;
 import com.linkedin.gradle.python.tasks.BuildWheelTask;
-import com.linkedin.gradle.python.tasks.PythonTestTask;
-import com.linkedin.gradle.python.tasks.internal.AddDependsOnTaskAction;
-import com.linkedin.gradle.python.tasks.internal.PyTestAction;
 import java.io.File;
 import java.util.List;
 import org.gradle.api.Action;
@@ -21,9 +16,7 @@ import org.gradle.api.Task;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.language.base.internal.BuildDirHolder;
-import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.model.ModelMap;
-import org.gradle.model.Mutate;
 import org.gradle.model.Path;
 import org.gradle.model.RuleSource;
 import org.gradle.platform.base.BinaryTasks;
@@ -89,8 +82,8 @@ public class PythonWheelRulePlugin extends RuleSource {
 //            tasks.named(LifecycleBasePlugin.CHECK_TASK_NAME, new AddDependsOnTaskAction(testTaskName));
 //        }
 //    }
-
-    private String createTestTaskName(WheelBinarySpec wheelBinarySpec) {
-        return SharedPythonInfrastructure.taskNameGenerator(wheelBinarySpec.getTargetPlatform().getVersion(), "testWheel");
-    }
+//
+//    private String createTestTaskName(WheelBinarySpec wheelBinarySpec) {
+//        return SharedPythonInfrastructure.taskNameGenerator(wheelBinarySpec.getTargetPlatform().getVersion(), "testWheel");
+//    }
 }

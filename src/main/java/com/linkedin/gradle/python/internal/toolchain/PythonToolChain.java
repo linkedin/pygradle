@@ -9,7 +9,7 @@ public interface PythonToolChain extends ToolChain {
 
   PythonVersion getVersion();
 
-  PythonExecutable getPythonExecutable();
+  PythonExecutable getSystemPythonExecutable();
 
   PythonExecutable getLocalPythonExecutable(File pythonBuildDir);
 }

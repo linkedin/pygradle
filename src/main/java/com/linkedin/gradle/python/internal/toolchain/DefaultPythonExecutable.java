@@ -10,22 +10,22 @@ import org.gradle.process.internal.ExecActionFactory;
 public class DefaultPythonExecutable implements PythonExecutable {
 
   private final ExecActionFactory execActionFactory;
-  private final File file;
+  private final File pythonPath;
 
   public DefaultPythonExecutable(ExecActionFactory execActionFactory, File file) {
     this.execActionFactory = execActionFactory;
-    this.file = file;
+    this.pythonPath = file.getAbsoluteFile();
   }
 
   @Override
-  public File getFile() {
-    return file;
+  public File getPythonPath() {
+    return pythonPath;
   }
 
   @Override
   public ExecResult execute(Action<ExecAction> execActionAction) {
     ExecAction execAction = execActionFactory.newExecAction();
-    execAction.executable(file);
+    execAction.executable(pythonPath);
     execActionAction.execute(execAction);
     return execAction.execute();
   }

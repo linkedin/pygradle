@@ -1,13 +1,18 @@
 package com.linkedin.gradle.python.spec.binary;
 
-import com.linkedin.gradle.python.internal.platform.PythonPlatform;
 import com.linkedin.gradle.python.spec.binary.internal.PythonBinarySpec;
+import com.linkedin.gradle.python.spec.component.internal.PythonTargetPlatform;
+import java.io.File;
 import org.gradle.platform.base.Variant;
 
 public interface WheelBinarySpec extends PythonBinarySpec {
 
-    @Variant
-    PythonPlatform getTargetPlatform();
+    File getPythonBuildDir();
 
-    void setTargetPlatform(PythonPlatform platform);
+    File getVirtualEnvDir();
+
+    @Variant
+    PythonTargetPlatform getTargetPlatform();
+
+    void setTargetPlatform(PythonTargetPlatform platform);
 }

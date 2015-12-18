@@ -12,6 +12,7 @@ import com.linkedin.gradle.python.tasks.InstallDependenciesTask;
 import com.linkedin.gradle.python.tasks.InstallLocalProjectTask;
 import com.linkedin.gradle.python.tasks.VirtualEnvironmentBuild;
 import com.linkedin.gradle.python.tasks.internal.BasePythonTaskAction;
+import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.Transformer;
 import org.gradle.language.base.internal.BuildDirHolder;
@@ -28,20 +29,6 @@ import java.util.List;
 
 public class SharedPythonInfrastructure {
 
-
-    public static List<PythonPlatform> resolvePlatforms(final PlatformResolvers platformResolver, PythonComponentSpec wheelComponentSpec) {
-        List<PlatformRequirement> targetPlatforms = wheelComponentSpec.getTargetPlatforms();
-        if (targetPlatforms.isEmpty()) {
-            targetPlatforms = Collections.singletonList(
-                    DefaultPlatformRequirement.create(DefaultPythonPlatform.current().getName()));
-        }
-        return CollectionUtils.collect(targetPlatforms, new Transformer<PythonPlatform, PlatformRequirement>() {
-            @Override
-            public PythonPlatform transform(PlatformRequirement platformRequirement) {
-                return platformResolver.resolve(PythonPlatform.class, platformRequirement);
-            }
-        });
-    }
     final PythonVersion version;
     final String componentName;
     final File pythonBuildDir;
@@ -64,7 +51,7 @@ public class SharedPythonInfrastructure {
 
         PythonToolChain toolChain = pythonToolChainRegistry.getForPlatform(pythonPlatform);
 
-        final String createVirtualEnv = taskNameGenerator(version, "createVirtualEnv");
+        final String createVirtualEnv = "createVirtualEnv";
         tasks.create(createVirtualEnv, VirtualEnvironmentBuild.class,
                 new BasePythonTaskAction<VirtualEnvironmentBuild>(pythonBuildDir, virtualEnvDir, toolChain) {
                     @Override
@@ -74,7 +61,7 @@ public class SharedPythonInfrastructure {
                     }
                 });
 
-        final String installDependencies = taskNameGenerator(version, "installRequiredDependencies");
+        final String installDependencies = "installRequiredDependencies";
         tasks.create(installDependencies, InstallDependenciesTask.class,
                 new BasePythonTaskAction<InstallDependenciesTask>(pythonBuildDir, virtualEnvDir, toolChain) {
                     @Override
@@ -84,7 +71,7 @@ public class SharedPythonInfrastructure {
                     }
                 });
 
-        final String installRuntimeDependencies = taskNameGenerator(version, "installRuntimeDependencies");
+        final String installRuntimeDependencies = "installRuntimeDependencies";
         tasks.create(installRuntimeDependencies, InstallDependenciesTask.class,
                 new BasePythonTaskAction<InstallDependenciesTask>(pythonBuildDir, virtualEnvDir, toolChain) {
                     @Override
@@ -94,7 +81,7 @@ public class SharedPythonInfrastructure {
                     }
                 });
 
-        final String installTestDependencies = taskNameGenerator(version, "installTestDependencies");
+        final String installTestDependencies = "installTestDependencies";
         tasks.create(installTestDependencies, InstallDependenciesTask.class,
                 new BasePythonTaskAction<InstallDependenciesTask>(pythonBuildDir, virtualEnvDir, toolChain) {
                     @Override
@@ -104,7 +91,7 @@ public class SharedPythonInfrastructure {
                     }
                 });
 
-        final String installEditable = taskNameGenerator(version, "installEditable");
+        final String installEditable = "installEditable";
         tasks.create(installEditable, InstallLocalProjectTask.class,
                 new BasePythonTaskAction<InstallLocalProjectTask>(pythonBuildDir, virtualEnvDir, toolChain) {
                     @Override
@@ -113,7 +100,16 @@ public class SharedPythonInfrastructure {
                     }
                 });
 
-        return installEditable;
+      final String projectSetup = "projectSetup";
+      tasks.create(projectSetup, new Action<Task>() {
+        @Override
+        public void execute(Task task) {
+          task.dependsOn(installDependencies);
+          task.dependsOn(installEditable);
+        }
+      });
+
+      return projectSetup;
     }
 
     public PythonVersion getVersion() {

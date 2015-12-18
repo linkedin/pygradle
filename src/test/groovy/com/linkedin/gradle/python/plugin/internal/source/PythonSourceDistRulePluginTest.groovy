@@ -4,6 +4,7 @@ package com.linkedin.gradle.python.plugin.internal.source
 import com.linkedin.gradle.python.PythonSourceSet
 import com.linkedin.gradle.python.plugin.internal.AbstractBaseRuleSourcePluginTest
 import com.linkedin.gradle.python.plugin.internal.BasePythonRulePlugin
+import com.linkedin.gradle.python.plugin.internal.DefaultPythonTaskRule
 import com.linkedin.gradle.python.plugin.internal.wheel.PythonWheelRulePlugin
 import org.gradle.model.ModelMap
 import org.gradle.platform.base.internal.DefaultPlatformRequirement
@@ -14,6 +15,7 @@ class PythonSourceDistRulePluginTest extends AbstractBaseRuleSourcePluginTest {
     when:
     dsl {
       pluginManager.apply BasePythonRulePlugin
+      pluginManager.apply DefaultPythonTaskRule
       pluginManager.apply PythonSourceDistRulePlugin
       model {
         components {
@@ -31,7 +33,7 @@ class PythonSourceDistRulePluginTest extends AbstractBaseRuleSourcePluginTest {
     source.targetPlatforms == [DefaultPlatformRequirement.create("python2.7")]
     source.sources instanceof ModelMap
     source.sources.python instanceof PythonSourceSet
-    source.sources.python.source.srcDirs == [project.file("src/main/python")] as Set
+    source.sources.python.source.srcDirs == [project.getPythonPath("src/main/python")] as Set
 
     and:
     def sources = realizeSourceSets()
@@ -42,6 +44,7 @@ class PythonSourceDistRulePluginTest extends AbstractBaseRuleSourcePluginTest {
     when:
     dsl {
       pluginManager.apply BasePythonRulePlugin
+      pluginManager.apply DefaultPythonTaskRule
       pluginManager.apply PythonSourceDistRulePlugin
       model {
         components {

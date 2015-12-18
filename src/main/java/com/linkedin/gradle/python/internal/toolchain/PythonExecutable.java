@@ -7,7 +7,7 @@ import org.gradle.process.internal.ExecAction;
 
 
 public interface PythonExecutable {
-  File getFile();
+  File getPythonPath();
 
   ExecResult execute(Action<ExecAction> execActionAction);
 }

@@ -66,12 +66,12 @@ public class VirtualEnvironmentBuild extends BasePythonTask {
         }
 
         final String path = String.format("%s/virtualenv-%s/virtualenv.py", vendorDir.getAbsolutePath(), virtualEnvDependencyVersion);
-        final PythonExecutable pythonExecutable = getPythonToolChain().getPythonExecutable();
+        final PythonExecutable pythonExecutable = getPythonToolChain().getSystemPythonExecutable();
 
         pythonExecutable.execute(new Action<ExecAction>() {
             @Override
             public void execute(ExecAction execAction) {
-                execAction.args(path, "--python", pythonExecutable.getFile().getAbsolutePath(), getVenvDir().getAbsolutePath());
+                execAction.args(path, "--python", pythonExecutable.getPythonPath().getAbsolutePath(), getVenvDir().getAbsolutePath());
             }
         }).assertNormalExitValue();
 

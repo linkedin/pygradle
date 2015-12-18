@@ -1,5 +1,6 @@
 package com.linkedin.gradle.python.tasks;
 
+import com.linkedin.gradle.python.tasks.internal.FinalPythonArtifact;
 import org.gradle.api.Action;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.tasks.Input;
@@ -14,7 +15,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BuildSourceDistTask extends BasePythonTask {
+public class BuildSourceDistTask extends BasePythonTask implements FinalPythonArtifact {
 
     @Input
     public File distributablePath = new File(getProject().getBuildDir(), "distributable");
@@ -28,7 +29,7 @@ public class BuildSourceDistTask extends BasePythonTask {
     public void buildSourceDist() {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-        ExecResult sdist = getPythonToolChain().getPythonExecutable().execute(new Action<ExecAction>() {
+        ExecResult sdist = getPythonToolChain().getSystemPythonExecutable().execute(new Action<ExecAction>() {
             @Override
             public void execute(ExecAction execAction) {
                 execAction.setIgnoreExitValue(true);

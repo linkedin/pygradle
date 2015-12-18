@@ -5,14 +5,11 @@ import com.linkedin.gradle.python.internal.platform.PythonPlatform;
 import com.linkedin.gradle.python.internal.platform.PythonVersion;
 import java.util.ArrayList;
 import java.util.List;
-import org.gradle.api.logging.Logger;
-import org.gradle.api.logging.Logging;
 import org.gradle.platform.base.internal.PlatformRequirement;
 import org.gradle.platform.base.internal.PlatformResolver;
 
 
 public class PythonPlatformResolver implements PlatformResolver<PythonPlatform> {
-
 
   private final List<PythonPlatform> platforms = new ArrayList<PythonPlatform>();
 

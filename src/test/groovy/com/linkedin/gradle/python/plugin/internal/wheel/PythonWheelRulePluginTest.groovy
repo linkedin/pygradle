@@ -1,18 +1,10 @@
 package com.linkedin.gradle.python.plugin.internal.wheel
 import com.linkedin.gradle.python.PythonSourceSet
-import com.linkedin.gradle.python.plugin.PythonPluginConfigurations
 import com.linkedin.gradle.python.plugin.internal.BasePythonRulePlugin
 import com.linkedin.gradle.python.plugin.internal.AbstractBaseRuleSourcePluginTest
-import org.gradle.api.Project
-import org.gradle.language.base.ProjectSourceSet
+import com.linkedin.gradle.python.plugin.internal.DefaultPythonTaskRule
 import org.gradle.model.ModelMap
-import org.gradle.model.internal.core.ModelPath
-import org.gradle.model.internal.type.ModelType
-import org.gradle.model.internal.type.ModelTypes
-import org.gradle.platform.base.BinarySpec
-import org.gradle.platform.base.ComponentSpec
 import org.gradle.platform.base.internal.DefaultPlatformRequirement
-import org.gradle.testfixtures.ProjectBuilder
 
 class PythonWheelRulePluginTest extends AbstractBaseRuleSourcePluginTest {
 
@@ -20,6 +12,7 @@ class PythonWheelRulePluginTest extends AbstractBaseRuleSourcePluginTest {
         when:
         dsl {
             pluginManager.apply BasePythonRulePlugin
+            pluginManager.apply DefaultPythonTaskRule
             pluginManager.apply PythonWheelRulePlugin
             model {
                 components {
@@ -37,7 +30,7 @@ class PythonWheelRulePluginTest extends AbstractBaseRuleSourcePluginTest {
         wheel.targetPlatforms == [DefaultPlatformRequirement.create("python2.7")]
         wheel.sources instanceof ModelMap
         wheel.sources.python instanceof PythonSourceSet
-        wheel.sources.python.source.srcDirs == [project.file("src/main/python")] as Set
+        wheel.sources.python.source.srcDirs == [project.getPythonPath("src/main/python")] as Set
 
         and:
         def sources = realizeSourceSets()
@@ -48,6 +41,7 @@ class PythonWheelRulePluginTest extends AbstractBaseRuleSourcePluginTest {
         when:
         dsl {
             pluginManager.apply BasePythonRulePlugin
+            pluginManager.apply DefaultPythonTaskRule
             pluginManager.apply PythonWheelRulePlugin
             model {
                 components {
@@ -68,7 +62,7 @@ class PythonWheelRulePluginTest extends AbstractBaseRuleSourcePluginTest {
             assert wheel.targetPlatforms.contains(DefaultPlatformRequirement.create("python$version"))
             def binary = binaries.get("wheel$version")
             assert binary != null
-            assert (binary.tasks.toList().collect { it.name } as Set).containsAll(defaultTasks(version))
+            assert (binary.tasks.toList().collect { it.name } as Set).containsAll(defaultTasks(''))
         }
         binaries.size() == 3
     }

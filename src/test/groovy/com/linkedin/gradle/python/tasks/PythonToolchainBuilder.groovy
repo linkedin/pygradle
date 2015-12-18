@@ -17,7 +17,7 @@ public class PythonToolchainBuilder {
   PythonToolchainBuilder withPythonExecutable(ExecAction execAction, int exitCode) {
     pythonExecutable = new PythonExecutable() {
       @Override
-      File getFile() {
+      File getPythonPath() {
         return null
       }
 

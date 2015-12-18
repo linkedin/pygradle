@@ -33,13 +33,13 @@ abstract class AbstractBaseRuleSourcePluginTest extends Specification {
         project.getExtensions().create("pythonConfigurations", PythonPluginConfigurations.class, project.getConfigurations(), project.getDependencies());
     }
 
-    static Set<String> defaultTasks(String version) {
+    static Set<String> defaultTasks(String postFix) {
         return [
-                "createVirtualEnv$version" as String,
-                "installRequiredDependencies$version" as String,
-                "installRuntimeDependencies$version" as String,
-                "installTestDependencies$version" as String,
-                "installEditable$version" as String,
+                "createVirtualEnv$postFix" as String,
+                "installRequiredDependencies$postFix" as String,
+                "installRuntimeDependencies$postFix" as String,
+                "installTestDependencies$postFix" as String,
+                "installEditable$postFix" as String,
         ] as Set
     }
 

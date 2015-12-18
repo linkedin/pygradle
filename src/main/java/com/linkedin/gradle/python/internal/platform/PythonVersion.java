@@ -9,6 +9,10 @@ public enum PythonVersion {
     this.versionString = versionString;
   }
 
+  public static PythonVersion parse(String string) {
+    return toVersion(string);
+  }
+
   public static PythonVersion toVersion(Object value) {
     if(null == value) {
       return null;

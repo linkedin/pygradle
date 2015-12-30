@@ -1,8 +1,8 @@
 package com.linkedin.gradle.python.tasks;
 
 import com.linkedin.gradle.python.internal.toolchain.PythonExecutable;
-import com.linkedin.gradle.python.tasks.internal.PipLocalInstallAction;
-import com.linkedin.gradle.python.tasks.internal.TaskUtils;
+import com.linkedin.gradle.python.tasks.internal.utilities.PipLocalInstallAction;
+import com.linkedin.gradle.python.tasks.internal.utilities.TaskUtils;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;

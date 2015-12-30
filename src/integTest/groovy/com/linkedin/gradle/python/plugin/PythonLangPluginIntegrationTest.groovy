@@ -1,8 +1,10 @@
 package com.linkedin.gradle.python.plugin
 import nebula.test.IntegrationSpec
+import org.junit.Ignore
 
 class PythonLangPluginIntegrationTest extends IntegrationSpec {
 
+    @Ignore
     def 'test things'() {
         setup:
         buildFile << """

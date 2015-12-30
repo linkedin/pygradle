@@ -1,4 +1,4 @@
-package com.linkedin.gradle.python.tasks.internal;
+package com.linkedin.gradle.python.tasks.internal.utilities;
 
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;

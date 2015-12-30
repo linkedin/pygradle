@@ -1,5 +1,6 @@
 package com.linkedin.gradle.python.tasks.internal;
 
+import com.linkedin.gradle.python.tasks.internal.utilities.PipInstallHelper;
 import org.gradle.api.Action;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;

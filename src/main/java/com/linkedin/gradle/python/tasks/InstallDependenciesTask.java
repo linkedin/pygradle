@@ -1,12 +1,9 @@
 package com.linkedin.gradle.python.tasks;
 
 import com.linkedin.gradle.python.internal.toolchain.PythonExecutable;
-import com.linkedin.gradle.python.tasks.internal.PipDependencyInstallAction;
-import com.linkedin.gradle.python.tasks.internal.PipInstallHelper;
-import com.linkedin.gradle.python.tasks.internal.TaskUtils;
-import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
+import com.linkedin.gradle.python.tasks.internal.utilities.PipDependencyInstallAction;
+import com.linkedin.gradle.python.tasks.internal.utilities.PipInstallHelper;
+import com.linkedin.gradle.python.tasks.internal.utilities.TaskUtils;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.DependencySet;
@@ -14,6 +11,10 @@ import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputDirectories;
 import org.gradle.api.tasks.ParallelizableTask;
 import org.gradle.api.tasks.TaskAction;
+
+import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 
 
 @ParallelizableTask

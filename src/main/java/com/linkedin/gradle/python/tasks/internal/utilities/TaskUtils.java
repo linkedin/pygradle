@@ -1,4 +1,4 @@
-package com.linkedin.gradle.python.tasks.internal;
+package com.linkedin.gradle.python.tasks.internal.utilities;
 
 import com.linkedin.gradle.python.internal.platform.PythonVersion;
 

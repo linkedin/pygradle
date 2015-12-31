@@ -7,9 +7,9 @@ import com.linkedin.gradle.python.tasks.internal.utilities.PipOutputStreamProces
 
 import java.io.File;
 
-public class PyTestAction extends BasePythonTaskAction<PythonTestTask> {
+public class PyTestConfigurationAction extends BasePythonTaskAction<PythonTestTask> {
 
-    public PyTestAction(File pythonBuildDir, File virtualEnvDir, PythonToolChain toolChain) {
+    public PyTestConfigurationAction(File pythonBuildDir, File virtualEnvDir, PythonToolChain toolChain) {
         super(pythonBuildDir, virtualEnvDir, toolChain);
     }
 

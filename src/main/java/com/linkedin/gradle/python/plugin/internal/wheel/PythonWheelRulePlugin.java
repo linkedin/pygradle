@@ -12,7 +12,7 @@ import com.linkedin.gradle.python.spec.component.internal.PythonTargetPlatform;
 import com.linkedin.gradle.python.tasks.BuildWheelTask;
 import com.linkedin.gradle.python.tasks.PythonTestTask;
 import com.linkedin.gradle.python.tasks.internal.AddDependsOnTaskAction;
-import com.linkedin.gradle.python.tasks.internal.configuration.PyTestAction;
+import com.linkedin.gradle.python.tasks.internal.configuration.PyTestConfigurationAction;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.logging.Logger;
@@ -46,7 +46,9 @@ public class PythonWheelRulePlugin extends RuleSource {
     }
 
     @ComponentBinaries
-    public void createBinaries(final ModelMap<WheelBinarySpec> binaries, final PlatformResolvers platformResolver, final WheelComponentSpec pythonComponent,
+    public void createBinaries(final ModelMap<WheelBinarySpec> binaries,
+                               final PlatformResolvers platformResolver,
+                               final WheelComponentSpec pythonComponent,
                                final PythonToolChainRegistry pythonToolChainRegistry,
                                @Path("buildDir") final File buildDir) {
         List<PythonTargetPlatform> pythonPlatforms = pythonComponent.getTargetPlatforms();
@@ -56,12 +58,15 @@ public class PythonWheelRulePlugin extends RuleSource {
     }
 
     @BinaryTasks
-    public void createTasks(final ModelMap<Task> tasks, final WheelBinarySpec binary, final BuildDirHolder buildDirHolder, final PythonPluginConfigurations configurations,
+    public void createTasks(final ModelMap<Task> tasks,
+                            final WheelBinarySpec binary,
+                            final BuildDirHolder buildDirHolder,
+                            final PythonPluginConfigurations configurations,
                             final PythonToolChainRegistry pythonToolChainRegistry) {
         final PythonVersion version = binary.getTargetPlatform().getVersion();
 
         String postFix = GUtil.toCamelCase(binary.getName());
-        tasks.create("buildWheel", BuildWheelTask.class, new Action<Task>() {
+        tasks.create("build" + postFix, BuildWheelTask.class, new Action<Task>() {
             @Override
             public void execute(Task task) {
                 task.dependsOn("projectSetup");
@@ -76,16 +81,10 @@ public class PythonWheelRulePlugin extends RuleSource {
 
         for (WheelBinarySpec wheelBinarySpec : wheelBinarySpecs) {
             PythonToolChain toolChain = pythonToolChainRegistry.getForPlatform(wheelBinarySpec.getTargetPlatform());
-            PyTestAction configAction = new PyTestAction(wheelBinarySpec.getBuildDir(), wheelBinarySpec.getVirtualEnvDir(), toolChain);
-
-//            String testTaskName = createTestTaskName(wheelBinarySpec);
+            PyTestConfigurationAction configAction = new PyTestConfigurationAction(wheelBinarySpec.getBuildDir(), wheelBinarySpec.getVirtualEnvDir(), toolChain);
             String testTaskName = "test" + wheelBinarySpec.getName();
             tasks.create(testTaskName, PythonTestTask.class, configAction);
             tasks.named(LifecycleBasePlugin.CHECK_TASK_NAME, new AddDependsOnTaskAction(testTaskName));
         }
     }
-
-//    private String createTestTaskName(WheelBinarySpec wheelBinarySpec) {
-//        return SharedPythonInfrastructure.taskNameGenerator(wheelBinarySpec.getTargetPlatform().getVersion(), "testWheel");
-//    }
 }

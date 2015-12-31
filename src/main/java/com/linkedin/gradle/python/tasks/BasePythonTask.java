@@ -28,7 +28,6 @@ public class BasePythonTask extends DefaultTask {
     return getPythonToolChain().getVersion();
   }
 
-  @Input
   public File getVenvDir() {
     return venvDir;
   }

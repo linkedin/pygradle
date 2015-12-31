@@ -13,25 +13,30 @@ import java.io.File;
 
 public class InstallLocalProjectTask extends BasePythonTask {
 
-  @TaskAction
-  public void installLocalProject() {
-    final PythonExecutable pythonExecutable = getPythonToolChain().getLocalPythonExecutable(venvDir);
-    PipLocalInstallAction pipLocalInstallAction = new PipLocalInstallAction(venvDir);
-    ExecResult execute = pythonExecutable.execute(pipLocalInstallAction.install(getProject().getProjectDir()));
-    if(execute.getExitValue() != 0) {
-      getLogger().lifecycle(pipLocalInstallAction.getWholeText());
+    @TaskAction
+    public void installLocalProject() {
+        final PythonExecutable pythonExecutable = getPythonToolChain().getLocalPythonExecutable(venvDir);
+        PipLocalInstallAction pipLocalInstallAction = new PipLocalInstallAction(venvDir);
+        ExecResult execute = pythonExecutable.execute(pipLocalInstallAction.install(getProject().getProjectDir()));
+        if (execute.getExitValue() != 0) {
+            getLogger().lifecycle(pipLocalInstallAction.getWholeText());
+        }
+        execute.assertNormalExitValue();
     }
-    execute.assertNormalExitValue();
-  }
 
-  @OutputFile
-  public File getEggLink() {
-    return new File(TaskUtils.sitePackage(venvDir, getPythonVersion()), String.format("%s.egg-link", getProject().getName()));
-  }
+    @OutputFile
+    public File getEggLink() {
+        String fileName = String.format("%s.egg-link", getProject().getName());
+        File installLink = new File(TaskUtils.sitePackage(venvDir, getPythonVersion()), fileName);
+        getLogger().info("Link: {}", installLink.getAbsolutePath());
+        return installLink;
+    }
 
-  @InputFile
-  public File getSetupPyFile() {
-    return new File(getProject().getProjectDir(), "setup.py");
-  }
+    @InputFile
+    public File getSetupPyFile() {
+        File file = new File(getProject().getProjectDir(), "setup.py");
+        getLogger().info("Setup.py: {}", file.getAbsolutePath());
+        return file;
+    }
 
 }

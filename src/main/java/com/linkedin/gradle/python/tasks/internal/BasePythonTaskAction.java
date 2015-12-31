@@ -26,6 +26,10 @@ abstract public class BasePythonTaskAction<T extends BasePythonTask> implements 
         configure(task);
     }
 
+    protected PythonToolChain getToolChain() {
+        return toolChain;
+    }
+
     public abstract void configure(T task);
 
 }

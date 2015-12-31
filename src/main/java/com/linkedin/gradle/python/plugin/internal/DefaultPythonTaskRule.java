@@ -1,5 +1,6 @@
 package com.linkedin.gradle.python.plugin.internal;
 
+import com.linkedin.gradle.python.exception.ToolchainNotFoundException;
 import com.linkedin.gradle.python.internal.platform.PythonToolChainRegistry;
 import com.linkedin.gradle.python.internal.toolchain.PythonToolChain;
 import com.linkedin.gradle.python.plugin.PythonPluginConfigurations;
@@ -60,18 +61,17 @@ public class DefaultPythonTaskRule extends RuleSource {
         for (final SourceDistBinarySpec binarySpec : binarySpecs) {
             logger.info("Adding default tasks to {}", binarySpec.getName());
             for (PythonTargetPlatform pythonPlatform : binarySpec.getTestPlatforms()) {
-                String versionString = pythonPlatform.getVersion().getVersionString();
 
-                File pythonBuildDir = new File(binarySpec.getBuildDir(), String.format("python-%s-%s", binarySpec.getName(), versionString));
-
+                File pythonBuildDir = binarySpec.buildDirFor(pythonPlatform);
                 File venv = new File(pythonBuildDir, "venv");
 
-                binarySpec.tasks(new DefaultBinaryTaskCreateAction(versionString,
+                binarySpec.tasks(new DefaultBinaryTaskCreateAction(
+                        pythonPlatform.getVersionAsString(),
                         pythonToolChainRegistry,
                         pythonBuildDir,
                         venv,
                         binarySpec.getName(),
-                        binarySpec.getTestPlatforms().get(0),
+                        pythonPlatform,
                         configurations));
             }
         }
@@ -106,6 +106,9 @@ public class DefaultPythonTaskRule extends RuleSource {
         @Override
         public void execute(BinaryTasksCollection tasks) {
             final PythonToolChain toolChain = pythonToolChainRegistry.getForPlatform(targetPlatform);
+            if(toolChain == null) {
+                throw new ToolchainNotFoundException(targetPlatform);
+            }
 
             String createVirtualEnvTask = CREATE_VIRTUAL_ENV_TASK + taskPostfix;
             tasks.create(createVirtualEnvTask, VirtualEnvironmentBuild.class,
@@ -127,7 +130,7 @@ public class DefaultPythonTaskRule extends RuleSource {
             tasks.create(installEditable, InstallLocalProjectTask.class,
                     new InstallLocalConfigurationAction(pythonBuildDir, virtualEnvDir, toolChain, installTestDependencies));
 
-            tasks.create(PROJECT_SETUP_TASK + taskPostfix, DefaultTask.class, new Action<Task>() {
+            tasks.create(projectSetupTaskName(taskPostfix), DefaultTask.class, new Action<Task>() {
                 @Override
                 public void execute(Task task) {
                     task.dependsOn(installRequiredDependencies);
@@ -137,5 +140,9 @@ public class DefaultPythonTaskRule extends RuleSource {
                 }
             });
         }
+    }
+
+    public static String projectSetupTaskName(String postfix) {
+        return PROJECT_SETUP_TASK + postfix;
     }
 }

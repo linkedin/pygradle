@@ -1,9 +1,10 @@
 package com.linkedin.gradle.python.spec.component.internal;
 
 import com.linkedin.gradle.python.internal.platform.PythonVersion;
-import java.io.File;
 import org.gradle.api.GradleException;
 import org.gradle.internal.os.OperatingSystem;
+
+import java.io.File;
 
 
 public class DefaultPythonTargetPlatform implements PythonTargetPlatform {
@@ -37,6 +38,11 @@ public class DefaultPythonTargetPlatform implements PythonTargetPlatform {
   @Override
   public PythonVersion getVersion() {
     return version;
+  }
+
+  @Override
+  public String getVersionAsString() {
+    return getVersion().getVersionString();
   }
 
   @Override

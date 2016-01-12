@@ -1,15 +1,11 @@
 package com.linkedin.gradle.python.tasks;
 
 import com.linkedin.gradle.python.internal.platform.PythonVersion;
-import com.linkedin.gradle.python.internal.toolchain.PythonExecutable;
-import com.linkedin.gradle.python.internal.toolchain.PythonToolChain;
 import com.linkedin.gradle.python.spec.component.internal.PythonEnvironment;
 import java.io.File;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.InputDirectory;
-import org.gradle.api.tasks.InputFile;
 import org.gradle.process.ExecResult;
 import org.gradle.process.internal.ExecAction;
 

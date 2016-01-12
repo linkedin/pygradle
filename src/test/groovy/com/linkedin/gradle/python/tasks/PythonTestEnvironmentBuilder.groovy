@@ -3,8 +3,6 @@ package com.linkedin.gradle.python.tasks
 
 import com.linkedin.gradle.python.internal.platform.PythonVersion
 import com.linkedin.gradle.python.internal.toolchain.PythonExecutable
-import com.linkedin.gradle.python.internal.toolchain.PythonToolChain
-import com.linkedin.gradle.python.spec.component.PythonEnvironmentBuilder
 import com.linkedin.gradle.python.spec.component.internal.PythonEnvironment
 import org.gradle.api.Action
 import org.gradle.process.ExecResult

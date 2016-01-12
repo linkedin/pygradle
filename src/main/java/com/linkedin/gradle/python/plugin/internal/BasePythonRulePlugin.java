@@ -2,14 +2,11 @@ package com.linkedin.gradle.python.plugin.internal;
 
 import com.linkedin.gradle.python.PythonSourceSet;
 import com.linkedin.gradle.python.internal.DefaultPythonSourceSet;
-import com.linkedin.gradle.python.internal.platform.DefaultPythonToolChainRegistry;
-import com.linkedin.gradle.python.internal.platform.PythonToolChainRegistry;
 import com.linkedin.gradle.python.plugin.PythonPluginConfigurations;
 import com.linkedin.gradle.python.spec.component.PythonComponentSpec;
 import java.io.File;
 import org.gradle.api.Action;
 import org.gradle.api.plugins.ExtensionContainer;
-import org.gradle.internal.service.ServiceRegistry;
 import org.gradle.language.base.internal.BuildDirHolder;
 import org.gradle.model.Model;
 import org.gradle.model.ModelMap;
@@ -20,8 +17,6 @@ import org.gradle.platform.base.LanguageType;
 import org.gradle.platform.base.LanguageTypeBuilder;
 import org.gradle.platform.base.internal.BinaryNamingSchemeBuilder;
 import org.gradle.platform.base.internal.DefaultBinaryNamingSchemeBuilder;
-import org.gradle.platform.base.internal.PlatformResolvers;
-import org.gradle.process.internal.ExecActionFactory;
 
 
 @SuppressWarnings("unused")
@@ -36,12 +31,6 @@ public class BasePythonRulePlugin extends RuleSource {
     @Model
     public BinaryNamingSchemeBuilder binaryNamingSchemeBuilder() {
         return new DefaultBinaryNamingSchemeBuilder();
-    }
-
-    @Model
-    public PythonToolChainRegistry pythonToolChain(ServiceRegistry serviceRegistry, PlatformResolvers platformResolvers) {
-        ExecActionFactory execActionFactory = serviceRegistry.get(ExecActionFactory.class);
-        return new DefaultPythonToolChainRegistry(execActionFactory);
     }
 
     @Model

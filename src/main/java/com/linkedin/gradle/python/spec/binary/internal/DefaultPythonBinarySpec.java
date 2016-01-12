@@ -1,29 +1,20 @@
 package com.linkedin.gradle.python.spec.binary.internal;
 
+import com.linkedin.gradle.python.spec.component.internal.PythonEnvironment;
 import java.io.File;
 import org.gradle.platform.base.binary.BaseBinarySpec;
 
 public class DefaultPythonBinarySpec extends BaseBinarySpec implements PythonBinarySpec {
 
-    private final String typeName;
+    PythonEnvironment pythonEnvironment;
 
-    private File buildDir;
-
-    DefaultPythonBinarySpec(String typeName){
-        this.typeName = typeName;
+    @Override
+    public void setPythonEnvironment(PythonEnvironment pythonEnvironment) {
+        this.pythonEnvironment = pythonEnvironment;
     }
 
     @Override
-    protected String getTypeName() {
-        return typeName;
-    }
-
-    @Override
-    public void setBuildDir(File buildDir) {
-        this.buildDir = buildDir;
-    }
-
-    public File getBuildDir() {
-        return buildDir;
+    public PythonEnvironment getPythonEnvironment() {
+        return pythonEnvironment;
     }
 }

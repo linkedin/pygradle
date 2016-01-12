@@ -24,9 +24,7 @@ class InstallLocalProjectTaskTest extends Specification {
     given:
     def action = Mock(ExecAction)
 
-    def pythonToolChain = new PythonToolchainBuilder().withPythonExecutable(action, 0).build()
-    task.pythonToolChain = pythonToolChain
-    task.venvDir = temporaryFolder.newFolder('venv')
+    task.pythonEnvironment = new PythonTestEnvironmentBuilder().build(action, 0)
 
     when:
     task.installLocalProject()

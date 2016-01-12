@@ -29,7 +29,7 @@ public class BuildSourceDistTask extends BasePythonTask implements FinalPythonAr
     public void buildSourceDist() {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-        ExecResult sdist = getPythonToolChain().getSystemPythonExecutable().execute(new Action<ExecAction>() {
+        ExecResult sdist = execute(new Action<ExecAction>() {
             @Override
             public void execute(ExecAction execAction) {
                 execAction.setIgnoreExitValue(true);

@@ -38,10 +38,9 @@ class InstallDependenciesTaskTest extends Specification {
 
     def action = Mock(ExecAction)
 
-    def pythonToolChain = new PythonToolchainBuilder().withPythonExecutable(action, 0).build()
+    new PythonTestEnvironmentBuilder().build(action, 0)
     installDependenciesTask.dependencyConfiguration = foo
-    installDependenciesTask.pythonToolChain = pythonToolChain
-    installDependenciesTask.venvDir = temporaryFolder.newFolder('venv')
+    installDependenciesTask.pythonEnvironment = new PythonTestEnvironmentBuilder().build(action, 0)
 
     when:
     installDependenciesTask.installDependencies()

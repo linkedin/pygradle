@@ -47,7 +47,7 @@ public class VirtualEnvironmentBuild extends BasePythonTask {
             throw new GradleException("Virtual Env must be defined");
         }
 
-        final File vendorDir = new File(getPythonBuilDir(), "vendor");
+        final File vendorDir = getPythonEnvironment().getVendorDir();
         final String virtualEnvDependencyVersion = findVirtualEnvDependencyVersion();
 
         for (final File file : getVirtualEnvFiles()) {
@@ -66,16 +66,16 @@ public class VirtualEnvironmentBuild extends BasePythonTask {
         }
 
         final String path = String.format("%s/virtualenv-%s/virtualenv.py", vendorDir.getAbsolutePath(), virtualEnvDependencyVersion);
-        final PythonExecutable pythonExecutable = getPythonToolChain().getSystemPythonExecutable();
+        final PythonExecutable pythonExecutable = getPythonEnvironment().getPythonExecutable();
 
-        pythonExecutable.execute(new Action<ExecAction>() {
+        execute(new Action<ExecAction>() {
             @Override
             public void execute(ExecAction execAction) {
                 execAction.args(path, "--python", pythonExecutable.getPythonPath().getAbsolutePath(), getVenvDir().getAbsolutePath());
             }
         }).assertNormalExitValue();
 
-        File source = new File(venvDir, "bin/activate");
+        File source = new File(getVenvDir(), "bin/activate");
         GFileUtils.copyFile(source, getActivateScript());
 
         getActivateScript().setExecutable(true);

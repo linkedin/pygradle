@@ -5,11 +5,6 @@ import com.linkedin.gradle.python.internal.toolchain.PythonExecutable;
 import com.linkedin.gradle.python.internal.toolchain.PythonToolChainInternal;
 import com.linkedin.gradle.python.spec.component.internal.PythonTargetPlatform;
 import java.io.File;
-import java.util.List;
-import org.gradle.api.GradleException;
-import org.gradle.api.logging.Logger;
-import org.gradle.api.logging.Logging;
-import org.gradle.internal.os.OperatingSystem;
 import org.gradle.process.internal.ExecActionFactory;
 
 
@@ -40,7 +35,7 @@ public class DefaultPythonToolChain implements PythonToolChainInternal {
 
   @Override
   public DefaultPythonExecutable getSystemPythonExecutable() {
-    return new DefaultPythonExecutable(execActionFactory, targetPlatform.getSystemPython());
+    return new DefaultPythonExecutable(execActionFactory, targetPlatform.getPythonExecutable());
   }
 
   @Override

@@ -26,8 +26,7 @@ class BuildSourceDistTaskTest extends Specification {
   def 'test will call setup.py with the right parameters'() {
     given:
     ExecAction action = Mock(ExecAction)
-    def pythonToolChain = new PythonToolchainBuilder().withPythonExecutable(action, 0).build()
-    sourceDistTask.setPythonToolChain(pythonToolChain)
+    sourceDistTask.setPythonEnvironment(new PythonTestEnvironmentBuilder().build(action, 0))
 
     when:
     sourceDistTask.buildSourceDist()
@@ -39,8 +38,8 @@ class BuildSourceDistTaskTest extends Specification {
   def 'test will call setup.py with the right parameters, on failure will throw exception'() {
     given:
     ExecAction action = Mock(ExecAction)
-    def pythonToolChain = new PythonToolchainBuilder().withPythonExecutable(action, 2).build()
-    sourceDistTask.setPythonToolChain(pythonToolChain)
+
+    sourceDistTask.setPythonEnvironment(new PythonTestEnvironmentBuilder().build(action, 2))
 
     when:
     sourceDistTask.buildSourceDist()

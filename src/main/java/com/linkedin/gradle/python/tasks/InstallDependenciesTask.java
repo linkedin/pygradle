@@ -1,9 +1,11 @@
 package com.linkedin.gradle.python.tasks;
 
-import com.linkedin.gradle.python.internal.toolchain.PythonExecutable;
 import com.linkedin.gradle.python.tasks.internal.utilities.PipDependencyInstallAction;
 import com.linkedin.gradle.python.tasks.internal.utilities.PipInstallHelper;
 import com.linkedin.gradle.python.tasks.internal.utilities.TaskUtils;
+import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.DependencySet;
@@ -11,10 +13,6 @@ import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputDirectories;
 import org.gradle.api.tasks.ParallelizableTask;
 import org.gradle.api.tasks.TaskAction;
-
-import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
 
 
 @ParallelizableTask
@@ -24,8 +22,7 @@ public class InstallDependenciesTask extends BasePythonTask {
 
   @TaskAction
   public void installDependencies() {
-    final PythonExecutable pythonExecutable = getPythonToolChain().getLocalPythonExecutable(venvDir);
-    PipInstallHelper pipInstallHelper = new PipInstallHelper(pythonExecutable, new PipDependencyInstallAction(venvDir));
+    PipInstallHelper pipInstallHelper = new PipInstallHelper(getPythonEnvironment().getPythonExecutable(), new PipDependencyInstallAction(getVenvDir()));
     preformFullInstall(pipInstallHelper);
   }
 
@@ -45,7 +42,7 @@ public class InstallDependenciesTask extends BasePythonTask {
   private Set<File> createFileDir(DependencySet dependencies) {
     HashSet<File> sitePackages = new HashSet<File>();
     for (Dependency dependency : dependencies) {
-      sitePackages.add(new File(TaskUtils.sitePackage(venvDir, pythonToolChain.getVersion()), dependency.getName()));
+      sitePackages.add(new File(TaskUtils.sitePackage(getVenvDir(), pythonEnvironment.getVersion()), dependency.getName()));
     }
     return sitePackages;
   }

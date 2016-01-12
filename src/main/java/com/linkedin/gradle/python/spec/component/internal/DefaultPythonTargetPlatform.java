@@ -1,12 +1,9 @@
 package com.linkedin.gradle.python.spec.component.internal;
 
 import com.linkedin.gradle.python.internal.platform.PythonVersion;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.StringReader;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.codehaus.groovy.runtime.DefaultGroovyMethods;
 import org.codehaus.groovy.runtime.ProcessGroovyMethods;
 import org.gradle.api.GradleException;
 import org.gradle.api.logging.Logger;
@@ -14,8 +11,6 @@ import org.gradle.api.logging.Logging;
 import org.gradle.internal.os.OperatingSystem;
 
 import java.io.File;
-import org.gradle.util.GFileUtils;
-import org.gradle.util.GUtil;
 import org.gradle.util.VersionNumber;
 
 
@@ -24,34 +19,34 @@ public class DefaultPythonTargetPlatform implements PythonTargetPlatform {
   private static final Logger logger = Logging.getLogger(DefaultPythonTargetPlatform.class);
 
   private final PythonVersion version;
-  private final File systemPython;
+  private final File pythonExecutable;
 
   public DefaultPythonTargetPlatform(OperatingSystem operatingSystem, String python) {
     if(new File(python).exists()) {
-      systemPython = new File(python);
+      pythonExecutable = new File(python);
     } else if(python.startsWith("python")) {
-      systemPython = operatingSystem.findInPath(python);
+      pythonExecutable = operatingSystem.findInPath(python);
     } else {
-      systemPython = operatingSystem.findInPath("python" + python);
+      pythonExecutable = operatingSystem.findInPath("python" + python);
     }
 
-    if(systemPython == null) {
+    if(pythonExecutable == null) {
       throw new GradleException("Could not find " + python + " in PATH");
-    } else if (!systemPython.canExecute()) {
-      throw new GradleException("Unable to execute " + systemPython.getAbsolutePath());
+    } else if (!pythonExecutable.canExecute()) {
+      throw new GradleException("Unable to execute " + pythonExecutable.getAbsolutePath());
     }
 
     String versionString;
     try {
-      ProcessBuilder processBuilder = new ProcessBuilder(systemPython.getAbsolutePath(), "--version");
+      ProcessBuilder processBuilder = new ProcessBuilder(pythonExecutable.getAbsolutePath(), "--version");
       processBuilder.redirectErrorStream(true);
       Process exec = processBuilder.start();
       ProcessGroovyMethods.waitForOrKill(exec, 5000);
       versionString = IOUtils.toString(exec.getInputStream());
-      logger.debug("Python version for {} is {}", systemPython.getAbsolutePath(), versionString);
+      logger.debug("Python version for {} is {}", pythonExecutable.getAbsolutePath(), versionString);
     } catch (IOException e) {
-      logger.error("Unable to execute {}", systemPython.getAbsolutePath(), e);
-      throw new GradleException("Unable to execute " + systemPython.getAbsolutePath());
+      logger.error("Unable to execute {}", pythonExecutable.getAbsolutePath(), e);
+      throw new GradleException("Unable to execute " + pythonExecutable.getAbsolutePath());
     }
 
     String trimmedVersionString = StringUtils.trimToEmpty(versionString.split(" ")[1]);
@@ -61,9 +56,8 @@ public class DefaultPythonTargetPlatform implements PythonTargetPlatform {
     version = PythonVersion.parse(majorMinorString);
   }
 
-  @Override
-  public File getSystemPython() {
-    return systemPython;
+  public File getPythonExecutable() {
+    return pythonExecutable;
   }
 
   @Override
@@ -88,7 +82,7 @@ public class DefaultPythonTargetPlatform implements PythonTargetPlatform {
 
   @Override
   public String toString() {
-    return String.format("DefaultPythonTargetPlatform{version=%s, systemPython=%s}", version, systemPython);
+    return String.format("DefaultPythonTargetPlatform{version=%s, pythonExecutable=%s}", version, pythonExecutable);
   }
 
   @Override
@@ -105,13 +99,13 @@ public class DefaultPythonTargetPlatform implements PythonTargetPlatform {
     if (version != that.version) {
       return false;
     }
-    return systemPython != null ? systemPython.equals(that.systemPython) : that.systemPython == null;
+    return pythonExecutable != null ? pythonExecutable.equals(that.pythonExecutable) : that.pythonExecutable == null;
   }
 
   @Override
   public int hashCode() {
     int result = version != null ? version.hashCode() : 0;
-    result = 31 * result + (systemPython != null ? systemPython.hashCode() : 0);
+    result = 31 * result + (pythonExecutable != null ? pythonExecutable.hashCode() : 0);
     return result;
   }
 }

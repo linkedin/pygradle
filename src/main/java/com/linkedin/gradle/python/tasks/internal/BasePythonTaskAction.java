@@ -1,33 +1,25 @@
 package com.linkedin.gradle.python.tasks.internal;
 
-import com.linkedin.gradle.python.internal.toolchain.PythonToolChain;
+import com.linkedin.gradle.python.spec.component.internal.PythonEnvironment;
 import com.linkedin.gradle.python.tasks.BasePythonTask;
 import org.gradle.api.Action;
 
-import java.io.File;
-
 abstract public class BasePythonTaskAction<T extends BasePythonTask> implements Action<T> {
 
-    private final File pythonBuildDir;
-    private final File virtualEnvDir;
-    private final PythonToolChain toolChain;
+    private final PythonEnvironment pythonEnvironment;
 
-    protected BasePythonTaskAction(File pythonBuildDir, File virtualEnvDir, PythonToolChain toolChain) {
-        this.pythonBuildDir = pythonBuildDir;
-        this.virtualEnvDir = virtualEnvDir;
-        this.toolChain = toolChain;
+    protected BasePythonTaskAction(PythonEnvironment pythonEnvironment) {
+        this.pythonEnvironment = pythonEnvironment;
     }
 
     @Override
     public void execute(T task) {
-        task.setPythonToolChain(toolChain);
-        task.setPythonBuilDir(pythonBuildDir);
-        task.setVenvDir(virtualEnvDir);
+        task.setPythonEnvironment(pythonEnvironment);
         configure(task);
     }
 
-    protected PythonToolChain getToolChain() {
-        return toolChain;
+    public PythonEnvironment getPythonEnvironment() {
+        return pythonEnvironment;
     }
 
     public abstract void configure(T task);

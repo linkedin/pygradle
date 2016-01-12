@@ -2,11 +2,10 @@ package com.linkedin.gradle.python.plugin.internal;
 
 import com.linkedin.gradle.python.PythonSourceSet;
 import com.linkedin.gradle.python.internal.DefaultPythonSourceSet;
-import com.linkedin.gradle.python.internal.PythonPlatformResolver;
 import com.linkedin.gradle.python.internal.platform.DefaultPythonToolChainRegistry;
 import com.linkedin.gradle.python.internal.platform.PythonToolChainRegistry;
 import com.linkedin.gradle.python.plugin.PythonPluginConfigurations;
-import com.linkedin.gradle.python.spec.component.internal.PythonComponentSpec;
+import com.linkedin.gradle.python.spec.component.PythonComponentSpec;
 import java.io.File;
 import org.gradle.api.Action;
 import org.gradle.api.plugins.ExtensionContainer;
@@ -33,11 +32,6 @@ public class BasePythonRulePlugin extends RuleSource {
         builder.setLanguageName("python");
         builder.defaultImplementation(DefaultPythonSourceSet.class);
     }
-
-//    @Mutate
-//    public void registerPlatformResolver(PlatformResolvers platformResolvers) {
-//        platformResolvers.register(new PythonPlatformResolver());
-//    }
 
     @Model
     public BinaryNamingSchemeBuilder binaryNamingSchemeBuilder() {

@@ -8,7 +8,7 @@ import java.io.File;
 
 public interface PythonTargetPlatform extends Platform {
 
-  File getSystemPython();
+  File getPythonExecutable();
 
   PythonVersion getVersion();
 

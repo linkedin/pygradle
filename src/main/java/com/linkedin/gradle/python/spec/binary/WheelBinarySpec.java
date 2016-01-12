@@ -7,14 +7,4 @@ import org.gradle.platform.base.Variant;
 
 public interface WheelBinarySpec extends PythonBinarySpec {
 
-    File getPythonBuildDir();
-
-    File getVirtualEnvDir();
-
-    @Variant
-    PythonTargetPlatform getTargetPlatform();
-
-    void setTargetPlatform(PythonTargetPlatform platform);
-
-    String getProjectSetupTask();
 }

@@ -8,10 +8,4 @@ import java.io.File;
 import java.util.List;
 
 public interface SourceDistBinarySpec extends PythonBinarySpec {
-
-    File getBuildDir();
-
-    File getVirtualEnvDir();
-
-    PythonTargetPlatform getSystemPython();
 }

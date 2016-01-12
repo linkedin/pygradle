@@ -32,4 +32,9 @@ public class DefaultWheelBinarySpec extends DefaultPythonBinarySpec implements W
     public void setTargetPlatform(PythonTargetPlatform platform) {
         this.pythonPlatform = platform;
     }
+
+    @Override
+    public String getProjectSetupTask() {
+        return String.format("%sProjectSetup", getName());
+    }
 }

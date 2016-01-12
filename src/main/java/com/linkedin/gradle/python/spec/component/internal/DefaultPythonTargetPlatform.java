@@ -88,10 +88,7 @@ public class DefaultPythonTargetPlatform implements PythonTargetPlatform {
 
   @Override
   public String toString() {
-    return "DefaultPythonTargetPlatform{" +
-        "version=" + version +
-        ", systemPython=" + systemPython +
-        '}';
+    return String.format("DefaultPythonTargetPlatform{version=%s, systemPython=%s}", version, systemPython);
   }
 
   @Override

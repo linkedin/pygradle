@@ -49,6 +49,7 @@ public class DefaultPythonTaskRule extends RuleSource {
                     binarySpec.getPythonBuildDir(),
                     binarySpec.getVirtualEnvDir(),
                     binarySpec.getName(),
+                    binarySpec.getProjectSetupTask(),
                     binarySpec.getTargetPlatform(),
                     configurations));
         }
@@ -66,12 +67,13 @@ public class DefaultPythonTaskRule extends RuleSource {
             File pythonBuildDir = binarySpec.getBuildDir();
             File venv = new File(pythonBuildDir, "venv");
 
-            binarySpec.tasks(new DefaultBinaryTaskCreateAction(
-                    pythonPlatform.getVersionAsString(),
+            String postfix = pythonPlatform.getVersionAsString();
+            binarySpec.tasks(new DefaultBinaryTaskCreateAction(postfix,
                     pythonToolChainRegistry,
                     pythonBuildDir,
                     venv,
                     binarySpec.getName(),
+                    projectSetupTaskName(postfix),
                     pythonPlatform,
                     configurations));
         }
@@ -84,6 +86,7 @@ public class DefaultPythonTaskRule extends RuleSource {
         private final File pythonBuildDir;
         private final File virtualEnvDir;
         private final String binaryName;
+        private final String projectSetupTaskName;
         private final PythonTargetPlatform targetPlatform;
         private final PythonPluginConfigurations configurations;
 
@@ -92,6 +95,7 @@ public class DefaultPythonTaskRule extends RuleSource {
                                              final File pythonBuildDir,
                                              final File virtualEnvDir,
                                              final String binaryName,
+                                             final String projectSetupTaskName,
                                              final PythonTargetPlatform targetPlatform,
                                              final PythonPluginConfigurations configurations) {
             this.taskPostfix = taskPostfix;
@@ -99,6 +103,7 @@ public class DefaultPythonTaskRule extends RuleSource {
             this.pythonBuildDir = pythonBuildDir;
             this.virtualEnvDir = virtualEnvDir;
             this.binaryName = binaryName;
+            this.projectSetupTaskName = projectSetupTaskName;
             this.targetPlatform = targetPlatform;
             this.configurations = configurations;
         }
@@ -126,7 +131,7 @@ public class DefaultPythonTaskRule extends RuleSource {
             tasks.create(installEditable, InstallLocalProjectTask.class,
                     new InstallLocalConfigurationAction(pythonBuildDir, virtualEnvDir, toolChain, installRuntimeDependencies));
 
-            tasks.create(projectSetupTaskName(taskPostfix), DefaultTask.class, new Action<Task>() {
+            tasks.create(projectSetupTaskName, DefaultTask.class, new Action<Task>() {
                 @Override
                 public void execute(Task task) {
                     task.dependsOn(installRequiredDependencies);

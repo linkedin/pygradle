@@ -31,7 +31,7 @@ class PythonSourceDistRulePluginTest extends AbstractBaseRuleSourcePluginTest {
     then:
     def components = realizeComponents()
     def source = components.source
-    source.sources instanceof ModelMap
+      source.sources instanceof ModelMap
     source.sources.python instanceof PythonSourceSet
     source.sources.python.source.srcDirs == [project.file("src/main/python")] as Set
 

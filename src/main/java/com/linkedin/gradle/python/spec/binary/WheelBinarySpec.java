@@ -15,4 +15,6 @@ public interface WheelBinarySpec extends PythonBinarySpec {
     PythonTargetPlatform getTargetPlatform();
 
     void setTargetPlatform(PythonTargetPlatform platform);
+
+    String getProjectSetupTask();
 }

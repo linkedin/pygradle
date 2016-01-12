@@ -69,22 +69,22 @@ public class PythonWheelRulePlugin extends RuleSource {
         tasks.create("build" + postFix, BuildWheelTask.class, new Action<Task>() {
             @Override
             public void execute(Task task) {
-                task.dependsOn("projectSetup");
+                task.dependsOn(binary.getProjectSetupTask());
             }
         });
     }
 
-    @Mutate
-    public void createTestTasks(final ModelMap<Task> tasks,
-                                final ModelMap<WheelBinarySpec> wheelBinarySpecs,
-                                final PythonToolChainRegistry pythonToolChainRegistry) {
-
-        for (WheelBinarySpec wheelBinarySpec : wheelBinarySpecs) {
-            PythonToolChain toolChain = pythonToolChainRegistry.getForPlatform(wheelBinarySpec.getTargetPlatform());
-            PyTestConfigurationAction configAction = new PyTestConfigurationAction(wheelBinarySpec.getBuildDir(), wheelBinarySpec.getVirtualEnvDir(), toolChain);
-            String testTaskName = "test" + wheelBinarySpec.getName();
-            tasks.create(testTaskName, PythonTestTask.class, configAction);
-            tasks.named(LifecycleBasePlugin.CHECK_TASK_NAME, new AddDependsOnTaskAction(testTaskName));
-        }
-    }
+//    @Mutate
+//    public void createTestTasks(final ModelMap<Task> tasks,
+//                                final ModelMap<WheelBinarySpec> wheelBinarySpecs,
+//                                final PythonToolChainRegistry pythonToolChainRegistry) {
+//
+//        for (WheelBinarySpec wheelBinarySpec : wheelBinarySpecs) {
+//            PythonToolChain toolChain = pythonToolChainRegistry.getForPlatform(wheelBinarySpec.getTargetPlatform());
+//            PyTestConfigurationAction configAction = new PyTestConfigurationAction(wheelBinarySpec.getBuildDir(), wheelBinarySpec.getVirtualEnvDir(), toolChain);
+//            String testTaskName = "test" + wheelBinarySpec.getName();
+//            tasks.create(testTaskName, PythonTestTask.class, configAction);
+//            tasks.named(LifecycleBasePlugin.CHECK_TASK_NAME, new AddDependsOnTaskAction(testTaskName));
+//        }
+//    }
 }

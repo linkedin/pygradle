@@ -8,7 +8,8 @@ repositories {
 dependencies {
     compile localGroovy()
     compile gradleApi()
-//    compile 'commons-lang:commons-lang:2.6'
+    compile 'commons-io:commons-io:2.4'
+    compile 'commons-lang:commons-lang:2.6'
 
     testCompile('org.spockframework:spock-core:1.0-groovy-2.4') {
         exclude group: 'org.codehaus.groovy'

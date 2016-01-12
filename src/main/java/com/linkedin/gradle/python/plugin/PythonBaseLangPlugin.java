@@ -1,7 +1,7 @@
 package com.linkedin.gradle.python.plugin;
 
 import com.linkedin.gradle.python.plugin.internal.BasePythonRulePlugin;
-import com.linkedin.gradle.python.plugin.internal.python.PythonRulePlugin;
+import com.linkedin.gradle.python.plugin.internal.PythonRulePlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 

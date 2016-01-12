@@ -74,6 +74,7 @@ public class DefaultPythonComponentSpec extends BaseComponentSpec implements Pyt
       if (!pythonEnvironmentMap.containsKey(targetPlatform)) {
         PythonEnvironment build = new PythonEnvironmentBuilder(targetPlatform).withBuildDir(buildDir)
             .withExecActionFactory(execActionFactory)
+            .withName(getName())
             .build();
         pythonEnvironmentMap.put(targetPlatform, build);
       }

@@ -43,7 +43,12 @@ public class PythonTestEnvironmentBuilder {
             }
 
             @Override
-            PythonExecutable getPythonExecutable() {
+            PythonExecutable getVirtualEnvPythonExecutable() {
+                return createPythonExecutable(execAction, exitCode)
+            }
+
+            @Override
+            PythonExecutable getSystemPythonExecutable() {
                 return createPythonExecutable(execAction, exitCode)
             }
 
@@ -60,6 +65,16 @@ public class PythonTestEnvironmentBuilder {
             @Override
             File getVendorDir() {
                 return new File("/build/vendor")
+            }
+
+            @Override
+            File getBuildDir() {
+                return new File("/build")
+            }
+
+            @Override
+            String getEnvironmentName() {
+                return 'foo'
             }
         }
     }

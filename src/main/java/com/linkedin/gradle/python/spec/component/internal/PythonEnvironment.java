@@ -9,11 +9,17 @@ public interface PythonEnvironment {
 
   String getEnvironmentSetupTaskName();
 
-  PythonExecutable getPythonExecutable();
+  PythonExecutable getVirtualEnvPythonExecutable();
+
+  PythonExecutable getSystemPythonExecutable();
 
   File getVenvDir();
 
   PythonVersion getVersion();
 
   File getVendorDir();
+
+  File getBuildDir();
+
+  String getEnvironmentName();
 }

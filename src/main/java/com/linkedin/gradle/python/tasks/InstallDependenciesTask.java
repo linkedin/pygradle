@@ -22,7 +22,7 @@ public class InstallDependenciesTask extends BasePythonTask {
 
   @TaskAction
   public void installDependencies() {
-    PipInstallHelper pipInstallHelper = new PipInstallHelper(getPythonEnvironment().getPythonExecutable(), new PipDependencyInstallAction(getVenvDir()));
+    PipInstallHelper pipInstallHelper = new PipInstallHelper(getPythonEnvironment().getVirtualEnvPythonExecutable(), new PipDependencyInstallAction(getVenvDir()));
     preformFullInstall(pipInstallHelper);
   }
 

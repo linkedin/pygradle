@@ -1,4 +1,4 @@
-package com.linkedin.gradle.python.plugin.internal.python;
+package com.linkedin.gradle.python.plugin.internal;
 
 import com.linkedin.gradle.python.spec.binary.WheelBinarySpec;
 import com.linkedin.gradle.python.spec.component.internal.PythonEnvironment;

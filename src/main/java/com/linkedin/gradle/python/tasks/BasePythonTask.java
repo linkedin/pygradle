@@ -20,7 +20,7 @@ public class BasePythonTask extends DefaultTask {
   }
 
   public ExecResult execute(Action<ExecAction> action) {
-    return pythonEnvironment.getPythonExecutable().execute(action);
+    return pythonEnvironment.getVirtualEnvPythonExecutable().execute(action);
   }
 
   public PythonEnvironment getPythonEnvironment() {

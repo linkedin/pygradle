@@ -5,6 +5,7 @@ import com.linkedin.gradle.python.spec.component.internal.DefaultPythonEnvironme
 import com.linkedin.gradle.python.spec.component.internal.PythonEnvironment;
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.groovy.runtime.ProcessGroovyMethods;
@@ -23,6 +24,7 @@ public class PythonEnvironmentBuilder {
   private ExecActionFactory execActionFactory;
   private File pythonExecutable;
   private File buildDir;
+  private String name;
 
   public PythonEnvironmentBuilder(String python) {
     if (new File(python).exists()) {
@@ -44,8 +46,19 @@ public class PythonEnvironmentBuilder {
     return this;
   }
 
+  public PythonEnvironmentBuilder withName(String name) {
+    this.name = name;
+    return this;
+  }
+
   public PythonEnvironment build() {
-    return new DefaultPythonEnvironment(pythonExecutable, getVersion(), buildDir, execActionFactory);
+    PythonVersion version = getVersion();
+    Objects.requireNonNull(pythonExecutable, "Python executable should be non-null");
+    Objects.requireNonNull(version, "Python version should be non-null");
+    Objects.requireNonNull(buildDir, "Build Dir should be non-null");
+    Objects.requireNonNull(execActionFactory, "ExecActionFactory should be non-null");
+    Objects.requireNonNull(name, "Name should be non-null");
+    return new DefaultPythonEnvironment(pythonExecutable, version, buildDir, execActionFactory, name);
   }
 
   private PythonVersion getVersion() {

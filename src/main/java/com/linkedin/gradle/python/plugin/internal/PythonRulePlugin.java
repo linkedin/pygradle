@@ -1,4 +1,4 @@
-package com.linkedin.gradle.python.plugin.internal.python;
+package com.linkedin.gradle.python.plugin.internal;
 
 import com.linkedin.gradle.python.plugin.PythonPluginConfigurations;
 import com.linkedin.gradle.python.spec.binary.SourceDistBinarySpec;
@@ -13,10 +13,13 @@ import com.linkedin.gradle.python.spec.component.internal.PythonEnvironment;
 import com.linkedin.gradle.python.tasks.BuildWheelTask;
 import com.linkedin.gradle.python.tasks.InstallDependenciesTask;
 import com.linkedin.gradle.python.tasks.InstallLocalProjectTask;
+import com.linkedin.gradle.python.tasks.PythonTestTask;
 import com.linkedin.gradle.python.tasks.VirtualEnvironmentBuild;
+import com.linkedin.gradle.python.tasks.internal.AddDependsOnTaskAction;
 import com.linkedin.gradle.python.tasks.internal.configuration.CreateVirtualEnvConfigureAction;
 import com.linkedin.gradle.python.tasks.internal.configuration.DependencyConfigurationAction;
 import com.linkedin.gradle.python.tasks.internal.configuration.InstallLocalConfigurationAction;
+import com.linkedin.gradle.python.tasks.internal.configuration.PyTestConfigurationAction;
 import java.io.File;
 import java.util.List;
 import org.gradle.api.Action;
@@ -26,6 +29,7 @@ import org.gradle.api.Task;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.internal.service.ServiceRegistry;
+import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.model.ModelMap;
 import org.gradle.model.Mutate;
 import org.gradle.model.Path;
@@ -92,11 +96,11 @@ public class PythonRulePlugin extends RuleSource {
   @Mutate
   void createVirtalEnvironments(ModelMap<Task> taskContainer, final ModelMap<PythonComponentSpecInternal> specs,
       final PythonPluginConfigurations configurations) {
-    logger.error("Creating Virtual Envs");
+    logger.debug("Creating Virtual Envs");
     for (PythonComponentSpecInternal spec : specs) {
       for (PythonEnvironment pythonEnvironment : spec.getPythonEnvironments()) {
 
-        logger.error("Executing for {} and {}", spec.getName(), pythonEnvironment.getVersion().getVersionString());
+        logger.debug("Executing for {} and {}", spec.getName(), pythonEnvironment.getVersion().getVersionString());
 
         String taskPostfix = pythonEnvironment.getVersion().getVersionString();
 
@@ -131,6 +135,20 @@ public class PythonRulePlugin extends RuleSource {
             task.dependsOn(installEditable);
           }
         });
+      }
+    }
+  }
+
+  @Mutate
+  void addTestTasks(ModelMap<Task> tasks, final ModelMap<PythonComponentSpecInternal> specs) {
+    for (PythonComponentSpecInternal spec : specs) {
+      for (PythonEnvironment pythonEnvironment : spec.getPythonEnvironments()) {
+
+        PyTestConfigurationAction configAction = new PyTestConfigurationAction(pythonEnvironment, spec.getSources());
+
+        String taskName = "pyTest" + pythonEnvironment.getVersion().getVersionString();
+        tasks.create(taskName, PythonTestTask.class, configAction);
+        tasks.named(LifecycleBasePlugin.CHECK_TASK_NAME, new AddDependsOnTaskAction(taskName));
       }
     }
   }

@@ -1,7 +1,9 @@
 package com.linkedin.gradle.python.plugin.internal;
 
 import com.linkedin.gradle.python.PythonSourceSet;
+import com.linkedin.gradle.python.PythonTestSourceSet;
 import com.linkedin.gradle.python.internal.DefaultPythonSourceSet;
+import com.linkedin.gradle.python.internal.DefaultPythonTestSourceSet;
 import com.linkedin.gradle.python.plugin.PythonPluginConfigurations;
 import com.linkedin.gradle.python.spec.component.PythonComponentSpec;
 import java.io.File;
@@ -26,6 +28,12 @@ public class BasePythonRulePlugin extends RuleSource {
     public void registerLanguage(LanguageTypeBuilder<PythonSourceSet> builder) {
         builder.setLanguageName("python");
         builder.defaultImplementation(DefaultPythonSourceSet.class);
+    }
+
+    @LanguageType
+    public void registerLanguageTests(LanguageTypeBuilder<PythonTestSourceSet> builder) {
+        builder.setLanguageName("python");
+        builder.defaultImplementation(DefaultPythonTestSourceSet.class);
     }
 
     @Model
@@ -55,11 +63,11 @@ public class BasePythonRulePlugin extends RuleSource {
                         defaultPythonSourceSet.getSource().include("**/*.py");
                     }
                 });
-                wheelComponentSpec.getSources().create("pythonTest", PythonSourceSet.class, new Action<PythonSourceSet>() {
+                wheelComponentSpec.getSources().create("pythonTest", PythonTestSourceSet.class, new Action<PythonTestSourceSet>() {
                     @Override
-                    public void execute(PythonSourceSet defaultPythonSourceSet) {
-                        defaultPythonSourceSet.getSource().srcDir("src/test/python");
-                        defaultPythonSourceSet.getSource().include("**/*.py");
+                    public void execute(PythonTestSourceSet pythonTestSourceSet) {
+                        pythonTestSourceSet.getSource().srcDir("src/test/python");
+                        pythonTestSourceSet.getSource().include("**/*.py");
                     }
                 });
             }

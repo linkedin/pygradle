@@ -9,16 +9,22 @@ import org.gradle.process.internal.ExecActionFactory;
 
 public class DefaultPythonEnvironment implements PythonEnvironment {
 
-  final DefaultPythonExecutable pythonExecutable;
+  final DefaultPythonExecutable systemPythonExecutable;
+  final DefaultPythonExecutable virtualEnvExecutable;
   final File venvDir;
   final File vendorDir;
+  final File buildDir;
   final PythonVersion version;
+  final String name;
 
-  public DefaultPythonEnvironment(File pythonExecutable, PythonVersion version, File buildDir, ExecActionFactory execActionFactory) {
-    this.pythonExecutable = new DefaultPythonExecutable(execActionFactory, pythonExecutable);
+  public DefaultPythonEnvironment(File pythonExecutable, PythonVersion version, File buildDir, ExecActionFactory execActionFactory, String name) {
+    this.systemPythonExecutable = new DefaultPythonExecutable(execActionFactory, pythonExecutable);
     this.version = version;
-    this.venvDir = new File(buildDir, String.format("python-%s/venv", version.getVersionString()));
-    this.vendorDir = new File(buildDir, String.format("python-%s/vendor", version.getVersionString()));
+    this.buildDir = buildDir;
+    this.name = name;
+    this.venvDir = new File(buildDir, String.format("python-%s-%s/venv", version.getVersionString(), name));
+    this.vendorDir = new File(buildDir, String.format("python-%s-%s/vendor", version.getVersionString(), name));
+    this.virtualEnvExecutable = new DefaultPythonExecutable(execActionFactory, new File(venvDir, "bin/python"));
   }
 
   @Override
@@ -27,8 +33,13 @@ public class DefaultPythonEnvironment implements PythonEnvironment {
   }
 
   @Override
-  public PythonExecutable getPythonExecutable() {
-    return pythonExecutable;
+  public PythonExecutable getVirtualEnvPythonExecutable() {
+    return virtualEnvExecutable;
+  }
+
+  @Override
+  public PythonExecutable getSystemPythonExecutable() {
+    return systemPythonExecutable;
   }
 
   @Override
@@ -44,5 +55,15 @@ public class DefaultPythonEnvironment implements PythonEnvironment {
   @Override
   public File getVendorDir() {
     return vendorDir;
+  }
+
+  @Override
+  public File getBuildDir() {
+    return buildDir;
+  }
+
+  @Override
+  public String getEnvironmentName() {
+    return name;
   }
 }

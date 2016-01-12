@@ -1,7 +1,14 @@
 package com.linkedin.gradle.python.internal.platform;
 
 public enum PythonVersion {
-  VERSION_2_6("2.6"), VERSION_2_7("2.7"), VERSION_3_0("3.0"), VERSION_3_1("3.1"), VERSION_3_2("3.2"), VERSION_3_3("3.3"), VERSION_3_4("3.4"), VERSION_3_5("3.5");
+  VERSION_2_6("2.6"),
+  VERSION_2_7("2.7"),
+  VERSION_3_0("3.0"),
+  VERSION_3_1("3.1"),
+  VERSION_3_2("3.2"),
+  VERSION_3_3("3.3"),
+  VERSION_3_4("3.4"),
+  VERSION_3_5("3.5");
 
   private final String versionString;
 
@@ -14,12 +21,12 @@ public enum PythonVersion {
   }
 
   public static PythonVersion toVersion(Object value) {
-    if(null == value) {
+    if (null == value) {
       return null;
     }
 
-    if(value instanceof PythonVersion) {
-      return (PythonVersion)value;
+    if (value instanceof PythonVersion) {
+      return (PythonVersion) value;
     }
 
     String name = value.toString();

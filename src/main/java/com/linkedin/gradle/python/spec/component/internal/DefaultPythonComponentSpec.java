@@ -15,9 +15,10 @@ import org.gradle.process.internal.ExecActionFactory;
 
 public class DefaultPythonComponentSpec extends BaseComponentSpec implements PythonComponentSpec {
 
+    private static final OperatingSystem operatingSystem = OperatingSystem.current();
+
     private final Set<Class<? extends TransformationFileType>> languageOutputs = new HashSet<Class<? extends TransformationFileType>>();
     private final List<PythonTargetPlatform> targetPlatforms = new ArrayList<PythonTargetPlatform>();
-    private static OperatingSystem operatingSystem = OperatingSystem.current();
 
     public DefaultPythonComponentSpec() {
         this.languageOutputs.add(PythonByteCode.class);

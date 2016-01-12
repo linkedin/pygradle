@@ -59,6 +59,7 @@ class PythonWheelRulePluginTest extends AbstractBaseRuleSourcePluginTest {
         def components = realizeComponents()
         def binaries = realizeBinaries()
         def wheel = components.wheel
+        wheel.targetPlatforms.size() == 2
         ['2.7', '2.6'].each { version ->
             assert wheel.targetPlatforms.contains(new DefaultPythonTargetPlatform(OperatingSystem.current(), "python$version"))
             def binary = binaries.get("wheel$version")

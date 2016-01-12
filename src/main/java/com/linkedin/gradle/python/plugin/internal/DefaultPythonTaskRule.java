@@ -60,20 +60,20 @@ public class DefaultPythonTaskRule extends RuleSource {
                                                    final PythonPluginConfigurations configurations) {
         for (final SourceDistBinarySpec binarySpec : binarySpecs) {
             logger.info("Adding default tasks to {}", binarySpec.getName());
-            for (PythonTargetPlatform pythonPlatform : binarySpec.getTestPlatforms()) {
 
-                File pythonBuildDir = binarySpec.buildDirFor(pythonPlatform);
-                File venv = new File(pythonBuildDir, "venv");
+            PythonTargetPlatform pythonPlatform = binarySpec.getSystemPython();
 
-                binarySpec.tasks(new DefaultBinaryTaskCreateAction(
-                        pythonPlatform.getVersionAsString(),
-                        pythonToolChainRegistry,
-                        pythonBuildDir,
-                        venv,
-                        binarySpec.getName(),
-                        pythonPlatform,
-                        configurations));
-            }
+            File pythonBuildDir = binarySpec.getBuildDir();
+            File venv = new File(pythonBuildDir, "venv");
+
+            binarySpec.tasks(new DefaultBinaryTaskCreateAction(
+                    pythonPlatform.getVersionAsString(),
+                    pythonToolChainRegistry,
+                    pythonBuildDir,
+                    venv,
+                    binarySpec.getName(),
+                    pythonPlatform,
+                    configurations));
         }
     }
 
@@ -122,20 +122,15 @@ public class DefaultPythonTaskRule extends RuleSource {
             tasks.create(installRuntimeDependencies, InstallDependenciesTask.class,
                     new DependencyConfigurationAction(pythonBuildDir, virtualEnvDir, toolChain, configurations.getPython(), createVirtualEnvTask, installRequiredDependencies));
 
-            final String installTestDependencies = INSTALL_TEST_DEPENDENCIES_TASK + taskPostfix;
-            tasks.create(installTestDependencies, InstallDependenciesTask.class,
-                    new DependencyConfigurationAction(pythonBuildDir, virtualEnvDir, toolChain, configurations.getPyTest(), createVirtualEnvTask, installRuntimeDependencies));
-
             final String installEditable = INSTALL_EDITABLE_TASK + taskPostfix;
             tasks.create(installEditable, InstallLocalProjectTask.class,
-                    new InstallLocalConfigurationAction(pythonBuildDir, virtualEnvDir, toolChain, installTestDependencies));
+                    new InstallLocalConfigurationAction(pythonBuildDir, virtualEnvDir, toolChain, installRuntimeDependencies));
 
             tasks.create(projectSetupTaskName(taskPostfix), DefaultTask.class, new Action<Task>() {
                 @Override
                 public void execute(Task task) {
                     task.dependsOn(installRequiredDependencies);
                     task.dependsOn(installRuntimeDependencies);
-                    task.dependsOn(installTestDependencies);
                     task.dependsOn(installEditable);
                 }
             });

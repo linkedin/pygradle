@@ -6,6 +6,5 @@ import org.gradle.platform.base.internal.PlatformRequirement;
 
 import java.util.List;
 
-public interface PythonComponentSpec extends ComponentSpec, PlatformAwareComponentSpec {
-    List<PythonTargetPlatform> getTargetPlatforms();
+public interface PythonComponentSpec extends ComponentSpec {
 }

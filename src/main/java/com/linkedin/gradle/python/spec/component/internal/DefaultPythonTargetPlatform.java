@@ -1,13 +1,27 @@
 package com.linkedin.gradle.python.spec.component.internal;
 
 import com.linkedin.gradle.python.internal.platform.PythonVersion;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.StringReader;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.codehaus.groovy.runtime.DefaultGroovyMethods;
+import org.codehaus.groovy.runtime.ProcessGroovyMethods;
 import org.gradle.api.GradleException;
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
 import org.gradle.internal.os.OperatingSystem;
 
 import java.io.File;
+import org.gradle.util.GFileUtils;
+import org.gradle.util.GUtil;
+import org.gradle.util.VersionNumber;
 
 
 public class DefaultPythonTargetPlatform implements PythonTargetPlatform {
+
+  private static final Logger logger = Logging.getLogger(DefaultPythonTargetPlatform.class);
 
   private final PythonVersion version;
   private final File systemPython;
@@ -23,11 +37,28 @@ public class DefaultPythonTargetPlatform implements PythonTargetPlatform {
 
     if(systemPython == null) {
       throw new GradleException("Could not find " + python + " in PATH");
-    } else if (!systemPython.canExecute()){
+    } else if (!systemPython.canExecute()) {
       throw new GradleException("Unable to execute " + systemPython.getAbsolutePath());
     }
 
-    version = PythonVersion.parse(systemPython.getName().substring("python".length()));
+    String versionString;
+    try {
+      ProcessBuilder processBuilder = new ProcessBuilder(systemPython.getAbsolutePath(), "--version");
+      processBuilder.redirectErrorStream(true);
+      Process exec = processBuilder.start();
+      ProcessGroovyMethods.waitForOrKill(exec, 5000);
+      versionString = IOUtils.toString(exec.getInputStream());
+      logger.debug("Python version for {} is {}", systemPython.getAbsolutePath(), versionString);
+    } catch (IOException e) {
+      logger.error("Unable to execute {}", systemPython.getAbsolutePath(), e);
+      throw new GradleException("Unable to execute " + systemPython.getAbsolutePath());
+    }
+
+    String trimmedVersionString = StringUtils.trimToEmpty(versionString.split(" ")[1]);
+    VersionNumber versionNumber = VersionNumber.parse(trimmedVersionString);
+    String majorMinorString = String.format("%d.%d", versionNumber.getMajor(), versionNumber.getMinor());
+    logger.debug("Python MAJOR.MINOR {}", majorMinorString);
+    version = PythonVersion.parse(majorMinorString);
   }
 
   @Override

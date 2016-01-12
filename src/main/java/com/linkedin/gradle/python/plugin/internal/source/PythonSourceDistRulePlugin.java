@@ -41,23 +41,19 @@ public class PythonSourceDistRulePlugin extends RuleSource {
 
     @ComponentBinaries
     public void createBinaries(final ModelMap<SourceDistBinarySpec> binaries,
-                               final PlatformResolvers platformResolver,
                                final SourceDistComponentSpec pythonComponent,
                                @Path("buildDir") final File buildDir) {
 
-        List<PythonTargetPlatform> pythonPlatforms = pythonComponent.getTargetPlatforms();
-        binaries.create(pythonComponent.getName(), new PythonSourceDistSpecAction(pythonPlatforms, buildDir));
+        binaries.create(pythonComponent.getName(), new PythonSourceDistSpecAction(buildDir));
     }
 
     @BinaryTasks
     public void createTasks(final ModelMap<Task> tasks,
                             final SourceDistBinarySpec binary,
-                            final BuildDirHolder buildDirHolder,
-                            final PythonPluginConfigurations configurations,
                             final PythonToolChainRegistry pythonToolChainRegistry) {
         String postFix = GUtil.toCamelCase(binary.getName());
 
-        ResolvedPythonEnvironment resolvedPythonEnvironment = binary.getPythonEnvironments().get(0);
+        ResolvedPythonEnvironment resolvedPythonEnvironment = new ResolvedPythonEnvironment(binary.getBuildDir(), binary.getVirtualEnvDir(), binary.getSystemPython());
         BuildSourceDistConfigurationAction configAction = new BuildSourceDistConfigurationAction(
                 resolvedPythonEnvironment.getBuildDir(),
                 resolvedPythonEnvironment.getVenvDir(),

@@ -38,7 +38,6 @@ abstract class AbstractBaseRuleSourcePluginTest extends Specification {
                 "createVirtualEnv$postFix" as String,
                 "installRequiredDependencies$postFix" as String,
                 "installRuntimeDependencies$postFix" as String,
-                "installTestDependencies$postFix" as String,
                 "installEditable$postFix" as String,
         ] as Set
     }

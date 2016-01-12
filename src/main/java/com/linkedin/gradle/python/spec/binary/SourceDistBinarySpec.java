@@ -9,11 +9,9 @@ import java.util.List;
 
 public interface SourceDistBinarySpec extends PythonBinarySpec {
 
-    List<PythonTargetPlatform> getTestPlatforms();
+    File getBuildDir();
 
-    void setTestPlatforms(List<PythonTargetPlatform> platform);
+    File getVirtualEnvDir();
 
-    File buildDirFor(PythonTargetPlatform targetPlatform);
-
-    List<ResolvedPythonEnvironment> getPythonEnvironments();
+    PythonTargetPlatform getSystemPython();
 }

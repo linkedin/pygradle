@@ -10,17 +10,14 @@ import java.util.List;
 
 public class PythonSourceDistSpecAction extends PythonBinarySpecAction<SourceDistBinarySpec> {
 
-    private final List<PythonTargetPlatform> platformList;
     private final File buildDir;
 
-    public PythonSourceDistSpecAction(List<PythonTargetPlatform> platformList, File buildDir) {
-        this.platformList = platformList;
+    public PythonSourceDistSpecAction(File buildDir) {
         this.buildDir = buildDir;
     }
 
     @Override
     public void execute(SourceDistBinarySpec spec) {
         spec.setBuildDir(buildDir);
-        spec.setTestPlatforms(platformList);
     }
 }

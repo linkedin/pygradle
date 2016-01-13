@@ -1,4 +1,4 @@
-package com.linkedin.gradle.python.plugin.internal;
+package com.linkedin.gradle.python.plugin.internal.base;
 
 import com.linkedin.gradle.python.PythonSourceSet;
 import com.linkedin.gradle.python.PythonTestSourceSet;
@@ -22,7 +22,7 @@ import org.gradle.platform.base.internal.DefaultBinaryNamingSchemeBuilder;
 
 
 @SuppressWarnings("unused")
-public class BasePythonRulePlugin extends RuleSource {
+public class PythonLanguageRulePlugin extends RuleSource {
 
     @LanguageType
     public void registerLanguage(LanguageTypeBuilder<PythonSourceSet> builder) {

@@ -2,21 +2,18 @@ package com.linkedin.gradle.python.plugin.internal.python
 
 
 import com.linkedin.gradle.python.PythonSourceSet
-import com.linkedin.gradle.python.internal.platform.PythonVersion
 import com.linkedin.gradle.python.plugin.internal.AbstractBaseRuleSourcePluginTest
-import com.linkedin.gradle.python.plugin.internal.BasePythonRulePlugin
-import com.linkedin.gradle.python.plugin.internal.PythonRulePlugin
-import com.linkedin.gradle.python.spec.binary.SourceDistBinarySpec
-import com.linkedin.gradle.python.spec.binary.WheelBinarySpec
+import com.linkedin.gradle.python.plugin.internal.base.PythonLanguageRulePlugin
+import com.linkedin.gradle.python.plugin.internal.base.PythonBaseRulePlugin
 import com.linkedin.gradle.python.spec.component.internal.PythonComponentSpecInternal
 import org.gradle.model.ModelMap
 
-class PythonRulePluginTest extends AbstractBaseRuleSourcePluginTest {
+class PythonBaseRulePluginTest extends AbstractBaseRuleSourcePluginTest {
   def "creates python source set with conventional locations for components"() {
     when:
     dsl {
-      pluginManager.apply BasePythonRulePlugin
-      pluginManager.apply PythonRulePlugin
+      pluginManager.apply PythonLanguageRulePlugin
+      pluginManager.apply PythonBaseRulePlugin
       model {
         components {
           python(com.linkedin.gradle.python.spec.component.PythonComponentSpec) {
@@ -55,8 +52,8 @@ class PythonRulePluginTest extends AbstractBaseRuleSourcePluginTest {
   def 'apply multiple platforms'() {
     when:
     dsl {
-      pluginManager.apply BasePythonRulePlugin
-      pluginManager.apply PythonRulePlugin
+      pluginManager.apply PythonLanguageRulePlugin
+      pluginManager.apply PythonBaseRulePlugin
       model {
         components {
           python(com.linkedin.gradle.python.spec.component.PythonComponentSpec) {

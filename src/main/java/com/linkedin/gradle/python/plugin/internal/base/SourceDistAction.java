@@ -1,4 +1,4 @@
-package com.linkedin.gradle.python.plugin.internal;
+package com.linkedin.gradle.python.plugin.internal.base;
 
 import com.linkedin.gradle.python.spec.binary.SourceDistBinarySpec;
 import com.linkedin.gradle.python.spec.component.internal.PythonEnvironment;

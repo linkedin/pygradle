@@ -1,4 +1,4 @@
-package com.linkedin.gradle.python.plugin.internal;
+package com.linkedin.gradle.python.plugin.internal.base;
 
 import com.linkedin.gradle.python.plugin.PythonPluginConfigurations;
 import com.linkedin.gradle.python.spec.binary.SourceDistBinarySpec;
@@ -6,7 +6,6 @@ import com.linkedin.gradle.python.spec.binary.WheelBinarySpec;
 import com.linkedin.gradle.python.spec.binary.internal.DefaultSourceDistBinarySpec;
 import com.linkedin.gradle.python.spec.binary.internal.DefaultWheelBinarySpec;
 import com.linkedin.gradle.python.spec.binary.PythonBinarySpec;
-import com.linkedin.gradle.python.spec.binary.internal.PythonBinarySpecInternal;
 import com.linkedin.gradle.python.spec.binary.internal.SourceDistBinarySpecInternal;
 import com.linkedin.gradle.python.spec.binary.internal.WheelBinarySpecInternal;
 import com.linkedin.gradle.python.spec.component.PythonComponentSpec;
@@ -27,8 +26,6 @@ import com.linkedin.gradle.python.tasks.internal.configuration.DependencyConfigu
 import com.linkedin.gradle.python.tasks.internal.configuration.InstallLocalConfigurationAction;
 import com.linkedin.gradle.python.tasks.internal.configuration.PyTestConfigurationAction;
 import java.io.File;
-import java.util.List;
-import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
@@ -38,14 +35,12 @@ import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.internal.service.ServiceRegistry;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
-import org.gradle.model.Defaults;
 import org.gradle.model.Finalize;
 import org.gradle.model.ModelMap;
 import org.gradle.model.Mutate;
 import org.gradle.model.Path;
 import org.gradle.model.RuleSource;
 import org.gradle.model.Validate;
-import org.gradle.platform.base.BinarySpec;
 import org.gradle.platform.base.BinaryTasks;
 import org.gradle.platform.base.BinaryType;
 import org.gradle.platform.base.BinaryTypeBuilder;
@@ -56,7 +51,7 @@ import org.gradle.process.internal.ExecActionFactory;
 import org.gradle.util.GUtil;
 
 
-public class PythonRulePlugin extends RuleSource {
+public class PythonBaseRulePlugin extends RuleSource {
 
   public static final String CREATE_VIRTUAL_ENV_TASK = "createVirtualEnv";
   public static final String INSTALL_REQUIRED_DEPENDENCIES_TASK = "installRequiredDependencies";
@@ -64,7 +59,7 @@ public class PythonRulePlugin extends RuleSource {
   public static final String INSTALL_TEST_DEPENDENCIES_TASK = "installTestDependencies";
   public static final String INSTALL_EDITABLE_TASK = "installEditable";
 
-  private static final Logger logger = Logging.getLogger(PythonRulePlugin.class);
+  private static final Logger logger = Logging.getLogger(PythonBaseRulePlugin.class);
 
   @ComponentType
   public void register(ComponentTypeBuilder<PythonComponentSpec> builder) {
@@ -185,22 +180,6 @@ public class PythonRulePlugin extends RuleSource {
         tasks.named(LifecycleBasePlugin.CHECK_TASK_NAME, new AddDependsOnTaskAction(taskName));
       }
     }
-  }
-
-  @ComponentBinaries
-  public void createSourceDistBinaries(ModelMap<PythonBinarySpec> binarySpecs, final PythonComponentSpecInternal spec) {
-//    final PythonEnvironmentContainer container = spec.getPythonEnvironments();
-//    if (spec.getSourceDist()) {
-//      binarySpecs.create(spec.getName() + "SourceDist", SourceDistBinarySpec.class,
-//          new SourceDistAction(container.getDefaultPythonEnvironment()));
-//    }
-//
-//    if (spec.getWheels()) {
-//      for (PythonEnvironment pythonEnvironment : container.getPythonEnvironments().values()) {
-//        String name = spec.getName() + "Wheel" + pythonEnvironment.getVersion().getVersionString();
-//        binarySpecs.create(name, WheelBinarySpec.class, new WheelAction(pythonEnvironment));
-//      }
-//    }
   }
 
   @BinaryTasks

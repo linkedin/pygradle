@@ -6,11 +6,4 @@ import org.gradle.platform.base.PlatformAwareComponentSpec;
 
 public interface PythonComponentSpec extends ComponentSpec, PlatformAwareComponentSpec {
 
-  void buildWheels(boolean wheels);
-
-  boolean getWheels();
-
-  void buildSourceDist(boolean sourceDist);
-
-  boolean getSourceDist();
 }

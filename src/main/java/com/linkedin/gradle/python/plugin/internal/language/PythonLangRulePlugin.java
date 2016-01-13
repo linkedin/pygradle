@@ -18,16 +18,12 @@ public class PythonLangRulePlugin extends RuleSource {
   @ComponentBinaries
   public void createSourceDistBinaries(ModelMap<PythonBinarySpec> binarySpecs, final PythonComponentSpecInternal spec) {
     final PythonEnvironmentContainer container = spec.getPythonEnvironments();
-    if (spec.getSourceDist()) {
-      binarySpecs.create(spec.getName() + "SourceDist", SourceDistBinarySpec.class,
-          new SourceDistAction(container.getDefaultPythonEnvironment()));
-    }
+    binarySpecs.create(spec.getName() + "SourceDist", SourceDistBinarySpec.class,
+        new SourceDistAction(container.getDefaultPythonEnvironment()));
 
-    if (spec.getWheels()) {
-      for (PythonEnvironment pythonEnvironment : container.getPythonEnvironments().values()) {
-        String name = spec.getName() + "Wheel" + pythonEnvironment.getVersion().getVersionString();
-        binarySpecs.create(name, WheelBinarySpec.class, new WheelAction(pythonEnvironment));
-      }
+    for (PythonEnvironment pythonEnvironment : container.getPythonEnvironments().values()) {
+      String name = spec.getName() + "Wheel" + pythonEnvironment.getVersion().getVersionString();
+      binarySpecs.create(name, WheelBinarySpec.class, new WheelAction(pythonEnvironment));
     }
   }
 }

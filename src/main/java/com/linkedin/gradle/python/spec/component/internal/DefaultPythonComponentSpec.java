@@ -13,34 +13,12 @@ public class DefaultPythonComponentSpec extends BaseComponentSpec implements Pyt
   private final Set<String> targetPlatforms = new HashSet<String>();
   private DefaultPythonEnvironmentContainer pythonEnvironmentContainer;
 
-  private boolean buildWheels = true;
-  private boolean buildSourceDist = true;
   private File buildDir;
   private ExecActionFactory execActionFactory;
 
   @Override
   protected String getTypeName() {
     return "Python application";
-  }
-
-  @Override
-  public void buildWheels(boolean wheels) {
-    this.buildWheels = wheels;
-  }
-
-  @Override
-  public boolean getWheels() {
-    return buildWheels;
-  }
-
-  @Override
-  public void buildSourceDist(boolean sourceDist) {
-    this.buildSourceDist = sourceDist;
-  }
-
-  @Override
-  public boolean getSourceDist() {
-    return buildSourceDist;
   }
 
   @Override

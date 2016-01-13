@@ -1,12 +1,12 @@
 package com.linkedin.gradle.python.spec.binary.internal;
 
 import com.linkedin.gradle.python.spec.component.internal.PythonEnvironment;
-import java.io.File;
 import org.gradle.platform.base.binary.BaseBinarySpec;
 
-public class DefaultPythonBinarySpec extends BaseBinarySpec implements PythonBinarySpec {
+public class DefaultPythonBinarySpec extends BaseBinarySpec implements PythonBinarySpecInternal {
 
     PythonEnvironment pythonEnvironment;
+    String target;
 
     @Override
     public void setPythonEnvironment(PythonEnvironment pythonEnvironment) {
@@ -16,5 +16,15 @@ public class DefaultPythonBinarySpec extends BaseBinarySpec implements PythonBin
     @Override
     public PythonEnvironment getPythonEnvironment() {
         return pythonEnvironment;
+    }
+
+    @Override
+    public void targets(String target) {
+        this.target = target;
+    }
+
+    @Override
+    public String getTarget() {
+        return target;
     }
 }

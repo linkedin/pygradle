@@ -1,19 +1,18 @@
 package com.linkedin.gradle.python.internal.platform;
 
-public enum PythonVersion {
-  VERSION_2_6("2.6"),
-  VERSION_2_7("2.7"),
-  VERSION_3_0("3.0"),
-  VERSION_3_1("3.1"),
-  VERSION_3_2("3.2"),
-  VERSION_3_3("3.3"),
-  VERSION_3_4("3.4"),
-  VERSION_3_5("3.5");
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-  private final String versionString;
 
-  PythonVersion(String versionString) {
-    this.versionString = versionString;
+public class PythonVersion {
+
+  private static final Pattern PATTERN = Pattern.compile(".*?(python)?([23][0-9\\.]+)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+
+  private final String version;
+
+  PythonVersion(String version) {
+    this.version = version;
   }
 
   public static PythonVersion parse(String string) {
@@ -22,22 +21,52 @@ public enum PythonVersion {
 
   public static PythonVersion toVersion(Object value) {
     if (null == value) {
-      return null;
+      throw new IllegalArgumentException("PythonVersion cannot be null!");
     }
 
     if (value instanceof PythonVersion) {
       return (PythonVersion) value;
     }
 
-    String name = value.toString();
-    return valueOf(String.format("VERSION_%s", name.replace('.', '_')));
+    Matcher matcher = PATTERN.matcher(value.toString());
+    if (matcher.find()) {
+      return new PythonVersion(matcher.group(2));
+    }
+
+    throw new IllegalArgumentException("Unable to accept " + value.toString() + " as a PythonVersion");
   }
 
   public String getVersionString() {
-    return versionString;
+    return version;
   }
 
   public String getMajorVersion() {
-    return versionString.substring(0, 1);
+    return version.substring(0, 1);
+  }
+
+  public String getMajorMinorVersion() {
+    return version.substring(3);
+  }
+
+  @Override
+  public String toString() {
+    return version;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PythonVersion that = (PythonVersion) o;
+    return Objects.equals(version, that.version);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(version);
   }
 }

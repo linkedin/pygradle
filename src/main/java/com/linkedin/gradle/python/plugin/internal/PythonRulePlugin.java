@@ -5,11 +5,15 @@ import com.linkedin.gradle.python.spec.binary.SourceDistBinarySpec;
 import com.linkedin.gradle.python.spec.binary.WheelBinarySpec;
 import com.linkedin.gradle.python.spec.binary.internal.DefaultSourceDistBinarySpec;
 import com.linkedin.gradle.python.spec.binary.internal.DefaultWheelBinarySpec;
-import com.linkedin.gradle.python.spec.binary.internal.PythonBinarySpec;
+import com.linkedin.gradle.python.spec.binary.PythonBinarySpec;
+import com.linkedin.gradle.python.spec.binary.internal.PythonBinarySpecInternal;
+import com.linkedin.gradle.python.spec.binary.internal.SourceDistBinarySpecInternal;
+import com.linkedin.gradle.python.spec.binary.internal.WheelBinarySpecInternal;
 import com.linkedin.gradle.python.spec.component.PythonComponentSpec;
 import com.linkedin.gradle.python.spec.component.internal.DefaultPythonComponentSpec;
 import com.linkedin.gradle.python.spec.component.internal.PythonComponentSpecInternal;
 import com.linkedin.gradle.python.spec.component.internal.PythonEnvironment;
+import com.linkedin.gradle.python.spec.component.internal.PythonEnvironmentContainer;
 import com.linkedin.gradle.python.tasks.BuildSourceDistTask;
 import com.linkedin.gradle.python.tasks.BuildWheelTask;
 import com.linkedin.gradle.python.tasks.InstallDependenciesTask;
@@ -24,6 +28,8 @@ import com.linkedin.gradle.python.tasks.internal.configuration.InstallLocalConfi
 import com.linkedin.gradle.python.tasks.internal.configuration.PyTestConfigurationAction;
 import java.io.File;
 import java.util.List;
+import java.util.Map;
+import org.apache.commons.lang.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
@@ -32,11 +38,14 @@ import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.internal.service.ServiceRegistry;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
+import org.gradle.model.Defaults;
+import org.gradle.model.Finalize;
 import org.gradle.model.ModelMap;
 import org.gradle.model.Mutate;
 import org.gradle.model.Path;
 import org.gradle.model.RuleSource;
 import org.gradle.model.Validate;
+import org.gradle.platform.base.BinarySpec;
 import org.gradle.platform.base.BinaryTasks;
 import org.gradle.platform.base.BinaryType;
 import org.gradle.platform.base.BinaryTypeBuilder;
@@ -66,11 +75,13 @@ public class PythonRulePlugin extends RuleSource {
   @BinaryType
   public void registerSourceDist(BinaryTypeBuilder<SourceDistBinarySpec> builder) {
     builder.defaultImplementation(DefaultSourceDistBinarySpec.class);
+    builder.internalView(SourceDistBinarySpecInternal.class);
   }
 
   @BinaryType
   public void registerWheel(BinaryTypeBuilder<WheelBinarySpec> builder) {
     builder.defaultImplementation(DefaultWheelBinarySpec.class);
+    builder.internalView(WheelBinarySpecInternal.class);
   }
 
   @Mutate
@@ -86,10 +97,31 @@ public class PythonRulePlugin extends RuleSource {
     });
   }
 
+  @Finalize
+  void configurePythonBinariesWithEnvironment(final ModelMap<PythonComponentSpecInternal> specs) {
+    for (PythonComponentSpecInternal spec : specs) {
+      PythonEnvironmentContainer container = spec.getPythonEnvironments();
+      for (PythonBinarySpec pythonBinarySpec : spec.getBinaries().withType(PythonBinarySpec.class)) {
+        if (StringUtils.isNotBlank(pythonBinarySpec.getTarget())) {
+          pythonBinarySpec.setPythonEnvironment(container.getPythonEnvironment(pythonBinarySpec.getTarget()));
+        }
+      }
+    }
+  }
+
+  @Validate
+  void validateBinaries(final ModelMap<PythonBinarySpec> binarySpecs) {
+    for (PythonBinarySpec pythonBinarySpec : binarySpecs.withType(PythonBinarySpec.class)) {
+      if (pythonBinarySpec.getPythonEnvironment() == null) {
+        throw new GradleException(String.format("%s does not have a defined python environment, please define it", pythonBinarySpec.getName()));
+      }
+    }
+  }
+
   @Validate
   void validateComponent(ModelMap<PythonComponentSpecInternal> componentSpecMap) {
     for (PythonComponentSpecInternal pythonComponentSpecInternal : componentSpecMap) {
-      if (pythonComponentSpecInternal.getPythonEnvironments().size() == 0) {
+      if (pythonComponentSpecInternal.getPythonEnvironments().isEmpty()) {
         throw new GradleException(pythonComponentSpecInternal.getName() + " must have at least 1 targetPlatform");
       }
     }
@@ -100,7 +132,7 @@ public class PythonRulePlugin extends RuleSource {
       final PythonPluginConfigurations configurations) {
     logger.debug("Creating Virtual Envs");
     for (PythonComponentSpecInternal spec : specs) {
-      for (PythonEnvironment pythonEnvironment : spec.getPythonEnvironments()) {
+      for (PythonEnvironment pythonEnvironment : spec.getPythonEnvironments().getPythonEnvironments().values()) {
 
         logger.debug("Executing for {} and {}", spec.getName(), pythonEnvironment.getVersion().getVersionString());
 
@@ -144,7 +176,7 @@ public class PythonRulePlugin extends RuleSource {
   @Mutate
   void addTestTasks(ModelMap<Task> tasks, final ModelMap<PythonComponentSpecInternal> specs) {
     for (PythonComponentSpecInternal spec : specs) {
-      for (PythonEnvironment pythonEnvironment : spec.getPythonEnvironments()) {
+      for (PythonEnvironment pythonEnvironment : spec.getPythonEnvironments().getPythonEnvironments().values()) {
 
         PyTestConfigurationAction configAction = new PyTestConfigurationAction(pythonEnvironment, spec.getSources());
 
@@ -157,28 +189,28 @@ public class PythonRulePlugin extends RuleSource {
 
   @ComponentBinaries
   public void createSourceDistBinaries(ModelMap<PythonBinarySpec> binarySpecs, final PythonComponentSpecInternal spec) {
-    final List<PythonEnvironment> pythonEnvironments = spec.getPythonEnvironments();
-    if (spec.getSourceDist()) {
-      binarySpecs.create(spec.getName() + "SourceDist", SourceDistBinarySpec.class,
-          new SourceDistAction(pythonEnvironments.get(0)));
-    }
-
-    if (spec.getWheels()) {
-      for (PythonEnvironment pythonEnvironment : pythonEnvironments) {
-        String name = spec.getName() + "Wheel" + pythonEnvironment.getVersion().getVersionString();
-        binarySpecs.create(name, WheelBinarySpec.class, new WheelAction(pythonEnvironment));
-      }
-    }
+//    final PythonEnvironmentContainer container = spec.getPythonEnvironments();
+//    if (spec.getSourceDist()) {
+//      binarySpecs.create(spec.getName() + "SourceDist", SourceDistBinarySpec.class,
+//          new SourceDistAction(container.getDefaultPythonEnvironment()));
+//    }
+//
+//    if (spec.getWheels()) {
+//      for (PythonEnvironment pythonEnvironment : container.getPythonEnvironments().values()) {
+//        String name = spec.getName() + "Wheel" + pythonEnvironment.getVersion().getVersionString();
+//        binarySpecs.create(name, WheelBinarySpec.class, new WheelAction(pythonEnvironment));
+//      }
+//    }
   }
 
   @BinaryTasks
-  public void createWheelTask(ModelMap<Task> tasks, final WheelBinarySpec spec) {
+  public void createWheelTask(ModelMap<Task> tasks, final WheelBinarySpecInternal spec) {
     String postFix = GUtil.toCamelCase(spec.getName());
     tasks.create("create" + postFix, BuildWheelTask.class, new DistConfigurationAction(spec.getPythonEnvironment(), spec.getSources()));
   }
 
   @BinaryTasks
-  public void createSourceDistTask(ModelMap<Task> tasks, final SourceDistBinarySpec spec) {
+  public void createSourceDistTask(ModelMap<Task> tasks, final SourceDistBinarySpecInternal spec) {
     String postFix = GUtil.toCamelCase(spec.getName());
     tasks.create("create" + postFix, BuildSourceDistTask.class, new DistConfigurationAction(spec.getPythonEnvironment(), spec.getSources()));
   }

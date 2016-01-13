@@ -4,6 +4,7 @@ import com.linkedin.gradle.python.internal.platform.PythonVersion;
 import com.linkedin.gradle.python.internal.toolchain.DefaultPythonExecutable;
 import com.linkedin.gradle.python.internal.toolchain.PythonExecutable;
 import java.io.File;
+import java.util.Objects;
 import org.gradle.process.internal.ExecActionFactory;
 
 
@@ -19,6 +20,8 @@ public class DefaultPythonEnvironment implements PythonEnvironment {
   final String name;
 
   public DefaultPythonEnvironment(File pythonExecutable, PythonVersion version, File buildDir, ExecActionFactory execActionFactory, String name) {
+    Objects.requireNonNull(pythonExecutable);
+    Objects.requireNonNull(version);
     this.systemPythonExecutable = new DefaultPythonExecutable(execActionFactory, pythonExecutable);
     this.version = version;
     this.buildDir = buildDir;

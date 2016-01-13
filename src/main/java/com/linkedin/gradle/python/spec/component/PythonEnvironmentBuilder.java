@@ -14,7 +14,6 @@ import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.process.internal.ExecActionFactory;
-import org.gradle.util.VersionNumber;
 
 
 public class PythonEnvironmentBuilder {
@@ -71,10 +70,7 @@ public class PythonEnvironmentBuilder {
       logger.debug("Python version for {} is {}", pythonExecutable.getAbsolutePath(), versionString);
 
       String trimmedVersionString = StringUtils.trimToEmpty(versionString.split(" ")[1]);
-      VersionNumber versionNumber = VersionNumber.parse(trimmedVersionString);
-      String majorMinorString = String.format("%d.%d", versionNumber.getMajor(), versionNumber.getMinor());
-      logger.debug("Python MAJOR.MINOR {}", majorMinorString);
-      return PythonVersion.parse(majorMinorString);
+      return PythonVersion.parse(trimmedVersionString);
     } catch (IOException e) {
       logger.error("Unable to execute {}", pythonExecutable.getAbsolutePath(), e);
       throw new GradleException("Unable to execute " + pythonExecutable.getAbsolutePath());

@@ -2,9 +2,12 @@ package com.linkedin.gradle.python.plugin.internal.python
 
 
 import com.linkedin.gradle.python.PythonSourceSet
+import com.linkedin.gradle.python.internal.platform.PythonVersion
 import com.linkedin.gradle.python.plugin.internal.AbstractBaseRuleSourcePluginTest
 import com.linkedin.gradle.python.plugin.internal.BasePythonRulePlugin
 import com.linkedin.gradle.python.plugin.internal.PythonRulePlugin
+import com.linkedin.gradle.python.spec.binary.SourceDistBinarySpec
+import com.linkedin.gradle.python.spec.binary.WheelBinarySpec
 import com.linkedin.gradle.python.spec.component.internal.PythonComponentSpecInternal
 import org.gradle.model.ModelMap
 
@@ -18,6 +21,14 @@ class PythonRulePluginTest extends AbstractBaseRuleSourcePluginTest {
         components {
           python(com.linkedin.gradle.python.spec.component.PythonComponentSpec) {
             targetPlatform 'python2.7'
+            binaries {
+              wheel(com.linkedin.gradle.python.spec.binary.WheelBinarySpec) {
+                targets '2.7'
+              }
+              source(com.linkedin.gradle.python.spec.binary.SourceDistBinarySpec) {
+                targets 'python2.7'
+              }
+            }
           }
         }
       }
@@ -60,19 +71,11 @@ class PythonRulePluginTest extends AbstractBaseRuleSourcePluginTest {
     def components = realizeComponents()
     def binaries = realizeBinaries()
     def python = components.python as PythonComponentSpecInternal
-    python.getPythonEnvironments().size() == 2
-    ['2.7', '2.6'].each { version ->
-      def binary = binaries.get("pythonWheel$version")
-      assert binary != null
-      assert (binary.tasks.toList().collect { it.name } as Set).containsAll("createPythonWheel${version.replace('.', '')}" as String)
-    }
-
-    and: //source dist check
-    def binary = binaries.get("pythonSourceDist")
-    assert binary != null
-    assert (binary.tasks.toList().collect { it.name } as Set).containsAll('createPythonSourceDist')
 
     and:
-    binaries.size() == 3 //two wheels, one source dist
+    python.getPythonEnvironments().size() == 2
+
+    and:
+    binaries.size() == 0
   }
 }

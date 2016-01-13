@@ -8,6 +8,6 @@ import java.io.File;
 import org.gradle.internal.os.OperatingSystem;
 
 
-public class DefaultSourceDistBinarySpec extends DefaultPythonBinarySpec implements SourceDistBinarySpec {
+public class DefaultSourceDistBinarySpec extends DefaultPythonBinarySpec implements SourceDistBinarySpecInternal {
 
 }

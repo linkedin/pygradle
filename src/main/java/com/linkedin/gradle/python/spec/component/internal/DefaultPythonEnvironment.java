@@ -14,6 +14,7 @@ public class DefaultPythonEnvironment implements PythonEnvironment {
   final File venvDir;
   final File vendorDir;
   final File buildDir;
+  final File pythonBuildDir;
   final PythonVersion version;
   final String name;
 
@@ -22,8 +23,9 @@ public class DefaultPythonEnvironment implements PythonEnvironment {
     this.version = version;
     this.buildDir = buildDir;
     this.name = name;
-    this.venvDir = new File(buildDir, String.format("python-%s-%s/venv", version.getVersionString(), name));
-    this.vendorDir = new File(buildDir, String.format("python-%s-%s/vendor", version.getVersionString(), name));
+    this.pythonBuildDir = new File(buildDir, String.format("python-%s-%s", version.getVersionString(), name));
+    this.venvDir = new File(pythonBuildDir, "venv");
+    this.vendorDir = new File(buildDir, "vendor");
     this.virtualEnvExecutable = new DefaultPythonExecutable(execActionFactory, new File(venvDir, "bin/python"));
   }
 
@@ -60,6 +62,11 @@ public class DefaultPythonEnvironment implements PythonEnvironment {
   @Override
   public File getBuildDir() {
     return buildDir;
+  }
+
+  @Override
+  public File getPythonBuildDir() {
+    return pythonBuildDir;
   }
 
   @Override

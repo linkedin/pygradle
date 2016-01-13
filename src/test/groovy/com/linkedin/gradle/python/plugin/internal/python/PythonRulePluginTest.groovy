@@ -64,13 +64,13 @@ class PythonRulePluginTest extends AbstractBaseRuleSourcePluginTest {
     ['2.7', '2.6'].each { version ->
       def binary = binaries.get("pythonWheel$version")
       assert binary != null
-      assert (binary.tasks.toList().collect { it.name } as Set).containsAll("buildPythonWheel${version.replace('.', '')}" as String)
+      assert (binary.tasks.toList().collect { it.name } as Set).containsAll("createPythonWheel${version.replace('.', '')}" as String)
     }
 
     and: //source dist check
     def binary = binaries.get("pythonSourceDist")
     assert binary != null
-    assert (binary.tasks.toList().collect { it.name } as Set).containsAll('buildPythonSourceDist')
+    assert (binary.tasks.toList().collect { it.name } as Set).containsAll('createPythonSourceDist')
 
     and:
     binaries.size() == 3 //two wheels, one source dist

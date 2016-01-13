@@ -21,5 +21,7 @@ public interface PythonEnvironment {
 
   File getBuildDir();
 
+  File getPythonBuildDir();
+
   String getEnvironmentName();
 }

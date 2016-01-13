@@ -10,12 +10,14 @@ import com.linkedin.gradle.python.spec.component.PythonComponentSpec;
 import com.linkedin.gradle.python.spec.component.internal.DefaultPythonComponentSpec;
 import com.linkedin.gradle.python.spec.component.internal.PythonComponentSpecInternal;
 import com.linkedin.gradle.python.spec.component.internal.PythonEnvironment;
+import com.linkedin.gradle.python.tasks.BuildSourceDistTask;
 import com.linkedin.gradle.python.tasks.BuildWheelTask;
 import com.linkedin.gradle.python.tasks.InstallDependenciesTask;
 import com.linkedin.gradle.python.tasks.InstallLocalProjectTask;
 import com.linkedin.gradle.python.tasks.PythonTestTask;
 import com.linkedin.gradle.python.tasks.VirtualEnvironmentBuild;
 import com.linkedin.gradle.python.tasks.internal.AddDependsOnTaskAction;
+import com.linkedin.gradle.python.tasks.internal.configuration.DistConfigurationAction;
 import com.linkedin.gradle.python.tasks.internal.configuration.CreateVirtualEnvConfigureAction;
 import com.linkedin.gradle.python.tasks.internal.configuration.DependencyConfigurationAction;
 import com.linkedin.gradle.python.tasks.internal.configuration.InstallLocalConfigurationAction;
@@ -172,22 +174,12 @@ public class PythonRulePlugin extends RuleSource {
   @BinaryTasks
   public void createWheelTask(ModelMap<Task> tasks, final WheelBinarySpec spec) {
     String postFix = GUtil.toCamelCase(spec.getName());
-    tasks.create("build" + postFix, BuildWheelTask.class, new Action<Task>() {
-      @Override
-      public void execute(Task task) {
-        task.dependsOn(spec.getPythonEnvironment().getEnvironmentSetupTaskName());
-      }
-    });
+    tasks.create("create" + postFix, BuildWheelTask.class, new DistConfigurationAction(spec.getPythonEnvironment(), spec.getSources()));
   }
 
   @BinaryTasks
   public void createSourceDistTask(ModelMap<Task> tasks, final SourceDistBinarySpec spec) {
     String postFix = GUtil.toCamelCase(spec.getName());
-    tasks.create("build" + postFix, BuildWheelTask.class, new Action<Task>() {
-      @Override
-      public void execute(Task task) {
-        task.dependsOn(spec.getPythonEnvironment().getEnvironmentSetupTaskName());
-      }
-    });
+    tasks.create("create" + postFix, BuildSourceDistTask.class, new DistConfigurationAction(spec.getPythonEnvironment(), spec.getSources()));
   }
 }

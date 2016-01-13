@@ -24,6 +24,7 @@ public class PyTestConfigurationAction extends BasePythonTaskAction<PythonTestTa
 
     @Override
     public void configure(PythonTestTask task) {
+        task.dependsOn(getPythonEnvironment().getEnvironmentSetupTaskName());
         task.registerTestSources(testSourceDirs);
         task.setOutputFile(new File(getPythonEnvironment().getBuildDir(),
             "test-results" + File.separatorChar + getPythonEnvironment().getEnvironmentName() + "-" + task.getName() + ".xml"));

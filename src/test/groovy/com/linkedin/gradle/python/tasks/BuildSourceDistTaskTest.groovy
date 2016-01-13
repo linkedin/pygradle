@@ -32,7 +32,8 @@ class BuildSourceDistTaskTest extends Specification {
     sourceDistTask.buildSourceDist()
 
     then:
-    1 * action.args("setup.py", "sdist", "--dist-dir", distPath.getAbsolutePath(), "--formats=gztar,zip")
+    1 * action.args("setup.py", "sdist", "--dist-dir", _)
+    1 * action.args(["--formats=gztar,zip"])
   }
 
   def 'test will call setup.py with the right parameters, on failure will throw exception'() {

@@ -8,11 +8,13 @@ import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.tasks.InputDirectory;
 import org.gradle.api.tasks.OutputFile;
+import org.gradle.api.tasks.ParallelizableTask;
 import org.gradle.api.tasks.SkipWhenEmpty;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.internal.ExecAction;
 
 
+@ParallelizableTask
 public class PythonTestTask extends BasePythonTask {
 
   private static final Logger logger = Logging.getLogger(PythonTestTask.class);

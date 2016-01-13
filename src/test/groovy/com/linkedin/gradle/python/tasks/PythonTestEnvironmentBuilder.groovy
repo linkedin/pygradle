@@ -73,6 +73,11 @@ public class PythonTestEnvironmentBuilder {
             }
 
             @Override
+            File getPythonBuildDir() {
+                return new File("/build")
+            }
+
+            @Override
             String getEnvironmentName() {
                 return 'foo'
             }

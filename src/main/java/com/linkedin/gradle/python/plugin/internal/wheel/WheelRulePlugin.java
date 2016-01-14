@@ -10,20 +10,22 @@ import com.linkedin.gradle.python.spec.component.internal.PythonEnvironmentConta
 import com.linkedin.gradle.python.tasks.BuildWheelTask;
 import com.linkedin.gradle.python.tasks.internal.configuration.DistConfigurationAction;
 import org.gradle.api.Task;
-import org.gradle.api.logging.Logger;
-import org.gradle.api.logging.Logging;
 import org.gradle.model.ModelMap;
 import org.gradle.model.RuleSource;
 import org.gradle.platform.base.BinaryTasks;
 import org.gradle.platform.base.ComponentBinaries;
 
 
+/**
+ * This plugin will automatically add wheels to all {@link PythonComponentSpecInternal}'s.
+ *
+ * This is done by first creating the binaries with {@link #createWheelBinaries(ModelMap, PythonComponentSpecInternal)},
+ * then using {@link #createWheelTask(ModelMap, WheelBinarySpecInternal)} to create the actual tasks the make wheels.
+ */
 public class WheelRulePlugin extends RuleSource {
 
-  private static final Logger logger = Logging.getLogger(WheelRulePlugin.class);
-
   @ComponentBinaries
-  public void createSourceDistBinaries(ModelMap<PythonBinarySpec> binarySpecs, final PythonComponentSpecInternal spec) {
+  public void createWheelBinaries(ModelMap<PythonBinarySpec> binarySpecs, final PythonComponentSpecInternal spec) {
     final PythonEnvironmentContainer container = spec.getPythonEnvironments();
 
     for (PythonEnvironment pythonEnvironment : container.getPythonEnvironments().values()) {

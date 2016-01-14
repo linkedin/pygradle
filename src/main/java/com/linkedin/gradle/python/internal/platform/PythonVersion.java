@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 public class PythonVersion {
 
-  private static final Pattern PATTERN = Pattern.compile(".*?(python)?([23][0-9\\.]+)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+  private static final Pattern PATTERN = Pattern.compile(".*?(python)?([23]\\.[0-9\\.]+)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
   private final String version;
 

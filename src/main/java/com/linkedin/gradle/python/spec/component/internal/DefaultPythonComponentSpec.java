@@ -8,13 +8,16 @@ import org.gradle.platform.base.component.BaseComponentSpec;
 import org.gradle.process.internal.ExecActionFactory;
 
 
+/**
+ * An implementation of {@see PythonComponentSpecInternal}.
+ */
 public class DefaultPythonComponentSpec extends BaseComponentSpec implements PythonComponentSpec, PythonComponentSpecInternal {
 
   private final Set<String> targetPlatforms = new HashSet<String>();
-  private DefaultPythonEnvironmentContainer pythonEnvironmentContainer;
 
-  private File buildDir;
+  private DefaultPythonEnvironmentContainer pythonEnvironmentContainer;
   private ExecActionFactory execActionFactory;
+  private File buildDir;
 
   @Override
   protected String getTypeName() {

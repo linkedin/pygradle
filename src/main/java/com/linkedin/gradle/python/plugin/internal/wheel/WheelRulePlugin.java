@@ -1,6 +1,5 @@
 package com.linkedin.gradle.python.plugin.internal.wheel;
 
-import com.linkedin.gradle.python.plugin.internal.base.WheelAction;
 import com.linkedin.gradle.python.spec.binary.PythonBinarySpec;
 import com.linkedin.gradle.python.spec.binary.WheelBinarySpec;
 import com.linkedin.gradle.python.spec.binary.internal.WheelBinarySpecInternal;

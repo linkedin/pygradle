@@ -1,10 +1,8 @@
 package com.linkedin.gradle.python.plugin.internal.sources;
 
-import com.linkedin.gradle.python.plugin.internal.base.SourceDistAction;
 import com.linkedin.gradle.python.spec.binary.PythonBinarySpec;
 import com.linkedin.gradle.python.spec.binary.SourceDistBinarySpec;
 import com.linkedin.gradle.python.spec.binary.internal.SourceDistBinarySpecInternal;
-import com.linkedin.gradle.python.spec.binary.internal.WheelBinarySpecInternal;
 import com.linkedin.gradle.python.spec.component.internal.PythonComponentSpecInternal;
 import com.linkedin.gradle.python.spec.component.internal.PythonEnvironmentContainer;
 import com.linkedin.gradle.python.tasks.BuildSourceDistTask;

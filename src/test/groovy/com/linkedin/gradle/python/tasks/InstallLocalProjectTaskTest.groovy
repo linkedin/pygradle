@@ -1,6 +1,7 @@
 package com.linkedin.gradle.python.tasks
 
 
+import com.linkedin.gradle.python.spec.component.internal.PythonEnvironmentTestDouble
 import org.gradle.api.Project
 import org.gradle.process.internal.ExecAction
 import org.gradle.testfixtures.ProjectBuilder
@@ -24,7 +25,7 @@ class InstallLocalProjectTaskTest extends Specification {
     given:
     def action = Mock(ExecAction)
 
-    task.pythonEnvironment = new PythonTestEnvironmentBuilder().build(action, 0)
+    task.pythonEnvironment = new PythonEnvironmentTestDouble(action, 0)
 
     when:
     task.installLocalProject()

@@ -1,5 +1,9 @@
 package com.linkedin.gradle.python.plugin.internal.base;
 
+import com.linkedin.gradle.python.PythonSourceSet;
+import com.linkedin.gradle.python.PythonTestSourceSet;
+import com.linkedin.gradle.python.internal.DefaultPythonSourceSet;
+import com.linkedin.gradle.python.internal.DefaultPythonTestSourceSet;
 import com.linkedin.gradle.python.plugin.internal.PythonPluginConfigurations;
 import com.linkedin.gradle.python.spec.binary.PythonBinarySpec;
 import com.linkedin.gradle.python.spec.binary.SourceDistBinarySpec;
@@ -30,9 +34,11 @@ import org.gradle.api.GradleException;
 import org.gradle.api.Task;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
+import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.internal.service.ServiceRegistry;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.model.Finalize;
+import org.gradle.model.Model;
 import org.gradle.model.ModelMap;
 import org.gradle.model.Mutate;
 import org.gradle.model.Path;
@@ -42,6 +48,8 @@ import org.gradle.platform.base.BinaryType;
 import org.gradle.platform.base.BinaryTypeBuilder;
 import org.gradle.platform.base.ComponentType;
 import org.gradle.platform.base.ComponentTypeBuilder;
+import org.gradle.platform.base.LanguageType;
+import org.gradle.platform.base.LanguageTypeBuilder;
 import org.gradle.process.internal.ExecActionFactory;
 
 
@@ -71,6 +79,24 @@ public class PythonBaseRulePlugin extends RuleSource {
   public void registerSourceDist(BinaryTypeBuilder<SourceDistBinarySpec> builder) {
     builder.defaultImplementation(DefaultSourceDistBinarySpec.class);
     builder.internalView(SourceDistBinarySpecInternal.class);
+  }
+
+
+  @LanguageType
+  public void registerLanguage(LanguageTypeBuilder<PythonSourceSet> builder) {
+    builder.setLanguageName("python");
+    builder.defaultImplementation(DefaultPythonSourceSet.class);
+  }
+
+  @LanguageType
+  public void registerLanguageTests(LanguageTypeBuilder<PythonTestSourceSet> builder) {
+    builder.setLanguageName("python");
+    builder.defaultImplementation(DefaultPythonTestSourceSet.class);
+  }
+
+  @Model
+  PythonPluginConfigurations configurations(ExtensionContainer extensions) {
+    return extensions.getByType(PythonPluginConfigurations.class);
   }
 
   @Mutate

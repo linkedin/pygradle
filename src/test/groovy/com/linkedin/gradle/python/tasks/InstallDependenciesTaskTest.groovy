@@ -1,6 +1,7 @@
 package com.linkedin.gradle.python.tasks
 
 
+import com.linkedin.gradle.python.spec.component.internal.PythonEnvironmentTestDouble
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
 import nebula.test.dependencies.ModuleBuilder
@@ -38,9 +39,8 @@ class InstallDependenciesTaskTest extends Specification {
 
     def action = Mock(ExecAction)
 
-    new PythonTestEnvironmentBuilder().build(action, 0)
     installDependenciesTask.dependencyConfiguration = foo
-    installDependenciesTask.pythonEnvironment = new PythonTestEnvironmentBuilder().build(action, 0)
+    installDependenciesTask.pythonEnvironment = new PythonEnvironmentTestDouble(action, 0)
 
     when:
     installDependenciesTask.installDependencies()

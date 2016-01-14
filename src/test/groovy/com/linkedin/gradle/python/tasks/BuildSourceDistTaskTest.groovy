@@ -1,6 +1,7 @@
 package com.linkedin.gradle.python.tasks
 
 
+import com.linkedin.gradle.python.spec.component.internal.PythonEnvironmentTestDouble
 import org.gradle.api.Project
 import org.gradle.process.internal.ExecAction
 import org.gradle.testfixtures.ProjectBuilder
@@ -26,7 +27,7 @@ class BuildSourceDistTaskTest extends Specification {
   def 'test will call setup.py with the right parameters'() {
     given:
     ExecAction action = Mock(ExecAction)
-    sourceDistTask.setPythonEnvironment(new PythonTestEnvironmentBuilder().build(action, 0))
+    sourceDistTask.setPythonEnvironment(new PythonEnvironmentTestDouble(action, 0))
 
     when:
     sourceDistTask.buildSourceDist()
@@ -40,7 +41,7 @@ class BuildSourceDistTaskTest extends Specification {
     given:
     ExecAction action = Mock(ExecAction)
 
-    sourceDistTask.setPythonEnvironment(new PythonTestEnvironmentBuilder().build(action, 2))
+    sourceDistTask.setPythonEnvironment(new PythonEnvironmentTestDouble(action, 2))
 
     when:
     sourceDistTask.buildSourceDist()

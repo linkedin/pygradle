@@ -1,11 +1,11 @@
 package com.linkedin.gradle.python.plugin.internal.base;
 
-import com.linkedin.gradle.python.plugin.PythonPluginConfigurations;
+import com.linkedin.gradle.python.plugin.internal.PythonPluginConfigurations;
+import com.linkedin.gradle.python.spec.binary.PythonBinarySpec;
 import com.linkedin.gradle.python.spec.binary.SourceDistBinarySpec;
 import com.linkedin.gradle.python.spec.binary.WheelBinarySpec;
 import com.linkedin.gradle.python.spec.binary.internal.DefaultSourceDistBinarySpec;
 import com.linkedin.gradle.python.spec.binary.internal.DefaultWheelBinarySpec;
-import com.linkedin.gradle.python.spec.binary.PythonBinarySpec;
 import com.linkedin.gradle.python.spec.binary.internal.SourceDistBinarySpecInternal;
 import com.linkedin.gradle.python.spec.binary.internal.WheelBinarySpecInternal;
 import com.linkedin.gradle.python.spec.component.PythonComponentSpec;
@@ -13,14 +13,11 @@ import com.linkedin.gradle.python.spec.component.internal.DefaultPythonComponent
 import com.linkedin.gradle.python.spec.component.internal.PythonComponentSpecInternal;
 import com.linkedin.gradle.python.spec.component.internal.PythonEnvironment;
 import com.linkedin.gradle.python.spec.component.internal.PythonEnvironmentContainer;
-import com.linkedin.gradle.python.tasks.BuildSourceDistTask;
-import com.linkedin.gradle.python.tasks.BuildWheelTask;
 import com.linkedin.gradle.python.tasks.InstallDependenciesTask;
 import com.linkedin.gradle.python.tasks.InstallLocalProjectTask;
 import com.linkedin.gradle.python.tasks.PythonTestTask;
 import com.linkedin.gradle.python.tasks.VirtualEnvironmentBuild;
 import com.linkedin.gradle.python.tasks.internal.AddDependsOnTaskAction;
-import com.linkedin.gradle.python.tasks.internal.configuration.DistConfigurationAction;
 import com.linkedin.gradle.python.tasks.internal.configuration.CreateVirtualEnvConfigureAction;
 import com.linkedin.gradle.python.tasks.internal.configuration.DependencyConfigurationAction;
 import com.linkedin.gradle.python.tasks.internal.configuration.InstallLocalConfigurationAction;
@@ -41,14 +38,11 @@ import org.gradle.model.Mutate;
 import org.gradle.model.Path;
 import org.gradle.model.RuleSource;
 import org.gradle.model.Validate;
-import org.gradle.platform.base.BinaryTasks;
 import org.gradle.platform.base.BinaryType;
 import org.gradle.platform.base.BinaryTypeBuilder;
-import org.gradle.platform.base.ComponentBinaries;
 import org.gradle.platform.base.ComponentType;
 import org.gradle.platform.base.ComponentTypeBuilder;
 import org.gradle.process.internal.ExecActionFactory;
-import org.gradle.util.GUtil;
 
 
 public class PythonBaseRulePlugin extends RuleSource {
@@ -68,15 +62,15 @@ public class PythonBaseRulePlugin extends RuleSource {
   }
 
   @BinaryType
-  public void registerSourceDist(BinaryTypeBuilder<SourceDistBinarySpec> builder) {
-    builder.defaultImplementation(DefaultSourceDistBinarySpec.class);
-    builder.internalView(SourceDistBinarySpecInternal.class);
-  }
-
-  @BinaryType
   public void registerWheel(BinaryTypeBuilder<WheelBinarySpec> builder) {
     builder.defaultImplementation(DefaultWheelBinarySpec.class);
     builder.internalView(WheelBinarySpecInternal.class);
+  }
+
+  @BinaryType
+  public void registerSourceDist(BinaryTypeBuilder<SourceDistBinarySpec> builder) {
+    builder.defaultImplementation(DefaultSourceDistBinarySpec.class);
+    builder.internalView(SourceDistBinarySpecInternal.class);
   }
 
   @Mutate
@@ -180,17 +174,5 @@ public class PythonBaseRulePlugin extends RuleSource {
         tasks.named(LifecycleBasePlugin.CHECK_TASK_NAME, new AddDependsOnTaskAction(taskName));
       }
     }
-  }
-
-  @BinaryTasks
-  public void createWheelTask(ModelMap<Task> tasks, final WheelBinarySpecInternal spec) {
-    String postFix = GUtil.toCamelCase(spec.getName());
-    tasks.create("create" + postFix, BuildWheelTask.class, new DistConfigurationAction(spec.getPythonEnvironment(), spec.getSources()));
-  }
-
-  @BinaryTasks
-  public void createSourceDistTask(ModelMap<Task> tasks, final SourceDistBinarySpecInternal spec) {
-    String postFix = GUtil.toCamelCase(spec.getName());
-    tasks.create("create" + postFix, BuildSourceDistTask.class, new DistConfigurationAction(spec.getPythonEnvironment(), spec.getSources()));
   }
 }

@@ -4,7 +4,7 @@ import com.linkedin.gradle.python.PythonSourceSet;
 import com.linkedin.gradle.python.PythonTestSourceSet;
 import com.linkedin.gradle.python.internal.DefaultPythonSourceSet;
 import com.linkedin.gradle.python.internal.DefaultPythonTestSourceSet;
-import com.linkedin.gradle.python.plugin.PythonPluginConfigurations;
+import com.linkedin.gradle.python.plugin.internal.PythonPluginConfigurations;
 import com.linkedin.gradle.python.spec.component.PythonComponentSpec;
 import java.io.File;
 import org.gradle.api.Action;

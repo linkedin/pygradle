@@ -2,6 +2,7 @@ package com.linkedin.gradle.python.plugin.internal.python
 
 
 import com.linkedin.gradle.python.PythonSourceSet
+import com.linkedin.gradle.python.plugin.PythonLangPlugin
 import com.linkedin.gradle.python.plugin.internal.AbstractBaseRuleSourcePluginTest
 import com.linkedin.gradle.python.plugin.internal.base.PythonLanguageRulePlugin
 import com.linkedin.gradle.python.plugin.internal.base.PythonBaseRulePlugin
@@ -13,7 +14,7 @@ class PythonBaseRulePluginTest extends AbstractBaseRuleSourcePluginTest {
     when:
     dsl {
       pluginManager.apply PythonLanguageRulePlugin
-      pluginManager.apply PythonBaseRulePlugin
+      pluginManager.apply PythonLangPlugin
       model {
         components {
           python(com.linkedin.gradle.python.spec.component.PythonComponentSpec) {

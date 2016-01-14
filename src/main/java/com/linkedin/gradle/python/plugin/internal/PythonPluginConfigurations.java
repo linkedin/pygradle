@@ -1,4 +1,4 @@
-package com.linkedin.gradle.python.plugin;
+package com.linkedin.gradle.python.plugin.internal;
 
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;

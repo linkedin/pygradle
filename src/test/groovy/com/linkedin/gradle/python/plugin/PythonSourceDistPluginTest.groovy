@@ -1,21 +1,16 @@
-package com.linkedin.gradle.python.plugin.internal.language
+package com.linkedin.gradle.python.plugin
 
 
 import com.linkedin.gradle.python.plugin.internal.AbstractBaseRuleSourcePluginTest
-import com.linkedin.gradle.python.plugin.internal.base.PythonBaseRulePlugin
-import com.linkedin.gradle.python.plugin.internal.base.PythonLanguageRulePlugin
 import com.linkedin.gradle.python.spec.binary.SourceDistBinarySpec
-import com.linkedin.gradle.python.spec.binary.WheelBinarySpec
 import com.linkedin.gradle.python.spec.component.internal.PythonComponentSpecInternal
 
-class PythonLangRulePluginTest extends AbstractBaseRuleSourcePluginTest {
+class PythonSourceDistPluginTest extends AbstractBaseRuleSourcePluginTest {
 
   def 'apply multiple platforms'() {
     when:
     dsl {
-      pluginManager.apply PythonLanguageRulePlugin
-      pluginManager.apply PythonBaseRulePlugin
-      pluginManager.apply PythonLangRulePlugin
+      pluginManager.apply PythonSourceDistPlugin
       model {
         components {
           python(com.linkedin.gradle.python.spec.component.PythonComponentSpec) {
@@ -34,12 +29,6 @@ class PythonLangRulePluginTest extends AbstractBaseRuleSourcePluginTest {
     and:
     python.getPythonEnvironments().size() == 2
 
-    and:
-    binaries.withType(WheelBinarySpec).size() == 2
-    for(WheelBinarySpec spec : binaries.withType(WheelBinarySpec)) {
-        assert spec != null
-        assert (spec.tasks.toList().collect { it.name } as Set).containsAll("createPythonWheel${spec.getPythonEnvironment().getVersion().getVersionString().replace('.', '')}" as String)
-    }
 
     and:
     binaries.withType(SourceDistBinarySpec).size() == 1
@@ -49,6 +38,6 @@ class PythonLangRulePluginTest extends AbstractBaseRuleSourcePluginTest {
     }
 
     and:
-    binaries.size() == 3
+    binaries.size() == 1
   }
 }

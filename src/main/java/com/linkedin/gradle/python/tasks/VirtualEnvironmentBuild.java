@@ -1,6 +1,7 @@
 package com.linkedin.gradle.python.tasks;
 
 import com.linkedin.gradle.python.internal.toolchain.PythonExecutable;
+import com.linkedin.gradle.python.tasks.internal.utilities.DefaultOutputStreamProcessor;
 import org.gradle.api.Action;
 import org.gradle.api.GradleException;
 import org.gradle.api.artifacts.Configuration;
@@ -11,6 +12,7 @@ import org.gradle.api.file.CopySpec;
 import org.gradle.api.internal.file.FileOperations;
 import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.*;
+import org.gradle.process.ExecResult;
 import org.gradle.process.internal.ExecAction;
 import org.gradle.util.GFileUtils;
 import org.gradle.util.VersionNumber;
@@ -69,16 +71,24 @@ public class VirtualEnvironmentBuild extends BasePythonTask {
 
         final String path = String.format("%s/virtualenv-%s/virtualenv.py", vendorDir.getAbsolutePath(), virtualEnvDependencyVersion);
         final PythonExecutable pythonExecutable = getPythonEnvironment().getSystemPythonExecutable();
+        final DefaultOutputStreamProcessor streamProcessor = new DefaultOutputStreamProcessor();
 
-        pythonExecutable.execute(new Action<ExecAction>() {
+        ExecResult result = pythonExecutable.execute(new Action<ExecAction>() {
             @Override
             public void execute(ExecAction execAction) {
                 execAction.args(path,
                     "--python", pythonExecutable.getPythonPath().getAbsolutePath(),
                     "--prompt", virtualEnvName,
                     getVenvDir().getAbsolutePath());
+                execAction.setErrorOutput(streamProcessor);
+                execAction.setStandardOutput(streamProcessor);
             }
-        }).assertNormalExitValue();
+        });
+
+        if (result.getExitValue() != 0) {
+            getLogger().lifecycle(streamProcessor.getWholeText());
+        }
+        result.assertNormalExitValue();
 
         File source = new File(getVenvDir(), "bin/activate");
         GFileUtils.copyFile(source, getActivateScript());

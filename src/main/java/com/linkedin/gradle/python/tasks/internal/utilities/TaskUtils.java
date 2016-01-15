@@ -23,7 +23,7 @@ public class TaskUtils {
     }
 
     public static File sitePackage(File vendDir, PythonVersion version) {
-        String sitePackagePath = String.format("lib/python%s/site-packages", version.getVersionString());
+        String sitePackagePath = String.format("lib/python%s/site-packages", version.getMajorMinorVersion());
         return new File(vendDir, sitePackagePath);
     }
 }

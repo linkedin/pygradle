@@ -8,15 +8,19 @@ import java.util.regex.Pattern;
 
 public class PythonVersion implements Serializable {
 
+  private static final long serialVersionUID = 1L;
+
   private static final String matchAny = "(.*?)";
   private static final String optionalPython = "(python)?";
   private static final String versionNumber = "([23](\\.[0-9]+)*)";
   private static final Pattern PATTERN = Pattern.compile(matchAny + optionalPython + versionNumber + "$", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
   private final String version;
+  private final String[] versionParts;
 
   PythonVersion(String version) {
     this.version = version;
+    this.versionParts = version.split("\\.");
   }
 
   public static PythonVersion parse(String string) {
@@ -45,11 +49,15 @@ public class PythonVersion implements Serializable {
   }
 
   public String getMajorVersion() {
-    return version.substring(0, 1);
+    return versionParts[0];
   }
 
   public String getMajorMinorVersion() {
-    return version.substring(Math.min(3, version.length()));
+    if (versionParts.length == 1) {
+      return versionParts[0];
+    } else {
+      return versionParts[0] + "." + versionParts[1];
+    }
   }
 
   @Override

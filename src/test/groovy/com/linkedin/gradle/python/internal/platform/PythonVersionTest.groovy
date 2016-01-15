@@ -45,4 +45,16 @@ class PythonVersionTest extends Specification {
     where:
     version << ['abc', 'python1234567']
   }
+
+  @Unroll
+  def 'can understand #full will be #majorMinor'() {
+    expect:
+    PythonVersion.parse(full).getMajorMinorVersion() == majorMinor
+
+    where:
+    full      | majorMinor
+    '2.4.7'   | '2.4'
+    '2.4.10'  | '2.4'
+    '3.15.10' | '3.15'
+  }
 }

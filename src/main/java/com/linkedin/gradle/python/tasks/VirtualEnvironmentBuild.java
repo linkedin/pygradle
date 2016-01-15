@@ -24,6 +24,7 @@ public class VirtualEnvironmentBuild extends BasePythonTask {
 
     private Configuration virtualEnvFiles;
     private String activateScriptName;
+    private String virtualEnvName;
 
     @Inject
     protected FileOperations getFileOperations() {
@@ -71,7 +72,10 @@ public class VirtualEnvironmentBuild extends BasePythonTask {
         pythonExecutable.execute(new Action<ExecAction>() {
             @Override
             public void execute(ExecAction execAction) {
-                execAction.args(path, "--python", pythonExecutable.getPythonPath().getAbsolutePath(), getVenvDir().getAbsolutePath());
+                execAction.args(path,
+                    "--python", pythonExecutable.getPythonPath().getAbsolutePath(),
+                    "--prompt", virtualEnvName,
+                    getVenvDir().getAbsolutePath());
             }
         }).assertNormalExitValue();
 
@@ -110,6 +114,15 @@ public class VirtualEnvironmentBuild extends BasePythonTask {
 
     public void setActivateScriptName(String activateScriptName) {
         this.activateScriptName = activateScriptName;
+    }
+
+    @Input
+    public String getVirtualEnvName() {
+        return virtualEnvName;
+    }
+
+    public void setVirtualEnvName(String virtualEnvName) {
+        this.virtualEnvName = virtualEnvName;
     }
 
     private class VirtualEvnSpec implements Spec<Dependency> {

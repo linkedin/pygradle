@@ -18,6 +18,11 @@ public class CreateVirtualEnvConfigureAction extends BasePythonTaskAction<Virtua
   @Override
   public void configure(VirtualEnvironmentBuild task) {
     task.setVirtualEnvFiles(bootstrapConfiguration.getConfiguration());
-    task.setActivateScriptName(String.format("activate-%s-%s", getPythonEnvironment().getEnvironmentName(), getPythonEnvironment().getVersion().getVersionString()));
+
+    String environmentName = getPythonEnvironment().getEnvironmentName();
+    String versionString = getPythonEnvironment().getVersion().getVersionString();
+
+    task.setActivateScriptName(String.format("activate-%s-%s", environmentName, versionString));
+    task.setVirtualEnvName(String.format("(%s-%s)", environmentName, versionString));
   }
 }

@@ -1,11 +1,12 @@
 package com.linkedin.gradle.python.internal.platform;
 
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-public class PythonVersion {
+public class PythonVersion implements Serializable {
 
   private static final String matchAny = "(.*?)";
   private static final String optionalPython = "(python)?";

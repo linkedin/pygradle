@@ -25,7 +25,7 @@ import org.gradle.model.RuleSource;
 public class PythonLangPlugin implements Plugin<Project>  {
 
     public void apply(final Project project) {
-        project.getPluginManager().apply(PythonBaseRulePlugin.class);
+        project.getPluginManager().apply(PythonBaseLangPlugin.class);
         project.getPluginManager().apply(Rules.class);
     }
 

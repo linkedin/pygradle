@@ -15,19 +15,22 @@ class PythonVersionTest extends Specification {
     e.message == 'PythonVersion cannot be null!'
   }
 
-  def 'when full version comes it, it will be the same'() {
-    expect:
-    PythonVersion.parse('2.3.4') == new PythonVersion('2.3.4')
-    PythonVersion.parse('2.3') == new PythonVersion('2.3')
-  }
-
   @Unroll
   def 'when python#version comes it, it will be the version'() {
     expect:
     PythonVersion.parse("python$version") == new PythonVersion(version)
 
     where:
-    version << ['2.3.4', '2.3']
+    version << ['2.3.4', '2.3', '2', '3']
+  }
+
+  @Unroll
+  def 'when #version comes it, it will be the version'() {
+    expect:
+    PythonVersion.parse(version) == new PythonVersion(version)
+
+    where:
+    version << ['2.3.4', '2.3', '2', '3', '2.7.10']
   }
 
   @Unroll
@@ -37,7 +40,7 @@ class PythonVersionTest extends Specification {
 
     then:
     def e = thrown(IllegalArgumentException)
-    e.message == "Unable to accept $version as a PythonVersion".toString()
+    e.message == "Unable to accept `$version` as a PythonVersion".toString()
 
     where:
     version << ['abc', 'python1234567']

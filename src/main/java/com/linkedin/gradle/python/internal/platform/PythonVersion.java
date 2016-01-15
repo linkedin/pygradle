@@ -7,7 +7,10 @@ import java.util.regex.Pattern;
 
 public class PythonVersion {
 
-  private static final Pattern PATTERN = Pattern.compile(".*?(python)?([23]\\.[0-9\\.]+)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+  private static final String matchAny = "(.*?)";
+  private static final String optionalPython = "(python)?";
+  private static final String versionNumber = "([23](\\.[0-9]+)*)";
+  private static final Pattern PATTERN = Pattern.compile(matchAny + optionalPython + versionNumber + "$", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
   private final String version;
 
@@ -30,10 +33,10 @@ public class PythonVersion {
 
     Matcher matcher = PATTERN.matcher(value.toString());
     if (matcher.find()) {
-      return new PythonVersion(matcher.group(2));
+      return new PythonVersion(matcher.group(3));
     }
 
-    throw new IllegalArgumentException("Unable to accept " + value.toString() + " as a PythonVersion");
+    throw new IllegalArgumentException("Unable to accept `" + value.toString() + "` as a PythonVersion");
   }
 
   public String getVersionString() {
@@ -45,7 +48,7 @@ public class PythonVersion {
   }
 
   public String getMajorMinorVersion() {
-    return version.substring(3);
+    return version.substring(Math.min(3, version.length()));
   }
 
   @Override

@@ -20,6 +20,8 @@ class DefaultPythonEnvironmentContainerTest extends Specification {
     container.getPythonEnvironment(input) != null
 
     where:
-    input << ['2.3.4', '2.6.9', '2.7.9', '3.3.12']
+    input <<
+        ['2.3.4', '2.6.9', '2.7.9', '3.3.12', 'python2.3.4', 'python2.6.9', 'python2.7.9', 'python3.3.12',
+         'python2.3', 'python2.6', 'python2.7', 'python3.3', 'python2', 'python3', 'python']
   }
 }

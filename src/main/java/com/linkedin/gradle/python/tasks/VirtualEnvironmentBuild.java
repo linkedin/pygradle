@@ -33,6 +33,7 @@ public class VirtualEnvironmentBuild extends BasePythonTask {
     }
 
     @OutputFile
+    @SuppressWarnings("unused")
     public File getLocalPythonExecutable() {
         return new File(getVenvDir(), "bin/python");
     }
@@ -117,6 +118,7 @@ public class VirtualEnvironmentBuild extends BasePythonTask {
     }
 
     @Input
+    @SuppressWarnings("unused")
     public String getVirtualEnvName() {
         return virtualEnvName;
     }

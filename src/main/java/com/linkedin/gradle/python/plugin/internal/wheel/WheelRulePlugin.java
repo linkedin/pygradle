@@ -3,7 +3,7 @@ package com.linkedin.gradle.python.plugin.internal.wheel;
 import com.linkedin.gradle.python.spec.binary.internal.WheelBinarySpecInternal;
 import com.linkedin.gradle.python.spec.component.internal.PythonComponentSpecInternal;
 import com.linkedin.gradle.python.tasks.BuildWheelTask;
-import com.linkedin.gradle.python.tasks.internal.configuration.DistConfigurationAction;
+import com.linkedin.gradle.python.tasks.internal.configuration.WheelDistConfigurationAction;
 import org.gradle.api.Task;
 import org.gradle.model.ModelMap;
 import org.gradle.model.RuleSource;
@@ -22,7 +22,8 @@ public class WheelRulePlugin extends RuleSource {
   public void createWheelTask(ModelMap<Task> tasks, final WheelBinarySpecInternal spec) {
     //Capitalize String
     String postFix = spec.getName().substring(0, 1).toUpperCase() + spec.getName().substring(1);
-    tasks.create("create" + postFix, BuildWheelTask.class, new DistConfigurationAction(spec.getPythonEnvironment(), spec.getSources()));
+    String taskName = "create" + postFix;
+    tasks.create(taskName, BuildWheelTask.class, new WheelDistConfigurationAction(spec));
   }
 
 }

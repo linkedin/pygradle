@@ -3,7 +3,9 @@ package com.linkedin.gradle.python.plugin.internal.sources;
 import com.linkedin.gradle.python.spec.binary.internal.SourceDistBinarySpecInternal;
 import com.linkedin.gradle.python.spec.component.internal.PythonComponentSpecInternal;
 import com.linkedin.gradle.python.tasks.BuildSourceDistTask;
+import com.linkedin.gradle.python.tasks.PublishingTask;
 import com.linkedin.gradle.python.tasks.internal.configuration.DistConfigurationAction;
+import com.linkedin.gradle.python.tasks.internal.configuration.SourceDistConfigurationAction;
 import java.io.File;
 import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.Action;
@@ -31,6 +33,7 @@ public class SourceDistRulePlugin extends RuleSource {
   @BinaryTasks
   public void createSourceDistTask(ModelMap<Task> tasks, final SourceDistBinarySpecInternal spec) {
     String postFix = GUtil.toCamelCase(spec.getName());
-    tasks.create("create" + postFix, BuildSourceDistTask.class, new DistConfigurationAction(spec.getPythonEnvironment(), spec.getSources()));
+    String taskName = "create" + postFix;
+    tasks.create(taskName, BuildSourceDistTask.class, new SourceDistConfigurationAction(spec));
   }
 }

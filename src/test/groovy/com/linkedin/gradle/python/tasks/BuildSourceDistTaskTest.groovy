@@ -20,6 +20,8 @@ class BuildSourceDistTaskTest extends Specification {
   def setup() {
     project = ProjectBuilder.builder().build()
     sourceDistTask = project.tasks.create('sourceDist', BuildSourceDistTask)
+    sourceDistTask.setOutputFormat("gztar")
+    new File(sourceDistTask.getTemporaryDir(), 'foo.txt').text = 'some text'
     distPath = temporaryFolder.newFolder()
     sourceDistTask.distributablePath = distPath
   }
@@ -34,7 +36,7 @@ class BuildSourceDistTaskTest extends Specification {
 
     then:
     1 * action.args("setup.py", "sdist", "--dist-dir", _)
-    1 * action.args(["--formats=gztar,zip"])
+    1 * action.args(["--formats=gztar"])
   }
 
   def 'test will call setup.py with the right parameters, on failure will throw exception'() {

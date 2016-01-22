@@ -1,13 +1,19 @@
 package com.linkedin.gradle.python.spec.binary.internal;
 
-import com.linkedin.gradle.python.spec.binary.SourceDistBinarySpec;
-import com.linkedin.gradle.python.spec.component.internal.DefaultPythonTargetPlatform;
-import com.linkedin.gradle.python.spec.component.internal.PythonTargetPlatform;
-
-import java.io.File;
-import org.gradle.internal.os.OperatingSystem;
+import org.gradle.api.Task;
 
 
 public class DefaultSourceDistBinarySpec extends DefaultPythonBinarySpec implements SourceDistBinarySpecInternal {
 
+  private String artifactType = "gztar";
+
+  @Override
+  public void setArtifactType(String type) {
+    this.artifactType = type;
+  }
+
+  @Override
+  public String getArtifactType() {
+    return artifactType;
+  }
 }

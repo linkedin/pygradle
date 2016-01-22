@@ -76,7 +76,7 @@ abstract public class AbstractDistTask extends BasePythonTask {
     }
 
     @OutputFiles
-    List<File> getOuptutFiles() {
+    public List<File> getOuptutFiles() {
       return outputFiles;
     }
 

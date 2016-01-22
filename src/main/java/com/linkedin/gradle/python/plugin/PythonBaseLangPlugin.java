@@ -1,9 +1,18 @@
 package com.linkedin.gradle.python.plugin;
 
+import com.linkedin.gradle.python.PythonSourceSet;
+import com.linkedin.gradle.python.PythonTestSourceSet;
 import com.linkedin.gradle.python.plugin.internal.PythonPluginConfigurations;
 import com.linkedin.gradle.python.plugin.internal.base.PythonBaseRulePlugin;
+import com.linkedin.gradle.python.plugin.internal.sources.SourceDistRulePlugin;
+import com.linkedin.gradle.python.plugin.internal.wheel.WheelRulePlugin;
+import com.linkedin.gradle.python.spec.binary.SourceDistBinarySpec;
+import com.linkedin.gradle.python.spec.binary.WheelBinarySpec;
+import com.linkedin.gradle.python.spec.component.PythonComponentSpec;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.plugins.BasePlugin;
+import org.gradle.api.publish.ivy.plugins.IvyPublishPlugin;
 
 
 /**
@@ -80,7 +89,17 @@ public class PythonBaseLangPlugin implements Plugin<Project>  {
     public static final String PYTHON_CONFIGURATIONS = "pythonConfigurations";
 
     public void apply(final Project project) {
+        project.getPluginManager().apply(BasePlugin.class);
+        project.getPluginManager().apply(IvyPublishPlugin.class);
         project.getPluginManager().apply(PythonBaseRulePlugin.class);
+        project.getPluginManager().apply(SourceDistRulePlugin.class);
+        project.getPluginManager().apply(WheelRulePlugin.class);
+
+        project.getExtensions().getExtraProperties().set(PythonComponentSpec.class.getSimpleName(), PythonComponentSpec.class);
+        project.getExtensions().getExtraProperties().set(PythonTestSourceSet.class.getSimpleName(), PythonTestSourceSet.class);
+        project.getExtensions().getExtraProperties().set(PythonSourceSet.class.getSimpleName(), PythonSourceSet.class);
+        project.getExtensions().getExtraProperties().set(WheelBinarySpec.class.getSimpleName(), WheelBinarySpec.class);
+        project.getExtensions().getExtraProperties().set(SourceDistBinarySpec.class.getSimpleName(), SourceDistBinarySpec.class);
 
         if (project.getExtensions().findByName(PYTHON_CONFIGURATIONS) == null) {
             project.getExtensions().create(PYTHON_CONFIGURATIONS, PythonPluginConfigurations.class, project.getConfigurations(), project.getDependencies());

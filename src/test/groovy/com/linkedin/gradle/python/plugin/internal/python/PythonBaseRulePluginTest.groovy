@@ -1,10 +1,7 @@
 package com.linkedin.gradle.python.plugin.internal.python
 
 
-import com.linkedin.gradle.python.PythonSourceSet
-import com.linkedin.gradle.python.plugin.PythonLangPlugin
 import com.linkedin.gradle.python.plugin.internal.AbstractBaseRuleSourcePluginTest
-
 import com.linkedin.gradle.python.plugin.internal.base.PythonBaseRulePlugin
 import com.linkedin.gradle.python.spec.component.internal.PythonComponentSpecInternal
 import org.gradle.model.ModelMap

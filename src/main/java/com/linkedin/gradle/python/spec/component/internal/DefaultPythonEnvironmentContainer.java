@@ -1,6 +1,5 @@
 package com.linkedin.gradle.python.spec.component.internal;
 
-import com.google.common.base.Objects;
 import com.linkedin.gradle.python.internal.platform.PythonVersion;
 import com.linkedin.gradle.python.spec.component.PythonEnvironmentBuilder;
 import java.io.File;
@@ -10,6 +9,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.lang.StringUtils;
 import org.gradle.api.GradleException;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
@@ -66,9 +66,9 @@ public class DefaultPythonEnvironmentContainer implements PythonEnvironmentConta
     String majorMinorVersion = parse.getMajorMinorVersion();
     String majorVersion = parse.getMajorVersion();
     for (PythonEnvironment environment : pythonEnvironmentMap.values()) {
-      if (Objects.equal(environment.getVersion().getMajorMinorVersion(), majorMinorVersion)) {
+      if (StringUtils.equals(environment.getVersion().getMajorMinorVersion(), majorMinorVersion)) {
         return environment;
-      } else if (Objects.equal(environment.getVersion().getMajorVersion(), majorVersion)) {
+      } else if (StringUtils.equals(environment.getVersion().getMajorVersion(), majorVersion)) {
         return environment;
       }
     }

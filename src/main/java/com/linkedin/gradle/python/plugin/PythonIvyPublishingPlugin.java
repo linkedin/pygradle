@@ -14,6 +14,7 @@ import org.gradle.api.publish.PublishingExtension;
 import org.gradle.api.publish.ivy.IvyPublication;
 import org.gradle.model.ModelMap;
 import org.gradle.model.Mutate;
+import org.gradle.model.Path;
 import org.gradle.model.RuleSource;
 
 
@@ -30,7 +31,7 @@ public class PythonIvyPublishingPlugin implements Plugin<Project> {
     public static class Rules extends RuleSource {
 
         @Mutate
-        public void publishBinaries(PublishingExtension publishingExtension, ModelMap<PythonBinarySpec> specs) {
+        public void publishBinaries(PublishingExtension publishingExtension, @Path("binaries") ModelMap<PythonBinarySpec> specs) {
             final PublicationContainer publications = publishingExtension.getPublications();
             for (final PythonBinarySpecInternal spec : specs.withType(PythonBinarySpecInternal.class)) {
                 if (publications.findByName(spec.getName()) != null) {

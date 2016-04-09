@@ -1,11 +1,7 @@
 package com.linkedin.gradle.python.plugin.internal;
 
 import org.gradle.api.Action;
-import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.ConfigurationContainer;
-import org.gradle.api.artifacts.Dependency;
-import org.gradle.api.artifacts.DependencySet;
-import org.gradle.api.artifacts.PublishArtifact;
+import org.gradle.api.artifacts.*;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.file.FileCollection;
 

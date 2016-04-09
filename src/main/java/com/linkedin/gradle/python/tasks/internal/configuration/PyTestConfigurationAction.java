@@ -4,11 +4,12 @@ import com.linkedin.gradle.python.PythonTestSourceSet;
 import com.linkedin.gradle.python.spec.component.internal.PythonEnvironment;
 import com.linkedin.gradle.python.tasks.PythonTestTask;
 import com.linkedin.gradle.python.tasks.internal.BasePythonTaskAction;
+import org.gradle.language.base.LanguageSourceSet;
+import org.gradle.model.ModelMap;
+
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
-import org.gradle.language.base.LanguageSourceSet;
-import org.gradle.model.ModelMap;
 
 
 public class PyTestConfigurationAction extends BasePythonTaskAction<PythonTestTask> {
@@ -27,6 +28,6 @@ public class PyTestConfigurationAction extends BasePythonTaskAction<PythonTestTa
         task.dependsOn(getPythonEnvironment().getEnvironmentSetupTaskName());
         task.registerTestSources(testSourceDirs);
         task.setOutputFile(new File(getPythonEnvironment().getBuildDir(),
-            "test-results" + File.separatorChar + getPythonEnvironment().getEnvironmentName() + "-" + task.getName() + ".xml"));
+                "test-results" + File.separatorChar + getPythonEnvironment().getEnvironmentName() + "-" + task.getName() + ".xml"));
     }
 }

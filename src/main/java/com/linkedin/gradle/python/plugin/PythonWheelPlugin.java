@@ -1,7 +1,6 @@
 package com.linkedin.gradle.python.plugin;
 
 import com.linkedin.gradle.python.plugin.internal.wheel.WheelAction;
-import com.linkedin.gradle.python.plugin.internal.wheel.WheelRulePlugin;
 import com.linkedin.gradle.python.spec.binary.PythonBinarySpec;
 import com.linkedin.gradle.python.spec.binary.WheelBinarySpec;
 import com.linkedin.gradle.python.spec.component.internal.PythonComponentSpecInternal;
@@ -14,7 +13,7 @@ import org.gradle.model.RuleSource;
 import org.gradle.platform.base.ComponentBinaries;
 
 
-public class PythonWheelPlugin implements Plugin<Project>  {
+public class PythonWheelPlugin implements Plugin<Project> {
     public void apply(final Project project) {
         project.getPluginManager().apply(PythonLangPlugin.class);
         project.getPluginManager().apply(Rules.class);

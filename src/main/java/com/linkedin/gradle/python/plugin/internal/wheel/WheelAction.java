@@ -6,14 +6,14 @@ import org.gradle.api.Action;
 
 
 public class WheelAction implements Action<WheelBinarySpec> {
-  private final PythonEnvironment pythonEnvironment;
+    private final PythonEnvironment pythonEnvironment;
 
-  public WheelAction(PythonEnvironment pythonEnvironment) {
-    this.pythonEnvironment = pythonEnvironment;
-  }
+    public WheelAction(PythonEnvironment pythonEnvironment) {
+        this.pythonEnvironment = pythonEnvironment;
+    }
 
-  @Override
-  public void execute(WheelBinarySpec wheelBinarySpec) {
-    wheelBinarySpec.setPythonEnvironment(pythonEnvironment);
-  }
+    @Override
+    public void execute(WheelBinarySpec wheelBinarySpec) {
+        wheelBinarySpec.setPythonEnvironment(pythonEnvironment);
+    }
 }

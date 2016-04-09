@@ -2,103 +2,99 @@ package com.linkedin.gradle.python.spec.component.internal;
 
 import com.linkedin.gradle.python.internal.platform.PythonVersion;
 import com.linkedin.gradle.python.spec.component.PythonEnvironmentBuilder;
-import java.io.File;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.gradle.api.GradleException;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.process.internal.ExecActionFactory;
 
+import java.io.File;
+import java.util.*;
+
 
 public class DefaultPythonEnvironmentContainer implements PythonEnvironmentContainer {
 
-  private static final Logger logger = Logging.getLogger(DefaultPythonEnvironmentContainer.class);
+    private static final Logger logger = Logging.getLogger(DefaultPythonEnvironmentContainer.class);
 
-  private final Map<PythonVersion, PythonEnvironment> pythonEnvironmentMap = new LinkedHashMap<PythonVersion, PythonEnvironment>();
-  private final Set<String> definitionToPythonEnvMap = new HashSet<String>();
-  private final ExecActionFactory execActionFactory;
-  private final File buildDir;
-  private final String name;
+    private final Map<PythonVersion, PythonEnvironment> pythonEnvironmentMap = new LinkedHashMap<PythonVersion, PythonEnvironment>();
+    private final Set<String> definitionToPythonEnvMap = new HashSet<String>();
+    private final ExecActionFactory execActionFactory;
+    private final File buildDir;
+    private final String name;
 
-  DefaultPythonEnvironmentContainer(File buildDir, String name, ExecActionFactory execActionFactory) {
-    this.buildDir = buildDir;
-    this.name = name;
-    this.execActionFactory = execActionFactory;
-  }
-
-  @Override
-  public void register(String targetPlatform) {
-    if (!definitionToPythonEnvMap.contains(targetPlatform)) {
-      logger.debug("Registering python version {}", targetPlatform);
-      PythonEnvironment environment = new PythonEnvironmentBuilder(targetPlatform).withBuildDir(buildDir)
-          .withExecActionFactory(execActionFactory)
-          .withName(name)
-          .build();
-      definitionToPythonEnvMap.add(targetPlatform);
-      pythonEnvironmentMap.put(environment.getVersion(), environment);
-    }
-  }
-
-  @Override
-  public void register(Collection<String> environments) {
-    for (String environment : environments) {
-      register(environment);
-    }
-  }
-
-  public PythonEnvironment getPythonEnvironment(String envName) {
-    if ("python".equalsIgnoreCase(envName)) {
-      return getDefaultPythonEnvironment();
+    DefaultPythonEnvironmentContainer(File buildDir, String name, ExecActionFactory execActionFactory) {
+        this.buildDir = buildDir;
+        this.name = name;
+        this.execActionFactory = execActionFactory;
     }
 
-    PythonVersion parse = PythonVersion.parse(envName);
-
-    if (pythonEnvironmentMap.containsKey(parse)) {
-      return pythonEnvironmentMap.get(parse);
+    @Override
+    public void register(String targetPlatform) {
+        if (!definitionToPythonEnvMap.contains(targetPlatform)) {
+            logger.debug("Registering python version {}", targetPlatform);
+            PythonEnvironment environment = new PythonEnvironmentBuilder(targetPlatform).withBuildDir(buildDir)
+                    .withExecActionFactory(execActionFactory)
+                    .withName(name)
+                    .build();
+            definitionToPythonEnvMap.add(targetPlatform);
+            pythonEnvironmentMap.put(environment.getVersion(), environment);
+        }
     }
 
-    String majorMinorVersion = parse.getMajorMinorVersion();
-    String majorVersion = parse.getMajorVersion();
-    for (PythonEnvironment environment : pythonEnvironmentMap.values()) {
-      if (StringUtils.equals(environment.getVersion().getMajorMinorVersion(), majorMinorVersion)) {
-        return environment;
-      } else if (StringUtils.equals(environment.getVersion().getMajorVersion(), majorVersion)) {
-        return environment;
-      }
+    @Override
+    public void register(Collection<String> environments) {
+        for (String environment : environments) {
+            register(environment);
+        }
     }
 
-    throw new GradleException("Unable to find python with name " + envName);
-  }
+    public PythonEnvironment getPythonEnvironment(String envName) {
+        if ("python".equalsIgnoreCase(envName)) {
+            return getDefaultPythonEnvironment();
+        }
 
-  @Override
-  public Map<PythonVersion, PythonEnvironment> getPythonEnvironments() {
-    return Collections.unmodifiableMap(pythonEnvironmentMap);
-  }
+        PythonVersion parse = PythonVersion.parse(envName);
 
-  @Override
-  public PythonEnvironment getDefaultPythonEnvironment() {
-    return pythonEnvironmentMap.values().iterator().next();
-  }
+        if (pythonEnvironmentMap.containsKey(parse)) {
+            return pythonEnvironmentMap.get(parse);
+        }
 
-  @Override
-  public boolean isEmpty() {
-    return pythonEnvironmentMap.isEmpty();
-  }
+        String majorMinorVersion = parse.getMajorMinorVersion();
+        String majorVersion = parse.getMajorVersion();
+        for (PythonEnvironment environment : pythonEnvironmentMap.values()) {
+            if (StringUtils.equals(environment.getVersion().getMajorMinorVersion(), majorMinorVersion)) {
+                return environment;
+            } else if (StringUtils.equals(environment.getVersion().getMajorVersion(), majorVersion)) {
+                return environment;
+            }
+        }
 
-  @Override
-  public int size() {
-    return pythonEnvironmentMap.size();
-  }
+        throw new GradleException("Unable to find python with name " + envName);
+    }
 
-  @Override
-  public String toString() {
-    return String.format("DefaultPythonEnvironmentContainer{pythonEnvironmentMap=%s, buildDir=%s, name='%s'}",
-        pythonEnvironmentMap, buildDir, name);
-  }
+    @Override
+    public Map<PythonVersion, PythonEnvironment> getPythonEnvironments() {
+        return Collections.unmodifiableMap(pythonEnvironmentMap);
+    }
+
+    @Override
+    public PythonEnvironment getDefaultPythonEnvironment() {
+        return pythonEnvironmentMap.values().iterator().next();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return pythonEnvironmentMap.isEmpty();
+    }
+
+    @Override
+    public int size() {
+        return pythonEnvironmentMap.size();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("DefaultPythonEnvironmentContainer{pythonEnvironmentMap=%s, buildDir=%s, name='%s'}",
+                pythonEnvironmentMap, buildDir, name);
+    }
 }

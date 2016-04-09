@@ -26,7 +26,6 @@ import com.linkedin.gradle.python.tasks.internal.configuration.CreateVirtualEnvC
 import com.linkedin.gradle.python.tasks.internal.configuration.DependencyConfigurationAction;
 import com.linkedin.gradle.python.tasks.internal.configuration.InstallLocalConfigurationAction;
 import com.linkedin.gradle.python.tasks.internal.configuration.PyTestConfigurationAction;
-import java.io.File;
 import org.apache.commons.lang.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
@@ -37,168 +36,159 @@ import org.gradle.api.logging.Logging;
 import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.internal.service.ServiceRegistry;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
-import org.gradle.model.Finalize;
-import org.gradle.model.Model;
-import org.gradle.model.ModelMap;
-import org.gradle.model.Mutate;
-import org.gradle.model.Path;
-import org.gradle.model.RuleSource;
-import org.gradle.model.Validate;
-import org.gradle.platform.base.BinaryType;
-import org.gradle.platform.base.BinaryTypeBuilder;
-import org.gradle.platform.base.ComponentType;
-import org.gradle.platform.base.ComponentTypeBuilder;
-import org.gradle.platform.base.LanguageType;
-import org.gradle.platform.base.LanguageTypeBuilder;
+import org.gradle.model.*;
+import org.gradle.platform.base.*;
 import org.gradle.process.internal.ExecActionFactory;
+
+import java.io.File;
 
 
 public class PythonBaseRulePlugin extends RuleSource {
 
-  public static final String CREATE_VIRTUAL_ENV_TASK = "createVirtualEnv";
-  public static final String INSTALL_REQUIRED_DEPENDENCIES_TASK = "installRequiredDependencies";
-  public static final String INSTALL_RUNTIME_DEPENDENCIES_TASK = "installRuntimeDependencies";
-  public static final String INSTALL_TEST_DEPENDENCIES_TASK = "installTestDependencies";
-  public static final String INSTALL_EDITABLE_TASK = "installEditable";
+    public static final String CREATE_VIRTUAL_ENV_TASK = "createVirtualEnv";
+    public static final String INSTALL_REQUIRED_DEPENDENCIES_TASK = "installRequiredDependencies";
+    public static final String INSTALL_RUNTIME_DEPENDENCIES_TASK = "installRuntimeDependencies";
+    public static final String INSTALL_TEST_DEPENDENCIES_TASK = "installTestDependencies";
+    public static final String INSTALL_EDITABLE_TASK = "installEditable";
 
-  private static final Logger logger = Logging.getLogger(PythonBaseRulePlugin.class);
+    private static final Logger logger = Logging.getLogger(PythonBaseRulePlugin.class);
 
-  @ComponentType
-  public void register(ComponentTypeBuilder<PythonComponentSpec> builder) {
-    builder.defaultImplementation(DefaultPythonComponentSpec.class);
-    builder.internalView(PythonComponentSpecInternal.class);
-  }
-
-  @BinaryType
-  public void registerWheel(BinaryTypeBuilder<WheelBinarySpec> builder) {
-    builder.defaultImplementation(DefaultWheelBinarySpec.class);
-    builder.internalView(WheelBinarySpecInternal.class);
-  }
-
-  @BinaryType
-  public void registerSourceDist(BinaryTypeBuilder<SourceDistBinarySpec> builder) {
-    builder.defaultImplementation(DefaultSourceDistBinarySpec.class);
-    builder.internalView(SourceDistBinarySpecInternal.class);
-  }
-
-
-  @LanguageType
-  public void registerLanguage(LanguageTypeBuilder<PythonSourceSet> builder) {
-    builder.setLanguageName("python");
-    builder.defaultImplementation(DefaultPythonSourceSet.class);
-  }
-
-  @LanguageType
-  public void registerLanguageTests(LanguageTypeBuilder<PythonTestSourceSet> builder) {
-    builder.setLanguageName("python");
-    builder.defaultImplementation(DefaultPythonTestSourceSet.class);
-  }
-
-  @Model
-  PythonPluginConfigurations configurations(ExtensionContainer extensions) {
-    return extensions.getByType(PythonPluginConfigurations.class);
-  }
-
-  @Mutate
-  void configurePythonComponents(final ModelMap<PythonComponentSpecInternal> specs, @Path("buildDir") final File buildDir,
-      final ServiceRegistry serviceRegistry) {
-    final ExecActionFactory execActionFactory = serviceRegistry.get(ExecActionFactory.class);
-    specs.beforeEach(new Action<PythonComponentSpecInternal>() {
-      @Override
-      public void execute(PythonComponentSpecInternal specInternal) {
-        specInternal.setBuildDir(buildDir);
-        specInternal.setExecActionFactory(execActionFactory);
-      }
-    });
-  }
-
-  @Finalize
-  void configurePythonBinariesWithEnvironment(final ModelMap<PythonComponentSpecInternal> specs) {
-    for (PythonComponentSpecInternal spec : specs) {
-      PythonEnvironmentContainer container = spec.getPythonEnvironments();
-      for (PythonBinarySpec pythonBinarySpec : spec.getBinaries().withType(PythonBinarySpec.class)) {
-        if (StringUtils.isNotBlank(pythonBinarySpec.getTarget())) {
-          pythonBinarySpec.setPythonEnvironment(container.getPythonEnvironment(pythonBinarySpec.getTarget()));
-        }
-      }
+    @ComponentType
+    public void register(ComponentTypeBuilder<PythonComponentSpec> builder) {
+        builder.defaultImplementation(DefaultPythonComponentSpec.class);
+        builder.internalView(PythonComponentSpecInternal.class);
     }
-  }
 
-  @Validate
-  void validateBinaries(final ModelMap<PythonBinarySpec> binarySpecs) {
-    for (PythonBinarySpec pythonBinarySpec : binarySpecs.withType(PythonBinarySpec.class)) {
-      if (pythonBinarySpec.getPythonEnvironment() == null) {
-        throw new GradleException(String.format("%s does not have a defined python environment, please define it", pythonBinarySpec.getName()));
-      }
+    @BinaryType
+    public void registerWheel(BinaryTypeBuilder<WheelBinarySpec> builder) {
+        builder.defaultImplementation(DefaultWheelBinarySpec.class);
+        builder.internalView(WheelBinarySpecInternal.class);
     }
-  }
 
-  @Validate
-  void validateComponent(ModelMap<PythonComponentSpecInternal> componentSpecMap) {
-    for (PythonComponentSpecInternal pythonComponentSpecInternal : componentSpecMap) {
-      if (pythonComponentSpecInternal.getPythonEnvironments().isEmpty()) {
-        throw new GradleException(pythonComponentSpecInternal.getName() + " must have at least 1 targetPlatform");
-      }
+    @BinaryType
+    public void registerSourceDist(BinaryTypeBuilder<SourceDistBinarySpec> builder) {
+        builder.defaultImplementation(DefaultSourceDistBinarySpec.class);
+        builder.internalView(SourceDistBinarySpecInternal.class);
     }
-  }
 
-  @Mutate
-  void createVirtalEnvironments(ModelMap<Task> taskContainer, final ModelMap<PythonComponentSpecInternal> specs,
-      final PythonPluginConfigurations configurations) {
-    logger.debug("Creating Virtual Envs");
-    for (PythonComponentSpecInternal spec : specs) {
-      for (PythonEnvironment pythonEnvironment : spec.getPythonEnvironments().getPythonEnvironments().values()) {
 
-        logger.debug("Executing for {} and {}", spec.getName(), pythonEnvironment.getVersion().getVersionString());
+    @LanguageType
+    public void registerLanguage(LanguageTypeBuilder<PythonSourceSet> builder) {
+        builder.setLanguageName("python");
+        builder.defaultImplementation(DefaultPythonSourceSet.class);
+    }
 
-        String taskPostfix = pythonEnvironment.getVersion().getVersionString();
+    @LanguageType
+    public void registerLanguageTests(LanguageTypeBuilder<PythonTestSourceSet> builder) {
+        builder.setLanguageName("python");
+        builder.defaultImplementation(DefaultPythonTestSourceSet.class);
+    }
 
-        String createVirtualEnvTask = CREATE_VIRTUAL_ENV_TASK + taskPostfix;
-        taskContainer.create(createVirtualEnvTask, VirtualEnvironmentBuild.class,
-            new CreateVirtualEnvConfigureAction(pythonEnvironment, configurations.getBootstrap()));
+    @Model
+    PythonPluginConfigurations configurations(ExtensionContainer extensions) {
+        return extensions.getByType(PythonPluginConfigurations.class);
+    }
 
-        final String installRequiredDependencies = INSTALL_REQUIRED_DEPENDENCIES_TASK + taskPostfix;
-        taskContainer.create(installRequiredDependencies, InstallDependenciesTask.class,
-            new DependencyConfigurationAction(pythonEnvironment, configurations.getVirtualEnv(), createVirtualEnvTask));
-
-        final String installRuntimeDependencies = INSTALL_RUNTIME_DEPENDENCIES_TASK + taskPostfix;
-        taskContainer.create(installRuntimeDependencies, InstallDependenciesTask.class,
-            new DependencyConfigurationAction(pythonEnvironment, configurations.getPython(),
-                installRequiredDependencies));
-
-        final String installTestDependencies = INSTALL_TEST_DEPENDENCIES_TASK + taskPostfix;
-        taskContainer.create(installTestDependencies, InstallDependenciesTask.class,
-            new DependencyConfigurationAction(pythonEnvironment, configurations.getPyTest(),
-                installRuntimeDependencies));
-
-        final String installEditable = INSTALL_EDITABLE_TASK + taskPostfix;
-        taskContainer.create(installEditable, InstallLocalProjectTask.class,
-            new InstallLocalConfigurationAction(pythonEnvironment, installRuntimeDependencies));
-
-        taskContainer.create(pythonEnvironment.getEnvironmentSetupTaskName(), DefaultTask.class, new Action<Task>() {
-          @Override
-          public void execute(Task task) {
-            task.dependsOn(installRequiredDependencies);
-            task.dependsOn(installRuntimeDependencies);
-            task.dependsOn(installTestDependencies);
-            task.dependsOn(installEditable);
-          }
+    @Mutate
+    void configurePythonComponents(final ModelMap<PythonComponentSpecInternal> specs, @Path("buildDir") final File buildDir,
+                                   final ServiceRegistry serviceRegistry) {
+        final ExecActionFactory execActionFactory = serviceRegistry.get(ExecActionFactory.class);
+        specs.beforeEach(new Action<PythonComponentSpecInternal>() {
+            @Override
+            public void execute(PythonComponentSpecInternal specInternal) {
+                specInternal.setBuildDir(buildDir);
+                specInternal.setExecActionFactory(execActionFactory);
+            }
         });
-      }
     }
-  }
 
-  @Mutate
-  void addTestTasks(ModelMap<Task> tasks, final ModelMap<PythonComponentSpecInternal> specs) {
-    for (PythonComponentSpecInternal spec : specs) {
-      for (PythonEnvironment pythonEnvironment : spec.getPythonEnvironments().getPythonEnvironments().values()) {
-
-        PyTestConfigurationAction configAction = new PyTestConfigurationAction(pythonEnvironment, spec.getSources());
-
-        String taskName = "pyTest" + pythonEnvironment.getVersion().getVersionString();
-        tasks.create(taskName, PythonTestTask.class, configAction);
-        tasks.named(LifecycleBasePlugin.CHECK_TASK_NAME, new AddDependsOnTaskAction(taskName));
-      }
+    @Finalize
+    void configurePythonBinariesWithEnvironment(final ModelMap<PythonComponentSpecInternal> specs) {
+        for (PythonComponentSpecInternal spec : specs) {
+            PythonEnvironmentContainer container = spec.getPythonEnvironments();
+            for (PythonBinarySpec pythonBinarySpec : spec.getBinaries().withType(PythonBinarySpec.class)) {
+                if (StringUtils.isNotBlank(pythonBinarySpec.getTarget())) {
+                    pythonBinarySpec.setPythonEnvironment(container.getPythonEnvironment(pythonBinarySpec.getTarget()));
+                }
+            }
+        }
     }
-  }
+
+    @Validate
+    void validateBinaries(final ModelMap<PythonBinarySpec> binarySpecs) {
+        for (PythonBinarySpec pythonBinarySpec : binarySpecs.withType(PythonBinarySpec.class)) {
+            if (pythonBinarySpec.getPythonEnvironment() == null) {
+                throw new GradleException(String.format("%s does not have a defined python environment, please define it", pythonBinarySpec.getName()));
+            }
+        }
+    }
+
+    @Validate
+    void validateComponent(ModelMap<PythonComponentSpecInternal> componentSpecMap) {
+        for (PythonComponentSpecInternal pythonComponentSpecInternal : componentSpecMap) {
+            if (pythonComponentSpecInternal.getPythonEnvironments().isEmpty()) {
+                throw new GradleException(pythonComponentSpecInternal.getName() + " must have at least 1 targetPlatform");
+            }
+        }
+    }
+
+    @Mutate
+    void createVirtalEnvironments(ModelMap<Task> taskContainer, final ModelMap<PythonComponentSpecInternal> specs,
+                                  final PythonPluginConfigurations configurations) {
+        logger.debug("Creating Virtual Envs");
+        for (PythonComponentSpecInternal spec : specs) {
+            for (PythonEnvironment pythonEnvironment : spec.getPythonEnvironments().getPythonEnvironments().values()) {
+
+                logger.debug("Executing for {} and {}", spec.getName(), pythonEnvironment.getVersion().getVersionString());
+
+                String taskPostfix = pythonEnvironment.getVersion().getVersionString();
+
+                String createVirtualEnvTask = CREATE_VIRTUAL_ENV_TASK + taskPostfix;
+                taskContainer.create(createVirtualEnvTask, VirtualEnvironmentBuild.class,
+                        new CreateVirtualEnvConfigureAction(pythonEnvironment, configurations.getBootstrap()));
+
+                final String installRequiredDependencies = INSTALL_REQUIRED_DEPENDENCIES_TASK + taskPostfix;
+                taskContainer.create(installRequiredDependencies, InstallDependenciesTask.class,
+                        new DependencyConfigurationAction(pythonEnvironment, configurations.getVirtualEnv(), createVirtualEnvTask));
+
+                final String installRuntimeDependencies = INSTALL_RUNTIME_DEPENDENCIES_TASK + taskPostfix;
+                taskContainer.create(installRuntimeDependencies, InstallDependenciesTask.class,
+                        new DependencyConfigurationAction(pythonEnvironment, configurations.getPython(),
+                                installRequiredDependencies));
+
+                final String installTestDependencies = INSTALL_TEST_DEPENDENCIES_TASK + taskPostfix;
+                taskContainer.create(installTestDependencies, InstallDependenciesTask.class,
+                        new DependencyConfigurationAction(pythonEnvironment, configurations.getPyTest(),
+                                installRuntimeDependencies));
+
+                final String installEditable = INSTALL_EDITABLE_TASK + taskPostfix;
+                taskContainer.create(installEditable, InstallLocalProjectTask.class,
+                        new InstallLocalConfigurationAction(pythonEnvironment, installRuntimeDependencies));
+
+                taskContainer.create(pythonEnvironment.getEnvironmentSetupTaskName(), DefaultTask.class, new Action<Task>() {
+                    @Override
+                    public void execute(Task task) {
+                        task.dependsOn(installRequiredDependencies);
+                        task.dependsOn(installRuntimeDependencies);
+                        task.dependsOn(installTestDependencies);
+                        task.dependsOn(installEditable);
+                    }
+                });
+            }
+        }
+    }
+
+    @Mutate
+    void addTestTasks(ModelMap<Task> tasks, final ModelMap<PythonComponentSpecInternal> specs) {
+        for (PythonComponentSpecInternal spec : specs) {
+            for (PythonEnvironment pythonEnvironment : spec.getPythonEnvironments().getPythonEnvironments().values()) {
+
+                PyTestConfigurationAction configAction = new PyTestConfigurationAction(pythonEnvironment, spec.getSources());
+
+                String taskName = "pyTest" + pythonEnvironment.getVersion().getVersionString();
+                tasks.create(taskName, PythonTestTask.class, configAction);
+                tasks.named(LifecycleBasePlugin.CHECK_TASK_NAME, new AddDependsOnTaskAction(taskName));
+            }
+        }
+    }
 }

@@ -4,7 +4,6 @@ import com.linkedin.gradle.python.PythonSourceSet;
 import com.linkedin.gradle.python.spec.component.internal.PythonEnvironment;
 import com.linkedin.gradle.python.tasks.internal.AbstractDistTask;
 import com.linkedin.gradle.python.tasks.internal.BasePythonTaskAction;
-import com.linkedin.gradle.python.tasks.internal.utilities.TaskUtils;
 import org.gradle.language.base.LanguageSourceSet;
 import org.gradle.model.ModelMap;
 

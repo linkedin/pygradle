@@ -2,11 +2,12 @@ package com.linkedin.gradle.python.tasks;
 
 import com.linkedin.gradle.python.tasks.internal.utilities.PipLocalInstallAction;
 import com.linkedin.gradle.python.tasks.internal.utilities.TaskUtils;
-import java.io.File;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecResult;
+
+import java.io.File;
 
 
 public class InstallLocalProjectTask extends BasePythonTask {

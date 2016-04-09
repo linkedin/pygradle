@@ -17,9 +17,9 @@ import org.gradle.api.publish.ivy.plugins.IvyPublishPlugin;
 
 /**
  * Base plugin for Py-Gradle.
- *
+ * <p>
  * This plugin is responsible for applying all of the required plugins to make python build.
- *
+ * <p>
  * The following example is the most simple python build that can be done. It defines a single targetPlatform (what python
  * you want to use). This also declares the sources that should be used for determining if a task should run.
  * When this runs, no artifacts will be built but tests will be run.
@@ -44,7 +44,7 @@ import org.gradle.api.publish.ivy.plugins.IvyPublishPlugin;
  *      }
  *  }
  * </pre>
- *
+ * <p>
  * A more complicated example would be to build both wheels and source dists.
  * <pre>
  *  components {
@@ -75,7 +75,7 @@ import org.gradle.api.publish.ivy.plugins.IvyPublishPlugin;
  *      }
  *  }
  * </pre>
- *
+ * <p>
  * As you can see in the example, you must define a target platform, but you don't have to use the one defined as a
  * <pre>targetPlatform</pre>. It's also worth noting that if needed, you can specify the full path to a python executable.
  *
@@ -84,7 +84,7 @@ import org.gradle.api.publish.ivy.plugins.IvyPublishPlugin;
  *
  * When defining binaries, you can specify the target in full version number (2.7.11), major.minor (2.7), or executable name (python2.7).
  */
-public class PythonBaseLangPlugin implements Plugin<Project>  {
+public class PythonBaseLangPlugin implements Plugin<Project> {
 
     public static final String PYTHON_CONFIGURATIONS = "pythonConfigurations";
 

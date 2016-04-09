@@ -1,7 +1,6 @@
 package com.linkedin.gradle.python.spec.binary.internal;
 
 import com.linkedin.gradle.python.spec.component.internal.PythonEnvironment;
-import org.gradle.api.Task;
 import org.gradle.platform.base.binary.BaseBinarySpec;
 
 abstract public class DefaultPythonBinarySpec extends BaseBinarySpec implements PythonBinarySpecInternal {

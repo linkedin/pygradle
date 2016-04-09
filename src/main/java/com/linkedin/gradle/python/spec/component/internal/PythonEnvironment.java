@@ -2,26 +2,27 @@ package com.linkedin.gradle.python.spec.component.internal;
 
 import com.linkedin.gradle.python.internal.platform.PythonVersion;
 import com.linkedin.gradle.python.internal.toolchain.PythonExecutable;
+
 import java.io.File;
 
 
 public interface PythonEnvironment {
 
-  String getEnvironmentSetupTaskName();
+    String getEnvironmentSetupTaskName();
 
-  PythonExecutable getVirtualEnvPythonExecutable();
+    PythonExecutable getVirtualEnvPythonExecutable();
 
-  PythonExecutable getSystemPythonExecutable();
+    PythonExecutable getSystemPythonExecutable();
 
-  File getVenvDir();
+    File getVenvDir();
 
-  PythonVersion getVersion();
+    PythonVersion getVersion();
 
-  File getVendorDir();
+    File getVendorDir();
 
-  File getBuildDir();
+    File getBuildDir();
 
-  File getPythonBuildDir();
+    File getPythonBuildDir();
 
-  String getEnvironmentName();
+    String getEnvironmentName();
 }

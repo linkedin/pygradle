@@ -11,7 +11,10 @@ import org.gradle.api.artifacts.ResolvedDependency;
 import org.gradle.api.file.CopySpec;
 import org.gradle.api.internal.file.FileOperations;
 import org.gradle.api.specs.Spec;
-import org.gradle.api.tasks.*;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.OutputFile;
+import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecResult;
 import org.gradle.process.internal.ExecAction;
 import org.gradle.util.GFileUtils;
@@ -77,9 +80,9 @@ public class VirtualEnvironmentBuild extends BasePythonTask {
             @Override
             public void execute(ExecAction execAction) {
                 execAction.args(path,
-                    "--python", pythonExecutable.getPythonPath().getAbsolutePath(),
-                    "--prompt", virtualEnvName,
-                    getVenvDir().getAbsolutePath());
+                        "--python", pythonExecutable.getPythonPath().getAbsolutePath(),
+                        "--prompt", virtualEnvName,
+                        getVenvDir().getAbsolutePath());
                 execAction.setErrorOutput(streamProcessor);
                 execAction.setStandardOutput(streamProcessor);
             }

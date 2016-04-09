@@ -8,10 +8,10 @@ import java.io.File;
 
 public interface PythonTargetPlatform extends Platform {
 
-  File getPythonExecutable();
+    File getPythonExecutable();
 
-  PythonVersion getVersion();
+    PythonVersion getVersion();
 
-  String getVersionAsString();
+    String getVersionAsString();
 
 }

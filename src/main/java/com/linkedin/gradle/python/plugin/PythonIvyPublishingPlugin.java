@@ -19,42 +19,42 @@ import org.gradle.model.RuleSource;
 
 public class PythonIvyPublishingPlugin implements Plugin<Project> {
 
-  private static final Logger logger = Logging.getLogger(PythonIvyPublishingPlugin.class);
-
-  @Override
-  public void apply(Project project) {
-    project.getPluginManager().apply(PythonBaseLangPlugin.class);
-    project.getPluginManager().apply(Rules.class);
-  }
-
-  public static class Rules extends RuleSource {
-
-    @Mutate
-    public void publishBinaries(PublishingExtension publishingExtension, ModelMap<PythonBinarySpec> specs) {
-      final PublicationContainer publications = publishingExtension.getPublications();
-      for (final PythonBinarySpecInternal spec : specs.withType(PythonBinarySpecInternal.class)) {
-        if(publications.findByName(spec.getName()) != null) {
-          continue;
-        }
-        for (PublishingTask publishingTask : spec.getTasks().withType(PublishingTask.class)) {
-          publications.create(spec.getName(), IvyPublication.class, new IvyPublishAction(publishingTask));
-        }
-      }
-    }
-  }
-
-  private static class IvyPublishAction implements Action<IvyPublication> {
-
-    private final PublishingTask buildTask;
-
-    private IvyPublishAction(PublishingTask buildTask) {
-      this.buildTask = buildTask;
-    }
+    private static final Logger logger = Logging.getLogger(PythonIvyPublishingPlugin.class);
 
     @Override
-    public void execute(IvyPublication ivyPublication) {
-      PublishArtifact artifact = buildTask.getFileToPublish();
-      ivyPublication.artifact(artifact);
+    public void apply(Project project) {
+        project.getPluginManager().apply(PythonBaseLangPlugin.class);
+        project.getPluginManager().apply(Rules.class);
     }
-  }
+
+    public static class Rules extends RuleSource {
+
+        @Mutate
+        public void publishBinaries(PublishingExtension publishingExtension, ModelMap<PythonBinarySpec> specs) {
+            final PublicationContainer publications = publishingExtension.getPublications();
+            for (final PythonBinarySpecInternal spec : specs.withType(PythonBinarySpecInternal.class)) {
+                if (publications.findByName(spec.getName()) != null) {
+                    continue;
+                }
+                for (PublishingTask publishingTask : spec.getTasks().withType(PublishingTask.class)) {
+                    publications.create(spec.getName(), IvyPublication.class, new IvyPublishAction(publishingTask));
+                }
+            }
+        }
+    }
+
+    private static class IvyPublishAction implements Action<IvyPublication> {
+
+        private final PublishingTask buildTask;
+
+        private IvyPublishAction(PublishingTask buildTask) {
+            this.buildTask = buildTask;
+        }
+
+        @Override
+        public void execute(IvyPublication ivyPublication) {
+            PublishArtifact artifact = buildTask.getFileToPublish();
+            ivyPublication.artifact(artifact);
+        }
+    }
 }

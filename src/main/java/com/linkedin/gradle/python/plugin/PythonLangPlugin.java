@@ -2,8 +2,6 @@ package com.linkedin.gradle.python.plugin;
 
 import com.linkedin.gradle.python.PythonSourceSet;
 import com.linkedin.gradle.python.PythonTestSourceSet;
-import com.linkedin.gradle.python.plugin.internal.PythonPluginConfigurations;
-import com.linkedin.gradle.python.plugin.internal.base.PythonBaseRulePlugin;
 import com.linkedin.gradle.python.spec.component.PythonComponentSpec;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
@@ -17,12 +15,12 @@ import org.gradle.model.RuleSource;
 /**
  * This plugin provides a default location for all sources. The default location for python source files is src/main/python.
  * The default location for tests is src/test/python.
- *
+ * <p>
  * These values have no baring on the setup.py's dist, but allow gradle to cache inputs and outputs more effectively.
- *
+ * <p>
  * For more examples on how to configure this plugin, please check out {@link PythonBaseLangPlugin}.
  */
-public class PythonLangPlugin implements Plugin<Project>  {
+public class PythonLangPlugin implements Plugin<Project> {
 
     public void apply(final Project project) {
         project.getPluginManager().apply(PythonBaseLangPlugin.class);

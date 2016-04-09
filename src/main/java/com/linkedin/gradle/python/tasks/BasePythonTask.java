@@ -2,36 +2,37 @@ package com.linkedin.gradle.python.tasks;
 
 import com.linkedin.gradle.python.internal.platform.PythonVersion;
 import com.linkedin.gradle.python.spec.component.internal.PythonEnvironment;
-import java.io.File;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.process.ExecResult;
 import org.gradle.process.internal.ExecAction;
 
+import java.io.File;
+
 
 public class BasePythonTask extends DefaultTask {
 
-  PythonEnvironment pythonEnvironment;
+    PythonEnvironment pythonEnvironment;
 
-  @Input
-  public PythonVersion getPythonVersion() {
-    return pythonEnvironment.getVersion();
-  }
+    @Input
+    public PythonVersion getPythonVersion() {
+        return pythonEnvironment.getVersion();
+    }
 
-  public ExecResult execute(Action<ExecAction> action) {
-    return pythonEnvironment.getVirtualEnvPythonExecutable().execute(action);
-  }
+    public ExecResult execute(Action<ExecAction> action) {
+        return pythonEnvironment.getVirtualEnvPythonExecutable().execute(action);
+    }
 
-  public PythonEnvironment getPythonEnvironment() {
-    return pythonEnvironment;
-  }
+    public PythonEnvironment getPythonEnvironment() {
+        return pythonEnvironment;
+    }
 
-  public void setPythonEnvironment(PythonEnvironment pythonEnvironment) {
-    this.pythonEnvironment = pythonEnvironment;
-  }
+    public void setPythonEnvironment(PythonEnvironment pythonEnvironment) {
+        this.pythonEnvironment = pythonEnvironment;
+    }
 
-  public File getVenvDir() {
-    return pythonEnvironment.getVenvDir();
-  }
+    public File getVenvDir() {
+        return pythonEnvironment.getVenvDir();
+    }
 }

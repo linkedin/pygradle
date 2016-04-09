@@ -6,6 +6,7 @@ import org.gradle.model.Managed;
 public interface PythonModel {
 
     void setLanguageLevel(String languageLevel);
+
     String getLanguageLevel();
 
 }

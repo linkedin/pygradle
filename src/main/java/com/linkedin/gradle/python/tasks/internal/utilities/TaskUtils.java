@@ -13,9 +13,9 @@ public class TaskUtils {
         }
 
         StringBuilder sb = new StringBuilder();
-        for(int i = 0; i < args.size(); i++) {
+        for (int i = 0; i < args.size(); i++) {
             sb.append(args.get(i));
-            if(i != args.size() - 1) {
+            if (i != args.size() - 1) {
                 sb.append(separator);
             }
         }

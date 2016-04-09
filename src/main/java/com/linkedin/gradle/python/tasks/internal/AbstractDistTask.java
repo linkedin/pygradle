@@ -2,33 +2,21 @@ package com.linkedin.gradle.python.tasks.internal;
 
 import com.linkedin.gradle.python.tasks.BasePythonTask;
 import com.linkedin.gradle.python.tasks.PublishingTask;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.RandomStringUtils;
 import org.gradle.api.Action;
-import org.gradle.api.Task;
 import org.gradle.api.artifacts.PublishArtifact;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.internal.artifacts.publish.DefaultPublishArtifact;
-import org.gradle.api.internal.tasks.DefaultTaskDependency;
-import org.gradle.api.internal.tasks.options.Option;
-import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
-import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputFile;
-import org.gradle.api.tasks.OutputFiles;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.api.tasks.TaskDependency;
 import org.gradle.process.ExecResult;
 import org.gradle.process.internal.ExecAction;
 import org.gradle.util.GFileUtils;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.util.*;
 
 
 abstract public class AbstractDistTask extends BasePythonTask implements PublishingTask {
@@ -50,7 +38,7 @@ abstract public class AbstractDistTask extends BasePythonTask implements Publish
     }
 
     public List<String> extraArgs() {
-      return Collections.emptyList();
+        return Collections.emptyList();
     }
 
     @TaskAction

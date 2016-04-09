@@ -1,9 +1,13 @@
 package com.linkedin.gradle.python.spec.component;
 
-import org.gradle.platform.base.ComponentSpec;
-import org.gradle.platform.base.PlatformAwareComponentSpec;
+import org.gradle.internal.HasInternalProtocol;
+import org.gradle.platform.base.GeneralComponentSpec;
 
 
-public interface PythonComponentSpec extends ComponentSpec, PlatformAwareComponentSpec {
-
+@HasInternalProtocol
+public interface PythonComponentSpec extends GeneralComponentSpec {
+    /**
+     * Specifies a platform that this component should be built be for.
+     */
+    void targetPlatform(String targetPlatform);
 }

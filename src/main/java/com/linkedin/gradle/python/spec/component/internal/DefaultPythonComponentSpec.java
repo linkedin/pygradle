@@ -1,10 +1,12 @@
 package com.linkedin.gradle.python.spec.component.internal;
 
 import com.linkedin.gradle.python.spec.component.PythonComponentSpec;
+import org.gradle.platform.base.TransformationFileType;
 import org.gradle.platform.base.component.BaseComponentSpec;
 import org.gradle.process.internal.ExecActionFactory;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -54,5 +56,10 @@ public class DefaultPythonComponentSpec extends BaseComponentSpec implements Pyt
         pythonEnvironmentContainer.register(targetPlatforms);
 
         return pythonEnvironmentContainer;
+    }
+
+    @Override
+    public Set<? extends Class<? extends TransformationFileType>> getIntermediateTypes() {
+        return Collections.emptySet();
     }
 }

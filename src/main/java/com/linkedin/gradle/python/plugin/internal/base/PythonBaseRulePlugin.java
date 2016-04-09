@@ -37,7 +37,8 @@ import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.internal.service.ServiceRegistry;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.model.*;
-import org.gradle.platform.base.*;
+import org.gradle.platform.base.ComponentType;
+import org.gradle.platform.base.TypeBuilder;
 import org.gradle.process.internal.ExecActionFactory;
 
 import java.io.File;
@@ -54,33 +55,31 @@ public class PythonBaseRulePlugin extends RuleSource {
     private static final Logger logger = Logging.getLogger(PythonBaseRulePlugin.class);
 
     @ComponentType
-    public void register(ComponentTypeBuilder<PythonComponentSpec> builder) {
+    public void register(TypeBuilder<PythonComponentSpec> builder) {
         builder.defaultImplementation(DefaultPythonComponentSpec.class);
         builder.internalView(PythonComponentSpecInternal.class);
     }
 
-    @BinaryType
-    public void registerWheel(BinaryTypeBuilder<WheelBinarySpec> builder) {
+    @ComponentType
+    public void registerWheel(TypeBuilder<WheelBinarySpec> builder) {
         builder.defaultImplementation(DefaultWheelBinarySpec.class);
         builder.internalView(WheelBinarySpecInternal.class);
     }
 
-    @BinaryType
-    public void registerSourceDist(BinaryTypeBuilder<SourceDistBinarySpec> builder) {
+    @ComponentType
+    public void registerSourceDist(TypeBuilder<SourceDistBinarySpec> builder) {
         builder.defaultImplementation(DefaultSourceDistBinarySpec.class);
         builder.internalView(SourceDistBinarySpecInternal.class);
     }
 
 
-    @LanguageType
-    public void registerLanguage(LanguageTypeBuilder<PythonSourceSet> builder) {
-        builder.setLanguageName("python");
+    @ComponentType
+    public void registerLanguage(TypeBuilder<PythonSourceSet> builder) {
         builder.defaultImplementation(DefaultPythonSourceSet.class);
     }
 
-    @LanguageType
-    public void registerLanguageTests(LanguageTypeBuilder<PythonTestSourceSet> builder) {
-        builder.setLanguageName("python");
+    @ComponentType
+    public void registerLanguageTests(TypeBuilder<PythonTestSourceSet> builder) {
         builder.defaultImplementation(DefaultPythonTestSourceSet.class);
     }
 
@@ -103,19 +102,17 @@ public class PythonBaseRulePlugin extends RuleSource {
     }
 
     @Finalize
-    void configurePythonBinariesWithEnvironment(final ModelMap<PythonComponentSpecInternal> specs) {
-        for (PythonComponentSpecInternal spec : specs) {
-            PythonEnvironmentContainer container = spec.getPythonEnvironments();
-            for (PythonBinarySpec pythonBinarySpec : spec.getBinaries().withType(PythonBinarySpec.class)) {
-                if (StringUtils.isNotBlank(pythonBinarySpec.getTarget())) {
-                    pythonBinarySpec.setPythonEnvironment(container.getPythonEnvironment(pythonBinarySpec.getTarget()));
-                }
+    void configurePythonBinariesWithEnvironment(@Each PythonComponentSpecInternal spec) {
+        PythonEnvironmentContainer container = spec.getPythonEnvironments();
+        for (PythonBinarySpec pythonBinarySpec : spec.getBinaries().withType(PythonBinarySpec.class)) {
+            if (StringUtils.isNotBlank(pythonBinarySpec.getTarget())) {
+                pythonBinarySpec.setPythonEnvironment(container.getPythonEnvironment(pythonBinarySpec.getTarget()));
             }
         }
     }
 
     @Validate
-    void validateBinaries(final ModelMap<PythonBinarySpec> binarySpecs) {
+    void validateBinaries(@Path("components") final ModelMap<PythonBinarySpec> binarySpecs) {
         for (PythonBinarySpec pythonBinarySpec : binarySpecs.withType(PythonBinarySpec.class)) {
             if (pythonBinarySpec.getPythonEnvironment() == null) {
                 throw new GradleException(String.format("%s does not have a defined python environment, please define it", pythonBinarySpec.getName()));
@@ -124,11 +121,9 @@ public class PythonBaseRulePlugin extends RuleSource {
     }
 
     @Validate
-    void validateComponent(ModelMap<PythonComponentSpecInternal> componentSpecMap) {
-        for (PythonComponentSpecInternal pythonComponentSpecInternal : componentSpecMap) {
-            if (pythonComponentSpecInternal.getPythonEnvironments().isEmpty()) {
-                throw new GradleException(pythonComponentSpecInternal.getName() + " must have at least 1 targetPlatform");
-            }
+    void validateComponent(@Each PythonComponentSpecInternal pythonComponentSpecInternal) {
+        if (pythonComponentSpecInternal.getPythonEnvironments().isEmpty()) {
+            throw new GradleException(pythonComponentSpecInternal.getName() + " must have at least 1 targetPlatform");
         }
     }
 

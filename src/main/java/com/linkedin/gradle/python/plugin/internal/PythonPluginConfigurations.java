@@ -12,6 +12,7 @@ public class PythonPluginConfigurations {
     public static final String VIRTUAL_ENV_CONFIGURATION = "virtualEnv";
     public static final String PYTHON_CONFIGURATION = "python";
     public static final String PYTEST_CONFIGURATION = "pytest";
+    public static final String PYTHON_FLAKE8_CONFIGURATION = "flake8";
 
     private final ConfigurationContainer configurations;
     private final DependencyHandler dependencyHandler;
@@ -36,7 +37,8 @@ public class PythonPluginConfigurations {
         Configuration pyTestConfiguration = configurations.create(PYTEST_CONFIGURATION);
         pyTestConfiguration.extendsFrom(pythonConfiguration);
 
-        dependencyHandler.add(PYTEST_CONFIGURATION, "pypi:flake8:2.4.0");
+        configurations.create(PYTHON_FLAKE8_CONFIGURATION);
+        dependencyHandler.add(PYTHON_FLAKE8_CONFIGURATION, "pypi:flake8:2.4.0");
     }
 
     public PythonConfiguration getVirtualEnv() {
@@ -45,6 +47,10 @@ public class PythonPluginConfigurations {
 
     public PythonConfiguration getBootstrap() {
         return new PythonConfiguration(BOOTSTRAP_CONFIGURATION);
+    }
+
+    public PythonConfiguration getPythonDocs() {
+        return new PythonConfiguration(PYTHON_FLAKE8_CONFIGURATION);
     }
 
     public PythonConfiguration getPython() {

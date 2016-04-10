@@ -9,6 +9,6 @@ import nebula.test.PluginProjectSpec;
 public class PythonLangPluginApplyTest extends PluginProjectSpec {
     @Override
     String getPluginName() {
-        return 'python'
+        return 'python-lang'
     }
 }

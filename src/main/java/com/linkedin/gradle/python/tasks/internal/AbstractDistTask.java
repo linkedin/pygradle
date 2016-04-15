@@ -93,10 +93,12 @@ abstract public class AbstractDistTask extends BasePythonTask implements Publish
     @OutputFile
     protected abstract File getPythonArtifact();
 
-    public PublishArtifact getFileToPublish() {
+    public Collection<PublishArtifact> getArtifactsToPublish() {
+        List<PublishArtifact> filesToPublish = new ArrayList<PublishArtifact>();
         File pythonArtifact = getPythonArtifact();
         String name = FilenameUtils.getBaseName(pythonArtifact.getName());
-        return new DefaultPublishArtifact(name, getExtension(), getExtension(), null, new Date(), pythonArtifact, this);
+        filesToPublish.add(new DefaultPublishArtifact(name, getExtension(), getExtension(), null, new Date(), pythonArtifact, this));
+        return filesToPublish;
     }
 
     public void sourceSet(SourceDirectorySet source) {

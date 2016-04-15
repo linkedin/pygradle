@@ -17,7 +17,7 @@
 package com.linkedin.gradle.python.tasks;
 
 import com.linkedin.gradle.python.internal.toolchain.PythonExecutable;
-import com.linkedin.gradle.python.tasks.internal.utilities.DefaultOutputStreamProcessor;
+import com.linkedin.gradle.python.tasks.utilities.DefaultOutputStreamProcessor;
 import org.gradle.api.Action;
 import org.gradle.api.GradleException;
 import org.gradle.api.artifacts.Configuration;

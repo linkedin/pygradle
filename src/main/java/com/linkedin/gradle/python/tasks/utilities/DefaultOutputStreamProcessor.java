@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.linkedin.gradle.python.tasks.internal.utilities;
+package com.linkedin.gradle.python.tasks.utilities;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -47,7 +47,7 @@ public class DefaultOutputStreamProcessor extends OutputStream {
      *
      * @param line The while line.
      */
-    void processLine(String line) {
+    public void processLine(String line) {
         //Implemented by users who need this
     }
 

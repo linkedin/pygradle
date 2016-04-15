@@ -16,17 +16,17 @@
 
 package com.linkedin.gradle.python.tasks.internal.configuration;
 
-import com.linkedin.gradle.python.plugin.internal.PythonPluginConfigurations;
+import com.linkedin.gradle.python.plugin.extension.PythonConfiguration;
 import com.linkedin.gradle.python.spec.component.internal.PythonEnvironment;
 import com.linkedin.gradle.python.tasks.VirtualEnvironmentBuild;
 import com.linkedin.gradle.python.tasks.internal.BasePythonTaskAction;
 
 
 public class CreateVirtualEnvConfigureAction extends BasePythonTaskAction<VirtualEnvironmentBuild> {
-    private final PythonPluginConfigurations.PythonConfiguration bootstrapConfiguration;
+    private final PythonConfiguration bootstrapConfiguration;
 
     public CreateVirtualEnvConfigureAction(final PythonEnvironment pythonEnvironment,
-                                           final PythonPluginConfigurations.PythonConfiguration bootstrapConfiguration) {
+                                           final PythonConfiguration bootstrapConfiguration) {
         super(pythonEnvironment);
         this.bootstrapConfiguration = bootstrapConfiguration;
     }

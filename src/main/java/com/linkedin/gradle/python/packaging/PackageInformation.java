@@ -14,13 +14,26 @@
  * limitations under the License.
  */
 
-package com.linkedin.gradle.python.tasks;
+package com.linkedin.gradle.python.packaging;
 
-import java.util.Collection;
-import org.gradle.api.Task;
-import org.gradle.api.artifacts.PublishArtifact;
+public class PackageInformation {
+  final String name;
+  final String version;
 
+  PackageInformation(String name, String version) {
+    this.name = name;
+    this.version = version;
+  }
 
-public interface PublishingTask extends Task {
-    Collection<PublishArtifact> getArtifactsToPublish();
+  public String getName() {
+    return name;
+  }
+
+  public String getVersion() {
+    return version;
+  }
+
+  public String toShortHand() {
+    return name + ":" + version;
+  }
 }

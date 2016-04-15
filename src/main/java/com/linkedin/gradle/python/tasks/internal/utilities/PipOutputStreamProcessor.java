@@ -16,7 +16,8 @@
 
 package com.linkedin.gradle.python.tasks.internal.utilities;
 
-import org.apache.commons.lang.StringUtils;
+import com.linkedin.gradle.python.tasks.utilities.DefaultOutputStreamProcessor;
+import com.linkedin.gradle.python.utils.OutputUtilities;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 
@@ -32,11 +33,11 @@ public class PipOutputStreamProcessor extends DefaultOutputStreamProcessor {
     private static final Pattern INSTALLING_PACKAGE_PATTERN = Pattern.compile("Installing collected packages: (.*)");
     private static final Pattern INSTALLED_PACKAGE_PATTERN = Pattern.compile("Successfully installed (.*)");
 
-    private static final String GOOD_INSTALL_MESSAGE = " [GOOD]";
+    private static final String GOOD_INSTALL_MESSAGE = "[GOOD]";
 
     private final Set<String> packages = new HashSet<String>();
 
-    void processLine(String line) {
+    public void processLine(String line) {
         Matcher installingPackageMatcher = INSTALLING_PACKAGE_PATTERN.matcher(line);
         if (installingPackageMatcher.find()) {
             logger.info("Installing {}", installingPackageMatcher.group(1));
@@ -45,18 +46,9 @@ public class PipOutputStreamProcessor extends DefaultOutputStreamProcessor {
 
         Matcher installedPackageMatcher = INSTALLED_PACKAGE_PATTERN.matcher(line);
         if (installedPackageMatcher.find()) {
-            logger.lifecycle(writeInstalledBuffer(installedPackageMatcher.group(1)));
+            logger.lifecycle(OutputUtilities.writePaddedString(installedPackageMatcher.group(1), GOOD_INSTALL_MESSAGE));
             logger.info("Successfully installed {}", installedPackageMatcher.group(1));
         }
-    }
-
-    private String writeInstalledBuffer(String name) {
-        StringBuilder sb = new StringBuilder();
-        name = name + " ";
-        int bufferSize = Math.max(5, 80 - sb.length() - GOOD_INSTALL_MESSAGE.length());
-        sb.append(StringUtils.rightPad(name, bufferSize, '.'));
-        sb.append(GOOD_INSTALL_MESSAGE);
-        return sb.toString();
     }
 
     public Set<String> getPackages() {

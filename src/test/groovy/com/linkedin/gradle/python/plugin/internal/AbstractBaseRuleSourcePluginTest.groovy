@@ -17,6 +17,7 @@
 package com.linkedin.gradle.python.plugin.internal
 
 
+import com.linkedin.gradle.python.plugin.extension.PythonPluginConfigurations
 import org.gradle.api.Project
 import org.gradle.language.base.ProjectSourceSet
 import org.gradle.model.ModelMap

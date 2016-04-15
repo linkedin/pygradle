@@ -22,9 +22,6 @@ import com.linkedin.gradle.python.tasks.PublishingTask;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.artifacts.PublishArtifact;
-import org.gradle.api.logging.Logger;
-import org.gradle.api.logging.Logging;
 import org.gradle.api.publish.PublicationContainer;
 import org.gradle.api.publish.PublishingExtension;
 import org.gradle.api.publish.ivy.IvyPublication;
@@ -35,8 +32,6 @@ import org.gradle.model.RuleSource;
 
 
 public class PythonIvyPublishingPlugin implements Plugin<Project> {
-
-    private static final Logger logger = Logging.getLogger(PythonIvyPublishingPlugin.class);
 
     @Override
     public void apply(Project project) {
@@ -70,8 +65,7 @@ public class PythonIvyPublishingPlugin implements Plugin<Project> {
 
         @Override
         public void execute(IvyPublication ivyPublication) {
-            PublishArtifact artifact = buildTask.getFileToPublish();
-            ivyPublication.artifact(artifact);
+            buildTask.getArtifactsToPublish().forEach(ivyPublication::artifact);
         }
     }
 }

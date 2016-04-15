@@ -14,14 +14,18 @@
  * limitations under the License.
  */
 
-package com.linkedin.gradle.python.plugin.internal;
+package com.linkedin.gradle.python.plugin.extension;
 
-import org.gradle.api.Action;
-import org.gradle.api.artifacts.*;
+import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ConfigurationContainer;
+import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
-import org.gradle.api.file.FileCollection;
 
 
+/**
+ * An extension that contains all of the python specific configurations. This is a bridge between the old modle and the
+ * software model.
+ */
 public class PythonPluginConfigurations {
 
     public static final String BOOTSTRAP_CONFIGURATION = "bootstrap";
@@ -30,20 +34,15 @@ public class PythonPluginConfigurations {
     public static final String PYTEST_CONFIGURATION = "pytest";
     public static final String PYTHON_FLAKE8_CONFIGURATION = "flake8";
 
-    private final ConfigurationContainer configurations;
-    private final DependencyHandler dependencyHandler;
+    final ConfigurationContainer configurations;
+    final DependencyHandler dependencyHandler;
 
     public PythonPluginConfigurations(final ConfigurationContainer configurations, final DependencyHandler dependencyHandler) {
         this.configurations = configurations;
         this.dependencyHandler = dependencyHandler;
 
         Configuration bootstrapConfiguration = configurations.create(BOOTSTRAP_CONFIGURATION);
-        bootstrapConfiguration.defaultDependencies(new Action<DependencySet>() {
-            @Override
-            public void execute(DependencySet dependencies) {
-                dependencies.add(dependencyHandler.create("pypi:virtualenv:13.1.2"));
-            }
-        });
+        bootstrapConfiguration.defaultDependencies(dependencies -> dependencies.add(dependencyHandler.create("pypi:virtualenv:13.1.2")));
 
         configurations.create(VIRTUAL_ENV_CONFIGURATION);
         dependencyHandler.add(VIRTUAL_ENV_CONFIGURATION, "pypi:pip:7.1.2");
@@ -58,51 +57,26 @@ public class PythonPluginConfigurations {
     }
 
     public PythonConfiguration getVirtualEnv() {
-        return new PythonConfiguration(VIRTUAL_ENV_CONFIGURATION);
+        return new PythonConfiguration(this, VIRTUAL_ENV_CONFIGURATION);
     }
 
     public PythonConfiguration getBootstrap() {
-        return new PythonConfiguration(BOOTSTRAP_CONFIGURATION);
+        return new PythonConfiguration(this, BOOTSTRAP_CONFIGURATION);
     }
 
-    public PythonConfiguration getPythonDocs() {
-        return new PythonConfiguration(PYTHON_FLAKE8_CONFIGURATION);
+    public PythonConfiguration getPythonValidation() {
+        return new PythonConfiguration(this, PYTHON_FLAKE8_CONFIGURATION);
     }
 
     public PythonConfiguration getPython() {
-        return new PythonConfiguration(PYTHON_CONFIGURATION);
+        return new PythonConfiguration(this, PYTHON_CONFIGURATION);
     }
 
     public PythonConfiguration getPyTest() {
-        return new PythonConfiguration(PYTEST_CONFIGURATION);
+        return new PythonConfiguration(this, PYTEST_CONFIGURATION);
     }
 
     public PythonConfiguration getArchive() {
-        return new PythonConfiguration(Dependency.ARCHIVES_CONFIGURATION);
+        return new PythonConfiguration(this, Dependency.ARCHIVES_CONFIGURATION);
     }
-
-    public class PythonConfiguration {
-        private final String name;
-
-        PythonConfiguration(String name) {
-            this.name = name;
-        }
-
-        public Configuration getConfiguration() {
-            return configurations.getByName(name);
-        }
-
-        public FileCollection getAllArtifacts() {
-            return getConfiguration();
-        }
-
-        public void addDependency(Object notation) {
-            dependencyHandler.add(name, notation);
-        }
-
-        public void addArtifact(PublishArtifact artifact) {
-            configurations.getByName(name).getArtifacts().add(artifact);
-        }
-    }
-
 }

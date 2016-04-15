@@ -18,7 +18,7 @@ package com.linkedin.gradle.python.plugin;
 
 import com.linkedin.gradle.python.PythonSourceSet;
 import com.linkedin.gradle.python.PythonTestSourceSet;
-import com.linkedin.gradle.python.plugin.internal.PythonPluginConfigurations;
+import com.linkedin.gradle.python.plugin.extension.PythonPluginConfigurations;
 import com.linkedin.gradle.python.plugin.internal.base.PythonBaseRulePlugin;
 import com.linkedin.gradle.python.plugin.internal.sources.SourceDistRulePlugin;
 import com.linkedin.gradle.python.plugin.internal.wheel.WheelRulePlugin;

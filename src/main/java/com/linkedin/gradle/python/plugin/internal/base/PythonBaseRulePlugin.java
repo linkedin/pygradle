@@ -20,7 +20,7 @@ import com.linkedin.gradle.python.PythonSourceSet;
 import com.linkedin.gradle.python.PythonTestSourceSet;
 import com.linkedin.gradle.python.internal.DefaultPythonSourceSet;
 import com.linkedin.gradle.python.internal.DefaultPythonTestSourceSet;
-import com.linkedin.gradle.python.plugin.internal.PythonPluginConfigurations;
+import com.linkedin.gradle.python.plugin.extension.PythonPluginConfigurations;
 import com.linkedin.gradle.python.spec.binary.PythonBinarySpec;
 import com.linkedin.gradle.python.spec.binary.SourceDistBinarySpec;
 import com.linkedin.gradle.python.spec.binary.WheelBinarySpec;

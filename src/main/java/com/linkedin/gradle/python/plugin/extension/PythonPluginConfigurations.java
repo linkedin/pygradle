@@ -37,46 +37,57 @@ public class PythonPluginConfigurations {
     final ConfigurationContainer configurations;
     final DependencyHandler dependencyHandler;
 
+    private final PythonConfiguration virtualEnvPythonConfiguration;
+    private final PythonConfiguration bootstrapPythonConfiguration;
+    private final PythonConfiguration pythonPythonConfiguration;
+    private final PythonConfiguration pythonTestPythonConfiguration;
+    private final PythonConfiguration archivePythonConfiguration;
+
     public PythonPluginConfigurations(final ConfigurationContainer configurations, final DependencyHandler dependencyHandler) {
         this.configurations = configurations;
         this.dependencyHandler = dependencyHandler;
 
+        Configuration virtualEnvConfiguration = configurations.create(VIRTUAL_ENV_CONFIGURATION);
         Configuration bootstrapConfiguration = configurations.create(BOOTSTRAP_CONFIGURATION);
-        bootstrapConfiguration.defaultDependencies(dependencies -> dependencies.add(dependencyHandler.create("pypi:virtualenv:13.1.2")));
-
-        configurations.create(VIRTUAL_ENV_CONFIGURATION);
-        dependencyHandler.add(VIRTUAL_ENV_CONFIGURATION, "pypi:pip:7.1.2");
-        dependencyHandler.add(VIRTUAL_ENV_CONFIGURATION, "pypi:setuptools-git:1.1");
 
         Configuration pythonConfiguration = configurations.create(PYTHON_CONFIGURATION);
         Configuration pyTestConfiguration = configurations.create(PYTEST_CONFIGURATION);
         pyTestConfiguration.extendsFrom(pythonConfiguration);
 
         configurations.create(PYTHON_FLAKE8_CONFIGURATION);
+
+        this.virtualEnvPythonConfiguration = new PythonConfiguration(virtualEnvConfiguration, dependencyHandler);
+        this.bootstrapPythonConfiguration = new PythonConfiguration(bootstrapConfiguration, dependencyHandler);
+        this.pythonPythonConfiguration = new PythonConfiguration(pythonConfiguration, dependencyHandler);
+        this.pythonTestPythonConfiguration = new PythonConfiguration(pyTestConfiguration, dependencyHandler);
+        this.archivePythonConfiguration = new PythonConfiguration(configurations.findByName(Dependency.ARCHIVES_CONFIGURATION), dependencyHandler);
+
+        bootstrapConfiguration.defaultDependencies(dependencies -> dependencies.add(dependencyHandler.create("pypi:virtualenv:15.0.1")));
+
+        dependencyHandler.add(VIRTUAL_ENV_CONFIGURATION, "pypi:pip:7.1.2");
+        dependencyHandler.add(VIRTUAL_ENV_CONFIGURATION, "pypi:setuptools-git:1.1");
+
         dependencyHandler.add(PYTHON_FLAKE8_CONFIGURATION, "pypi:flake8:2.4.0");
     }
 
     public PythonConfiguration getVirtualEnv() {
-        return new PythonConfiguration(this, VIRTUAL_ENV_CONFIGURATION);
+        return virtualEnvPythonConfiguration;
     }
 
     public PythonConfiguration getBootstrap() {
-        return new PythonConfiguration(this, BOOTSTRAP_CONFIGURATION);
-    }
-
-    public PythonConfiguration getPythonValidation() {
-        return new PythonConfiguration(this, PYTHON_FLAKE8_CONFIGURATION);
+        return bootstrapPythonConfiguration;
     }
 
     public PythonConfiguration getPython() {
-        return new PythonConfiguration(this, PYTHON_CONFIGURATION);
+        return pythonPythonConfiguration;
     }
 
     public PythonConfiguration getPyTest() {
-        return new PythonConfiguration(this, PYTEST_CONFIGURATION);
+        return pythonTestPythonConfiguration;
     }
 
     public PythonConfiguration getArchive() {
-        return new PythonConfiguration(this, Dependency.ARCHIVES_CONFIGURATION);
+        return archivePythonConfiguration;
     }
+
 }

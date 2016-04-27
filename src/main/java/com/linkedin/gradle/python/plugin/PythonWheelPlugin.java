@@ -20,7 +20,7 @@ import com.linkedin.gradle.python.plugin.internal.wheel.WheelAction;
 import com.linkedin.gradle.python.spec.binary.PythonBinarySpec;
 import com.linkedin.gradle.python.spec.binary.WheelBinarySpec;
 import com.linkedin.gradle.python.spec.component.internal.PythonComponentSpecInternal;
-import com.linkedin.gradle.python.spec.component.internal.PythonEnvironment;
+import com.linkedin.gradle.python.spec.component.PythonEnvironment;
 import com.linkedin.gradle.python.spec.component.internal.PythonEnvironmentContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;

@@ -31,7 +31,7 @@ import com.linkedin.gradle.python.spec.binary.internal.WheelBinarySpecInternal;
 import com.linkedin.gradle.python.spec.component.PythonComponentSpec;
 import com.linkedin.gradle.python.spec.component.internal.DefaultPythonComponentSpec;
 import com.linkedin.gradle.python.spec.component.internal.PythonComponentSpecInternal;
-import com.linkedin.gradle.python.spec.component.internal.PythonEnvironment;
+import com.linkedin.gradle.python.spec.component.PythonEnvironment;
 import com.linkedin.gradle.python.spec.component.internal.PythonEnvironmentContainer;
 import com.linkedin.gradle.python.tasks.InstallDependenciesTask;
 import com.linkedin.gradle.python.tasks.InstallLocalProjectTask;

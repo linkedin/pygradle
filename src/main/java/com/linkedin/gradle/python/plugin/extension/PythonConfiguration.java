@@ -18,6 +18,7 @@ package com.linkedin.gradle.python.plugin.extension;
 
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.PublishArtifact;
+import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.file.FileCollection;
 
 
@@ -25,16 +26,16 @@ import org.gradle.api.file.FileCollection;
  * Wrapper around a specific python configuration. It has some helper methods to get and set values as needed.
  */
 public class PythonConfiguration {
-    private PythonPluginConfigurations pythonPluginConfigurations;
-    private final String name;
+    private final Configuration configuration;
+    private final DependencyHandler dependencyHandler;
 
-    PythonConfiguration(PythonPluginConfigurations pythonPluginConfigurations, String name) {
-        this.pythonPluginConfigurations = pythonPluginConfigurations;
-        this.name = name;
+    public PythonConfiguration(Configuration configuration, DependencyHandler dependencyHandler) {
+        this.configuration = configuration;
+        this.dependencyHandler = dependencyHandler;
     }
 
     public Configuration getConfiguration() {
-        return pythonPluginConfigurations.configurations.getByName(name);
+        return configuration;
     }
 
     public FileCollection getAllArtifacts() {
@@ -42,10 +43,10 @@ public class PythonConfiguration {
     }
 
     public void addDependency(Object notation) {
-        pythonPluginConfigurations.dependencyHandler.add(name, notation);
+        dependencyHandler.add(configuration.getName(), notation);
     }
 
     public void addArtifact(PublishArtifact artifact) {
-        pythonPluginConfigurations.configurations.getByName(name).getArtifacts().add(artifact);
+        configuration.getArtifacts().add(artifact);
     }
 }

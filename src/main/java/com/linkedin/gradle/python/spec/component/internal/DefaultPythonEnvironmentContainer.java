@@ -17,6 +17,7 @@
 package com.linkedin.gradle.python.spec.component.internal;
 
 import com.linkedin.gradle.python.internal.platform.PythonVersion;
+import com.linkedin.gradle.python.spec.component.PythonEnvironment;
 import com.linkedin.gradle.python.spec.component.PythonEnvironmentBuilder;
 import org.apache.commons.lang.StringUtils;
 import org.gradle.api.GradleException;

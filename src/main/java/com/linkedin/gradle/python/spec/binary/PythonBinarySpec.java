@@ -16,7 +16,7 @@
 
 package com.linkedin.gradle.python.spec.binary;
 
-import com.linkedin.gradle.python.spec.component.internal.PythonEnvironment;
+import com.linkedin.gradle.python.spec.component.PythonEnvironment;
 import org.gradle.platform.base.BinarySpec;
 
 

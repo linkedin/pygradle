@@ -17,7 +17,7 @@
 package com.linkedin.gradle.python.tasks;
 
 import com.linkedin.gradle.python.internal.platform.PythonVersion;
-import com.linkedin.gradle.python.spec.component.internal.PythonEnvironment;
+import com.linkedin.gradle.python.spec.component.PythonEnvironment;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.Input;

@@ -16,7 +16,7 @@
 
 package com.linkedin.gradle.python.tasks.internal.configuration;
 
-import com.linkedin.gradle.python.spec.component.internal.PythonEnvironment;
+import com.linkedin.gradle.python.spec.component.PythonEnvironment;
 import com.linkedin.gradle.python.tasks.InstallLocalProjectTask;
 import com.linkedin.gradle.python.tasks.internal.BasePythonTaskAction;
 

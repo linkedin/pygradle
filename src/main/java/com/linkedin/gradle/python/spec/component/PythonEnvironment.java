@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.linkedin.gradle.python.spec.component.internal;
+package com.linkedin.gradle.python.spec.component;
 
 import com.linkedin.gradle.python.internal.platform.PythonVersion;
 import com.linkedin.gradle.python.internal.toolchain.PythonExecutable;

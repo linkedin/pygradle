@@ -17,7 +17,7 @@
 package com.linkedin.gradle.python.tasks.internal.configuration;
 
 import com.linkedin.gradle.python.PythonTestSourceSet;
-import com.linkedin.gradle.python.spec.component.internal.PythonEnvironment;
+import com.linkedin.gradle.python.spec.component.PythonEnvironment;
 import com.linkedin.gradle.python.tasks.PythonTestTask;
 import com.linkedin.gradle.python.tasks.internal.BasePythonTaskAction;
 import org.gradle.language.base.LanguageSourceSet;

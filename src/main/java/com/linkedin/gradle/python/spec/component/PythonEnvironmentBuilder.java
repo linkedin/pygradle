@@ -18,7 +18,6 @@ package com.linkedin.gradle.python.spec.component;
 
 import com.linkedin.gradle.python.internal.platform.PythonVersion;
 import com.linkedin.gradle.python.spec.component.internal.DefaultPythonEnvironment;
-import com.linkedin.gradle.python.spec.component.internal.PythonEnvironment;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.groovy.runtime.ProcessGroovyMethods;

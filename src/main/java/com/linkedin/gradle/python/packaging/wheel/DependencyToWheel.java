@@ -18,7 +18,7 @@ package com.linkedin.gradle.python.packaging.wheel;
 
 import com.linkedin.gradle.python.packaging.PackageInformation;
 import com.linkedin.gradle.python.packaging.PythonPackageNamingUtil;
-import com.linkedin.gradle.python.spec.component.internal.PythonEnvironment;
+import com.linkedin.gradle.python.spec.component.PythonEnvironment;
 import com.linkedin.gradle.python.utils.OutputUtilities;
 import java.io.File;
 import java.util.regex.Pattern;

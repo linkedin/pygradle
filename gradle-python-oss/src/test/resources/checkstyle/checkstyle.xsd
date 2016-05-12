@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="checkstyle" type="checkstyleType"/>
+  <xs:complexType name="fileType">
+    <xs:sequence>
+      <xs:element type="errorType" name="error" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="name" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="errorType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:string" name="line" use="optional"/>
+        <xs:attribute type="xs:string" name="severity" use="optional"/>
+        <xs:attribute type="xs:string" name="message" use="optional"/>
+        <xs:attribute type="xs:string" name="source" use="optional"/>
+        <xs:attribute type="xs:string" name="column" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="checkstyleType">
+    <xs:sequence>
+      <xs:element type="fileType" name="file" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="version"/>
+  </xs:complexType>
+</xs:schema>

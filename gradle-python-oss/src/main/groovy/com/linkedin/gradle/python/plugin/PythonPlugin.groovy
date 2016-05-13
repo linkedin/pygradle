@@ -56,7 +56,7 @@ class PythonPlugin extends PythonHelpers implements Plugin<Project> {
     public final static Map<String, Map<String, String>> PINNED_VERSIONS = [
         'argparse': ['group': 'pypi', 'name': 'argparse', 'version': '1.4.0'],
         'distgradle': ['group': 'com.linkedin.pygradle-setuptools', 'name': 'distgradle', 'version': '1.0.0'],
-        'flake8': ['group': 'pypi', 'name': 'flake8', 'version': '2.4.0'],
+        'flake8': ['group': 'pypi', 'name': 'flake8', 'version': '2.5.4.1'],
         'pbr': ['group': 'pypi', 'name': 'pbr', 'version': '1.8.0'],
         'pex': ['group': 'pypi', 'name': 'pex', 'version': '1.1.4'],
         'pip': ['group': 'pypi', 'name': 'pip', 'version': '7.1.2li'],
@@ -66,7 +66,7 @@ class PythonPlugin extends PythonHelpers implements Plugin<Project> {
         'setuptools': ['group': 'pypi', 'name': 'setuptools', 'version': '19.1.1'],
         'setuptools-git': ['group': 'pypi', 'name': 'setuptools-git', 'version': '1.1'],
         'six': ['group': 'pypi', 'name': 'six', 'version': '1.10.0'],
-        'Sphinx': ['group': 'pypi', 'name': 'Sphinx', 'version': '1.3.1'],
+        'Sphinx': ['group': 'pypi', 'name': 'Sphinx', 'version': '1.4.1'],
         'unittest2': ['group': 'pypi', 'name': 'unittest2', 'version': '1.1.0.1'],
         'virtualenv': ['group': 'pypi', 'name': 'virtualenv', 'version': '15.0.1'],
         'wheel': ['group': 'pypi', 'name': 'wheel', 'version': '0.26.0'],

@@ -21,7 +21,7 @@ public class SourceDistTask extends DefaultTask {
       @Override
       public void execute(ExecSpec execSpec) {
         execSpec.environment(settings.pythonEnvironmentDistgradle);
-        execSpec.commandLine(settings.pythonLocation, "setup.py", "sdist");
+        execSpec.commandLine(settings.pythonLocation, "setup.py", "sdist", "--dist-dir", getDistDir().getAbsolutePath());
       }
     });
   }
@@ -29,6 +29,10 @@ public class SourceDistTask extends DefaultTask {
   @OutputFile
   public File getSdistOutput() {
     Project project = getProject();
-    return new File(project.getBuildDir(), String.format("dist/%s-%s.tar.gz", project.getName(), project.getVersion()));
+    return new File(getDistDir(), String.format("%s-%s.tar.gz", project.getName(), project.getVersion()));
+  }
+
+  private File getDistDir() {
+    return new File(getProject().getBuildDir(), "distributions");
   }
 }

@@ -16,7 +16,7 @@ class SphinxDocumentationTask extends AbstractPythonMainSourceDefaultTask {
     @OutputDirectory
     File getDocDir() {
         def typeString = type.toString().toLowerCase()
-        return new File(project.buildDir, "docs/${typeString}/${project.name}-${project.version}-docs-${typeString}")
+        return new File(project.buildDir, "docs/${typeString}/${project.name}-${ -> project.version }-docs-${typeString}")
     }
 
     /**

@@ -370,7 +370,7 @@ class PythonPlugin extends PythonHelpers implements Plugin<Project> {
             tar.baseName = tar.project.name
             tar.classifier = 'docs-' + documentationTask.type.builderName
             tar.extension = 'tar.gz'
-            tar.from(documentationTask.docDir)
+            tar.from(documentationTask)
             tar.into("${tar.getBaseName()}-${tar.getVersion()}-${tar.getClassifier()}")
         }
     }

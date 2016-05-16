@@ -27,7 +27,6 @@ class PythonSourceDistributionPlugin extends PythonBasePlugin {
         ]
 
         project.artifacts.add(PythonPlugin.CONFIGURATION_DEFAULT, sdistArtifactInfo)
-
     }
 
 }

@@ -21,7 +21,7 @@ public class SourceDistTask extends DefaultTask {
       @Override
       public void execute(ExecSpec execSpec) {
         execSpec.environment(settings.pythonEnvironmentDistgradle);
-        execSpec.commandLine(settings.pythonLocation, "'setup.py", "sdist");
+        execSpec.commandLine(settings.pythonLocation, "setup.py", "sdist");
       }
     });
   }

@@ -12,10 +12,13 @@ import org.gradle.process.ExecResult
 @CompileStatic
 class PyTestTask extends AbstractPythonTestSourceDefaultTask {
 
-    boolean specificFileGiven = false;
+    private static final int NO_TESTS_COLLECTED_ERRNO = 5
+
+    boolean specificFileGiven = false
 
     PyTestTask() {
         args("${component.pytestLocation}")
+        ignoreExitValue = true
     }
 
     @Override
@@ -27,6 +30,11 @@ class PyTestTask extends AbstractPythonTestSourceDefaultTask {
 
     @Override
     void processResults(ExecResult execResult) {
+        if (execResult.exitValue == NO_TESTS_COLLECTED_ERRNO) {
+            logger.warn("***** WARNING: You did not write any tests! *****")
+        } else {
+            execResult.assertNormalExitValue()
+        }
     }
 
     /**
@@ -36,7 +44,7 @@ class PyTestTask extends AbstractPythonTestSourceDefaultTask {
      */
     @Option(option = "file", description = "Only run tests on the input file")
     public void filterFiles(String file) {
-        specificFileGiven = true;
+        specificFileGiven = true
         args(file)
     }
 

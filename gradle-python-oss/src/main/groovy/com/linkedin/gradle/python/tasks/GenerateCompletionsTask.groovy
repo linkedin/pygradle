@@ -1,7 +1,9 @@
 package com.linkedin.gradle.python.tasks
 
-
+import com.linkedin.gradle.python.extension.CliExtension
+import com.linkedin.gradle.python.extension.DeployableExtension
 import groovy.transform.CompileStatic
+import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.StopActionException
 import org.gradle.process.ExecResult
@@ -19,7 +21,8 @@ class GenerateCompletionsTask extends AbstractPythonMainSourceDefaultTask {
 
     @OutputDirectory
     File getEtcDir() {
-      return new File(component.deployableEtcDir)
+        def deployableExtension = ((ExtensionAware)component).getExtensions().getByType(DeployableExtension)
+        return deployableExtension.deployableEtcDir
     }
 
     @Override
@@ -28,7 +31,7 @@ class GenerateCompletionsTask extends AbstractPythonMainSourceDefaultTask {
     }
 
     public void preExecution() {
-        if (!component.generateCompletions) {
+        if (!((ExtensionAware)component).getExtensions().getByType(CliExtension).generateCompletions) {
             throw new StopActionException();
         }
         String completionScript = getClass().getResource('/templates/click_tabtab.py').text
@@ -37,7 +40,7 @@ class GenerateCompletionsTask extends AbstractPythonMainSourceDefaultTask {
             write(completionScript)
             args(absolutePath)
         }
-        getProject().file(component.deployableEtcDir).mkdirs();
+        getProject().file(getEtcDir()).mkdirs();
     }
 
     public void configureExecution(ExecSpec execSpec) {

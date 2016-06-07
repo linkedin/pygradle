@@ -1,15 +1,18 @@
 package com.linkedin.gradle.python.tasks
 
-
-import com.linkedin.gradle.python.LiPythonComponent
+import com.linkedin.gradle.python.PythonComponent
+import com.linkedin.gradle.python.extension.WheelExtension
+import com.linkedin.gradle.python.util.ConsoleOutput
+import com.linkedin.gradle.python.util.MiscUtils
+import com.linkedin.gradle.python.util.VirtualEnvExecutableHelper
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecResult
 import org.gradle.process.ExecSpec
 
-import static com.linkedin.gradle.python.plugin.PythonHelpers.packageInfoFromPath
 import static com.linkedin.gradle.python.plugin.PythonHelpers.successFlair
 
 
@@ -17,8 +20,8 @@ class BuildWheelsTask extends DefaultTask {
 
     @TaskAction
     public void buildWheelsTask() {
-        def settings = project.getExtensions().getByType(LiPythonComponent)
-        buildWheels(project, project.configurations.python.files, settings.pythonEnvironment)
+        PythonComponent settings = project.getExtensions().getByType(PythonComponent)
+        buildWheels(project, project.configurations.python.files, settings)
 
         /*
          * If pexDependencies are empty or its wheels are already
@@ -32,11 +35,11 @@ class BuildWheelsTask extends DefaultTask {
          * and Pex requires it, so we need to include it as a dependency
          */
         project.configurations.build.files.each { file ->
-            if (settings.pythonMajorMinor == '2.6' && file.name.contains('argparse')) {
+            if (settings.pythonDetails.pythonVersion.pythonMajorMinor == '2.6' && file.name.contains('argparse')) {
                 pexDependencies.add(file)
             }
         }
-        buildWheels(project, pexDependencies, settings.pythonEnvironment)
+        buildWheels(project, pexDependencies, settings)
     }
 
     /**
@@ -50,17 +53,19 @@ class BuildWheelsTask extends DefaultTask {
      * @param installables A collection of Python source distributions to compile as wheels.
      * @param env The environment to pass along to <pre>pip</pre>.
      */
-    protected static void buildWheels(Project project, Collection<File> installables, Map<String, Object> env) {
+    protected static void buildWheels(Project project, Collection<File> installables, PythonComponent settings) {
+
+        WheelExtension wheelExtension = (settings as ExtensionAware).getExtensions().findByType(WheelExtension)
 
         installables.sort().each { File installable ->
 
-            def (name, version) = packageInfoFromPath(installable.path)
+            def (name, version) = MiscUtils.packageInfoFromPath(installable.path)
 
             // Check if a wheel exists for this product already and only build it
             // if it is missing. We don't care about the wheel details because we
             // always build these locally.
             def tree = project.fileTree(
-                    dir: project.pythonSettings.wheelCache,
+                    dir: wheelExtension.wheelCache,
                     include: "**/${name.replace('-', '_')}-${version}-*.whl")
 
             new ByteArrayOutputStream().withStream { output ->
@@ -68,13 +73,13 @@ class BuildWheelsTask extends DefaultTask {
                 if (tree.files.size() < 1) {
 
                     ExecResult installResult = project.exec { ExecSpec execSpec ->
-                        execSpec.environment env
+                        execSpec.environment settings.pythonEnvironment
                         execSpec.commandLine(
-                            [project.pythonSettings.pythonLocation,
-                             project.pythonSettings.pipLocation,
+                            [VirtualEnvExecutableHelper.getPythonInterpreter(settings),
+                             VirtualEnvExecutableHelper.getPip(settings),
                              'wheel',
                              '--disable-pip-version-check',
-                             '--wheel-dir', project.pythonSettings.wheelCache,
+                             '--wheel-dir', wheelExtension.wheelCache,
                              '--no-deps',
                              installable
                         ])
@@ -89,10 +94,10 @@ class BuildWheelsTask extends DefaultTask {
                         println(output.toString().trim())
                         throw new GradleException("Failed to build wheel for ${shortHand}. Please see above output for reason, or re-run your build using ``ligradle -i build`` for additional logging.")
                     } else {
-                        if (project.pythonSettings.rawOutput) {
+                        if (settings.consoleOutput == ConsoleOutput.RAW) {
                             println(output.toString().trim())
                         } else {
-                            println("Built wheel for ${shortHand}".padRight(50, '.') + successFlair(project))
+                            println("Built wheel for ${shortHand}".padRight(50, '.') + successFlair(project, settings))
                         }
                     }
                 }

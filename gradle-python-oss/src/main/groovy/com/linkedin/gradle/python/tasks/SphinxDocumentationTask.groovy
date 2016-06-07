@@ -1,6 +1,6 @@
 package com.linkedin.gradle.python.tasks
 
-
+import com.linkedin.gradle.python.util.VirtualEnvExecutableHelper
 import groovy.transform.CompileStatic
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
@@ -27,7 +27,7 @@ class SphinxDocumentationTask extends AbstractPythonMainSourceDefaultTask {
 
     @Override
     public void preExecution() {
-        args(component.sphinxLocation,
+        args(VirtualEnvExecutableHelper.getExecutable(component, "bin/sphinx-build").absolutePath,
             '-b', type.builderName,
             project.file(component.docsDir).getAbsolutePath(),
             "${getDocDir().getAbsolutePath()}")

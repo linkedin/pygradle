@@ -1,6 +1,6 @@
 package com.linkedin.gradle.python.tasks
 
-
+import com.linkedin.gradle.python.util.VirtualEnvExecutableHelper
 import groovy.transform.CompileStatic
 import org.gradle.api.internal.tasks.options.Option
 import org.gradle.process.ExecResult
@@ -17,7 +17,7 @@ class PyTestTask extends AbstractPythonTestSourceDefaultTask {
     boolean specificFileGiven = false
 
     PyTestTask() {
-        args("${component.pytestLocation}")
+        args(VirtualEnvExecutableHelper.findExecutable(component, "bin/py.test").absolutePath)
         ignoreExitValue = true
     }
 

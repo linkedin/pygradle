@@ -1,5 +1,6 @@
 package com.linkedin.gradle.python.plugin
 
+import com.linkedin.gradle.python.util.EntryPointHelpers
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.tasks.bundling.Compression
@@ -36,7 +37,7 @@ class PythonWebApplicationPlugin extends PythonBasePlugin {
                 if (settings.fatPex) {
                     buildPexFile(project, settings.pexCache, gunicornSource, settings.wheelCache, settings.interpreterPath, GUNICORN_ENTRYPOINT)
                 } else {
-                    writeEntryPointScript(project, project.file("${settings.deployableBinDir}/gunicorn").path, GUNICORN_ENTRYPOINT)
+                    EntryPointHelpers.writeEntryPointScript(project, project.file("${settings.deployableBinDir}/gunicorn").path, GUNICORN_ENTRYPOINT)
                 }
             }
         }

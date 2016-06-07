@@ -24,7 +24,7 @@ coolproject/mod.py:1028:1: F841 local variable 'errors' is assigned to but never
 coolproject/mod.py:1204:1: C901 'selftest' is too complex (14)'''
 
     def container = new FileStyleViolationsContainer()
-    flake8Results.eachLine { line -> container.parseLine(line)}
+    flake8Results.eachLine { line -> container.parseLine(line) }
 
     when:
     def generatedXml = new CheckStyleXmlReporter(container).generateXml()
@@ -39,8 +39,8 @@ coolproject/mod.py:1204:1: C901 'selftest' is too complex (14)'''
     xml.file[0].error.size() == 10
 
     when:
-    SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-    def schema = factory.newSchema(new StreamSource(this.getClass().getResourceAsStream("/checkstyle/checkstyle.xsd")));
+    SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
+    def schema = factory.newSchema(new StreamSource(this.getClass().getResourceAsStream("/checkstyle/checkstyle.xsd")))
     def validator = schema.newValidator()
     validator.validate(new StreamSource(new StringReader(generatedXml)))
 

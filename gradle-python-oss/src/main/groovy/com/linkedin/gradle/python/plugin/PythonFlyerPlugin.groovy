@@ -1,11 +1,13 @@
 package com.linkedin.gradle.python.plugin
 
-
-import com.linkedin.gradle.python.LiPythonComponent
+import com.linkedin.gradle.python.PythonComponent
+import com.linkedin.gradle.python.extension.DeployableExtension
+import com.linkedin.gradle.python.util.LinkUtils
 import groovy.transform.CompileStatic
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.tasks.Copy
 
 
@@ -69,8 +71,7 @@ class PythonFlyerPlugin implements Plugin<Project> {
                 if (!project.file("${project.projectDir}/resource").exists()) {
 
                     println "Making the Symlink: ${project.projectDir}/resource --> ${resouceConf.singleFile}"
-                    PythonHelpers.makeLink(project, "${resouceConf.singleFile}", "${project.projectDir}/resource", true)
-
+                    LinkUtils.makeLink(project, resouceConf.singleFile, new File(project.projectDir, 'resource'), true)
                 }
 
             }
@@ -86,15 +87,16 @@ class PythonFlyerPlugin implements Plugin<Project> {
          */
         project.tasks.create(name: TASK_PACKAGE_RESOURCE_FILES, type: Copy) { Copy copy ->
 
-            def pythonSettings = project.extensions.getByType(LiPythonComponent)
+            def pythonSettings = project.extensions.getByType(PythonComponent)
+            def deployableExtension = ((ExtensionAware)pythonSettings).extensions.getByType(DeployableExtension)
 
             copy.inputs.dir(resouceConf)
-            copy.outputs.dir("${pythonSettings.deployableBuildDir}/resource")
+            copy.outputs.dir("${deployableExtension.deployableBuildDir}/resource")
 
             copy.dependsOn(project.tasks['buildWebApplication'])
 
             copy.from resouceConf
-            copy.into "${pythonSettings.deployableBuildDir}/resource"
+            copy.into "${deployableExtension.deployableBuildDir}/resource"
         }
 
 

@@ -1,7 +1,9 @@
 package com.linkedin.gradle.python.plugin
 
-
-import com.linkedin.gradle.python.LiPythonComponent
+import com.linkedin.gradle.python.PythonComponent
+import com.linkedin.gradle.python.extension.DeployableExtension
+import com.linkedin.gradle.python.extension.PexExtension
+import com.linkedin.gradle.python.extension.WheelExtension
 import com.linkedin.gradle.python.tasks.AbstractPythonMainSourceDefaultTask
 import com.linkedin.gradle.python.tasks.AbstractPythonTestSourceDefaultTask
 import com.linkedin.gradle.python.tasks.CheckStyleGeneratorTask
@@ -11,6 +13,8 @@ import com.linkedin.gradle.python.tasks.PipInstallTask
 import com.linkedin.gradle.python.tasks.PyCoverageTask
 import com.linkedin.gradle.python.tasks.PyTestTask
 import com.linkedin.gradle.python.tasks.SphinxDocumentationTask
+import com.linkedin.gradle.python.util.LinkUtils
+import com.linkedin.gradle.python.util.VirtualEnvExecutableHelper
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -18,6 +22,7 @@ import org.gradle.api.Task
 import org.gradle.api.artifacts.DependencyResolveDetails
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
+import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.tasks.bundling.Compression
 import org.gradle.api.tasks.bundling.Tar
 
@@ -46,7 +51,6 @@ class PythonPlugin extends PythonHelpers implements Plugin<Project> {
     public final static String TASK_INSTALL_PROJECT = 'installProject'
     public final static String TASK_INSTALL_PYTHON_REQS = 'installPythonRequirements'
     public final static String TASK_INSTALL_TEST_REQS = 'installTestRequirements'
-    public final static String TASK_INSTALL_VENV = 'installVirtualenv'
     public final static String TASK_PACKAGE_DOCS = 'packageDocs'
     public final static String TASK_PACKAGE_JSON_DOCS = 'packageJsonDocs'
     public final static String TASK_PYTEST = 'pytest'
@@ -74,7 +78,6 @@ class PythonPlugin extends PythonHelpers implements Plugin<Project> {
 
     public final static String DOCUMENTATION_GROUP = 'documentation'
 
-    public LiPythonComponent settings
     private Project project
 
     @Override
@@ -82,7 +85,7 @@ class PythonPlugin extends PythonHelpers implements Plugin<Project> {
 
         this.project = project
 
-        settings = project.extensions.create('pythonSettings', LiPythonComponent, project)
+        PythonComponent settings = project.extensions.create('python', PythonComponent, project)
 
         project.plugins.apply('base')
 
@@ -159,36 +162,7 @@ class PythonPlugin extends PythonHelpers implements Plugin<Project> {
          * Install the virtualenv version that we implicitly depend on so that we
          * can run on systems that don't have virtualenv already installed.
          */
-        project.tasks.create(TASK_INSTALL_VENV, InstallVirtualEnvironmentTask.class)
-
-        /**
-         * Create a virtualenv.
-         *
-         * Create a virtualenv using the virtualenv we implicitly depend on. This
-         * isolates us from the system's virtualenv, which the user may have
-         * modified.
-         */
-        project.tasks.create(TASK_VENV_CREATE) {
-            dependsOn project.tasks.getByName(TASK_INSTALL_VENV)
-            // Specify the python executable as the output file because the virtual
-            // environment contents *will* change after this task completes,
-            // rendering the task out of date.
-            outputs.file(settings.pythonLocation)
-            doLast {
-                project.exec {
-                    commandLine(
-                            settings.interpreterPath,
-                            settings.virtualenvPackageScript,
-                            '--python', settings.interpreterPath,
-                            '--prompt', settings.virtualenvPrompt,
-                            settings.virtualenvLocation
-                    )
-                }
-
-                // Delete the vendor directory, it's not needed anymore once the virtualenv has been created.
-                project.delete(settings.virtualenvPackageDir)
-            }
-        }
+        project.tasks.create(TASK_VENV_CREATE, InstallVirtualEnvironmentTask.class)
 
         /**
          * Create a symlink to product-spec.json and config directory.
@@ -198,16 +172,11 @@ class PythonPlugin extends PythonHelpers implements Plugin<Project> {
          */
         project.tasks.create(TASK_SETUP_LINKS) {
             dependsOn project.tasks.getByName(TASK_VENV_CREATE)
-            outputs.file(settings.activateLinkDest)
-            outputs.file(settings.productSpecLinkDest)
-
-            if (project.file(settings.configLinkSource).exists())
-              outputs.file(settings.configLinkDest)
+            outputs.file(settings.getPythonDetails().activateLink)
 
             doLast {
-                makeLink(project, settings.activateLinkSource, settings.activateLinkDest, true)
-                if (project.file(settings.configLinkSource).exists())
-                  makeLink(project, settings.configLinkSource, settings.configLinkDest, true)
+                def activateLinkSource = VirtualEnvExecutableHelper.getExecutable(settings, "bin/activate")
+                LinkUtils.makeLink(project, activateLinkSource, settings.getPythonDetails().activateLink, true)
             }
         }
 

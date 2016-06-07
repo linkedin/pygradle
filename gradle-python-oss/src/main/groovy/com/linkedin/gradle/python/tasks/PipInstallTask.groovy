@@ -1,8 +1,10 @@
 package com.linkedin.gradle.python.tasks
 
-
-import com.linkedin.gradle.python.LiPythonComponent
+import com.linkedin.gradle.python.PythonComponent
 import com.linkedin.gradle.python.plugin.PythonHelpers
+import com.linkedin.gradle.python.util.ConsoleOutput
+import com.linkedin.gradle.python.util.MiscUtils
+import com.linkedin.gradle.python.util.VirtualEnvExecutableHelper
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.FileCollection
@@ -55,26 +57,26 @@ class PipInstallTask extends DefaultTask {
     @TaskAction
     public void pipInstall() {
 
-        LiPythonComponent settings = project.getExtensions().getByType(LiPythonComponent)
+        PythonComponent settings = project.getExtensions().getByType(PythonComponent)
 
-        def pyVersion = settings.pythonMajorMinor
+        def pyVersion = settings.getPythonDetails().getPythonVersion().pythonMajorMinor
 
         getConfigurationFiles().each { File installable ->
 
-            def (String name, String version) = PythonHelpers.packageInfoFromPath(installable.getAbsolutePath())
+            def (String name, String version) = MiscUtils.packageInfoFromPath(installable.getAbsolutePath())
             String sanitizedName = name.replace('-', '_')
 
             // See: https://www.python.org/dev/peps/pep-0376/
-            String egg = "${settings.virtualenvLocation}/lib/python${pyVersion}/site-packages/${sanitizedName}-${version}-py${pyVersion}.egg-info"
-            String dist = "${settings.virtualenvLocation}/lib/python${pyVersion}/site-packages/${sanitizedName}-${version}.dist-info"
+            String egg = "${settings.getEnvironment().virtualEnv}/lib/python${pyVersion}/site-packages/${sanitizedName}-${version}-py${pyVersion}.egg-info"
+            String dist = "${settings.getEnvironment().virtualEnv}/lib/python${pyVersion}/site-packages/${sanitizedName}-${version}.dist-info"
 
             def mergedEnv = new HashMap(settings.pythonEnvironment)
             if (environment != null) {
                 mergedEnv.putAll(environment)
             }
 
-            def commandLine = [settings.pythonLocation,
-                               settings.pipLocation,
+            def commandLine = [VirtualEnvExecutableHelper.getPythonInterpreter(settings),
+                               VirtualEnvExecutableHelper.getPip(settings),
                                'install',
                                '--disable-pip-version-check',
                                '--no-deps']
@@ -103,10 +105,10 @@ class PipInstallTask extends DefaultTask {
                         throw new GradleException(
                             "Failed to install ${shortHand}. Please see above output for reason, or re-run your build using ``ligradle -i build`` for additional logging.")
                     } else {
-                        if (settings.rawOutput) {
+                        if (settings.consoleOutput == ConsoleOutput.RAW) {
                             println output.toString().trim()
                         } else {
-                            println("Installed ${shortHand} ".padRight(50, '.') + PythonHelpers.successFlair(project))
+                            println("Installed ${shortHand} ".padRight(50, '.') + PythonHelpers.successFlair(project, settings))
                         }
                     }
                 }

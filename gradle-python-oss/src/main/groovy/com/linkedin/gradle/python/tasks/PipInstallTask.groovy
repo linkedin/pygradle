@@ -1,6 +1,6 @@
 package com.linkedin.gradle.python.tasks
 
-import com.linkedin.gradle.python.PythonComponent
+import com.linkedin.gradle.python.PythonExtension
 import com.linkedin.gradle.python.plugin.PythonHelpers
 import com.linkedin.gradle.python.util.ConsoleOutput
 import com.linkedin.gradle.python.util.MiscUtils
@@ -57,7 +57,7 @@ class PipInstallTask extends DefaultTask {
     @TaskAction
     public void pipInstall() {
 
-        PythonComponent settings = project.getExtensions().getByType(PythonComponent)
+        PythonExtension settings = project.getExtensions().getByType(PythonExtension)
 
         def pyVersion = settings.getPythonDetails().getPythonVersion().pythonMajorMinor
 

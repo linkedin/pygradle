@@ -1,12 +1,11 @@
 package com.linkedin.gradle.python.util
 
-import com.linkedin.gradle.python.PythonComponent
+import com.linkedin.gradle.python.PythonExtension
 import com.linkedin.gradle.python.extension.CliExtension
 import com.linkedin.gradle.python.extension.PexExtension
 import com.linkedin.gradle.python.plugin.PythonPexDistributionPlugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
-import org.gradle.api.plugins.ExtensionContainer
 
 public class EntryPointHelpers {
 
@@ -25,7 +24,7 @@ public class EntryPointHelpers {
      * @param entryPoint The entry point to use in the wrapper script.
      */
     public static void writeEntryPointScript(Project project, String path, String entryPoint) {
-        PythonComponent settings = project.getExtensions().getByType(PythonComponent)
+        PythonExtension settings = project.getExtensions().getByType(PythonExtension)
         def extensions = ((ExtensionAware) settings).getExtensions()
         PexExtension pexExtension = extensions.getByType(PexExtension)
 
@@ -62,7 +61,7 @@ public class EntryPointHelpers {
      * @return A list of setuptools entry point strings that looks like ['foo = module1.module2:main', ...].
      */
     static public List<String> collectEntryPoints(Project project) {
-        PythonComponent settings = project.getExtensions().getByType(PythonComponent)
+        PythonExtension settings = project.getExtensions().getByType(PythonExtension)
         def entryPointsBuf = new ByteArrayOutputStream()
         project.exec {
             environment settings.pythonEnvironment + settings.pythonEnvironmentDistgradle

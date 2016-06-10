@@ -1,6 +1,6 @@
 package com.linkedin.gradle.python.tasks
 
-import com.linkedin.gradle.python.PythonComponent
+import com.linkedin.gradle.python.PythonExtension
 import com.linkedin.gradle.python.extension.WheelExtension
 import com.linkedin.gradle.python.util.ConsoleOutput
 import com.linkedin.gradle.python.util.MiscUtils
@@ -20,7 +20,7 @@ class BuildWheelsTask extends DefaultTask {
 
     @TaskAction
     public void buildWheelsTask() {
-        PythonComponent settings = project.getExtensions().getByType(PythonComponent)
+        PythonExtension settings = project.getExtensions().getByType(PythonExtension)
         buildWheels(project, project.configurations.python.files, settings)
 
         /*
@@ -53,7 +53,7 @@ class BuildWheelsTask extends DefaultTask {
      * @param installables A collection of Python source distributions to compile as wheels.
      * @param env The environment to pass along to <pre>pip</pre>.
      */
-    protected static void buildWheels(Project project, Collection<File> installables, PythonComponent settings) {
+    protected static void buildWheels(Project project, Collection<File> installables, PythonExtension settings) {
 
         WheelExtension wheelExtension = (settings as ExtensionAware).getExtensions().findByType(WheelExtension)
 

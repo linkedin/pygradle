@@ -2,7 +2,7 @@ package com.linkedin.gradle.python.tasks;
 
 import java.io.File;
 
-import com.linkedin.gradle.python.PythonComponent;
+import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.util.VirtualEnvExecutableHelper;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
@@ -17,7 +17,7 @@ public class SourceDistTask extends DefaultTask {
     @TaskAction
     public void packageSdist() {
 
-        final PythonComponent settings = getProject().getExtensions().getByType(PythonComponent.class);
+        final PythonExtension settings = getProject().getExtensions().getByType(PythonExtension.class);
 
         getProject().exec(new Action<ExecSpec>() {
             @Override

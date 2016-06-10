@@ -1,6 +1,6 @@
 package com.linkedin.gradle.python.util;
 
-import com.linkedin.gradle.python.PythonComponent;
+import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.extension.CliExtension;
 import com.linkedin.gradle.python.extension.DeployableExtension;
 import com.linkedin.gradle.python.extension.PexExtension;
@@ -11,7 +11,7 @@ import org.gradle.api.plugins.ExtensionContainer;
 
 public class ExtensionUtils {
 
-    public static <T> T maybeCreate(PythonComponent component, String name, Class<T> type, Object... args) {
+    public static <T> T maybeCreate(PythonExtension component, String name, Class<T> type, Object... args) {
         ExtensionContainer extensionContainer = ((ExtensionAware) component).getExtensions();
 
         T maybeExtension = extensionContainer.findByType(type);
@@ -22,38 +22,38 @@ public class ExtensionUtils {
     }
 
     public static DeployableExtension maybeCreateDeployableExtension(Project project) {
-        PythonComponent component = project.getExtensions().getByType(PythonComponent.class);
+        PythonExtension component = project.getExtensions().getByType(PythonExtension.class);
         return maybeCreate(component, "deployable", DeployableExtension.class, project);
     }
 
     public static PexExtension maybeCreatePexExtension(Project project) {
-        PythonComponent component = project.getExtensions().getByType(PythonComponent.class);
+        PythonExtension component = project.getExtensions().getByType(PythonExtension.class);
         return maybeCreate(component, "pex", PexExtension.class, project);
     }
 
     public static WheelExtension maybeCreateWheelExtension(Project project) {
-        PythonComponent component = project.getExtensions().getByType(PythonComponent.class);
+        PythonExtension component = project.getExtensions().getByType(PythonExtension.class);
         return maybeCreate(component, "wheel", WheelExtension.class, project);
     }
 
     public static CliExtension maybeCreateCliExtension(Project project) {
-        PythonComponent component = project.getExtensions().getByType(PythonComponent.class);
+        PythonExtension component = project.getExtensions().getByType(PythonExtension.class);
         return maybeCreate(component, "cli", CliExtension.class);
     }
 
     public static <T> T getPythonComponentExtension(Project project, Class<T> type) {
-        PythonComponent component = project.getExtensions().getByType(PythonComponent.class);
+        PythonExtension component = project.getExtensions().getByType(PythonExtension.class);
         ExtensionContainer extensionContainer = ((ExtensionAware) component).getExtensions();
         return extensionContainer.getByType(type);
     }
 
     public static <T> T findPythonComponentExtension(Project project, Class<T> type) {
-        PythonComponent component = project.getExtensions().getByType(PythonComponent.class);
+        PythonExtension component = project.getExtensions().getByType(PythonExtension.class);
         ExtensionContainer extensionContainer = ((ExtensionAware) component).getExtensions();
         return extensionContainer.findByType(type);
     }
 
-    public static PythonComponent getPythonExtension(Project project) {
-        return project.getExtensions().getByType(PythonComponent.class);
+    public static PythonExtension getPythonExtension(Project project) {
+        return project.getExtensions().getByType(PythonExtension.class);
     }
 }

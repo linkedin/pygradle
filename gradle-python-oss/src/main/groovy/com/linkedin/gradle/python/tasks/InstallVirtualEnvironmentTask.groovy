@@ -1,6 +1,6 @@
 package com.linkedin.gradle.python.tasks
 
-import com.linkedin.gradle.python.PythonComponent
+import com.linkedin.gradle.python.PythonExtension
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.gradle.api.DefaultTask
@@ -18,11 +18,11 @@ import org.gradle.util.VersionNumber
 @CompileStatic
 class InstallVirtualEnvironmentTask extends DefaultTask {
 
-  PythonComponent component
+  PythonExtension component
 
-  public PythonComponent getComponent() {
+  public PythonExtension getComponent() {
     if (component == null) {
-      component = getProject().getExtensions().getByType(PythonComponent.class);
+      component = getProject().getExtensions().getByType(PythonExtension.class);
     }
     return component;
   }

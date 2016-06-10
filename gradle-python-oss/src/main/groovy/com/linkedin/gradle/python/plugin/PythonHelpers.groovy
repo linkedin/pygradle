@@ -1,14 +1,10 @@
 package com.linkedin.gradle.python.plugin
 
 
-import com.linkedin.gradle.python.PythonComponent
+import com.linkedin.gradle.python.PythonExtension
 import com.linkedin.gradle.python.util.ColorHelper
 import com.linkedin.gradle.python.util.ConsoleOutput
-import com.linkedin.gradle.python.util.VirtualEnvExecutableHelper
-import org.gradle.api.GradleException
 import org.gradle.api.Project
-import org.gradle.process.ExecResult
-import org.gradle.process.ExecSpec
 
 abstract class PythonHelpers {
 
@@ -31,7 +27,7 @@ abstract class PythonHelpers {
      * @param project The project running this method.
      * @return A string indicating success!
      */
-    public static String successFlair(Project project, PythonComponent settings) {
+    public static String successFlair(Project project, PythonExtension settings) {
 
         StringBuilder successFlair = new StringBuilder()
 

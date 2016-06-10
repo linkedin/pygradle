@@ -1,6 +1,6 @@
 package com.linkedin.gradle.python.plugin
 
-import com.linkedin.gradle.python.PythonComponent
+import com.linkedin.gradle.python.PythonExtension
 import com.linkedin.gradle.python.tasks.PipInstallTask
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Rule
@@ -61,7 +61,7 @@ class PythonPluginTest extends Specification {
         def project = new ProjectBuilder().build()
         project.plugins.apply('python')
         then:
-        project.getExtensions().getByType(PythonComponent).getPythonDetails().pythonVersion.pythonVersion
+        project.getExtensions().getByType(PythonExtension).getPythonDetails().pythonVersion.pythonVersion
     }
 
     def 'install project has the root file in the collection'() {

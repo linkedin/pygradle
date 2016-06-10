@@ -1,6 +1,6 @@
 package com.linkedin.gradle.python.plugin
 
-import com.linkedin.gradle.python.PythonComponent
+import com.linkedin.gradle.python.PythonExtension
 import com.linkedin.gradle.python.tasks.AbstractPythonMainSourceDefaultTask
 import com.linkedin.gradle.python.tasks.AbstractPythonTestSourceDefaultTask
 import com.linkedin.gradle.python.tasks.CheckStyleGeneratorTask
@@ -77,7 +77,7 @@ class PythonPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
 
-        PythonComponent settings = project.extensions.create('python', PythonComponent, project)
+        PythonExtension settings = project.extensions.create('python', PythonExtension, project)
 
         project.plugins.apply('base')
 

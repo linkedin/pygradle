@@ -1,6 +1,6 @@
 package com.linkedin.gradle.python.tasks;
 
-import com.linkedin.gradle.python.PythonComponent;
+import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.util.VirtualEnvExecutableHelper;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
@@ -25,12 +25,12 @@ import java.util.List;
  * This class is used to make sure that the up-to-date logic works. It also allows for lazy evaluation
  * of the sources, which comes from the lazy eval of the getComponent(). It's lazy because its a method call
  * and will only get executed right before gradle tries to figure out the inputs/outputs. By making it lazy
- * will allow {@link PythonComponent} to be updated by the project and be complete when its used in the tasks.
+ * will allow {@link PythonExtension} to be updated by the project and be complete when its used in the tasks.
  */
 abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask {
 
     FileTree sources;
-    private PythonComponent component;
+    private PythonExtension component;
     private List<String> arguments = new ArrayList<String>();
 
     @InputFiles
@@ -47,9 +47,9 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask {
         return new String[]{"**/*.pyc", "**/*.pyo", "**/__pycache__/"};
     }
 
-    public PythonComponent getComponent() {
+    public PythonExtension getComponent() {
         if (null == component) {
-            component = getProject().getExtensions().getByType(PythonComponent.class);
+            component = getProject().getExtensions().getByType(PythonExtension.class);
         }
         return component;
     }

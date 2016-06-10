@@ -1,14 +1,11 @@
 package com.linkedin.gradle.python.plugin
 
-import com.linkedin.gradle.python.PythonComponent
-import com.linkedin.gradle.python.extension.DeployableExtension
 import com.linkedin.gradle.python.util.ExtensionUtils
 import com.linkedin.gradle.python.util.FileSystemUtils
 import groovy.transform.CompileStatic
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.tasks.Copy
 
 

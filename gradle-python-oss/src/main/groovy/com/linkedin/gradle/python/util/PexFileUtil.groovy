@@ -1,6 +1,6 @@
 package com.linkedin.gradle.python.util
 
-import com.linkedin.gradle.python.PythonComponent
+import com.linkedin.gradle.python.PythonExtension
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.process.ExecResult
@@ -20,7 +20,7 @@ class PexFileUtil {
      * @param entryPoint The entry point to burn into the pex file, or <code>null</code> if no entry point should be used.
      */
     public static void buildPexFile(Project project, File pexCache, String pexName, File repoDir, String pexShebang, String entryPoint) {
-        PythonComponent settings = project.getExtensions().getByType(PythonComponent)
+        PythonExtension settings = project.getExtensions().getByType(PythonExtension)
         def arguments = []
         arguments << '--no-pypi'
         arguments << '--cache-dir' << pexCache.absolutePath
@@ -79,7 +79,7 @@ class PexFileUtil {
      * @return A list of requirements that looks like ['-r', 'requests', '-r', ...].
      */
     static List<String> pipFreeze(Project project) {
-        PythonComponent settings = project.getExtensions().getByType(PythonComponent)
+        PythonExtension settings = project.getExtensions().getByType(PythonExtension)
 
         /** Special cases, such as sphinx-rtd-theme with weird metadata */
         Set<String> specialCases = new HashSet<String>()

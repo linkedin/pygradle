@@ -12,7 +12,7 @@ import org.gradle.api.plugins.ExtensionAware
  * These values are added as a plugin extension and can be customized in the
  * build.gradle files of clients.
  */
-class PythonComponent {
+class PythonExtension {
 
     /** The environment to use for all Python commands. */
     public Map<String, Object> pythonEnvironment
@@ -43,7 +43,7 @@ class PythonComponent {
 
     public ConsoleOutput consoleOutput = ConsoleOutput.RAW
 
-    public PythonComponent(Project project) {
+    public PythonExtension(Project project) {
         this.pythonDetails = new PythonDetails(project, new File(project.buildDir, "venv"))
         docsDir = project.file("${project.projectDir}/docs").path
         testDir = project.file("${project.projectDir}/test").path

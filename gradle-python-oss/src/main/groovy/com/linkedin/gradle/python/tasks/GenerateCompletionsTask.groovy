@@ -33,9 +33,10 @@ class GenerateCompletionsTask extends AbstractPythonMainSourceDefaultTask {
     }
 
     public void preExecution() {
-        if (!ExtensionUtils.findPythonComponentExtension(project, CliExtension)) {
+        if (!(ExtensionUtils.findPythonComponentExtension(project, CliExtension)?.generateCompletions)) {
             throw new StopActionException();
         }
+
         String completionScript = getClass().getResource('/templates/click_tabtab.py').text
         File.createTempFile('click_tabtab', '.py').with {
             deleteOnExit()

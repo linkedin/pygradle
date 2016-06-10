@@ -7,7 +7,7 @@ import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
 
-class PythonWebApplicationPluginTest extends Specification {
+class PythonWebApplicationPluginIntegrationTest extends Specification {
     @Rule final TemporaryFolder testProjectDir = new TemporaryFolder()
     File buildFile
 

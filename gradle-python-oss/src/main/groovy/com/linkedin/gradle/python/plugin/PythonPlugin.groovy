@@ -36,7 +36,6 @@ class PythonPlugin implements Plugin<Project> {
     public final static String CONFIGURATION_VENV = 'venv'
     public final static String CONFIGURATION_WHEEL = 'wheel'
 
-    public final static String TASK_APP_DEF = 'pythonAppDef'
     public final static String TASK_BUILD_DOCS = 'buildDocs'
     public final static String TASK_CHECK = 'check'
     public final static String TASK_COVERAGE = 'coverage'

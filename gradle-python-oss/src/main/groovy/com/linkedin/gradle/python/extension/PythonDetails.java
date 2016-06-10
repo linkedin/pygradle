@@ -1,6 +1,9 @@
 package com.linkedin.gradle.python.extension;
 
+import aQute.bnd.build.Run;
+import com.linkedin.gradle.python.util.internal.ExecutablePathUtils;
 import org.gradle.api.Project;
+import org.gradle.internal.os.OperatingSystem;
 
 import java.io.File;
 
@@ -26,6 +29,9 @@ public class PythonDetails {
     }
 
     private void updateFromPythonInterpreter() {
+        if(pythonInterpreter == null || !pythonInterpreter.exists()) {
+            throw new RuntimeException("Unable to find or execute python");
+        }
         pythonVersion = new PythonVersion(PythonVersionParser.parsePythonVersion(project, pythonInterpreter));
     }
 
@@ -55,6 +61,23 @@ public class PythonDetails {
 
     public void setActivateLink(File activateLink) {
         this.activateLink = activateLink;
+    }
+
+    public void setPythonVersion(String pythonVersion) {
+        pythonInterpreter = ExecutablePathUtils.getExecutable(String.format("python%s", pythonVersion));
+        if(null == pythonInterpreter) {
+            pythonInterpreter = new File(String.format("/export/apps/python/%s/bin/python%s", pythonVersion, pythonVersion));
+        }
+        updateFromPythonInterpreter();
+    }
+
+    public void setSystemPythonInterpreter(String path) {
+        pythonInterpreter = new File(path);
+        if (!pythonInterpreter.exists()) {
+            throw new RuntimeException("Unable to find " + path);
+        }
+
+        updateFromPythonInterpreter();
     }
 
     public PythonVersion getPythonVersion() {

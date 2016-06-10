@@ -12,6 +12,7 @@ import org.gradle.api.artifacts.ResolvedDependency
 import org.gradle.api.specs.Spec
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.util.VersionNumber
 
@@ -32,9 +33,9 @@ class InstallVirtualEnvironmentTask extends DefaultTask {
     project.configurations.getByName('pygradleBootstrap')
   }
 
-  @OutputDirectory
+  @OutputFile
   File getVirtualEnvDir() {
-    return getComponent().getPythonDetails().virtualEnv
+    return getComponent().getPythonDetails().getVirtualEnvInterpreter()
   }
 
   @TaskAction

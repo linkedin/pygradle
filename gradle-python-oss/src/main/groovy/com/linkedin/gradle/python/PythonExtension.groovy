@@ -41,7 +41,7 @@ class PythonExtension {
 
     private final PythonDetails pythonDetails
 
-    public ConsoleOutput consoleOutput = ConsoleOutput.RAW
+    public ConsoleOutput consoleOutput = ConsoleOutput.ASCII
 
     public PythonExtension(Project project) {
         this.pythonDetails = new PythonDetails(project, new File(project.buildDir, "venv"))

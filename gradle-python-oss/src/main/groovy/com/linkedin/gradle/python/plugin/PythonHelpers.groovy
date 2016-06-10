@@ -8,6 +8,8 @@ import org.gradle.api.Project
 
 abstract class PythonHelpers {
 
+    public static final int LINE_WIDTH = 80
+
     /**
      * Detect if we're connected to a TTY and support color.
      * <p>
@@ -43,6 +45,21 @@ abstract class PythonHelpers {
             successFlair << ColorHelper.ANSI_RESET
 
         return successFlair.toString()
+    }
+
+    public static String createPrettyLine(String prefix, String postfix) {
+        StringBuilder successFlair = new StringBuilder()
+
+
+        successFlair.append(prefix).append(' ')
+        for(int i = 0; i < LINE_WIDTH - 3 - prefix.length() - postfix.length(); i++) {
+            successFlair.append(".")
+        }
+        successFlair.append(".")
+        successFlair.append(' ').append(postfix)
+
+        return successFlair.toString()
+
     }
 
     /**

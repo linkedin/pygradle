@@ -1,9 +1,6 @@
 package com.linkedin.gradle.python.plugin
 
 import com.linkedin.gradle.python.PythonComponent
-import com.linkedin.gradle.python.extension.DeployableExtension
-import com.linkedin.gradle.python.extension.PexExtension
-import com.linkedin.gradle.python.extension.WheelExtension
 import com.linkedin.gradle.python.tasks.AbstractPythonMainSourceDefaultTask
 import com.linkedin.gradle.python.tasks.AbstractPythonTestSourceDefaultTask
 import com.linkedin.gradle.python.tasks.CheckStyleGeneratorTask
@@ -13,7 +10,7 @@ import com.linkedin.gradle.python.tasks.PipInstallTask
 import com.linkedin.gradle.python.tasks.PyCoverageTask
 import com.linkedin.gradle.python.tasks.PyTestTask
 import com.linkedin.gradle.python.tasks.SphinxDocumentationTask
-import com.linkedin.gradle.python.util.LinkUtils
+import com.linkedin.gradle.python.util.FileSystemUtils
 import com.linkedin.gradle.python.util.VirtualEnvExecutableHelper
 import org.gradle.api.Action
 import org.gradle.api.Plugin
@@ -22,11 +19,10 @@ import org.gradle.api.Task
 import org.gradle.api.artifacts.DependencyResolveDetails
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
-import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.tasks.bundling.Compression
 import org.gradle.api.tasks.bundling.Tar
 
-class PythonPlugin extends PythonHelpers implements Plugin<Project> {
+class PythonPlugin implements Plugin<Project> {
 
     private static final Logger logger = Logging.getLogger(PythonPlugin)
 
@@ -78,12 +74,8 @@ class PythonPlugin extends PythonHelpers implements Plugin<Project> {
 
     public final static String DOCUMENTATION_GROUP = 'documentation'
 
-    private Project project
-
     @Override
     void apply(Project project) {
-
-        this.project = project
 
         PythonComponent settings = project.extensions.create('python', PythonComponent, project)
 
@@ -176,7 +168,7 @@ class PythonPlugin extends PythonHelpers implements Plugin<Project> {
 
             doLast {
                 def activateLinkSource = VirtualEnvExecutableHelper.getExecutable(settings, "bin/activate")
-                LinkUtils.makeLink(project, activateLinkSource, settings.getPythonDetails().activateLink, true)
+                FileSystemUtils.makeLink(project, activateLinkSource, settings.getPythonDetails().activateLink, true)
             }
         }
 

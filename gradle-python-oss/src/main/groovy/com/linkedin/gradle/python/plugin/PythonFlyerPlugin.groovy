@@ -2,7 +2,8 @@ package com.linkedin.gradle.python.plugin
 
 import com.linkedin.gradle.python.PythonComponent
 import com.linkedin.gradle.python.extension.DeployableExtension
-import com.linkedin.gradle.python.util.LinkUtils
+import com.linkedin.gradle.python.util.ExtensionUtils
+import com.linkedin.gradle.python.util.FileSystemUtils
 import groovy.transform.CompileStatic
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -67,15 +68,11 @@ class PythonFlyerPlugin implements Plugin<Project> {
             task.dependsOn resouceConf
 
             task.doLast {
-
                 if (!project.file("${project.projectDir}/resource").exists()) {
-
                     println "Making the Symlink: ${project.projectDir}/resource --> ${resouceConf.singleFile}"
-                    LinkUtils.makeLink(project, resouceConf.singleFile, new File(project.projectDir, 'resource'), true)
+                    FileSystemUtils.makeLink(project, resouceConf.singleFile, new File(project.projectDir, 'resource'), true)
                 }
-
             }
-
         }
 
         project.tasks.getByName(PythonPlugin.TASK_INSTALL_PROJECT).dependsOn(project.tasks.getByName(TASK_SETUP_RESOURCE_LINK))
@@ -86,9 +83,7 @@ class PythonFlyerPlugin implements Plugin<Project> {
          * static files into the 'deployable' directory.
          */
         project.tasks.create(name: TASK_PACKAGE_RESOURCE_FILES, type: Copy) { Copy copy ->
-
-            def pythonSettings = project.extensions.getByType(PythonComponent)
-            def deployableExtension = ((ExtensionAware)pythonSettings).extensions.getByType(DeployableExtension)
+            def deployableExtension = ExtensionUtils.maybeCreateDeployableExtension(project)
 
             copy.inputs.dir(resouceConf)
             copy.outputs.dir("${deployableExtension.deployableBuildDir}/resource")

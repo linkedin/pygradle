@@ -2,8 +2,10 @@ package com.linkedin.gradle.python.tasks
 
 import com.linkedin.gradle.python.extension.CliExtension
 import com.linkedin.gradle.python.extension.DeployableExtension
+import com.linkedin.gradle.python.util.ExtensionUtils
 import groovy.transform.CompileStatic
 import org.gradle.api.plugins.ExtensionAware
+import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.StopActionException
 import org.gradle.process.ExecResult
@@ -21,7 +23,7 @@ class GenerateCompletionsTask extends AbstractPythonMainSourceDefaultTask {
 
     @OutputDirectory
     File getEtcDir() {
-        def deployableExtension = ((ExtensionAware)component).getExtensions().getByType(DeployableExtension)
+        def deployableExtension = ExtensionUtils.getPythonComponentExtension(project, DeployableExtension)
         return deployableExtension.deployableEtcDir
     }
 
@@ -31,7 +33,7 @@ class GenerateCompletionsTask extends AbstractPythonMainSourceDefaultTask {
     }
 
     public void preExecution() {
-        if (!((ExtensionAware)component).getExtensions().getByType(CliExtension).generateCompletions) {
+        if (!ExtensionUtils.findPythonComponentExtension(project, CliExtension)) {
             throw new StopActionException();
         }
         String completionScript = getClass().getResource('/templates/click_tabtab.py').text

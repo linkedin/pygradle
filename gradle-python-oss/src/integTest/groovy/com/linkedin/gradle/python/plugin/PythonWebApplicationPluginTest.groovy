@@ -7,8 +7,7 @@ import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
 
-class PythonPluginIntegrationTest extends Specification {
-
+class PythonWebApplicationPluginTest extends Specification {
     @Rule final TemporaryFolder testProjectDir = new TemporaryFolder()
     File buildFile
 
@@ -16,11 +15,11 @@ class PythonPluginIntegrationTest extends Specification {
         buildFile = testProjectDir.newFile('build.gradle')
     }
 
-    def "can build library"() {
+    def "can build web-app"() {
         given:
         buildFile << """
 plugins {
-    id 'python'
+    id 'python-web-app'
 }
 
 ${PyGradleTestBuilder.createRepoClosure()}
@@ -75,5 +74,6 @@ ${PyGradleTestBuilder.createRepoClosure()}
         result.task(':pytest').outcome == TaskOutcome.SUCCESS
         result.task(':check').outcome == TaskOutcome.SUCCESS
         result.task(':build').outcome == TaskOutcome.SUCCESS
+        result.task(':packageWebApplication').outcome == TaskOutcome.SUCCESS
     }
 }

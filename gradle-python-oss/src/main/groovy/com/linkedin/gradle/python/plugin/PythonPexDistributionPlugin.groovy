@@ -5,11 +5,11 @@ import com.linkedin.gradle.python.extension.PexExtension
 import com.linkedin.gradle.python.extension.WheelExtension
 import com.linkedin.gradle.python.tasks.BuildWheelsTask
 import com.linkedin.gradle.python.util.EntryPointHelpers
+import com.linkedin.gradle.python.util.ExtensionUtils
 import com.linkedin.gradle.python.util.PexFileUtil
 import com.linkedin.gradle.python.util.VirtualEnvExecutableHelper
 import org.gradle.api.Action
 import org.gradle.api.Project
-import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.tasks.bundling.Compression
 import org.gradle.api.tasks.bundling.Tar
 
@@ -23,22 +23,9 @@ class PythonPexDistributionPlugin extends PythonBasePlugin {
     void applyTo(Project project) {
 
         project.plugins.apply(PythonPlugin)
-        def extensionContainer = ((ExtensionAware) settings).extensions
-
-        PexExtension pexExtension = extensionContainer.findByType(PexExtension)
-        if(pexExtension == null) {
-            pexExtension = extensionContainer.create("pex", PexExtension, project)
-        }
-
-        WheelExtension wheelExtension = extensionContainer.findByType(WheelExtension)
-        if(wheelExtension == null) {
-            wheelExtension = extensionContainer.create("wheel", WheelExtension, project)
-        }
-
-        DeployableExtension deployableExtension = extensionContainer.findByType(DeployableExtension)
-        if(deployableExtension == null) {
-            deployableExtension = extensionContainer.create("deployable", DeployableExtension, project)
-        }
+        PexExtension pexExtension = ExtensionUtils.maybeCreatePexExtension(project)
+        WheelExtension wheelExtension = ExtensionUtils.maybeCreateWheelExtension(project)
+        DeployableExtension deployableExtension = ExtensionUtils.maybeCreateDeployableExtension(project)
 
 
         project.afterEvaluate {

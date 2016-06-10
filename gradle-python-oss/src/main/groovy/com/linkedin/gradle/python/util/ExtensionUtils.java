@@ -52,4 +52,8 @@ public class ExtensionUtils {
         ExtensionContainer extensionContainer = ((ExtensionAware) component).getExtensions();
         return extensionContainer.findByType(type);
     }
+
+    public static PythonComponent getPythonExtension(Project project) {
+        return project.getExtensions().getByType(PythonComponent.class);
+    }
 }

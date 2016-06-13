@@ -19,9 +19,6 @@ import org.gradle.process.ExecSpec
 import java.time.Duration
 import java.time.LocalDateTime
 
-import static com.linkedin.gradle.python.plugin.PythonHelpers.successFlair
-
-
 class BuildWheelsTask extends DefaultTask {
 
     private static final Logger logger = Logging.getLogger(BuildWheelsTask)
@@ -43,7 +40,7 @@ class BuildWheelsTask extends DefaultTask {
          * and Pex requires it, so we need to include it as a dependency
          */
         project.configurations.build.files.each { file ->
-            if (settings.pythonDetails.pythonVersion.pythonMajorMinor == '2.6' && file.name.contains('argparse')) {
+            if (settings.details.pythonVersion.pythonMajorMinor == '2.6' && file.name.contains('argparse')) {
                 pexDependencies.add(file)
             }
         }

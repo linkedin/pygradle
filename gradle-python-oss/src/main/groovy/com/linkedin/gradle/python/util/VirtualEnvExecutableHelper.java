@@ -11,7 +11,7 @@ public class VirtualEnvExecutableHelper {
     }
 
     public static File getPythonInterpreter(PythonExtension pythonExtension) {
-        return pythonExtension.getPythonDetails().getVirtualEnvInterpreter();
+        return pythonExtension.getDetails().getVirtualEnvInterpreter();
     }
 
     public static File getPip(PythonExtension pythonExtension) {
@@ -31,10 +31,10 @@ public class VirtualEnvExecutableHelper {
     }
 
     public static File getExecutable(PythonExtension pythonExtension, String path) {
-        return getExecutable(new File(pythonExtension.getPythonDetails().getVirtualEnv(), path));
+        return getExecutable(new File(pythonExtension.getDetails().getVirtualEnv(), path));
     }
 
     public static File findExecutable(PythonExtension pythonExtension, String path) {
-        return new File(pythonExtension.getPythonDetails().getVirtualEnv(), path);
+        return new File(pythonExtension.getDetails().getVirtualEnv(), path);
     }
 }

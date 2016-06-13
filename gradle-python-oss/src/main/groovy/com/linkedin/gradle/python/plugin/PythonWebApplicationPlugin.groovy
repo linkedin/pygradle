@@ -46,7 +46,7 @@ class PythonWebApplicationPlugin extends PythonBasePlugin {
             task.deployableExtension = deployableExtension
             task.wheelExtension = wheelExtension
             task.pexExtension = pexExtension
-            task.pythonInterpreter = settings.pythonDetails.virtualEnvInterpreter.path
+            task.pythonInterpreter = settings.details.virtualEnvInterpreter.path
 
         }
 

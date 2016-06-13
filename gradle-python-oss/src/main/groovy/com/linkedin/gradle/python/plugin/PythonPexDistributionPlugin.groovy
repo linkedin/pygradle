@@ -29,7 +29,7 @@ class PythonPexDistributionPlugin extends PythonBasePlugin {
 
 
         project.afterEvaluate {
-            if (settings.pythonDetails.pythonVersion.pythonMajorMinor == '2.6') {
+            if (settings.details.pythonVersion.pythonMajorMinor == '2.6') {
                 project.dependencies.add(PythonPlugin.CONFIGURATION_BUILD_REQS,
                         PythonPlugin.PINNED_VERSIONS['argparse'])
             }
@@ -80,7 +80,7 @@ class PythonPexDistributionPlugin extends PythonBasePlugin {
                                 pexExtension.pexCache,
                                 new File(deployableExtension.deployableBinDir, name).path,
                                 wheelExtension.wheelCache,
-                                settings.pythonDetails.virtualEnvInterpreter.absolutePath,
+                                settings.details.virtualEnvInterpreter.absolutePath,
                                 entry)
                     }
                 } else {
@@ -89,7 +89,7 @@ class PythonPexDistributionPlugin extends PythonBasePlugin {
                             pexExtension.pexCache,
                             project.file(pexSource).path,
                             wheelExtension.wheelCache,
-                            settings.pythonDetails.virtualEnvInterpreter.absolutePath,
+                            settings.details.virtualEnvInterpreter.absolutePath,
                             null)
                     // For each entry point, write a thin wrapper
                     EntryPointHelpers.collectEntryPoints(project).each {

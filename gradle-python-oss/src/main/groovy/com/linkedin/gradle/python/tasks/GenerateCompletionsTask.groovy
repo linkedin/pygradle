@@ -4,13 +4,10 @@ import com.linkedin.gradle.python.extension.CliExtension
 import com.linkedin.gradle.python.extension.DeployableExtension
 import com.linkedin.gradle.python.util.ExtensionUtils
 import groovy.transform.CompileStatic
-import org.gradle.api.plugins.ExtensionAware
-import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.StopActionException
 import org.gradle.process.ExecResult
 import org.gradle.process.ExecSpec
-
 
 /**
  * Generates completion files.

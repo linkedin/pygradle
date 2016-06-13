@@ -19,6 +19,7 @@ public class EntryPointHelpers {
      * is used to calculate the base directory at which to unpack the pex.
      *
      * TODO: Make the template configurable.
+     * TODO: Replace with a python script vs bash script.
      * @param project The project to run <code>pex</code> within.
      * @param path The path at which to create the wrapper script.
      * @param entryPoint The entry point to use in the wrapper script.

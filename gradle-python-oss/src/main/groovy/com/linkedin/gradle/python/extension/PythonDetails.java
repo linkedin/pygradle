@@ -1,9 +1,7 @@
 package com.linkedin.gradle.python.extension;
 
-import aQute.bnd.build.Run;
 import com.linkedin.gradle.python.util.internal.ExecutablePathUtils;
 import org.gradle.api.Project;
-import org.gradle.internal.os.OperatingSystem;
 
 import java.io.File;
 
@@ -64,8 +62,17 @@ public class PythonDetails {
     }
 
     public void setPythonVersion(String pythonVersion) {
+        if ("2".equals(pythonVersion)) {
+            pythonVersion = "2.6";
+        }
+
+        if ("3".equals(pythonVersion)) {
+            pythonVersion = "3.5";
+        }
+
         pythonInterpreter = ExecutablePathUtils.getExecutable(String.format("python%s", pythonVersion));
         if(null == pythonInterpreter) {
+            //TODO: Make this configurable for others
             pythonInterpreter = new File(String.format("/export/apps/python/%s/bin/python%s", pythonVersion, pythonVersion));
         }
         updateFromPythonInterpreter();

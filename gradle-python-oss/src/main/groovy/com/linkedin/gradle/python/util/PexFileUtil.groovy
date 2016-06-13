@@ -50,21 +50,13 @@ class PexFileUtil {
                 if (packageMatcher.hasGroup())
                     packageName = packageMatcher[0][1]
 
-                def dependencyInsightPath = project.getTasks().getByName('dependencyInsight').getPath()
                 throw new GradleException(
-                        """\
+                    """
                     | Failed to build a pex file (see output above)!
                     |
                     | This typically happens because your virtual environment contains a cached copy of ${packageName}
                     | that no other package depends on any more.
                     | Usually, this is the result of updating a package that used to depend on ${packageName}.
-                    |
-                    | To resolve the issue, simply clean up your working copy completely and rebuild.
-                    | See http://go/pygradle-faq "How do I completely clean the checked out product?".
-                    |
-                    | If that doesn't help, you can analyze your dependencies as described in http://go/pygradle-faq
-                    | in questions that contain "print the dependency ..." phrase. Start debugging by running:
-                    | \tligradle ${dependencyInsightPath} --dependency ${packageName} --configuration python
                     """.stripMargin().stripIndent()
                 )
 
@@ -74,6 +66,8 @@ class PexFileUtil {
 
     /**
      * Run ``pip freeze`` and return the results.
+     *
+     * TODO: Make this configurable with other users 'special cases'
      *
      * @param project The project to run ``pip freeze`` within.
      * @return A list of requirements that looks like ['-r', 'requests', '-r', ...].
@@ -92,7 +86,7 @@ class PexFileUtil {
         developmentDependencies.addAll(specialCases)
         developmentDependencies.removeAll(configurationToSet(project.configurations.python.files))
 
-        if (settings.pythonDetails.pythonVersion.pythonMajorMinor == '2.6' && developmentDependencies.contains('argparse')) {
+        if (settings.details.pythonVersion.pythonMajorMinor == '2.6' && developmentDependencies.contains('argparse')) {
             developmentDependencies.remove('argparse')
         }
 

@@ -22,7 +22,7 @@ class PythonWheelDistributionPlugin extends PythonBasePlugin {
             doLast {
                 project.exec {
                     environment settings.pythonEnvironmentDistgradle
-                    commandLine settings.pythonDetails.virtualEnvInterpreter, "setup.py", "bdist_wheel"
+                    commandLine settings.details.virtualEnvInterpreter, "setup.py", "bdist_wheel"
                 }
             }
         }

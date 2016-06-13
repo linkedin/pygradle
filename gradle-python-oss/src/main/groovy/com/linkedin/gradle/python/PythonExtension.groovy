@@ -4,7 +4,6 @@ import com.linkedin.gradle.python.extension.PythonDetails
 import com.linkedin.gradle.python.util.ConsoleOutput
 import org.gradle.api.GradleException
 import org.gradle.api.Project
-import org.gradle.api.plugins.ExtensionAware
 
 /**
  * Configuration settings for Python products.
@@ -23,7 +22,8 @@ class PythonExtension {
      * <p>
      * This environment only applies to the project being developed. In other
      * words, this environment will only be passed to commands that use a
-     * <code>setup.py</code> file.*/
+     * <code>setup.py</code> file.
+     */
     public Map<String, Object> pythonEnvironmentDistgradle
 
     /** The location of this project's Sphinx documentation directory. */
@@ -38,32 +38,20 @@ class PythonExtension {
     /** The location of this project's setup.cfg file. */
     public String setupCfg
 
-
-    private final PythonDetails pythonDetails
+    /** Container of the details related to the venv/python instance */
+    private final PythonDetails details
 
     public ConsoleOutput consoleOutput = ConsoleOutput.ASCII
 
     public PythonExtension(Project project) {
-        this.pythonDetails = new PythonDetails(project, new File(project.buildDir, "venv"))
+        this.details = new PythonDetails(project, new File(project.buildDir, "venv"))
         docsDir = project.file("${project.projectDir}/docs").path
         testDir = project.file("${project.projectDir}/test").path
         srcDir = project.file("${project.projectDir}/src").path
         setupCfg = project.file("${project.projectDir}/setup.cfg").path
 
-        /*
-         * Include the current version of OpenSSL on SysOps hosts.
-         * It's ok if this doesn't exist for other hosts.
-         * The "-Wl," tells gcc to pass the next onto the linker,
-         * which sets the rpath to burn the library path into the .so
-         *
-         * NOTE: The C/LDFLAGS described above are not used any more.
-         * This option must not be used on Mac OS X.
-         * It caused other issues and was commented out until further review.
-         */
         pythonEnvironment = [
-            // 'CFLAGS': '-I/export/apps/openssl/include',
-            // 'LDFLAGS': '-Wl,-rpath,/export/apps/openssl/lib -L/export/apps/openssl/lib',
-            'PATH': project.file("${pythonDetails.virtualEnv.absolutePath}/bin").path + ':' + System.getenv('PATH'),]
+                'PATH': project.file("${details.virtualEnv.absolutePath}/bin").path + ':' + System.getenv('PATH'),]
 
         pythonEnvironmentDistgradle = ['DISTGRADLE_PRODUCT_NAME'   : project.name,
                                        'DISTGRADLE_PRODUCT_VERSION': "${-> project.version}",]
@@ -82,8 +70,8 @@ class PythonExtension {
         }
     }
 
-    public PythonDetails getPythonDetails() {
-        return pythonDetails
+    public PythonDetails getDetails() {
+        return details
     }
 
     public Map<String, Object> getEnvironment() {

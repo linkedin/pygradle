@@ -135,6 +135,8 @@ class PythonPlugin implements Plugin<Project> {
          * To prevent base dependencies, such as setuptools, from installing/reinstalling, we will
          * pin their versions to values in the PINNED_VERSIONS map, which will contain known
          * good versions that satisfy all the requirements.
+         *
+         * TODO: Allow people to override the map that we provide for unknown use-cases
          */
         project.configurations.all {
             resolutionStrategy.eachDependency { DependencyResolveDetails details ->
@@ -163,11 +165,11 @@ class PythonPlugin implements Plugin<Project> {
          */
         project.tasks.create(TASK_SETUP_LINKS) {
             dependsOn project.tasks.getByName(TASK_VENV_CREATE)
-            outputs.file(settings.getPythonDetails().activateLink)
+            outputs.file(settings.getDetails().activateLink)
 
             doLast {
                 def activateLinkSource = VirtualEnvExecutableHelper.getExecutable(settings, "bin/activate")
-                FileSystemUtils.makeLink(project, activateLinkSource, settings.getPythonDetails().activateLink, true)
+                FileSystemUtils.makeLink(project, activateLinkSource, settings.getDetails().activateLink, true)
             }
         }
 

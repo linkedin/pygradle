@@ -9,7 +9,8 @@ import spock.lang.Specification
 
 class PythonPluginIntegrationTest extends Specification {
 
-    @Rule final TemporaryFolder testProjectDir = new TemporaryFolder()
+    @Rule
+    final TemporaryFolder testProjectDir = new TemporaryFolder()
     File buildFile
 
     def setup() {
@@ -19,12 +20,12 @@ class PythonPluginIntegrationTest extends Specification {
     def "can build library"() {
         given:
         buildFile << """
-plugins {
-    id 'python'
-}
-
-${PyGradleTestBuilder.createRepoClosure()}
-        """
+        |plugins {
+        |    id 'python'
+        |}
+        |
+        |${PyGradleTestBuilder.createRepoClosure()}
+        """.stripMargin().stripIndent()
 
         testProjectDir.newFolder('test')
         testProjectDir.newFolder('src')

@@ -61,24 +61,5 @@ abstract class PythonHelpers {
         return successFlair.toString()
 
     }
-
-    /**
-     * Returns operating system and architecture pair.
-     * <p>
-     * The operating system and architecture pair is joined with an "_"
-     * character in compliance with the multi-variant build system. Read more
-     * about the multi-variant build system at http://go/mbf.
-     * @return The operating system and architecture pair.
-     */
-    protected static String getOsNameAndArch() {
-        def osName = System.getProperty('os.name').toLowerCase()
-        if (osName == 'mac os x')
-            osName = 'darwin'
-        def osArch = System.getProperty('os.arch')
-        if (osArch == 'amd64') {
-            osArch = 'x86_64'
-        }
-        return "${osName}_${osArch}";
-    }
 }
 

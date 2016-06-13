@@ -61,7 +61,7 @@ class PythonPluginTest extends Specification {
         def project = new ProjectBuilder().build()
         project.plugins.apply('python')
         then:
-        project.getExtensions().getByType(PythonExtension).getPythonDetails().pythonVersion.pythonVersion
+        project.getExtensions().getByType(PythonExtension).getDetails().pythonVersion.pythonVersion
     }
 
     def 'install project has the root file in the collection'() {

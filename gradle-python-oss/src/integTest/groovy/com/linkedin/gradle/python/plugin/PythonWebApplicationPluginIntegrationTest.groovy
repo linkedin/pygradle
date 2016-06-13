@@ -8,7 +8,9 @@ import spock.lang.Specification
 
 
 class PythonWebApplicationPluginIntegrationTest extends Specification {
-    @Rule final TemporaryFolder testProjectDir = new TemporaryFolder()
+
+    @Rule
+    final TemporaryFolder testProjectDir = new TemporaryFolder()
     File buildFile
 
     def setup() {
@@ -17,13 +19,13 @@ class PythonWebApplicationPluginIntegrationTest extends Specification {
 
     def "can build web-app"() {
         given:
-        buildFile << """
-plugins {
-    id 'python-web-app'
-}
-
-${PyGradleTestBuilder.createRepoClosure()}
-        """
+        buildFile << """\
+        |plugins {
+        |    id 'python-web-app'
+        |}
+        |
+        |${PyGradleTestBuilder.createRepoClosure()}
+        """.stripMargin().stripIndent()
 
         testProjectDir.newFolder('test')
         testProjectDir.newFolder('src')

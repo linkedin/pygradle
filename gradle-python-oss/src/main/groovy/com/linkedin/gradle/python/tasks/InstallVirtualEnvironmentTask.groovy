@@ -11,7 +11,6 @@ import org.gradle.api.artifacts.ResolvedConfiguration
 import org.gradle.api.artifacts.ResolvedDependency
 import org.gradle.api.specs.Spec
 import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.util.VersionNumber
@@ -35,7 +34,7 @@ class InstallVirtualEnvironmentTask extends DefaultTask {
 
   @OutputFile
   File getVirtualEnvDir() {
-    return getComponent().getPythonDetails().getVirtualEnvInterpreter()
+    return getComponent().getDetails().getVirtualEnvInterpreter()
   }
 
   @TaskAction
@@ -60,11 +59,11 @@ class InstallVirtualEnvironmentTask extends DefaultTask {
     def version = findVirtualEnvDependencyVersion()
     project.exec {
       commandLine(
-              getComponent().getPythonDetails().getSystemPythonInterpreter(),
+              getComponent().getDetails().getSystemPythonInterpreter(),
               project.file("${packageDir}/virtualenv-${version}/virtualenv.py"),
-              '--python', getComponent().getPythonDetails().getSystemPythonInterpreter(),
-              '--prompt', getComponent().getPythonDetails().virtualEnvPrompt,
-              getComponent().getPythonDetails().getVirtualEnv()
+              '--python', getComponent().getDetails().getSystemPythonInterpreter(),
+              '--prompt', getComponent().getDetails().virtualEnvPrompt,
+              getComponent().getDetails().getVirtualEnv()
       )
     }
 
@@ -73,7 +72,7 @@ class InstallVirtualEnvironmentTask extends DefaultTask {
 
   private String findVirtualEnvDependencyVersion() {
     ResolvedConfiguration resolvedConfiguration = getPyGradleBootstrap().getResolvedConfiguration();
-    Set<ResolvedDependency> virtualEnvDependencies = resolvedConfiguration.getFirstLevelModuleDependencies(new VirtualEvnSpec());
+    Set<ResolvedDependency> virtualEnvDependencies = resolvedConfiguration.getFirstLevelModuleDependencies(new VirtualEnvSpec());
     if (virtualEnvDependencies.isEmpty()) {
       throw new GradleException("Unable to find virtualenv dependency");
     }
@@ -89,7 +88,7 @@ class InstallVirtualEnvironmentTask extends DefaultTask {
     return highest.toString();
   }
 
-  private class VirtualEvnSpec implements Spec<Dependency> {
+  private class VirtualEnvSpec implements Spec<Dependency> {
 
     @Override
     public boolean isSatisfiedBy(Dependency element) {

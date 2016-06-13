@@ -38,6 +38,7 @@ public class PexExtension {
     }
 
     /**
+     * TODO: Revisit if this is needed.
      * @return should use python wrapper
      */
     public boolean isPythonWrapper() {

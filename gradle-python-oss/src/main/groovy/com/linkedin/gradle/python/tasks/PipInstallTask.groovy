@@ -17,8 +17,6 @@ import org.gradle.process.ExecSpec
 
 import java.time.Duration
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-
 
 /**
  * Execute pip install
@@ -63,7 +61,7 @@ class PipInstallTask extends DefaultTask {
 
         PythonExtension settings = project.getExtensions().getByType(PythonExtension)
 
-        def pyVersion = settings.getPythonDetails().getPythonVersion().pythonMajorMinor
+        def pyVersion = settings.getDetails().getPythonVersion().pythonMajorMinor
 
         getConfigurationFiles().each { File installable ->
 
@@ -71,8 +69,8 @@ class PipInstallTask extends DefaultTask {
             String sanitizedName = name.replace('-', '_')
 
             // See: https://www.python.org/dev/peps/pep-0376/
-            File egg = new File(settings.getPythonDetails().virtualEnv, "lib/python${pyVersion}/site-packages/${sanitizedName}-${version}-py${pyVersion}.egg-info")
-            File dist = new File(settings.getPythonDetails().virtualEnv, "lib/python${pyVersion}/site-packages/${sanitizedName}-${version}.dist-info")
+            File egg = new File(settings.getDetails().virtualEnv, "lib/python${pyVersion}/site-packages/${sanitizedName}-${version}-py${pyVersion}.egg-info")
+            File dist = new File(settings.getDetails().virtualEnv, "lib/python${pyVersion}/site-packages/${sanitizedName}-${version}.dist-info")
 
             def mergedEnv = new HashMap(settings.pythonEnvironment)
             if (environment != null) {

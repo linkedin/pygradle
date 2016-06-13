@@ -1,10 +1,9 @@
-package com.linkedin.gradle.python.plugin
+package com.linkedin.gradle.python
 
-import com.linkedin.gradle.python.PythonExtension
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
-class TestLiPythonComponent extends Specification {
+class TestPythonExtension extends Specification {
 
     def project = new ProjectBuilder().build()
 

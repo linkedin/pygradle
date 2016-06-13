@@ -56,7 +56,7 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask {
 
     @InputDirectory
     public FileTree getVirtualEnv() {
-        ConfigurableFileTree files = getProject().fileTree(getComponent().getPythonDetails().getVirtualEnv());
+        ConfigurableFileTree files = getProject().fileTree(getComponent().getDetails().getVirtualEnv());
         files.exclude(standardExcludes());
         return files;
     }

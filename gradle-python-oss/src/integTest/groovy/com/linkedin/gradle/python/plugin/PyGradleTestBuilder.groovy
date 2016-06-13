@@ -39,22 +39,22 @@ class PyGradleTestBuilder {
             |repositories {
             |  ivy {
             |    url 'http://artifactory.corp.linkedin.com:8081/artifactory/release/'
-            |      layout "pattern", {
-            |        ivy "[organisation]/[module]/[revision]/[module]-[revision].ivy"
-            |        artifact "[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
-            |        m2compatible = true
-            |     }
+            |    layout "pattern", {
+            |      ivy "[organisation]/[module]/[revision]/[module]-[revision].ivy"
+            |      artifact "[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
+            |      m2compatible = true
+            |    }
             |  }
             |
-            |   ivy {
-            |       name 'pypi-external'
-            |       url "http://artifactory.corp.linkedin.com:8081/artifactory/pypi-external"
-            |       layout "pattern", {
-            |           ivy "[module]/[revision]/[module]-[revision].ivy"
-            |           artifact "[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
-            |           m2compatible = true
-            |       }
-            |   }
+            |  ivy {
+            |    name 'pypi-external'
+            |    url "http://artifactory.corp.linkedin.com:8081/artifactory/pypi-external"
+            |    layout "pattern", {
+            |      ivy "[module]/[revision]/[module]-[revision].ivy"
+            |      artifact "[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
+            |      m2compatible = true
+            |    }
+            |  }
             |}""".stripMargin().stripIndent()
     }
 }

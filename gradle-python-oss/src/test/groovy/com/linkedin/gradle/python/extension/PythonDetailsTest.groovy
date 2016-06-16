@@ -1,6 +1,7 @@
 package com.linkedin.gradle.python.extension
 
 import org.gradle.testfixtures.ProjectBuilder
+import spock.lang.Requires
 import spock.lang.Specification
 
 
@@ -49,6 +50,7 @@ class PythonDetailsTest extends Specification {
         settings.getSystemPythonInterpreter().path.endsWith("3.5")
     }
 
+    @Requires({ new File('/usr/bin/python2.7').exists() })
     def "interpreterPath with systemPython set"() {
         when: "we have old systemPython setting"
         settings.pythonVersion = '2.6'

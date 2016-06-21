@@ -34,7 +34,7 @@ For a quick start, lets look at a simple example of publishing a library using t
 
 We apply a plugin `python-sdist` which adds configurations `python` and `test` to the project. In the dependencies section
 we add two dependencies, one required to run and one required for testing. With this information PyGradle will download the
-artifacts from a repository (omitted from example) install requrests and mock along with their dependencies to a virtual 
+artifacts from a repository (omitted from example) install requests and mock along with their dependencies to a virtual 
 environment and run any tests that you may have.
 
 ## Plugins Avalible
@@ -46,7 +46,7 @@ PyGradle comes with several plugins avalible, for specific details on plugins ch
 | python-sdist      | Developing Libraries                          | TODO          |
 | python-web-app    | Developing Deployable Applications            | TODO          |
 | python-cli        | Developing Command Line Applications          | TODO          |
-| python-flyer      | Developing Flyer (Ember + Flyer) Applications | TODO          |
+| python-flyer      | Developing Flyer (Flask + Ember) Applications | TODO          |
 | python-pex        | Developing Pex Applications                   | TODO          |
 
 # Developing on PyGradle

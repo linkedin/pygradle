@@ -42,8 +42,9 @@ class PexFileUtil {
         arguments << '--output-file' << pexName
         arguments << '--repo' << repoDir.absolutePath
         arguments << '--python-shebang' << pexShebang
-        if (entryPoint)
+        if (entryPoint) {
             arguments << '--entry-point' << entryPoint
+        }
         new ByteArrayOutputStream().withStream { output ->
             ExecResult buildPexResult = project.exec { ExecSpec execSpec ->
                 execSpec.environment settings.pythonEnvironment
@@ -62,8 +63,9 @@ class PexFileUtil {
                 println(outputString)
                 def packageMatcher = (outputString =~ /(?s).*Could not satisfy all requirements for ([\w\-]+):.*/)
                 def packageName = "<see output above>"
-                if (packageMatcher.hasGroup())
+                if (packageMatcher.hasGroup()) {
                     packageName = packageMatcher[0][1]
+                }
 
                 throw new GradleException(
                     """
@@ -87,6 +89,7 @@ class PexFileUtil {
      * @param project The project to run ``pip freeze`` within.
      * @return A list of requirements that looks like ['-r', 'requests', '-r', ...].
      */
+    @SuppressWarnings("UnusedVariable")
     static List<String> pipFreeze(Project project) {
         PythonExtension settings = project.getExtensions().getByType(PythonExtension)
 
@@ -136,6 +139,7 @@ class PexFileUtil {
      * @param files The set of files to add to the set.
      * @return A set of names.
      */
+    @SuppressWarnings("UnusedVariable")
     protected static Set<String> configurationToSet(Collection<File> files) {
         Set<String> configNames = new HashSet<String>()
         for (File file : files) {

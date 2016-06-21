@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.plugin;
+package com.linkedin.gradle.python.plugin
 
 class PyGradleTestBuilder {
 
-    public static String createSetupCfg() {
+    static String createSetupCfg() {
         return '''\
             | [flake8]
             | ignore = E121,E123,E226,W292
@@ -28,7 +28,7 @@ class PyGradleTestBuilder {
             '''.stripMargin().stripIndent()
     }
 
-    public static String createSetupPy() {
+    static String createSetupPy() {
         return '''\
             | import setuptools
             |
@@ -49,7 +49,7 @@ class PyGradleTestBuilder {
             '''.stripMargin().stripIndent()
     }
 
-    public static String createRepoClosure() {
+    static String createRepoClosure() {
         return """\
             |repositories {
             |  ivy {

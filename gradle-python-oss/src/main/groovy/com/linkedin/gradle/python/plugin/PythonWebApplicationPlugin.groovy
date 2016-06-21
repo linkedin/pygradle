@@ -65,7 +65,7 @@ class PythonWebApplicationPlugin extends PythonBasePlugin {
 
         }
 
-        def packageDeployable = project.tasks.create(TASK_PACKAGE_WEB_APPLICATION, Tar.class, new Action<Tar>() {
+        def packageDeployable = project.tasks.create(TASK_PACKAGE_WEB_APPLICATION, Tar, new Action<Tar>() {
             @Override
             void execute(Tar tar) {
                 tar.compression = Compression.GZIP

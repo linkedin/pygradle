@@ -65,7 +65,7 @@ class MiscUtilsTest extends Specification {
         when:
         MiscUtils.packageInfoFromPath('foo-1.0.0.xxx')
         then:
-        GradleException ex = thrown()
+        thrown(GradleException)
     }
 
     def 'can find distgradle in build configuration'() {

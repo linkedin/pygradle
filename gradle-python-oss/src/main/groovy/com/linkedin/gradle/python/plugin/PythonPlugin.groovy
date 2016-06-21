@@ -37,9 +37,10 @@ import org.gradle.api.logging.Logging
 import org.gradle.api.tasks.bundling.Compression
 import org.gradle.api.tasks.bundling.Tar
 
+@SuppressWarnings("AbcMetric") //TODO: Break apart method
 class PythonPlugin implements Plugin<Project> {
 
-    private static final Logger logger = Logging.getLogger(PythonPlugin)
+    private static final Logger LOGGER = Logging.getLogger(PythonPlugin)
 
     public final static String CONFIGURATION_BOOTSTRAP_REQS = 'pygradleBootstrap'
     public final static String CONFIGURATION_SETUP_REQS = 'setupRequires'
@@ -89,6 +90,7 @@ class PythonPlugin implements Plugin<Project> {
     public final static String DOCUMENTATION_GROUP = 'documentation'
 
     @Override
+    @SuppressWarnings(["MethodSize", "AbcMetric"]) //TODO: Break apart method
     void apply(Project project) {
 
         PythonExtension settings = project.extensions.create('python', PythonExtension, project)
@@ -158,7 +160,7 @@ class PythonPlugin implements Plugin<Project> {
                 if (PINNED_VERSIONS.containsKey(details.requested.name)) {
                     String name = details.requested.name
                     String version = PINNED_VERSIONS[name].version
-                    logger.lifecycle("Resolving ${name} to ${name}==${version} per gradle-python resolution strategy.")
+                    LOGGER.lifecycle("Resolving ${name} to ${name}==${version} per gradle-python resolution strategy.")
                     details.useVersion version
                 }
             }
@@ -170,7 +172,7 @@ class PythonPlugin implements Plugin<Project> {
          * Install the virtualenv version that we implicitly depend on so that we
          * can run on systems that don't have virtualenv already installed.
          */
-        project.tasks.create(TASK_VENV_CREATE, InstallVirtualEnvironmentTask.class)
+        project.tasks.create(TASK_VENV_CREATE, InstallVirtualEnvironmentTask)
 
         /**
          * Create a symlink to product-spec.json and config directory.
@@ -248,14 +250,14 @@ class PythonPlugin implements Plugin<Project> {
         /**
          * Any task that extends from {@link AbstractPythonMainSourceDefaultTask} will require TASK_INSTALL_BUILD_REQS
          */
-        project.tasks.withType(AbstractPythonMainSourceDefaultTask.class) { Task task ->
+        project.tasks.withType(AbstractPythonMainSourceDefaultTask) { Task task ->
             task.dependsOn project.tasks.getByName(TASK_INSTALL_BUILD_REQS)
         }
 
         /**
          * Any task that extends from {@link AbstractPythonTestSourceDefaultTask} will require TASK_INSTALL_PROJECT
          */
-        project.tasks.withType(AbstractPythonTestSourceDefaultTask.class) { Task task ->
+        project.tasks.withType(AbstractPythonTestSourceDefaultTask) { Task task ->
             task.dependsOn project.tasks.getByName(TASK_INSTALL_PROJECT)
         }
 
@@ -264,7 +266,7 @@ class PythonPlugin implements Plugin<Project> {
          *
          * This uses the ``setup.cfg`` if present to configure py.test.
          */
-        project.tasks.create(TASK_PYTEST, PyTestTask.class)
+        project.tasks.create(TASK_PYTEST, PyTestTask)
 
         // Add a dependency to task ``check`` to depend on our Python plugin's ``pytest`` task
         project.tasks.getByName(TASK_CHECK).dependsOn(project.tasks.getByName(TASK_PYTEST))
@@ -274,7 +276,7 @@ class PythonPlugin implements Plugin<Project> {
          *
          * This uses the ``setup.cfg`` if present to configure py.test.
          */
-        project.tasks.create(TASK_COVERAGE, PyCoverageTask.class)
+        project.tasks.create(TASK_COVERAGE, PyCoverageTask)
 
         /**
          * Run flake8.
@@ -304,7 +306,7 @@ class PythonPlugin implements Plugin<Project> {
             dependsOn TASK_INSTALL_PROJECT
         }
 
-        project.tasks.withType(SphinxDocumentationTask.class).each { SphinxDocumentationTask task ->
+        project.tasks.withType(SphinxDocumentationTask).each { SphinxDocumentationTask task ->
             task.group = DOCUMENTATION_GROUP
             task.description = "Generate Sphinx documentation in ${task.type.builderName} format"
         }
@@ -316,13 +318,13 @@ class PythonPlugin implements Plugin<Project> {
         /**
          * Tar up the documentation.
          */
-        def packageDocsTask = project.tasks.create(TASK_PACKAGE_DOCS, Tar.class, new PackageDocumentationAction(sphinxHtml));
+        def packageDocsTask = project.tasks.create(TASK_PACKAGE_DOCS, Tar, new PackageDocumentationAction(sphinxHtml))
         packageDocsTask.dependsOn(project.tasks.getByName(TASK_BUILD_DOCS))
 
         /**
          * Tar up the JSON documentation.
          */
-        def packageJsonDocsTask = project.tasks.create(TASK_PACKAGE_JSON_DOCS, Tar.class, new PackageDocumentationAction(sphinxJson))
+        def packageJsonDocsTask = project.tasks.create(TASK_PACKAGE_JSON_DOCS, Tar, new PackageDocumentationAction(sphinxJson))
         packageJsonDocsTask.dependsOn(project.tasks.getByName(TASK_BUILD_DOCS))
 
         // Only build the artifact if the docs source directory actually exists

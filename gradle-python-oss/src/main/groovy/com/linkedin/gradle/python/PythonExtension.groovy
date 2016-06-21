@@ -69,7 +69,7 @@ class PythonExtension {
                 'PATH': project.file("${details.virtualEnv.absolutePath}/bin").path + ':' + System.getenv('PATH'),]
 
         pythonEnvironmentDistgradle = ['DISTGRADLE_PRODUCT_NAME'   : project.name,
-                                       'DISTGRADLE_PRODUCT_VERSION': "${-> project.version}",]
+                                       'DISTGRADLE_PRODUCT_VERSION': "${ -> project.version }",]
 
         /*
          * NOTE: Do lots of sanity checking and validation here.

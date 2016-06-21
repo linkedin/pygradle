@@ -31,15 +31,15 @@ import org.gradle.process.ExecResult
 @CompileStatic
 class CheckStyleGeneratorTask extends Flake8Task {
 
-  private final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+  private final ByteArrayOutputStream outputStream = new ByteArrayOutputStream()
 
   @OutputFile
   File checkstyleReport = project.file("${project.buildDir}/checkstyle.xml")
 
   CheckStyleGeneratorTask() {
-    stdOut = outputStream;
-    errOut = outputStream;
-    ignoreExitValue = true;
+    stdOut = outputStream
+    errOut = outputStream
+    ignoreExitValue = true
   }
 
   @Override

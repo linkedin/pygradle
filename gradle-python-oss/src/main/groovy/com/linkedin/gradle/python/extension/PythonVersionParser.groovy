@@ -31,7 +31,7 @@ class PythonVersionParser {
                 execSpec.ignoreExitValue = true
             }
 
-            if(execResult.exitValue != 0) {
+            if (execResult.exitValue != 0) {
                 throw new GradleException(output.toString())
             }
 

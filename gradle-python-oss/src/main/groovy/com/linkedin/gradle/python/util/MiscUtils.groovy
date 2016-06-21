@@ -28,6 +28,7 @@ class MiscUtils {
      * @param files The set of files to add to the set.
      * @return A set of names.
      */
+    @SuppressWarnings("UnusedVariable")
     protected static Set<String> configurationToSet(Collection<File> files) {
         Set<String> configNames = new HashSet<String>()
         for (File file : files) {
@@ -69,11 +70,13 @@ class MiscUtils {
 
         def packageName = packagePath.split(extensionRegex).first()
 
-        if (new File(packagePath).isDirectory())
+        if (new File(packagePath).isDirectory()) {
             return [packagePath.split(File.separator)[-1], null]
+        }
 
-        if (packagePath == packageName)
+        if (packagePath == packageName) {
             throw new GradleException("Cannot calculate Python package extension from ${packagePath} using regular expression /${extensionRegex}/.")
+        }
 
         Matcher matcher = packageName =~ nameVersionRegex
         if (matcher.matches()) {
@@ -92,11 +95,13 @@ class MiscUtils {
      * @param files The set of files to test against.
      * @return True if dependency is in set of files.
      */
+    @SuppressWarnings("UnusedVariable")
     protected static boolean inConfiguration(String dependency, Collection<File> files) {
         for (File file : files) {
             def (name, version) = packageInfoFromPath(file.name)
-            if (dependency == name)
+            if (dependency == name) {
                 return true
+            }
         }
         false
     }

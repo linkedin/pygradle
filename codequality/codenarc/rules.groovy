@@ -120,7 +120,7 @@ ruleset {
   PrivateFieldCouldBeFinal {
     doNotApplyToFilesMatching = extendedTestName
   }
-  PublicInstanceField
+  //PublicInstanceField
   ReturnsNullInsteadOfEmptyArray
   ReturnsNullInsteadOfEmptyCollection
   SimpleDateFormatMissingLocale
@@ -344,7 +344,7 @@ ruleset {
   UnnecessaryDefInVariableDeclaration
   UnnecessaryDotClass
   UnnecessaryDoubleInstantiation
-  UnnecessaryElseStatement
+  //UnnecessaryElseStatement
   UnnecessaryFinalOnPrivateMethod
   UnnecessaryFloatInstantiation
   //UnnecessaryGString -- the code is cleaner and more readable if consistent quote is used
@@ -361,7 +361,7 @@ ruleset {
   UnnecessaryOverridingMethod
   UnnecessaryPackageReference
   UnnecessaryParenthesesForMethodCallWithClosure
-  UnnecessaryPublicModifier
+  //UnnecessaryPublicModifier
   //UnnecessaryReturnKeyword  -- explicit return is clean
   UnnecessarySafeNavigationOperator
   UnnecessarySelfAssignment

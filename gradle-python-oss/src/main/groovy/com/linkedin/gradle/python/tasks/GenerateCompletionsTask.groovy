@@ -30,9 +30,6 @@ import org.gradle.process.ExecSpec
 @CompileStatic
 class GenerateCompletionsTask extends AbstractPythonMainSourceDefaultTask {
 
-    GenerateCompletionsTask() {
-    }
-
     @OutputDirectory
     File getEtcDir() {
         def deployableExtension = ExtensionUtils.getPythonComponentExtension(project, DeployableExtension)
@@ -41,12 +38,12 @@ class GenerateCompletionsTask extends AbstractPythonMainSourceDefaultTask {
 
     @Override
     public void processResults(ExecResult execResult) {
-        execResult.assertNormalExitValue();
+        execResult.assertNormalExitValue()
     }
 
     public void preExecution() {
         if (!(ExtensionUtils.findPythonComponentExtension(project, CliExtension)?.generateCompletions)) {
-            throw new StopActionException();
+            throw new StopActionException()
         }
 
         String completionScript = getClass().getResource('/templates/click_tabtab.py').text
@@ -55,10 +52,10 @@ class GenerateCompletionsTask extends AbstractPythonMainSourceDefaultTask {
             write(completionScript)
             args(absolutePath)
         }
-        getProject().file(getEtcDir()).mkdirs();
+        getProject().file(getEtcDir()).mkdirs()
     }
 
     public void configureExecution(ExecSpec execSpec) {
-        execSpec.setWorkingDir(getEtcDir());
+        execSpec.setWorkingDir(getEtcDir())
     }
 }

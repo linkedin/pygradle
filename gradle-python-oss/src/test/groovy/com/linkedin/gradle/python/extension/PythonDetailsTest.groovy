@@ -53,7 +53,7 @@ class PythonDetailsTest extends Specification {
 
     def "interpreterPath with major only 2 interpreterVersion"() {
         when: "we request only the major version 2"
-        settings.pythonVersion= '2'
+        settings.pythonVersion = '2'
         then: "we get the default major version 2 cleanpython or the system default if cleanptyhon is not installed"
         settings.getSystemPythonInterpreter().path.endsWith("2.6")
     }

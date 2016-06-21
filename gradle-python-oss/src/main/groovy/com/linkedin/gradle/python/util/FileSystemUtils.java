@@ -20,9 +20,12 @@ import org.gradle.api.Project;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 
 public class FileSystemUtils {
+
+    private FileSystemUtils() {
+        //private constructor for util class
+    }
 
     /**
      * Make a link

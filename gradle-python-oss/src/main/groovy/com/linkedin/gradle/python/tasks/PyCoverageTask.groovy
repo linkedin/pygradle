@@ -77,20 +77,20 @@ class PyCoverageTask extends PyTestTask {
 
     static class ParseOutputStream {
 
-        static final Pattern htmlPattern = Pattern.compile('^Coverage HTML written to dir (.*)$')
-        static final Pattern xmlPattern = Pattern.compile('^Coverage XML written to file (.*)$')
-        static final Pattern coveragePattern = Pattern.compile('^TOTAL ((\\s+\\d+)+)%$')
+        static final Pattern HTML_PATTERN = Pattern.compile('^Coverage HTML written to dir (.*)$')
+        static final Pattern XML_PATTERN = Pattern.compile('^Coverage XML written to file (.*)$')
+        static final Pattern COVERAGE_PATTERN = Pattern.compile('^TOTAL ((\\s+\\d+)+)%$')
 
-        String coverageXml;
-        String htmlDir;
-        String coverage;
+        String coverageXml
+        String htmlDir
+        String coverage
 
         void processStream(String stream) {
             List<String> textOutput = stream.readLines()
             for (int i = textOutput.size() - 1; i >= 0; --i) {
-                def xmlMatcher = xmlPattern.matcher(textOutput.get(i))
-                def htmlMatcher = htmlPattern.matcher(textOutput.get(i));
-                def coverageMatcher = coveragePattern.matcher(textOutput.get(i))
+                def xmlMatcher = XML_PATTERN.matcher(textOutput.get(i))
+                def htmlMatcher = HTML_PATTERN.matcher(textOutput.get(i))
+                def coverageMatcher = COVERAGE_PATTERN.matcher(textOutput.get(i))
 
                 if (xmlMatcher.matches()) {
                     coverageXml = xmlMatcher.group(1)
@@ -101,7 +101,7 @@ class PyCoverageTask extends PyTestTask {
                 }
 
                 if (coverageXml != null && htmlDir != null && coverage != null) {
-                    break;
+                    break
                 }
             }
         }

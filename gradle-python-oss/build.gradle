@@ -6,6 +6,8 @@ plugins {
   id "com.github.hierynomus.license" version "0.13.1"
 }
 
+apply from: "$rootDir/gradle/code-quality.gradle"
+
 configurations {
     testCompile.exclude group: 'org.codehaus.groovy', module: 'groovy-all'
     integTestCompile.exclude group: 'org.codehaus.groovy', module: 'groovy-all'

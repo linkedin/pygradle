@@ -18,35 +18,39 @@ package com.linkedin.gradle.python.coverage
 import groovy.xml.MarkupBuilder
 
 class CoverageXmlReporter {
-  private final String coverageInfo
+    private final String coverageInfo
 
-  CoverageXmlReporter(String coverageInfo) {
-    this.coverageInfo = coverageInfo
-  }
+    CoverageXmlReporter(String coverageInfo) {
+        this.coverageInfo = coverageInfo
+    }
 
-  public String generateXML(){
-    def xmlWriter = new StringWriter()
-    def xmlMarkup = new MarkupBuilder(xmlWriter)
-    def coverage = getCoverage()
-    def missed_statements = coverage['missed_statements']
-    def covered_statements = coverage['total_statements'] - coverage['missed_statements']
-    xmlMarkup.report(name: "coverage") {
-      "package"(name: "coverage") {
-        "class"(name: "coverage/coverage") {
-          counter(type: "LINE", missed: missed_statements, covered: covered_statements)
+    public String generateXML() {
+        def xmlWriter = new StringWriter()
+        def xmlMarkup = new MarkupBuilder(xmlWriter)
+        def coverage = getCoverage()
+        def missedStatements = coverage['missed_statements']
+        def coveredStatements = coverage['total_statements'] - coverage['missed_statements']
+        xmlMarkup.report(name: "coverage") {
+            "package"(name: "coverage") {
+                "class"(name: "coverage/coverage") {
+                    counter(type: "LINE", missed: missedStatements, covered: coveredStatements)
+                }
+            }
         }
-      }
+        return xmlWriter.toString()
     }
-    return xmlWriter.toString()
-  }
 
-  private Map<String, Integer> getCoverage() {
-    def group = (coverageInfo =~ /\d+/)
-    if( group.size() < 3) {
-      return [total_statements: 0, missed_statements: 0]
-    } else {
-      return [total_statements: group[0].toInteger(), missed_statements: group[1].toInteger()]
+    private Map<String, Integer> getCoverage() {
+        def group = (coverageInfo =~ /\d+/)
+        def missedStatements = 0
+        def totalStatements = 0
+
+        if (group.size() >= 3) {
+            totalStatements = group[0].toInteger()
+            missedStatements = group[1].toInteger()
+        }
+
+        return [total_statements: totalStatements, missed_statements: missedStatements]
     }
-  }
 }
 

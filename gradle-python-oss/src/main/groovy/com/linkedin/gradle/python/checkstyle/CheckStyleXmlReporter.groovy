@@ -23,14 +23,14 @@ class CheckStyleXmlReporter {
 
   private final FileStyleViolationsContainer violationContainer
   CheckStyleXmlReporter(FileStyleViolationsContainer container) {
-    this.violationContainer = container;
+    this.violationContainer = container
   }
 
   public String generateXml() {
     def writer = new StringWriter()
     def xml = new MarkupBuilder(writer)
 
-    xml.checkstyle() {
+    xml.checkstyle {
       violationContainer.getViolations().each { fileStyleViolation ->
         file(name: fileStyleViolation.filename) {
           fileStyleViolation.violations.each { violation ->

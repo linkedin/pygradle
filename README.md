@@ -39,7 +39,7 @@ environment and run any tests that you may have.
 
 ## Plugins Avalible
 
-PyGradle comes with several plugins avalible, for specific details on plugins check the documentation specific to that plugin.
+PyGradle comes with several plugins available, for specific details on each plugin check the documentation specific to that plugin.
 
 | Plugin Name       | Used When                                     | Documentation |
 |-------------------|-----------------------------------------------|---------------|

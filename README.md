@@ -34,7 +34,7 @@ For a quick start, lets look at a simple example of publishing a library using t
 
 We apply a plugin `python-sdist` which adds configurations `python` and `test` to the project. In the dependencies section
 we add two dependencies, one required to run and one required for testing. With this information PyGradle will download the
-artifacts from a repository (omitted from example) install requests and mock along with their dependencies to a virtual 
+artifacts from a repository (omitted from example) install requests and mock along with their dependencies to a virtual
 environment and run any tests that you may have.
 
 ## Plugins Avalible
@@ -53,7 +53,7 @@ PyGradle comes with several plugins avalible, for specific details on plugins ch
 
 ## Building PyGradle
 
-To build PyGradle run `./gradlew build`. This will compile the project run the tests and integration tests. 
+To build PyGradle run `./gradlew build`. This will compile the project, run the tests and integration tests.
 
 To publish to a local repo, run `./gradlew publishToMavenLocal`. This will publish PyGradle artifacts to ~/.m2 using maven as
 the metadata format. To use this version, be sure to update the version in the project under test and add `mavenLocal()` to the
@@ -61,7 +61,7 @@ repositories.
 
 ## Contributing
 
-To contribute to PyGradle please fork the project, make your changes locally and open a pull request. If possible include a 
+To contribute to PyGradle please fork the project, make your changes locally and open a pull request. If possible include a
 description about why this change is being added along with tests that validate the changes. Your commits must pass checkstyle
 and codenarc.
 

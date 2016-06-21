@@ -1,0 +1,4 @@
+allprojects {
+    group = 'com.linkedin.pygradle'
+    version = '0.2.0-SNAPSHOT'
+}

@@ -1,0 +1,47 @@
+apply plugin: 'java-gradle-plugin'
+apply plugin: 'groovy'
+apply plugin: 'idea'
+
+configurations {
+    testCompile.exclude group: 'org.codehaus.groovy', module: 'groovy-all'
+    integTestCompile.exclude group: 'org.codehaus.groovy', module: 'groovy-all'
+}
+
+sourceSets {
+    integTest {
+        groovy {
+            srcDir file('src/integTest/groovy')
+        }
+        resources {
+            srcDir file('src/integTest/resources')
+        }
+        compileClasspath += sourceSets.main.output + configurations.testRuntime
+        runtimeClasspath += output + compileClasspath
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile localGroovy()
+    compile 'commons-io:commons-io:2.2'
+
+    testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
+
+    integTestCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
+}
+
+task integTest(type: Test) {
+    testClassesDir = sourceSets.integTest.output.classesDir
+    classpath = sourceSets.integTest.runtimeClasspath
+    reports.html.destination = file("$buildDir/reports/integration-test")
+}
+
+check.dependsOn integTest
+
+gradlePlugin {
+    pluginSourceSet project.sourceSets.main
+    testSourceSets project.sourceSets.integTest
+}

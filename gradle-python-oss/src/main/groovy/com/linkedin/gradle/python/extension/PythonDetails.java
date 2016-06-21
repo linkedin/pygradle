@@ -19,6 +19,7 @@ import com.linkedin.gradle.python.util.internal.ExecutablePathUtils;
 import org.gradle.api.Project;
 
 import java.io.File;
+import java.util.List;
 
 
 public class PythonDetails {
@@ -31,6 +32,8 @@ public class PythonDetails {
     private String virtualEnvPrompt;
     private PythonVersion pythonVersion;
 
+    private List<File> searchPath;
+
     public PythonDetails(Project project, File virtualenvLocation) {
         this.project = project;
         pythonInterpreter = new File("/usr/bin/python");
@@ -39,6 +42,7 @@ public class PythonDetails {
         virtualEnv = virtualenvLocation;
         activateLink = new File(project.getProjectDir(), "activate");
         virtualEnvPrompt = String.format("(%s)", project.getName());
+        searchPath = ExecutablePathUtils.getPath();
     }
 
     private void updateFromPythonInterpreter() {
@@ -76,6 +80,26 @@ public class PythonDetails {
         this.activateLink = activateLink;
     }
 
+    /**
+     * Adds a new directory to search for an executable. This is like adding the directory to the
+     * <strong>beginning</strong> of PATH
+     *
+     * @param file directory to search for an executable
+     */
+    public void prependExecuableDirectory(File file) {
+        searchPath.add(0, file);
+    }
+
+    /**
+     * Adds a new directory to search for an executable. This is like adding the directory to the <strong>end</strong>
+     * of PATH
+     *
+     * @param file directory to search for an executable
+     */
+    public void appendExecuableDirectory(File file) {
+        searchPath.add(file);
+    }
+
     public void setPythonVersion(String pythonVersion) {
         if ("2".equals(pythonVersion)) {
             pythonVersion = "2.6";
@@ -85,11 +109,7 @@ public class PythonDetails {
             pythonVersion = "3.5";
         }
 
-        pythonInterpreter = ExecutablePathUtils.getExecutable(String.format("python%s", pythonVersion));
-        if (null == pythonInterpreter) {
-            //TODO: Make this configurable for others
-            pythonInterpreter = new File(String.format("/export/apps/python/%s/bin/python%s", pythonVersion, pythonVersion));
-        }
+        pythonInterpreter = ExecutablePathUtils.getExecutable(searchPath, String.format("python%s", pythonVersion));
         updateFromPythonInterpreter();
     }
 

@@ -17,7 +17,6 @@ package com.linkedin.gradle.python.util.internal;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -27,8 +26,8 @@ public class ExecutablePathUtils {
         //private constructor for util class
     }
 
-    public static File getExecutable(String exeName) {
-        for (File dir : getPath()) {
+    public static File getExecutable(List<File> pathList, String exeName) {
+        for (File dir : pathList) {
             File candidate = new File(dir, exeName);
             if (candidate.isFile()) {
                 return candidate;
@@ -38,11 +37,13 @@ public class ExecutablePathUtils {
     }
 
     public static List<File> getPath() {
+        List<File> entries = new ArrayList<>();
+
         String path = System.getenv("PATH");
         if (path == null) {
-            return Collections.emptyList();
+            return entries;
         }
-        List<File> entries = new ArrayList<>();
+
         for (String entry : path.split(Pattern.quote(File.pathSeparator))) {
             entries.add(new File(entry));
         }

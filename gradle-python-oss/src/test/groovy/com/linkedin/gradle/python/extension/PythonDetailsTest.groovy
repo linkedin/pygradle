@@ -16,12 +16,16 @@
 package com.linkedin.gradle.python.extension
 
 import org.gradle.testfixtures.ProjectBuilder
+import org.junit.Rule
+import org.junit.rules.TemporaryFolder
 import spock.lang.Requires
 import spock.lang.Specification
 
 
 class PythonDetailsTest extends Specification {
 
+    @Rule
+    TemporaryFolder temporaryFolder
     def project = new ProjectBuilder().build()
     def settings = new PythonDetails(project, null)
 
@@ -51,6 +55,7 @@ class PythonDetailsTest extends Specification {
         thrown(RuntimeException)
     }
 
+    @Requires({ new File('/usr/bin/python2.6').exists() })
     def "interpreterPath with major only 2 interpreterVersion"() {
         when: "we request only the major version 2"
         settings.pythonVersion = '2'
@@ -58,6 +63,7 @@ class PythonDetailsTest extends Specification {
         settings.getSystemPythonInterpreter().path.endsWith("2.6")
     }
 
+    @Requires({ new File('/usr/bin/python3.5').exists() })
     def "interpreterPath with major only 3 interpreterVersion"() {
         when: "we request only the major version 3"
         settings.pythonVersion = '3'
@@ -79,5 +85,45 @@ class PythonDetailsTest extends Specification {
         settings.pythonVersion = 'x.y'
         then: "the exception is thrown"
         thrown(RuntimeException)
+    }
+
+    def "can prepend search path"() {
+        temporaryFolder.newFolder('foo')
+        temporaryFolder.newFolder('bar')
+        def fakePython = temporaryFolder.newFile('foo/python3.5')
+        fakePython.text = "#!/bin/bash\necho Python 3.5.6"
+        fakePython.executable = true
+
+        def shadowFakePython = temporaryFolder.newFile('bar/python3.5')
+        shadowFakePython.text = "#!/bin/bash\necho Python 3.5.6"
+        shadowFakePython.executable = true
+
+        when:
+        settings.prependExecuableDirectory(shadowFakePython.parentFile)
+        settings.prependExecuableDirectory(fakePython.parentFile)
+        settings.pythonVersion = '3.5'
+
+        then:
+        settings.systemPythonInterpreter == fakePython
+    }
+
+    def "can append search path"() {
+        temporaryFolder.newFolder('foo')
+        temporaryFolder.newFolder('bar')
+        def fakePython = temporaryFolder.newFile('foo/python2.1')
+        fakePython.text = "#!/bin/bash\necho Python 2.1"
+        fakePython.executable = true
+
+        def shadowFakePython = temporaryFolder.newFile('bar/python2.1')
+        shadowFakePython.text = "#!/bin/bash\necho Python 2.1"
+        shadowFakePython.executable = true
+
+        when:
+        settings.appendExecuableDirectory(fakePython.parentFile)
+        settings.appendExecuableDirectory(shadowFakePython.parentFile)
+        settings.pythonVersion = '2.1'
+
+        then:
+        settings.systemPythonInterpreter == fakePython
     }
 }

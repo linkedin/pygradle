@@ -36,7 +36,7 @@ import java.time.LocalDateTime
 
 class BuildWheelsTask extends DefaultTask {
 
-    private static final Logger logger = Logging.getLogger(BuildWheelsTask)
+    private static final Logger LOGGER = Logging.getLogger(BuildWheelsTask)
 
     @TaskAction
     public void buildWheelsTask() {
@@ -48,7 +48,7 @@ class BuildWheelsTask extends DefaultTask {
          * installed from python configuration, the call below will
          * have no effect.
          */
-        List<File> pexDependencies = new ArrayList();
+        List<File> pexDependencies = []
 
         /*
          * In Python <=2.6, argparse is not part of the standard library
@@ -93,11 +93,11 @@ class BuildWheelsTask extends DefaultTask {
             def shortHand = version ? "${name}-${version}" : name
 
             if (tree.files.size() >= 1) {
-                logger.lifecycle(PythonHelpers.createPrettyLine("Prepairing wheel ${shortHand}", "[SKIPPING]"))
+                LOGGER.lifecycle(PythonHelpers.createPrettyLine("Prepairing wheel ${shortHand}", "[SKIPPING]"))
                 return
             }
 
-            logger.lifecycle(PythonHelpers.createPrettyLine("Prepairing wheel ${shortHand}", "[STARTING]"))
+            LOGGER.lifecycle(PythonHelpers.createPrettyLine("Prepairing wheel ${shortHand}", "[STARTING]"))
 
             def startTime = LocalDateTime.now()
             ExecResult installResult = project.exec { ExecSpec execSpec ->
@@ -119,14 +119,14 @@ class BuildWheelsTask extends DefaultTask {
             def duration = Duration.between(startTime, endTime)
 
             if (installResult.exitValue != 0) {
-                logger.error(stream.toString().trim())
+                LOGGER.error(stream.toString().trim())
                 throw new GradleException("Failed to build wheel for ${shortHand}. Please see above output for reason, or re-run your build using ``--info`` for additional logging.")
             } else {
                 if (settings.consoleOutput == ConsoleOutput.RAW) {
-                    logger.lifecycle(stream.toString().trim())
+                    LOGGER.lifecycle(stream.toString().trim())
                 } else {
                     String prefix = String.format("Prepairing wheel %s (%d:%02d s)", shortHand, duration.toMinutes(), duration.getSeconds() % 60)
-                    logger.lifecycle(PythonHelpers.createPrettyLine(prefix, "[FINISHED]"))
+                    LOGGER.lifecycle(PythonHelpers.createPrettyLine(prefix, "[FINISHED]"))
                 }
             }
         }

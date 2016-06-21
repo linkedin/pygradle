@@ -39,6 +39,7 @@ public class EntryPointHelpers {
      * @param path The path at which to create the wrapper script.
      * @param entryPoint The entry point to use in the wrapper script.
      */
+    @SuppressWarnings("GStringExpressionWithinString") //It is a bash string, not gstring
     public static void writeEntryPointScript(Project project, String path, String entryPoint) {
         PythonExtension settings = project.getExtensions().getByType(PythonExtension)
         def extensions = ((ExtensionAware) settings).getExtensions()
@@ -90,8 +91,9 @@ public class EntryPointHelpers {
         }
         def entryPoints = []
         entryPointsBuf.toString().split('\n').each {
-            if (it != 'running entrypoints')
+            if (it != 'running entrypoints') {
                 entryPoints << it
+            }
         }
         return entryPoints
     }

@@ -42,7 +42,7 @@ public class PythonDetails {
     }
 
     private void updateFromPythonInterpreter() {
-        if(pythonInterpreter == null || !pythonInterpreter.exists()) {
+        if (pythonInterpreter == null || !pythonInterpreter.exists()) {
             throw new RuntimeException("Unable to find or execute python");
         }
         pythonVersion = new PythonVersion(PythonVersionParser.parsePythonVersion(project, pythonInterpreter));
@@ -86,7 +86,7 @@ public class PythonDetails {
         }
 
         pythonInterpreter = ExecutablePathUtils.getExecutable(String.format("python%s", pythonVersion));
-        if(null == pythonInterpreter) {
+        if (null == pythonInterpreter) {
             //TODO: Make this configurable for others
             pythonInterpreter = new File(String.format("/export/apps/python/%s/bin/python%s", pythonVersion, pythonVersion));
         }

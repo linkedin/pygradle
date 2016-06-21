@@ -26,11 +26,15 @@ import org.gradle.api.plugins.ExtensionContainer;
 
 public class ExtensionUtils {
 
+    private ExtensionUtils() {
+        //private constructor for util class
+    }
+
     public static <T> T maybeCreate(PythonExtension component, String name, Class<T> type, Object... args) {
         ExtensionContainer extensionContainer = ((ExtensionAware) component).getExtensions();
 
         T maybeExtension = extensionContainer.findByType(type);
-        if(maybeExtension == null) {
+        if (maybeExtension == null) {
             maybeExtension = extensionContainer.create(name, type, args);
         }
         return maybeExtension;

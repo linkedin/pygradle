@@ -23,6 +23,10 @@ import java.util.regex.Pattern;
 
 public class ExecutablePathUtils {
 
+    private ExecutablePathUtils() {
+        //private constructor for util class
+    }
+
     public static File getExecutable(String exeName) {
         for (File dir : getPath()) {
             File candidate = new File(dir, exeName);

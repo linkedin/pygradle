@@ -1,0 +1,25 @@
+apply plugin: 'codenarc'
+apply plugin: 'findbugs'
+apply plugin: 'checkstyle'
+
+checkstyle {
+    configFile = file("$rootDir/codequality/checkstyle/checkstyle.xml")
+    toolVersion = '6.19'
+}
+
+codenarc {
+    configFile = file("$rootDir/codequality/codenarc/rules.groovy")
+}
+
+findbugs {
+    ignoreFailures = true
+}
+
+tasks.withType(FindBugs) {
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+}
+
+tasks.build.dependsOn(tasks.checkstyleMain)

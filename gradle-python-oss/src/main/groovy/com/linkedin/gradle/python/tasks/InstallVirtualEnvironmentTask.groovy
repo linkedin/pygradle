@@ -37,9 +37,9 @@ class InstallVirtualEnvironmentTask extends DefaultTask {
 
   public PythonExtension getComponent() {
     if (component == null) {
-      component = getProject().getExtensions().getByType(PythonExtension.class);
+      component = getProject().getExtensions().getByType(PythonExtension)
     }
-    return component;
+    return component
   }
 
   @InputFiles
@@ -86,28 +86,28 @@ class InstallVirtualEnvironmentTask extends DefaultTask {
   }
 
   private String findVirtualEnvDependencyVersion() {
-    ResolvedConfiguration resolvedConfiguration = getPyGradleBootstrap().getResolvedConfiguration();
-    Set<ResolvedDependency> virtualEnvDependencies = resolvedConfiguration.getFirstLevelModuleDependencies(new VirtualEnvSpec());
+    ResolvedConfiguration resolvedConfiguration = getPyGradleBootstrap().getResolvedConfiguration()
+    Set<ResolvedDependency> virtualEnvDependencies = resolvedConfiguration.getFirstLevelModuleDependencies(new VirtualEnvSpec())
     if (virtualEnvDependencies.isEmpty()) {
-      throw new GradleException("Unable to find virtualenv dependency");
+      throw new GradleException("Unable to find virtualenv dependency")
     }
 
-    VersionNumber highest = new VersionNumber(0, 0, 0, null);
+    VersionNumber highest = new VersionNumber(0, 0, 0, null)
     for (ResolvedDependency resolvedDependency : virtualEnvDependencies) {
-      VersionNumber test = VersionNumber.parse(resolvedDependency.getModuleVersion());
+      VersionNumber test = VersionNumber.parse(resolvedDependency.getModuleVersion())
       if (test.compareTo(highest) > 0) {
-        highest = test;
+        highest = test
       }
     }
 
-    return highest.toString();
+    return highest.toString()
   }
 
   private class VirtualEnvSpec implements Spec<Dependency> {
 
     @Override
     public boolean isSatisfiedBy(Dependency element) {
-      return "virtualenv" == element.getName();
+      return "virtualenv" == element.getName()
     }
   }
 }

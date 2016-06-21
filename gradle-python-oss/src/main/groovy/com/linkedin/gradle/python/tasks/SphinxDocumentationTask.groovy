@@ -59,7 +59,7 @@ class SphinxDocumentationTask extends AbstractPythonMainSourceDefaultTask {
         JSON('json'),
         HTML('html')
 
-        final String builderName;
+        final String builderName
 
         DocType(String name) {
             builderName = name

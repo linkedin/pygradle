@@ -21,7 +21,7 @@ import com.linkedin.gradle.python.util.ColorHelper
 import com.linkedin.gradle.python.util.ConsoleOutput
 import org.gradle.api.Project
 
-abstract class PythonHelpers {
+class PythonHelpers {
 
     public static final int LINE_WIDTH = 80
 
@@ -48,16 +48,19 @@ abstract class PythonHelpers {
 
         StringBuilder successFlair = new StringBuilder()
 
-        if (settings.consoleOutput != ConsoleOutput.RAW)
+        if (settings.consoleOutput != ConsoleOutput.RAW) {
             successFlair << ColorHelper.ANSI_GREEN
+        }
 
-        if (isTty(project))
+        if (isTty(project)) {
             successFlair << "\u2713"
-        else
+        } else {
             successFlair << ' [GOOD]'
+        }
 
-        if (settings.consoleOutput != ConsoleOutput.RAW)
+        if (settings.consoleOutput != ConsoleOutput.RAW) {
             successFlair << ColorHelper.ANSI_RESET
+        }
 
         return successFlair.toString()
     }
@@ -67,7 +70,7 @@ abstract class PythonHelpers {
 
 
         successFlair.append(prefix).append(' ')
-        for(int i = 0; i < LINE_WIDTH - 3 - prefix.length() - postfix.length(); i++) {
+        for (int i = 0; i < LINE_WIDTH - 3 - prefix.length() - postfix.length(); i++) {
             successFlair.append(".")
         }
         successFlair.append(".")

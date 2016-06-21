@@ -22,7 +22,7 @@ import java.io.File;
 public class VirtualEnvExecutableHelper {
 
     private VirtualEnvExecutableHelper() {
-
+        //private constructor for util class
     }
 
     public static File getPythonInterpreter(PythonExtension pythonExtension) {
@@ -38,7 +38,7 @@ public class VirtualEnvExecutableHelper {
     }
 
     public static File getExecutable(File file) {
-        if(!file.exists()) {
+        if (!file.exists()) {
             throw new RuntimeException("Could not find " + file.getAbsolutePath() + " to execute");
         }
 

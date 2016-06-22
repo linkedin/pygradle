@@ -16,13 +16,9 @@
 package com.linkedin.gradle.python.plugin
 
 import com.linkedin.gradle.python.extension.DeployableExtension
-import com.linkedin.gradle.python.extension.PexExtension
-import com.linkedin.gradle.python.extension.WheelExtension
+import com.linkedin.gradle.python.tasks.BuildPexTask
 import com.linkedin.gradle.python.tasks.BuildWheelsTask
-import com.linkedin.gradle.python.util.EntryPointHelpers
 import com.linkedin.gradle.python.util.ExtensionUtils
-import com.linkedin.gradle.python.util.PexFileUtil
-import com.linkedin.gradle.python.util.VirtualEnvExecutableHelper
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.tasks.bundling.Compression
@@ -38,8 +34,8 @@ class PythonPexDistributionPlugin extends PythonBasePlugin {
     void applyTo(Project project) {
 
         project.plugins.apply(PythonPlugin)
-        PexExtension pexExtension = ExtensionUtils.maybeCreatePexExtension(project)
-        WheelExtension wheelExtension = ExtensionUtils.maybeCreateWheelExtension(project)
+        ExtensionUtils.maybeCreatePexExtension(project)
+        ExtensionUtils.maybeCreateWheelExtension(project)
         DeployableExtension deployableExtension = ExtensionUtils.maybeCreateDeployableExtension(project)
 
 
@@ -51,11 +47,6 @@ class PythonPexDistributionPlugin extends PythonBasePlugin {
         }
         project.dependencies.add(PythonPlugin.CONFIGURATION_BUILD_REQS, PythonPlugin.PINNED_VERSIONS['pex'])
 
-        // Recreate the pex cache if it exists so that we don't mistakenly use an old build's version of the local project.
-        if (project.file(pexExtension.pexCache).exists()) {
-            project.file(pexExtension.pexCache).deleteDir()
-            project.file(pexExtension.pexCache).mkdirs()
-        }
 
         /**
          * Build wheels.
@@ -66,54 +57,8 @@ class PythonPexDistributionPlugin extends PythonBasePlugin {
             task.dependsOn project.tasks.getByName(PythonPlugin.TASK_INSTALL_PROJECT)
         }
 
-        project.tasks.create(TASK_BUILD_PEX) { task ->
-
+        project.tasks.create(TASK_BUILD_PEX, BuildPexTask) { task ->
             task.dependsOn(project.tasks.getByName(TASK_BUILD_WHEELS))
-
-            task.doLast {
-                def pexSource = project.file("${deployableExtension.deployableBinDir}/${project.name}.pex").path
-
-                project.exec { exec ->
-                    exec.environment settings.pythonEnvironmentDistgradle
-                    exec.commandLine([VirtualEnvExecutableHelper.getPythonInterpreter(settings),
-                                      VirtualEnvExecutableHelper.getPip(settings),
-                                      'wheel',
-                                      '--disable-pip-version-check',
-                                      '--wheel-dir', wheelExtension.wheelCache,
-                                      '--no-deps',
-                                      '.'])
-                }
-
-                project.file(deployableExtension.deployableBuildDir).mkdirs()
-
-                if (pexExtension.fatPex) {
-                    // For each entry point, build a stand alone pex file
-                    EntryPointHelpers.collectEntryPoints(project).each {
-                        println "Processing entry point: ${it}"
-                        def (String name, String entry) = it.split('=')*.trim()
-                        PexFileUtil.buildPexFile(project,
-                                pexExtension.pexCache,
-                                new File(deployableExtension.deployableBinDir, name).path,
-                                wheelExtension.wheelCache,
-                                settings.details.virtualEnvInterpreter.absolutePath,
-                                entry)
-                    }
-                } else {
-                    // Build a single stand alone pex file
-                    PexFileUtil.buildPexFile(project,
-                            pexExtension.pexCache,
-                            project.file(pexSource).path,
-                            wheelExtension.wheelCache,
-                            settings.details.virtualEnvInterpreter.absolutePath,
-                            null)
-                    // For each entry point, write a thin wrapper
-                    EntryPointHelpers.collectEntryPoints(project).each {
-                        println "Processing entry point: ${it}"
-                        def (String name, String entry) = it.split('=')*.trim()
-                        EntryPointHelpers.writeEntryPointScript(project, project.file("${deployableExtension.deployableBinDir}/${name}").path, entry)
-                    }
-                }
-            }
         }
 
         def packageDeployable = project.tasks.create(TASK_PACKAGE_DEPLOYABLE, Tar, new Action<Tar>() {

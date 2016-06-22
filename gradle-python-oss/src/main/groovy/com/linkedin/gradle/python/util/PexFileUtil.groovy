@@ -143,12 +143,11 @@ class PexFileUtil {
      * @param files The set of files to add to the set.
      * @return A set of names.
      */
-    @SuppressWarnings("UnusedVariable")
-    protected static Set<String> configurationToSet(Collection<File> files) {
+    private static Set<String> configurationToSet(Collection<File> files) {
         Set<String> configNames = new HashSet<String>()
         for (File file : files) {
-            def (String name, String version) = MiscUtils.packageInfoFromPath(file.name)
-            configNames.add(name)
+            def packageInfo = PackageInfo.fromPath(file.name)
+            configNames.add(packageInfo.name)
         }
         return configNames
     }

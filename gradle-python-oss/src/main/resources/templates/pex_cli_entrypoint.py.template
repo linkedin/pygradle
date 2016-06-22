@@ -1,0 +1,19 @@
+#!/usr/bin/env python
+
+"""LinkedIn's command line pex invocation script."""
+
+import os
+import sys
+
+
+def main():
+    tool_dir = os.path.dirname(os.path.realpath(__file__))
+    pex_exec = os.path.join(tool_dir, '$realPex')
+    os.environ.update(
+        dict(PEX_MODULE='$entryPoint')
+    )
+    os.execve(pex_exec, sys.argv, os.environ)
+
+
+if __name__ == '__main__':
+    main()

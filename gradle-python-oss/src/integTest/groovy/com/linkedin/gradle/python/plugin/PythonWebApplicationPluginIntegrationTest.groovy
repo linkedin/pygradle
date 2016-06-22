@@ -18,22 +18,16 @@ package com.linkedin.gradle.python.plugin
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
 class PythonWebApplicationPluginIntegrationTest extends Specification {
 
     @Rule
-    final TemporaryFolder testProjectDir = new TemporaryFolder()
-    File buildFile
-
-    def setup() {
-        buildFile = testProjectDir.newFile('build.gradle')
-    }
+    final DefaultProjectLayoutRule testProjectDir = new DefaultProjectLayoutRule()
 
     def "can build web-app"() {
         given:
-        buildFile << """\
+        testProjectDir.buildFile << """\
         |plugins {
         |    id 'python-web-app'
         |}
@@ -41,36 +35,6 @@ class PythonWebApplicationPluginIntegrationTest extends Specification {
         |version = '1.2.3'
         |${PyGradleTestBuilder.createRepoClosure()}
         """.stripMargin().stripIndent()
-
-        testProjectDir.newFolder('test')
-        testProjectDir.newFolder('src')
-
-        // Create some code
-        testProjectDir.newFile('src/hello.py') << '''\
-            | def main():
-            |     print 'Hello World'
-            |
-            |
-            | if __name__ == '__main__':
-            |     main()
-            '''.stripMargin().stripIndent()
-
-        // Create a setup file
-        testProjectDir.newFile('setup.py') << PyGradleTestBuilder.createSetupPy()
-
-        // Create the setup.cfg file
-        testProjectDir.newFile('setup.cfg') << PyGradleTestBuilder.createSetupCfg()
-
-        testProjectDir.newFile('settings.gradle') << PyGradleTestBuilder.createSettingGradle()
-
-        // Create the test directory and a simple test
-        testProjectDir.newFile('test/test_a.py') << '''\
-            | def test_sanity():
-            |     expected = 6
-            |     assert 2 * 3 == expected
-            '''.stripMargin().stripIndent()
-
-        testProjectDir.newFile("MANIFEST.in") << ''
 
         when:
         def result = GradleRunner.create()
@@ -84,7 +48,7 @@ class PythonWebApplicationPluginIntegrationTest extends Specification {
         then:
 
         result.output.contains("BUILD SUCCESS")
-        result.output.contains('test/test_a.py .')
+        result.output.contains('test/test_a.py ..')
         result.task(':flake8').outcome == TaskOutcome.SUCCESS
         result.task(':installPythonRequirements').outcome == TaskOutcome.SUCCESS
         result.task(':installTestRequirements').outcome == TaskOutcome.SUCCESS

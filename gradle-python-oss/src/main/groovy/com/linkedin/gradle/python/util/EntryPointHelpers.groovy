@@ -16,60 +16,12 @@
 package com.linkedin.gradle.python.util
 
 import com.linkedin.gradle.python.PythonExtension
-import com.linkedin.gradle.python.extension.CliExtension
-import com.linkedin.gradle.python.extension.PexExtension
-import com.linkedin.gradle.python.plugin.PythonPexDistributionPlugin
 import org.gradle.api.Project
-import org.gradle.api.plugins.ExtensionAware
 
 public class EntryPointHelpers {
 
     private EntryPointHelpers() {
         //private constructor for util class
-    }
-
-    /**
-     * Write an thin pex entry point script.
-     * <p>
-     * An entry point script is also referred to as a wrapper script. This script simply wraps instruments a
-     * call to pex with an entry point.
-     * <p>
-     * An entry point script includes LID specific environment variables. For example, the <code>BASEDIR</code>
-     * is used to calculate the base directory at which to unpack the pex.
-     *
-     * TODO: Make the template configurable.
-     * TODO: Replace with a python script vs bash script.
-     * @param project The project to run <code>pex</code> within.
-     * @param path The path at which to create the wrapper script.
-     * @param entryPoint The entry point to use in the wrapper script.
-     */
-    @SuppressWarnings("GStringExpressionWithinString") //It is a bash string, not gstring
-    public static void writeEntryPointScript(Project project, String path, String entryPoint) {
-        PythonExtension settings = project.getExtensions().getByType(PythonExtension)
-        def extensions = ((ExtensionAware) settings).getExtensions()
-        PexExtension pexExtension = extensions.getByType(PexExtension)
-
-        boolean isCliTool = extensions.findByType(CliExtension) != null
-        def file = new File(path)
-        if (file.exists()) {
-            file.delete()
-        }
-        file.createNewFile()
-        if (isCliTool) {
-            file.setExecutable(true, false)
-            file.setReadable(true, false)
-        } else {
-            file.setExecutable(true)
-        }
-        if (isCliTool && pexExtension.pythonWrapper) {
-            def pythonWrapperTemplate = PythonPexDistributionPlugin.getResource('/templates/pex_entrypoint.py.template').text
-            file << String.format(pythonWrapperTemplate, "${project.name}.pex", entryPoint)
-        } else {
-            file << """#!/bin/bash\n"""
-            file << """[ -z "\$BASEDIR" ] && BASEDIR=\$( cd "\$( dirname "\${BASH_SOURCE[0]}" )/.." && pwd )\n"""
-            file << """exec /usr/bin/env PEX_ROOT="\$BASEDIR/libexec" PEX_MODULE="${entryPoint}" """
-            file << """\$BASEDIR/bin/${project.name}.pex "\$@"\n"""
-        }
     }
 
     /**

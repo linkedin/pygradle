@@ -7,6 +7,14 @@ checkstyle {
     toolVersion = '6.19'
 }
 
+tasks.withType(Checkstyle) {
+    reports {
+        xml.enabled false
+        html.enabled true
+    }
+    ignoreFailures = false
+}
+
 codenarc {
     configFile = file("$rootDir/codequality/codenarc/rules.groovy")
 }

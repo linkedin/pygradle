@@ -18,8 +18,11 @@ package com.linkedin.gradle.python.tasks;
 import com.linkedin.gradle.python.extension.DeployableExtension;
 import com.linkedin.gradle.python.extension.PexExtension;
 import com.linkedin.gradle.python.extension.WheelExtension;
-import com.linkedin.gradle.python.util.EntryPointHelpers;
+import com.linkedin.gradle.python.plugin.PythonWebApplicationPlugin;
 import com.linkedin.gradle.python.util.PexFileUtil;
+import com.linkedin.gradle.python.util.entrypoint.EntryPointWriter;
+import com.linkedin.gradle.python.util.internal.pex.ThinPexGenerator;
+import org.apache.commons.io.IOUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputDirectory;
@@ -28,6 +31,8 @@ import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
 
 public class BuildWebAppTask extends DefaultTask {
 
@@ -69,11 +74,15 @@ public class BuildWebAppTask extends DefaultTask {
     }
 
     @TaskAction
-    public void buildWebapp() {
+    public void buildWebapp() throws IOException, ClassNotFoundException {
         if (pexExtension.isFatPex()) {
             PexFileUtil.buildPexFile(getProject(), getPexCache(), getExecutable().getPath(), getWheelCache(), pythonInterpreter, entryPoint);
         } else {
-            EntryPointHelpers.writeEntryPointScript(getProject(), getExecutable().getPath(), entryPoint);
+            HashMap<String, String> options = new HashMap<>();
+            options.put("entryPoint", PythonWebApplicationPlugin.GUNICORN_ENTRYPOINT);
+            options.put("realPex", getProject().getName());
+            String template = IOUtils.toString(ThinPexGenerator.class.getResourceAsStream("/templates/pex_non_cli_entrypoint.sh.template"));
+            new EntryPointWriter(getProject(), template).writeEntryPoint(new File(deployableExtension.getDeployableBinDir(), "gunicorn"), options);
         }
     }
 

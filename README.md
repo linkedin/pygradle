@@ -74,3 +74,9 @@ We will be adding an automated CI system so that pull requests will be validated
 From time to time LinkedIn maintainers may find issues with the changes that break our internal tests. When this happens we will
 allow the merge to happen but add tests and update the code to make our internal tests pass. This means that we probably won't
 publish a version until we can validate the changes internally.
+
+# Known Potential Issues
+- Due to a bug in pip, when trying to install scipy may fail. A potential work around is to use a newer version of pip. A PR
+was merged into pip master that fixes the issue (https://github.com/pypa/pip/pull/3701), a version of pip with the fix in it
+has not been released yet. If this is an issue for your org, you could release a version of pip with this fix in it. For
+more details on the change and issues please review https://github.com/pypa/pip/pull/3701 and https://github.com/pypa/pip/pull/3079

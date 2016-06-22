@@ -13,3 +13,4 @@ out/
 *.swp
 /ligradle/
 /intTestHomeDir/
+pivy-importer/ivy-repo/

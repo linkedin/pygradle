@@ -21,7 +21,6 @@ import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
-
 class PythonWebApplicationPluginIntegrationTest extends Specification {
 
     @Rule
@@ -39,6 +38,7 @@ class PythonWebApplicationPluginIntegrationTest extends Specification {
         |    id 'python-web-app'
         |}
         |
+        |version = '1.2.3'
         |${PyGradleTestBuilder.createRepoClosure()}
         """.stripMargin().stripIndent()
 
@@ -60,6 +60,8 @@ class PythonWebApplicationPluginIntegrationTest extends Specification {
 
         // Create the setup.cfg file
         testProjectDir.newFile('setup.cfg') << PyGradleTestBuilder.createSetupCfg()
+
+        testProjectDir.newFile('settings.gradle') << PyGradleTestBuilder.createSettingGradle()
 
         // Create the test directory and a simple test
         testProjectDir.newFile('test/test_a.py') << '''\

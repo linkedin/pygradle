@@ -49,6 +49,10 @@ PyGradle comes with several plugins available, for specific details on each plug
 | python-flyer      | Developing Flyer (Flask + Ember) Applications | TODO          |
 | python-pex        | Developing Pex Applications                   | TODO          |
 
+## Custom Setup Tools Distribution Class
+There are some cases where you will need to implement a distribution class that can take the command 'entrypoints'. If you
+want to use our distribution class, you can find it in `gradle-python-oss/src/integTest/resources/setup.py`
+
 # Developing on PyGradle
 
 ## Building PyGradle

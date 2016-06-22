@@ -29,35 +29,24 @@ class PyGradleTestBuilder {
     }
 
     static String createSetupPy() {
-        return '''\
-            | import setuptools
-            |
-            | from distgradle import GradleDistribution
-            |
-            |
-            | setuptools.setup(
-            |     distclass=GradleDistribution,
-            |     package_dir={'': 'src'},
-            |     packages=setuptools.find_packages('src'),
-            |     include_package_data=True,
-            |     entry_points={
-            |         'console_scripts': [
-            |             'hello_world = hello:main',
-            |         ],
-            |     },
-            | )
-            '''.stripMargin().stripIndent()
+        return PyGradleTestBuilder.getResource("/setup.py").text
+    }
+
+    static String createSettingGradle() {
+        return """\
+            | rootProject.name = 'testProject'
+            |""".stripMargin().stripIndent()
     }
 
     static String createRepoClosure() {
         return """\
             |repositories {
             |  ivy {
-            |    name 'pypi-external'
-            |    url "http://artifactory.corp.linkedin.com:8081/artifactory/pypi-external"
+            |    name 'pypi-local'
+            |    url "${System.getenv('TEST_REPO')}"
             |    layout "pattern", {
-            |      ivy "[module]/[revision]/[module]-[revision].ivy"
-            |      artifact "[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
+            |      ivy "[organisation]/[module]/[revision]/[module]-[revision].ivy"
+            |      artifact "[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
             |      m2compatible = true
             |    }
             |  }

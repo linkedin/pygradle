@@ -26,7 +26,9 @@ from setuptools.dist import Distribution
 
 class EntryPoints(Command):
     description = 'get entrypoints for a distribution'
-    user_options = [('dist=', None, 'get entrypoints for specified distribution')]
+    user_options = [
+        ('dist=', None, 'get entrypoints for specified distribution')
+    ]
 
     def initialize_options(self):
         self.dist = self.distribution.get_name()
@@ -67,7 +69,7 @@ class install_egg_info(_install_egg_info):  # noqa
         # properly traverse "--editable" packages too.
         "mp[:] = m and pkgutil.extend_path(mp, %(pkg)r) or mp",
     )
-    """ lines for the namespace installer """
+    "lines for the namespace installer"
 
     _nspkg_tmpl_multi = (
         # CHANGED: Use "__import__" to ensure the parent package has been
@@ -76,7 +78,7 @@ class install_egg_info(_install_egg_info):  # noqa
         # parent could be skipped due to an existing __init__.py file.
         'm and __import__(%(parent)r) and setattr(sys.modules[%(parent)r], %(child)r, m)',
     )
-    """ additional line(s) when a parent package is indicated """
+    "additional line(s) when a parent package is indicated"
 
 
 class GradleDistribution(Distribution, object):

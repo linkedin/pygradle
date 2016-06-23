@@ -27,7 +27,7 @@ from setuptools.dist import Distribution
 class EntryPoints(Command):
     description = 'get entrypoints for a distribution'
     user_options = [
-        ('dist=', None, 'get entrypoints for specified distribution')
+        ('dist=', None, 'get entrypoints for specified distribution'),
     ]
 
     def initialize_options(self):

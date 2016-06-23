@@ -23,13 +23,10 @@ from setuptools import setup, find_packages, Command
 from setuptools.command.install_egg_info import install_egg_info as _install_egg_info
 from setuptools.dist import Distribution
 
+
 class EntryPoints(Command):
-
     description = 'get entrypoints for a distribution'
-
-    user_options = [
-        ('dist=', None, 'get entrypoints for specified distribution'),
-    ]
+    user_options = [('dist=', None, 'get entrypoints for specified distribution')]
 
     def initialize_options(self):
         self.dist = self.distribution.get_name()
@@ -42,6 +39,7 @@ class EntryPoints(Command):
         if req_entry_points and 'console_scripts' in req_entry_points:
             for entry in list(req_entry_points['console_scripts'].values()):
                 print(entry, file=sys.stdout)
+
 
 class install_egg_info(_install_egg_info):  # noqa
     """Override the setuptools namespace package templates.
@@ -69,7 +67,7 @@ class install_egg_info(_install_egg_info):  # noqa
         # properly traverse "--editable" packages too.
         "mp[:] = m and pkgutil.extend_path(mp, %(pkg)r) or mp",
     )
-    "lines for the namespace installer"
+    """ lines for the namespace installer """
 
     _nspkg_tmpl_multi = (
         # CHANGED: Use "__import__" to ensure the parent package has been
@@ -78,7 +76,8 @@ class install_egg_info(_install_egg_info):  # noqa
         # parent could be skipped due to an existing __init__.py file.
         'm and __import__(%(parent)r) and setattr(sys.modules[%(parent)r], %(child)r, m)',
     )
-    "additional line(s) when a parent package is indicated"
+    """ additional line(s) when a parent package is indicated """
+
 
 class GradleDistribution(Distribution, object):
     def __init__(self, attrs):
@@ -88,7 +87,6 @@ class GradleDistribution(Distribution, object):
 
     def get_command_class(self, command):
         """Return a customized command class or the base one."""
-
         if command == 'install_egg_info':
             return install_egg_info
         elif command == 'entrypoints':

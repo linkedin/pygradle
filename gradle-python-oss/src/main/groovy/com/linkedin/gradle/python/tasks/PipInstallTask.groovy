@@ -91,6 +91,7 @@ class PipInstallTask extends DefaultTask {
             if (environment != null) {
                 mergedEnv.putAll(environment)
             }
+            mergedEnv.putAll(settings.pythonEnvironmentDistgradle)
 
             def commandLine = [VirtualEnvExecutableHelper.getPythonInterpreter(settings),
                                VirtualEnvExecutableHelper.getPip(settings),

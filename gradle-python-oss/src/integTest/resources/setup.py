@@ -23,10 +23,9 @@ from setuptools import setup, find_packages, Command
 from setuptools.command.install_egg_info import install_egg_info as _install_egg_info
 from setuptools.dist import Distribution
 
+
 class EntryPoints(Command):
-
     description = 'get entrypoints for a distribution'
-
     user_options = [
         ('dist=', None, 'get entrypoints for specified distribution'),
     ]
@@ -42,6 +41,7 @@ class EntryPoints(Command):
         if req_entry_points and 'console_scripts' in req_entry_points:
             for entry in list(req_entry_points['console_scripts'].values()):
                 print(entry, file=sys.stdout)
+
 
 class install_egg_info(_install_egg_info):  # noqa
     """Override the setuptools namespace package templates.
@@ -80,6 +80,7 @@ class install_egg_info(_install_egg_info):  # noqa
     )
     "additional line(s) when a parent package is indicated"
 
+
 class GradleDistribution(Distribution, object):
     def __init__(self, attrs):
         attrs['name'] = os.getenv('DISTGRADLE_PRODUCT_NAME')
@@ -88,7 +89,6 @@ class GradleDistribution(Distribution, object):
 
     def get_command_class(self, command):
         """Return a customized command class or the base one."""
-
         if command == 'install_egg_info':
             return install_egg_info
         elif command == 'entrypoints':

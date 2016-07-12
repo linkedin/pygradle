@@ -37,7 +37,7 @@ we add two dependencies, one required to run and one required for testing. With 
 artifacts from a repository (omitted from example) install requests and mock along with their dependencies to a virtual
 environment and run any tests that you may have.
 
-## Plugins Avalible
+## Plugins Available
 
 PyGradle comes with several plugins available, for specific details on each plugin check the documentation specific to that plugin.
 

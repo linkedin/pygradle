@@ -51,8 +51,6 @@ class PythonPexDistributionPlugin extends PythonBasePlugin {
         }
         project.dependencies.add(PythonPlugin.CONFIGURATION_BUILD_REQS, PythonPlugin.PINNED_VERSIONS['pex'])
 
-        def pexSource = project.file("${deployableExtension.deployableBinDir}/${project.name}.pex").path
-
         // Recreate the pex cache if it exists so that we don't mistakenly use an old build's version of the local project.
         if (project.file(pexExtension.pexCache).exists()) {
             project.file(pexExtension.pexCache).deleteDir()
@@ -73,6 +71,8 @@ class PythonPexDistributionPlugin extends PythonBasePlugin {
             task.dependsOn(project.tasks.getByName(TASK_BUILD_WHEELS))
 
             task.doLast {
+                def pexSource = project.file("${deployableExtension.deployableBinDir}/${project.name}.pex").path
+
                 project.exec { exec ->
                     exec.environment settings.pythonEnvironmentDistgradle
                     exec.commandLine([VirtualEnvExecutableHelper.getPythonInterpreter(settings),

@@ -2,3 +2,15 @@ allprojects {
     group = 'com.linkedin.pygradle'
     version = '0.2.0-SNAPSHOT'
 }
+
+subprojects {
+    task downloadDependencies {
+        description = 'Download all dependencies to help with CI cacheing'
+        group = 'CI'
+        doLast {
+            configurations.each { conf ->
+                conf.files
+            }
+        }
+    }
+}

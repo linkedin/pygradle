@@ -9,6 +9,10 @@ machine:
     environment:
         GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m -XX:+HeapDumpOnOutOfMemoryError"'
 
+dependencies:
+    override:
+        - ./gradlew downloadDependencies --console plain
+
 test:
     override:
         - ./gradlew build --console plain --max-workers 1

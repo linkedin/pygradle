@@ -24,7 +24,7 @@ class PythonWheelDistributionPlugin extends PythonBasePlugin {
 
     @Override
     void applyTo(Project project) {
-        // XXX: This needs to be adusted to work with a build matrix one day. Until
+        // XXX: This needs to be adjusted to work with a build matrix one day. Until
         // that is ready, we always assume pure Python 2.6 on Linux.
         def wheelArtifact = project.file("${project.projectDir}/dist/${project.name.replace("-", "_")}-${project.spec.version.replace("-", "_")}-py2-none-any.whl")
 

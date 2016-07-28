@@ -67,7 +67,7 @@ class PythonFlyerPlugin implements Plugin<Project> {
          * This configuration is used to connect the Python project to the Ember project.
          * We will use this configuration to access the static resource, create the symlink and package the resource.
          */
-        def resouceConf = project.configurations.create("resource")
+        def resourceConf = project.configurations.create("resource")
 
         /*
          * Under the Python project, we need to make a link to the Ember resource(<ember-project>/dist for now).
@@ -77,12 +77,12 @@ class PythonFlyerPlugin implements Plugin<Project> {
          */
         project.tasks.create(TASK_SETUP_RESOURCE_LINK) { Task task ->
 
-            task.dependsOn resouceConf
+            task.dependsOn resourceConf
 
             task.doLast {
                 if (!project.file("${project.projectDir}/resource").exists()) {
-                    println "Making the Symlink: ${project.projectDir}/resource --> ${resouceConf.singleFile}"
-                    FileSystemUtils.makeLink(project, resouceConf.singleFile, new File(project.projectDir, 'resource'), true)
+                    println "Making the Symlink: ${project.projectDir}/resource --> ${resourceConf.singleFile}"
+                    FileSystemUtils.makeSymLink(project, resourceConf.singleFile, new File(project.projectDir, 'resource'))
                 }
             }
         }
@@ -97,12 +97,12 @@ class PythonFlyerPlugin implements Plugin<Project> {
         project.tasks.create(name: TASK_PACKAGE_RESOURCE_FILES, type: Copy) { Copy copy ->
             def deployableExtension = ExtensionUtils.maybeCreateDeployableExtension(project)
 
-            copy.inputs.dir(resouceConf)
+            copy.inputs.dir(resourceConf)
             copy.outputs.dir("${deployableExtension.deployableBuildDir}/resource")
 
             copy.dependsOn(project.tasks['buildWebApplication'])
 
-            copy.from resouceConf
+            copy.from resourceConf
             copy.into "${deployableExtension.deployableBuildDir}/resource"
         }
 

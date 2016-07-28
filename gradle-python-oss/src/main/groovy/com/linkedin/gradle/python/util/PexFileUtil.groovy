@@ -24,6 +24,10 @@ import org.gradle.process.ExecSpec
 
 class PexFileUtil {
 
+    private PexFileUtil() {
+        //private constructor for util class
+    }
+
     /**
      * Build a pex file.
      *

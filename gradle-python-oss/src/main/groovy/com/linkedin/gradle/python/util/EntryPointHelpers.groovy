@@ -24,6 +24,10 @@ import org.gradle.api.plugins.ExtensionAware
 
 public class EntryPointHelpers {
 
+    private EntryPointHelpers() {
+        //private constructor for util class
+    }
+
     /**
      * Write an thin pex entry point script.
      * <p>

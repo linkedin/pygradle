@@ -1,8 +1,22 @@
+/*
+ * Copyright 2016 LinkedIn Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.linkedin.python.importer.deps
 
 import com.linkedin.python.importer.distribution.SourceDistPackage
 import com.linkedin.python.importer.ivy.IvyFileWriter
-import com.linkedin.python.importer.pypi.ProjectDetails
 import com.linkedin.python.importer.pypi.PypiApiCache
 import groovy.util.logging.Slf4j
 import org.apache.http.client.fluent.Request
@@ -14,7 +28,7 @@ class DependencyDownloader {
 
 
     Queue<String> dependencies = [] as Queue
-    HashSet<String> processedDependencies = [] as Set
+    Set<String> processedDependencies = [] as Set
     PypiApiCache cache = new PypiApiCache()
     File ivyRepoRoot
     DependencySubstitution dependencySubstitution
@@ -28,7 +42,7 @@ class DependencyDownloader {
     def download() {
         while (!dependencies.isEmpty()) {
             def dep = dependencies.poll()
-            if(dep in processedDependencies) {
+            if (dep in processedDependencies) {
                 continue
             }
             downloadDependency(dep)
@@ -42,7 +56,7 @@ class DependencyDownloader {
 
         def projectDetails = cache.getDetails(name)
         version = projectDetails.maybeFixVersion(version)
-        def sdistDetails = projectDetails.findVersion(version).find { it.packageType == 'sdist'}
+        def sdistDetails = projectDetails.findVersion(version).find { it.packageType == 'sdist' }
 
         def destDir = new File(ivyRepoRoot, "pypi/${name}/${version}")
 
@@ -63,11 +77,11 @@ class DependencyDownloader {
         def filename = Paths.get(url).getFileName().toString()
         def contents = new File(destDir, filename)
 
-        if(!contents.exists()) {
+        if (!contents.exists()) {
             Request.Get(url)
-                    .connectTimeout(5000)
-                    .socketTimeout(5000)
-                    .execute().saveContent(contents)
+                .connectTimeout(5000)
+                .socketTimeout(5000)
+                .execute().saveContent(contents)
         }
 
         return contents

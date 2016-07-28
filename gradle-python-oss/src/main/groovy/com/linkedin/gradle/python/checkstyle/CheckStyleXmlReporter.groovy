@@ -34,7 +34,7 @@ class CheckStyleXmlReporter {
       violationContainer.getViolations().each { fileStyleViolation ->
         file(name: fileStyleViolation.filename) {
           fileStyleViolation.violations.each { violation ->
-            error(violation.createChecktyleMap())
+            error(violation.createCheckstyleMap())
           }
         }
       }

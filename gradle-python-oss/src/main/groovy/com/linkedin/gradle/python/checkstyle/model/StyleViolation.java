@@ -33,7 +33,7 @@ public class StyleViolation {
         this.errorNumber = errorCode;
         this.message = message;
 
-        char errorTypeChar = errorCode.toUpperCase().charAt(0);
+        char errorTypeChar = errorCode != null ? errorCode.toUpperCase().charAt(0) : 'X';
         switch (errorTypeChar) {
             case 'E':
                 this.violationType = ViolationType.ERROR;
@@ -56,7 +56,7 @@ public class StyleViolation {
         }
     }
 
-    public Map<String, Object> createChecktyleMap() {
+    public Map<String, Object> createCheckstyleMap() {
         HashMap<String, Object> checkstyleMap = new HashMap<String, Object>();
         checkstyleMap.put("line", getLineNumber());
         checkstyleMap.put("column", getColumnNumber());

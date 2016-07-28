@@ -1,13 +1,18 @@
 machine:
-  java:
-    version:
-      oraclejdk8
+    python:
+        version: 2.6.6
+    java:
+        version: oraclejdk8
+    post:
+        - pyenv global 2.7
+        - ln -sf ~/.pyenv/versions/2.6.6/bin/python2.6 ~/.pyenv/shims/python2.6
+    environment:
+        GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m -XX:+HeapDumpOnOutOfMemoryError"'
 
 test:
-  override:
-    - ./gradlew check --console plain --max-workers 1
-    - ./gradlew build --console plain --max-workers 1
+    override:
+        - ./gradlew build --console plain --max-workers 1
 
-  post:
-    - mkdir -p $CIRCLE_TEST_REPORTS/junit/
-    - find build -type f -regex ".*/test-results/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
+    post:
+        - mkdir -p $CIRCLE_TEST_REPORTS/junit/
+        - find . -type f -regex ".*/test-results/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;

@@ -5,7 +5,7 @@ machine:
 
 test:
   override:
-    - ./gradlew build
+    - ./gradlew build --console plain
 
   post:
     - mkdir -p $CIRCLE_TEST_REPORTS/junit/

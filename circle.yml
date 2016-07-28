@@ -5,7 +5,8 @@ machine:
 
 test:
   override:
-    - ./gradlew build --console plain
+    - ./gradlew check --console plain --max-workers 1
+    - ./gradlew build --console plain --max-workers 1
 
   post:
     - mkdir -p $CIRCLE_TEST_REPORTS/junit/

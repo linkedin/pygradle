@@ -92,7 +92,7 @@ ruleset {
 
     // rulesets/convention.xml
     ConfusingTernary
-    // CouldBeElvis -- there are legit scenarios where avoiding elivis results in cleaner code
+    // CouldBeElvis -- there are legit scenarios where avoiding elvis results in cleaner code
     HashtableIsObsolete
     IfStatementCouldBeTernary
     // InvertedIfElse -- it feels too rigid, sometimes we want the negative case to be first for clarity
@@ -166,7 +166,7 @@ ruleset {
     ThrowThrowable
 
     // rulesets/formatting.xml
-    // BlankLineBeforePackage -- not useulf
+    // BlankLineBeforePackage -- not useful
     BracesForClass
     BracesForForLoop
     BracesForIfElse
@@ -231,7 +231,7 @@ ruleset {
     ExplicitTreeSetInstantiation
     GStringAsMapKey
     GStringExpressionWithinString
-    // GetterMethodCouldBeProperty -- using the getter may be perferable in some cases
+    // GetterMethodCouldBeProperty -- using the getter may be preferable in some cases
     GroovyLangImmutable
     UseCollectMany
     UseCollectNested

@@ -1,14 +1,27 @@
+/*
+ * Copyright 2016 LinkedIn Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.linkedin.python.importer.distribution
 
 import com.linkedin.python.importer.deps.DependencySubstitution
-import com.linkedin.python.importer.pypi.ProjectDetails
 import com.linkedin.python.importer.pypi.PypiApiCache
 import groovy.util.logging.Slf4j
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 
-import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 
 @Slf4j
@@ -28,6 +41,7 @@ class SourceDistPackage {
         return parseRequiresText(getRequiresTextFile())
     }
 
+    @SuppressWarnings("ParameterReassignment")
     private Map<String, List<String>> parseRequiresText(String requires) {
         def dependencies = [:]
         log.debug("requires: {}", requires)
@@ -73,7 +87,7 @@ class SourceDistPackage {
     }
 
     private String getRequiresTextFile() {
-        if(packageFile.absolutePath.contains('.tar.')) {
+        if (packageFile.absolutePath.contains('.tar.')) {
             return explodeTarForRequiresText()
         } else {
             return explodeZipForRequiresText()
@@ -83,7 +97,7 @@ class SourceDistPackage {
     private String explodeZipForRequiresText() {
         def file = new ZipFile(packageFile)
         def entry = file.getEntry('.egg-info/requires.txt')
-        if(entry) {
+        if (entry) {
             return file.getInputStream(entry).text
         }
         return ''
@@ -93,8 +107,12 @@ class SourceDistPackage {
     private String explodeTarForRequiresText() {
         TarArchiveInputStream tarIn = explodeArtifact()
 
-        while(tarIn.getNextEntry() && tarIn.getCurrentEntry() != null && !tarIn.getCurrentEntry().name.endsWith('.egg-info/requires.txt'));
-        if(tarIn.getCurrentEntry() == null) {
+        tarIn.getNextEntry()
+        while (tarIn.getCurrentEntry() != null && !tarIn.getCurrentEntry().name.endsWith('.egg-info/requires.txt')) {
+            tarIn.getNextEntry()
+        }
+
+        if (tarIn.getCurrentEntry() == null) {
             return ''
         }
 
@@ -109,9 +127,9 @@ class SourceDistPackage {
         BufferedInputStream inputStream = new BufferedInputStream(fin)
         InputStream compressorInputStream
 
-        if(packageFile.absolutePath.endsWith('.gz')) {
+        if (packageFile.absolutePath.endsWith('.gz')) {
             compressorInputStream = new GzipCompressorInputStream(inputStream)
-        } else  if(packageFile.absolutePath.endsWith('.bz2')) {
+        } else if (packageFile.absolutePath.endsWith('.bz2')) {
             compressorInputStream = new BZip2CompressorInputStream(inputStream)
         } else {
             compressorInputStream = inputStream

@@ -86,7 +86,7 @@ public class PythonDetails {
      *
      * @param file directory to search for an executable
      */
-    public void prependExecuableDirectory(File file) {
+    public void prependExecutableDirectory(File file) {
         searchPath.add(0, file);
     }
 
@@ -96,7 +96,7 @@ public class PythonDetails {
      *
      * @param file directory to search for an executable
      */
-    public void appendExecuableDirectory(File file) {
+    public void appendExecutableDirectory(File file) {
         searchPath.add(file);
     }
 

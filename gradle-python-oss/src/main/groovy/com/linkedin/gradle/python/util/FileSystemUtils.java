@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2016 LinkedIn Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.linkedin.gradle.python.util;
 
 import org.gradle.api.Project;
@@ -35,20 +36,14 @@ public class FileSystemUtils {
      * @param project The project to run within.
      * @param target The target directory that the link points to.
      * @param destination The destination directory or the name of the link.
-     * @param symlink Whether to create a link or symlink.
      */
-    public static void makeLink(Project project, File target, File destination, boolean symlink) throws IOException {
+    public static void makeSymLink(Project project, File target, File destination) throws IOException {
         /*
          * Check if the file exists because the link checking logic in Gradle differs
          * between Linux and OS X machines.
          */
         if (!project.file(destination).exists()) {
-
-            if (symlink) {
-                Files.createSymbolicLink(destination.toPath(), target.toPath());
-            } else {
-                Files.createLink(destination.toPath(), target.toPath());
-            }
+            Files.createSymbolicLink(destination.toPath(), target.toPath());
         }
     }
 }

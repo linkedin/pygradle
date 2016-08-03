@@ -99,8 +99,8 @@ class PythonDetailsTest extends Specification {
         shadowFakePython.executable = true
 
         when:
-        settings.prependExecuableDirectory(shadowFakePython.parentFile)
-        settings.prependExecuableDirectory(fakePython.parentFile)
+        settings.prependExecutableDirectory(shadowFakePython.parentFile)
+        settings.prependExecutableDirectory(fakePython.parentFile)
         settings.pythonVersion = '3.5'
 
         then:
@@ -119,8 +119,8 @@ class PythonDetailsTest extends Specification {
         shadowFakePython.executable = true
 
         when:
-        settings.appendExecuableDirectory(fakePython.parentFile)
-        settings.appendExecuableDirectory(shadowFakePython.parentFile)
+        settings.appendExecutableDirectory(fakePython.parentFile)
+        settings.appendExecutableDirectory(shadowFakePython.parentFile)
         settings.pythonVersion = '2.1'
 
         then:

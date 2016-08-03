@@ -41,13 +41,13 @@ environment and run any tests that you may have.
 
 PyGradle comes with several plugins available, for specific details on each plugin check the documentation specific to that plugin.
 
-| Plugin Name       | Used When                                     | Documentation |
-|-------------------|-----------------------------------------------|---------------|
-| python-sdist      | Developing Libraries                          | TODO          |
-| python-web-app    | Developing Deployable Applications            | TODO          |
-| python-cli        | Developing Command Line Applications          | TODO          |
-| python-flyer      | Developing Flyer (Flask + Ember) Applications | TODO          |
-| python-pex        | Developing Pex Applications                   | TODO          |
+| Plugin Name         | Used When                                     | Documentation |
+|---------------------|-----------------------------------------------|---------------|
+| python-sdist        | Developing Libraries                          | TODO          |
+| python-web-app      | Developing Deployable Applications            | TODO          |
+| python-cli          | Developing Command Line Applications          | TODO          |
+| python-flyer        | Developing Flyer (Flask + Ember) Applications | TODO          |
+| python-pex          | Developing Pex Applications                   | TODO          |
 
 ## Custom Setup Tools Distribution Class
 There are some cases where you will need to implement a distribution class that can take the command 'entrypoints'. If you
@@ -67,9 +67,11 @@ repositories.
 
 To contribute to PyGradle please fork the project, make your changes locally and open a pull request. If possible include a
 description about why this change is being added along with tests that validate the changes. Your commits must pass checkstyle
-and codenarc.
+and codenarc. Any substantial change should include unit/integration tests.
 
-We will be adding an automated CI system so that pull requests will be validated automatically.
+A CI build runs with every pull request, the build must pass before we will merge any commits.
+
+We prefer that you squash commits into a single commit for a single change, multiple changes may be multiple commits.
 
 From time to time LinkedIn maintainers may find issues with the changes that break our internal tests. When this happens we will
 allow the merge to happen but add tests and update the code to make our internal tests pass. This means that we probably won't

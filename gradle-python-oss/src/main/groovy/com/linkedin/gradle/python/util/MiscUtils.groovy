@@ -22,6 +22,10 @@ import java.util.regex.Matcher
 
 class MiscUtils {
 
+    private MiscUtils() {
+        //private constructor for util class
+    }
+
     /**
      * Convert a collection of files into a set of names.
      *

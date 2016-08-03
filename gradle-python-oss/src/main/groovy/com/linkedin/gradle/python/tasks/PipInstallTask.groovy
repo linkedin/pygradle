@@ -130,7 +130,7 @@ class PipInstallTask extends DefaultTask {
                  * installed? E.g., we see pyOpenSSL>0.15 failed to install, do you have libffi
                  * installed?
                  */
-                println(stream.toString().trim())
+                logger.lifecycle(stream.toString().trim())
                 throw new GradleException(
                     "Failed to install ${shortHand}. Please see above output for reason, or re-run your build using ``ligradle -i build`` for additional logging.")
             } else {

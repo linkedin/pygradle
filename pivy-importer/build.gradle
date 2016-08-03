@@ -13,9 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+plugins {
+    id 'groovy'
+    id 'idea'
+    id 'application'
+    id "com.github.jk1.dependency-license-report" version "0.3.4"
+    id "com.github.hierynomus.license" version "0.13.1"
+}
 
-apply plugin: 'groovy'
-apply plugin: 'application'
+apply from: "$rootDir/gradle/code-quality.gradle"
 
 mainClassName = 'com.linkedin.python.importer.ImporterCLI'
 
@@ -34,17 +40,14 @@ dependencies {
 
 task setupTestingIvyRepo
 
-tasks.withType(JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    main = 'com.linkedin.python.importer.ImporterCLI'
-    setupTestingIvyRepo.dependsOn(it)
-}
-
 def getIvyRepo() {
     return file("${rootProject.getBuildDir()}/ivy-repo")
 }
 
-task importRequiredDependencies(type: JavaExec) {
+task importRequiredDependencies(type: JavaExec) { task ->
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'com.linkedin.python.importer.ImporterCLI'
+
     def replacements = ['alabaster:0.7=alabaster:0.7.1', 'pytz:0a=pytz:2016.4', 'Babel:0.8=Babel:1.0',
                         'sphinx_rtd_theme:0.1=sphinx_rtd_theme:0.1.1'].join(",")
     def packagesToInclude = ['virtualenv:15.0.1', 'pip:7.1.2', 'setuptools:19.1.1', 'setuptools-git:1.1',
@@ -55,9 +58,18 @@ task importRequiredDependencies(type: JavaExec) {
 
     outputs.dir(getIvyRepo())
     inputs.property('packages', packagesToInclude)
+    setupTestingIvyRepo.dependsOn(task)
 
     doFirst {
         file(getIvyRepo()).mkdir()
     }
 }
 
+license {
+    header rootProject.file('codequality/HEADER')
+    exclude '**/*.template'
+}
+
+licenseReport {
+    configurations = ['compile', 'testCompile']
+}

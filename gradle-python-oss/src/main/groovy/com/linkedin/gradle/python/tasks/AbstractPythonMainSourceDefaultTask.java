@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2016 LinkedIn Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -98,6 +98,7 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask {
             @Override
             public void execute(ExecSpec execSpec) {
                 execSpec.environment(getComponent().pythonEnvironment);
+                execSpec.environment(getComponent().pythonEnvironmentDistgradle);
                 execSpec.commandLine(VirtualEnvExecutableHelper.getPythonInterpreter(getComponent()));
                 execSpec.args(arguments);
                 execSpec.setStandardOutput(stdOut);

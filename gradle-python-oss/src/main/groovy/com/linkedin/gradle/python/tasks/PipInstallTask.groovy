@@ -18,7 +18,7 @@ package com.linkedin.gradle.python.tasks
 import com.linkedin.gradle.python.PythonExtension
 import com.linkedin.gradle.python.plugin.PythonHelpers
 import com.linkedin.gradle.python.util.ConsoleOutput
-import com.linkedin.gradle.python.util.MiscUtils
+import com.linkedin.gradle.python.util.PackageInfo
 import com.linkedin.gradle.python.util.VirtualEnvExecutableHelper
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
@@ -80,12 +80,12 @@ class PipInstallTask extends DefaultTask {
 
         getConfigurationFiles().each { File installable ->
 
-            def (String name, String version) = MiscUtils.packageInfoFromPath(installable.getAbsolutePath())
-            String sanitizedName = name.replace('-', '_')
+            def packageInfo = PackageInfo.fromPath(installable.getAbsolutePath())
+            String sanitizedName = packageInfo.name.replace('-', '_')
 
             // See: https://www.python.org/dev/peps/pep-0376/
-            File egg = new File(settings.getDetails().virtualEnv, "lib/python${pyVersion}/site-packages/${sanitizedName}-${version}-py${pyVersion}.egg-info")
-            File dist = new File(settings.getDetails().virtualEnv, "lib/python${pyVersion}/site-packages/${sanitizedName}-${version}.dist-info")
+            File egg = new File(settings.getDetails().virtualEnv, "lib/python${pyVersion}/site-packages/${sanitizedName}-${packageInfo.version}-py${pyVersion}.egg-info")
+            File dist = new File(settings.getDetails().virtualEnv, "lib/python${pyVersion}/site-packages/${sanitizedName}-${packageInfo.version}.dist-info")
 
             def mergedEnv = new HashMap(settings.pythonEnvironment)
             if (environment != null) {
@@ -101,7 +101,7 @@ class PipInstallTask extends DefaultTask {
             commandLine.addAll(args)
             commandLine.add(installable.getAbsolutePath())
 
-            def shortHand = version ? "${name}-${version}" : name
+            def shortHand = packageInfo.version ? "${packageInfo.name}-${packageInfo.version}" : packageInfo.name
 
             if (project.file(egg).exists() || project.file(dist).exists()) {
                 logger.lifecycle(PythonHelpers.createPrettyLine("Install ${shortHand}", "[SKIPPING]"))

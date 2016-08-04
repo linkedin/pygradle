@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2016 LinkedIn Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,7 +24,7 @@ public class PexExtension {
 
     private File pexCache;
     private boolean fatPex = false;
-    private boolean pythonWrapper = false;
+    private boolean pythonWrapper = true;
 
     public PexExtension(Project project) {
         pexCache = new File(project.getBuildDir(), "pex-cache");

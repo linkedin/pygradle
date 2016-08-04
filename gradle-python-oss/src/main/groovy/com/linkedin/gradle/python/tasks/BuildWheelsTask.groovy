@@ -19,7 +19,7 @@ import com.linkedin.gradle.python.PythonExtension
 import com.linkedin.gradle.python.extension.WheelExtension
 import com.linkedin.gradle.python.plugin.PythonHelpers
 import com.linkedin.gradle.python.util.ConsoleOutput
-import com.linkedin.gradle.python.util.MiscUtils
+import com.linkedin.gradle.python.util.PackageInfo
 import com.linkedin.gradle.python.util.VirtualEnvExecutableHelper
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
@@ -79,18 +79,18 @@ class BuildWheelsTask extends DefaultTask {
 
         installables.sort().each { File installable ->
 
-            def (name, version) = MiscUtils.packageInfoFromPath(installable.path)
+            def packageInfo = PackageInfo.fromPath(installable.path)
 
             // Check if a wheel exists for this product already and only build it
             // if it is missing. We don't care about the wheel details because we
             // always build these locally.
             def tree = project.fileTree(
                     dir: wheelExtension.wheelCache,
-                    include: "**/${name.replace('-', '_')}-${version}-*.whl")
+                    include: "**/${packageInfo.name.replace('-', '_')}-${packageInfo.version}-*.whl")
 
             def stream = new ByteArrayOutputStream()
 
-            def shortHand = version ? "${name}-${version}" : name
+            def shortHand = packageInfo.version ? "${packageInfo.name}-${packageInfo.version}" : packageInfo.name
 
             if (tree.files.size() >= 1) {
                 LOGGER.lifecycle(PythonHelpers.createPrettyLine("Prepairing wheel ${shortHand}", "[SKIPPING]"))

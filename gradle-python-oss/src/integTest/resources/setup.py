@@ -104,7 +104,7 @@ setup(
 
     entry_points={
         'console_scripts': [
-            'hello_world = hello:main',
+            'hello_world = foo.hello:main',
         ],
     }
 )

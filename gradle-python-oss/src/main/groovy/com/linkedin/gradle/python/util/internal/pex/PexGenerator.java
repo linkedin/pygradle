@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.util;
+package com.linkedin.gradle.python.util.internal.pex;
 
-public enum ConsoleOutput {
-  ASCII,
-  COLOR,
-  RAW
+public interface PexGenerator {
+
+    /**
+     * When called will generate entry point files for a pex.
+     */
+    void buildEntryPoints() throws Exception;
 }

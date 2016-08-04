@@ -20,26 +20,14 @@ import org.gradle.api.GradleException
 import java.util.regex.Matcher
 
 
-class MiscUtils {
+class PackageInfo {
 
-    private MiscUtils() {
-        //private constructor for util class
-    }
+    final String name
+    final String version
 
-    /**
-     * Convert a collection of files into a set of names.
-     *
-     * @param files The set of files to add to the set.
-     * @return A set of names.
-     */
-    @SuppressWarnings("UnusedVariable")
-    protected static Set<String> configurationToSet(Collection<File> files) {
-        Set<String> configNames = new HashSet<String>()
-        for (File file : files) {
-            def (String name, String version) = packageInfoFromPath(file.name)
-            configNames.add(name)
-        }
-        return configNames
+    private PackageInfo(String name, String version) {
+        this.name = name
+        this.version = version
     }
 
     /**
@@ -68,14 +56,14 @@ class MiscUtils {
      * <p>
      * @param packagePath The path to a Python package.
      */
-    public static Collection<String> packageInfoFromPath(String packagePath) {
+    public static PackageInfo fromPath(String packagePath) {
         def extensionRegex = /\.tar\.gz|\.zip|\.tar|\.tar\.bz2|\.tgz/
         def nameVersionRegex = /^((.*)\/)*(?<name>[a-zA-Z0-9._\-]+)-(?<version>([0-9][0-9a-z\.]+(-.*)*))$/
 
         def packageName = packagePath.split(extensionRegex).first()
 
         if (new File(packagePath).isDirectory()) {
-            return [packagePath.split(File.separator)[-1], null]
+            return new PackageInfo(packagePath.split(File.separator)[-1], null)
         }
 
         if (packagePath == packageName) {
@@ -86,27 +74,9 @@ class MiscUtils {
         if (matcher.matches()) {
             def name = matcher.group('name')
             def version = matcher.group('version')
-            return [name, version]
+            return new PackageInfo(name, version)
         } else {
             throw new GradleException("Cannot calculate Python package name and version from ${packageName} using regular expression /${nameVersionRegex}/.")
         }
-    }
-
-    /**
-     * Check if a dependency is in a collection of files.
-     *
-     * @param dependency The dependency to test.
-     * @param files The set of files to test against.
-     * @return True if dependency is in set of files.
-     */
-    @SuppressWarnings("UnusedVariable")
-    protected static boolean inConfiguration(String dependency, Collection<File> files) {
-        for (File file : files) {
-            def (name, version) = packageInfoFromPath(file.name)
-            if (dependency == name) {
-                return true
-            }
-        }
-        false
     }
 }

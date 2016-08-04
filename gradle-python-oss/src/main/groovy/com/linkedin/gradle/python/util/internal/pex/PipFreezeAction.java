@@ -1,0 +1,92 @@
+/*
+ * Copyright 2016 LinkedIn Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.linkedin.gradle.python.util.internal.pex;
+
+import com.linkedin.gradle.python.PythonExtension;
+import com.linkedin.gradle.python.plugin.PythonPlugin;
+import com.linkedin.gradle.python.util.ExtensionUtils;
+import com.linkedin.gradle.python.util.PackageInfo;
+import com.linkedin.gradle.python.util.VirtualEnvExecutableHelper;
+import org.gradle.api.Action;
+import org.gradle.api.Project;
+import org.gradle.process.ExecSpec;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+
+class PipFreezeAction {
+
+    private final Project project;
+
+    public PipFreezeAction(Project project) {
+        this.project = project;
+    }
+
+    public List<String> getDependencies() {
+        PythonExtension settings = ExtensionUtils.getPythonExtension(project);
+
+        // Setup requirements, build, and test dependencies + special cases
+        Set<String> developmentDependencies = configurationToSet(project, PythonPlugin.CONFIGURATION_SETUP_REQS);
+        developmentDependencies.addAll(configurationToSet(project, PythonPlugin.CONFIGURATION_BUILD_REQS));
+        developmentDependencies.addAll(configurationToSet(project, PythonPlugin.CONFIGURATION_TEST));
+
+        // Special cases, such as sphinx-rtd-theme with weird metadata
+        developmentDependencies.addAll(Arrays.asList("sphinx-rtd-theme", "sphinx_rtd_theme"));
+        developmentDependencies.removeAll(configurationToSet(project, PythonPlugin.CONFIGURATION_PYTHON));
+
+        if (Objects.equals(settings.getDetails().getPythonVersion().getPythonMajorMinor(), "2.6") && developmentDependencies.contains("argparse")) {
+            developmentDependencies.remove("argparse");
+        }
+
+        ByteArrayOutputStream requirements = new ByteArrayOutputStream();
+
+        project.exec(new Action<ExecSpec>() {
+            @Override
+            public void execute(ExecSpec execSpec) {
+                execSpec.environment(settings.getEnvironment());
+                execSpec.commandLine(
+                    VirtualEnvExecutableHelper.getPythonInterpreter(settings),
+                    VirtualEnvExecutableHelper.getPip(settings),
+                    "freeze",
+                    "--disable-pip-version-check"
+                );
+                execSpec.setStandardOutput(requirements);
+            }
+        });
+
+        return PipFreezeOutputParser.getDependencies(developmentDependencies, requirements);
+    }
+
+    private static Set<String> configurationToSet(Project project, String configurationName) {
+        return configurationToSet(project.getConfigurations().getByName(configurationName).getFiles());
+    }
+
+    private static Set<String> configurationToSet(Collection<File> files) {
+        Set<String> configNames = new HashSet<>();
+        for (File file : files) {
+            PackageInfo packageInfo = PackageInfo.fromPath(file.getName());
+            configNames.add(packageInfo.getName());
+        }
+
+        return configNames;
+    }
+}

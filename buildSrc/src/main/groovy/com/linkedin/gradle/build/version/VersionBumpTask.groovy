@@ -17,6 +17,7 @@ package com.linkedin.gradle.build.version
 
 import org.ajoberstar.grgit.Grgit
 import org.ajoberstar.grgit.Person
+import org.ajoberstar.grgit.operation.OpenOp
 import org.gradle.api.DefaultTask
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
@@ -62,7 +63,7 @@ class VersionBumpTask extends DefaultTask {
 
         VersionFile.writeVersionToFile(versionFile, nextVersion)
         repo.add(patterns: ['version.properties'])
-        repo.commit(message: "Bumping version to ${nextVersion.toString()}\n\n[ci skip]", author: new Person('circleci', 'ci@pity.io'))
+        repo.commit(message: "Bumping version to ${nextVersion.toString()}\n\n[ci skip]", author: new Person('circleci', 'ci@linkedin.com'))
         repo.push()
         repo.push(tags: true)
         getLogger().lifecycle("Next version is: {}", nextVersion.toString())

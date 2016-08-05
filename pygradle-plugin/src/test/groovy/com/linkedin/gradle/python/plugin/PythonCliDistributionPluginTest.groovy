@@ -25,7 +25,7 @@ class PythonCliDistributionPluginTest extends Specification {
         when:
         def project = new ProjectBuilder().build()
         then:
-        project.plugins.apply('python-cli')
+        project.plugins.apply('com.linkedin.python-cli')
     }
 
 }

@@ -38,21 +38,21 @@ class PythonPluginTest extends Specification {
         when:
         def project = new ProjectBuilder().build()
         then:
-        project.plugins.apply('python')
+        project.plugins.apply('com.linkedin.python')
     }
 
     def 'can apply python plugin twice'() {
         when:
         def project = new ProjectBuilder().build()
         then:
-        project.plugins.apply('python')
-        project.plugins.apply('python')
+        project.plugins.apply('com.linkedin.python')
+        project.plugins.apply('com.linkedin.python')
     }
 
     def 'applied plugin has configurations'() {
         when:
         def project = new ProjectBuilder().build()
-        project.plugins.apply('python')
+        project.plugins.apply('com.linkedin.python')
         then:
         for (c in [PythonPlugin.CONFIGURATION_DEFAULT,
                    PythonPlugin.CONFIGURATION_PYTHON,
@@ -74,7 +74,7 @@ class PythonPluginTest extends Specification {
     def 'can find python version'() {
         when:
         def project = new ProjectBuilder().build()
-        project.plugins.apply('python')
+        project.plugins.apply('com.linkedin.python')
         then:
         project.getExtensions().getByType(PythonExtension).getDetails().pythonVersion.pythonVersion
     }
@@ -86,7 +86,7 @@ class PythonPluginTest extends Specification {
 
         when:
         def project = new ProjectBuilder().withName('project').withProjectDir(projectDir).build()
-        project.plugins.apply('python')
+        project.plugins.apply('com.linkedin.python')
 
         then:
         PipInstallTask install = (PipInstallTask) project.tasks.getByName(PythonPlugin.TASK_INSTALL_PROJECT)

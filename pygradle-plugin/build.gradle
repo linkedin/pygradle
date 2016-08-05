@@ -64,6 +64,82 @@ check.dependsOn integTest
 gradlePlugin {
     pluginSourceSet project.sourceSets.main
     testSourceSets project.sourceSets.integTest
+
+    plugins {
+        pythonPlugin {
+            id = 'com.linkedin.python'
+            implementationClass = 'com.linkedin.gradle.python.plugin.PythonPlugin'
+        }
+
+        pythonCliPlugin {
+            id = 'com.linkedin.python-cli'
+            implementationClass = 'com.linkedin.gradle.python.plugin.PythonCliDistributionPlugin'
+        }
+
+        pythonFlyerPlugins {
+            id = 'com.linkedin.python-flyer'
+            implementationClass = 'com.linkedin.gradle.python.plugin.PythonFlyerPlugin'
+        }
+
+        pythonPexPlugins {
+            id = 'com.linkedin.python-pex'
+            implementationClass = 'com.linkedin.gradle.python.plugin.PythonPexDistributionPlugin'
+        }
+
+        pythonSdistPlugins {
+            id = 'com.linkedin.python-sdist'
+            implementationClass = 'com.linkedin.gradle.python.plugin.PythonSourceDistributionPlugin'
+        }
+
+        pythonWebappPlugins {
+            id = 'com.linkedin.python-web-app'
+            implementationClass = 'com.linkedin.gradle.python.plugin.PythonWebApplicationPlugin'
+        }
+    }
+}
+
+pluginBundle {
+    website = 'https://github.com/linkedin/pygradle'
+    vcsUrl = 'https://github.com/linkedin/pygradle'
+    description = 'Building Python with Gradle'
+    tags = ['python']
+
+    plugins {
+        pythonPlugin {
+            id = 'com.linkedin.python'
+            displayName = 'No Frills Python Plugin that Builds and Tests Python'
+        }
+
+        pythonCliPlugin {
+            id = 'com.linkedin.python-cli'
+            displayName = 'Packages Python project into Pex for CLI use, includes tab completion scripts'
+            tags = ['cli']
+        }
+
+        pythonFlyerPlugins {
+            id = 'com.linkedin.python-flyer'
+            displayName = 'Python + Ember = Flyer'
+            tags = ['ember']
+        }
+
+        pythonPexPlugins {
+            id = 'com.linkedin.python-pex'
+            displayName = 'Generates a Pex from sources'
+            tags = ['pex', 'application']
+        }
+
+        pythonSdistPlugins {
+            id = 'com.linkedin.python-sdist'
+            displayName = 'Generates a sdist from a Python project'
+            tags = ['sdist']
+        }
+
+        pythonWebappPlugins {
+            id = 'com.linkedin.python-web-app'
+            displayName = 'Creats a Python Web App, by default using gunicorn'
+            tags = ['web-app', 'gunicorn']
+        }
+    }
 }
 
 publishing {

@@ -29,7 +29,7 @@ class PexIntegrationTest extends Specification {
         given:
         testProjectDir.buildFile << """\
         |plugins {
-        |    id 'python-pex'
+        |    id 'com.linkedin.python-pex'
         |}
         |
         |${PyGradleTestBuilder.createRepoClosure()}
@@ -77,7 +77,7 @@ class PexIntegrationTest extends Specification {
         given:
         testProjectDir.buildFile << """\
         |plugins {
-        |    id 'python-pex'
+        |    id 'com.linkedin.python-pex'
         |}
         |
         |python {

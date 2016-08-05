@@ -29,7 +29,7 @@ class PythonWebApplicationPluginIntegrationTest extends Specification {
         given:
         testProjectDir.buildFile << """\
         |plugins {
-        |    id 'python-web-app'
+        |    id 'com.linkedin.python-web-app'
         |}
         |
         |version = '1.2.3'

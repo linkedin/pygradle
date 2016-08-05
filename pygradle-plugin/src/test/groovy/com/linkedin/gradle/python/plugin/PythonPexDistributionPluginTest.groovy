@@ -25,6 +25,6 @@ class PythonPexDistributionPluginTest extends Specification {
     when:
     def project = new ProjectBuilder().build()
     then:
-    project.plugins.apply('python-pex')
+    project.plugins.apply('com.linkedin.python-pex')
   }
 }

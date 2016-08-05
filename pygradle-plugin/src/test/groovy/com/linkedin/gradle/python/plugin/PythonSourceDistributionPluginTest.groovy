@@ -25,7 +25,7 @@ class PythonSourceDistributionPluginTest extends Specification {
         when:
         def project = new ProjectBuilder().build()
         then:
-        project.plugins.apply('python-sdist')
+        project.plugins.apply('com.linkedin.python-sdist')
     }
 
 }

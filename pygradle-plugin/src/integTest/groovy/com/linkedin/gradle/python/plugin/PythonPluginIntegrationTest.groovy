@@ -29,7 +29,7 @@ class PythonPluginIntegrationTest extends Specification {
         given:
         testProjectDir.buildFile << """
         |plugins {
-        |    id 'python'
+        |    id 'com.linkedin.python'
         |}
         |
         |${PyGradleTestBuilder.createRepoClosure()}

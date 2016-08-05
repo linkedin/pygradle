@@ -1,2 +1,2 @@
-include ':gradle-python-oss'
+include ':pygradle-plugin'
 include ':pivy-importer'

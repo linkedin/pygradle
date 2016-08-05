@@ -8,6 +8,8 @@ allprojects {
 subprojects {
     apply plugin: 'idea'
 
+    buildDir = new File(rootProject.buildDir, path.replace(":", File.separator).substring(0))
+
     task downloadDependencies {
         description = 'Download all dependencies to help with CI cacheing'
         group = 'CI'

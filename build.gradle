@@ -1,9 +1,13 @@
+apply plugin: 'version'
+apply plugin: 'idea'
+
 allprojects {
     group = 'com.linkedin.pygradle'
-    version = '0.2.0-SNAPSHOT'
 }
 
 subprojects {
+    apply plugin: 'idea'
+
     task downloadDependencies {
         description = 'Download all dependencies to help with CI cacheing'
         group = 'CI'
@@ -12,5 +16,18 @@ subprojects {
                 conf.files
             }
         }
+    }
+
+    idea {
+        module {
+            excludeDirs += buildDir
+        }
+    }
+}
+
+idea {
+    project {
+        jdkName = '1.8'
+        languageLevel = '1.8'
     }
 }

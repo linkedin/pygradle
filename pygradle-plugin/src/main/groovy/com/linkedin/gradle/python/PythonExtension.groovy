@@ -53,7 +53,10 @@ class PythonExtension {
     /** The location of this project's setup.cfg file. */
     public String setupCfg
 
-    /** Container of the details related to the venv/python instance */
+    /** The name of the pinned requirements file. */
+    public File pinnedFile
+
+    /* Container of the details related to the venv/python instance */
     private final PythonDetails details
 
     public ConsoleOutput consoleOutput = ConsoleOutput.ASCII
@@ -64,6 +67,7 @@ class PythonExtension {
         testDir = project.file("${project.projectDir}/test").path
         srcDir = project.file("${project.projectDir}/src").path
         setupCfg = project.file("${project.projectDir}/setup.cfg").path
+        pinnedFile = project.file("pinned.txt")
 
         pythonEnvironment = [
                 'PATH': project.file("${details.virtualEnv.absolutePath}/bin").path + ':' + System.getenv('PATH'),]
@@ -91,6 +95,14 @@ class PythonExtension {
 
     public Map<String, Object> getEnvironment() {
         return pythonEnvironment
+    }
+
+    File getPinnedFile() {
+        return pinnedFile
+    }
+
+    void setPinnedFile(File pinnedFile) {
+        this.pinnedFile = pinnedFile
     }
 }
 

@@ -50,8 +50,11 @@ PyGradle comes with several plugins available, for specific details on each plug
 | com.linkedin.python-pex     | Developing Pex Applications                   | TODO          |
 
 ## Custom Setup Tools Distribution Class
-There are some cases where you will need to implement a distribution class that can take the command 'entrypoints'. If you
-want to use our distribution class, you can find it in `gradle-python-oss/src/integTest/resources/setup.py`
+
+There are some cases where you will need to implement a distribution class that can take the command 'entrypoints'. We provide
+a suggested setup.py for projects. You can find it in pygradle-plugin/templates/setup.py.template. In order to make it easy for
+consumers to use, we also provide a task `generateSetupPy` that will write it out to disk. Be careful, this task *will* 
+overwrite any existing setup.py in the project.
 
 # Developing on PyGradle
 

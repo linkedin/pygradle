@@ -90,8 +90,8 @@ class GradleDistribution(Distribution, object):
     excluded_platform_packages = {}
 
     def __init__(self, attrs):
-        attrs['name'] = os.getenv('DISTGRADLE_PRODUCT_NAME')
-        attrs['version'] = os.getenv('DISTGRADLE_PRODUCT_VERSION')
+        attrs['name'] = os.getenv('PYGRADLE_PROJECT_NAME')
+        attrs['version'] = os.getenv('PYGRADLE_PROJECT_VERSION')
         attrs['install_requires'] = list(self.load_pinned_deps())
         super(GradleDistribution, self).__init__(attrs)
 

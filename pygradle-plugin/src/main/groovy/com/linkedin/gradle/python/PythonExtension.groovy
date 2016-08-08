@@ -72,20 +72,20 @@ class PythonExtension {
         pythonEnvironment = [
                 'PATH': project.file("${details.virtualEnv.absolutePath}/bin").path + ':' + System.getenv('PATH'),]
 
-        pythonEnvironmentDistgradle = ['DISTGRADLE_PRODUCT_NAME'   : project.name,
-                                       'DISTGRADLE_PRODUCT_VERSION': "${ -> project.version }",]
+        pythonEnvironmentDistgradle = ['PYGRADLE_PROJECT_NAME'   : project.name,
+                                       'PYGRADLE_PROJECT_VERSION': "${ -> project.version }",]
 
         /*
          * NOTE: Do lots of sanity checking and validation here.
          * We want to be nice to our users and tell them if things are missing
          * or mis-configured as soon as possible.
          */
-        if (pythonEnvironment.containsKey('DISTGRADLE_PRODUCT_NAME')) {
-            throw new GradleException("Cannot proceed with `DISTGRADLE_PRODUCT_NAME` set in environment!")
+        if (pythonEnvironment.containsKey('PYGRADLE_PROJECT_NAME')) {
+            throw new GradleException("Cannot proceed with `PYGRADLE_PROJECT_NAME` set in environment!")
         }
 
-        if (pythonEnvironment.containsKey('DISTGRADLE_PRODUCT_VERSION')) {
-            throw new GradleException("Cannot proceed with `DISTGRADLE_PRODUCT_VERSION` set in environment!")
+        if (pythonEnvironment.containsKey('PYGRADLE_PROJECT_VERSION')) {
+            throw new GradleException("Cannot proceed with `PYGRADLE_PROJECT_VERSION` set in environment!")
         }
     }
 

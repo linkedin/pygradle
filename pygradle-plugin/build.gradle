@@ -118,7 +118,7 @@ pluginBundle {
 
         pythonFlyerPlugins {
             id = 'com.linkedin.python-flyer'
-            displayName = 'Python + Ember = Flyer'
+            displayName = 'Flask + Ember = Flyer'
             tags = ['ember']
         }
 

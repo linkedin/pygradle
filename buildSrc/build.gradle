@@ -1,0 +1,26 @@
+plugins {
+    id "java-gradle-plugin"
+    id 'groovy'
+    id 'idea'
+}
+
+repositories {
+    mavenLocal()
+    jcenter()
+}
+
+dependencies {
+    compile gradleApi()
+    compile localGroovy()
+
+    compile 'org.ajoberstar:gradle-git:1.2.0'
+}
+
+gradlePlugin {
+    plugins {
+        versionPlugin {
+            id = "version"
+            implementationClass = "com.linkedin.gradle.build.version.VersionPlugin"
+        }
+    }
+}

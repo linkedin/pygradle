@@ -1,0 +1,151 @@
+plugins {
+    id 'groovy'
+    id 'idea'
+    id 'java-gradle-plugin'
+    id 'maven-publish'
+    id "com.github.jk1.dependency-license-report" version "0.3.4"
+    id "com.github.hierynomus.license" version "0.13.1"
+    id "com.gradle.plugin-publish" version "0.9.5"
+}
+
+apply from: "$rootDir/gradle/code-quality.gradle"
+
+configurations {
+    testCompile.exclude group: 'org.codehaus.groovy', module: 'groovy-all'
+    integTestCompile.exclude group: 'org.codehaus.groovy', module: 'groovy-all'
+}
+
+sourceSets {
+    integTest {
+        groovy {
+            srcDir file('src/integTest/groovy')
+        }
+        resources {
+            srcDir file('src/integTest/resources')
+        }
+        compileClasspath += sourceSets.main.output + configurations.testRuntime
+        runtimeClasspath += output + compileClasspath
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile localGroovy()
+    compile 'commons-io:commons-io:2.2'
+
+    testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
+
+    integTestCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
+}
+
+license {
+    header rootProject.file('codequality/HEADER')
+    exclude '**/*.template'
+}
+
+licenseReport {
+    configurations = ['compile', 'testCompile']
+}
+
+task integTest(type: Test) {
+    dependsOn(':pivy-importer:importRequiredDependencies')
+    testClassesDir = sourceSets.integTest.output.classesDir
+    classpath = sourceSets.integTest.runtimeClasspath
+    reports.html.destination = file("$buildDir/reports/integration-test")
+
+    environment['TEST_REPO'] = "${rootProject.buildDir}/ivy-repo"
+}
+
+check.dependsOn integTest
+
+gradlePlugin {
+    pluginSourceSet project.sourceSets.main
+    testSourceSets project.sourceSets.integTest
+
+    plugins {
+        pythonPlugin {
+            id = 'com.linkedin.python'
+            implementationClass = 'com.linkedin.gradle.python.plugin.PythonPlugin'
+        }
+
+        pythonCliPlugin {
+            id = 'com.linkedin.python-cli'
+            implementationClass = 'com.linkedin.gradle.python.plugin.PythonCliDistributionPlugin'
+        }
+
+        pythonFlyerPlugins {
+            id = 'com.linkedin.python-flyer'
+            implementationClass = 'com.linkedin.gradle.python.plugin.PythonFlyerPlugin'
+        }
+
+        pythonPexPlugins {
+            id = 'com.linkedin.python-pex'
+            implementationClass = 'com.linkedin.gradle.python.plugin.PythonPexDistributionPlugin'
+        }
+
+        pythonSdistPlugins {
+            id = 'com.linkedin.python-sdist'
+            implementationClass = 'com.linkedin.gradle.python.plugin.PythonSourceDistributionPlugin'
+        }
+
+        pythonWebappPlugins {
+            id = 'com.linkedin.python-web-app'
+            implementationClass = 'com.linkedin.gradle.python.plugin.PythonWebApplicationPlugin'
+        }
+    }
+}
+
+pluginBundle {
+    website = 'https://github.com/linkedin/pygradle'
+    vcsUrl = 'https://github.com/linkedin/pygradle'
+    description = 'Building Python with Gradle'
+    tags = ['python']
+
+    plugins {
+        pythonPlugin {
+            id = 'com.linkedin.python'
+            displayName = 'No Frills Python Plugin that Builds and Tests Python'
+        }
+
+        pythonCliPlugin {
+            id = 'com.linkedin.python-cli'
+            displayName = 'Packages Python project into Pex for CLI use, includes tab completion scripts'
+            tags = ['cli']
+        }
+
+        pythonFlyerPlugins {
+            id = 'com.linkedin.python-flyer'
+            displayName = 'Flask + Ember = Flyer'
+            tags = ['ember']
+        }
+
+        pythonPexPlugins {
+            id = 'com.linkedin.python-pex'
+            displayName = 'Generates a Pex from sources'
+            tags = ['pex', 'application']
+        }
+
+        pythonSdistPlugins {
+            id = 'com.linkedin.python-sdist'
+            displayName = 'Generates a sdist from a Python project'
+            tags = ['sdist']
+        }
+
+        pythonWebappPlugins {
+            id = 'com.linkedin.python-web-app'
+            displayName = 'Creats a Python Web App, by default using gunicorn'
+            tags = ['web-app', 'gunicorn']
+        }
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}

@@ -25,14 +25,14 @@ The @linkedin/pygradle-devs team feels the major advantages of using PyGradle, a
 
 For a quick start, lets look at a simple example of publishing a library using two dependencies.
 
-    apply plugin: 'python-sdist'
+    apply plugin: 'com.linkedin.python-sdist'
 
     dependencies {
         python 'pypi:requests:2.5.1'
         test 'pypi:mock:1.0.1'
     }
 
-We apply a plugin `python-sdist` which adds configurations `python` and `test` to the project. In the dependencies section
+We apply a plugin `com.linkedin.python-sdist` which adds configurations `python` and `test` to the project. In the dependencies section
 we add two dependencies, one required to run and one required for testing. With this information PyGradle will download the
 artifacts from a repository (omitted from example) install requests and mock along with their dependencies to a virtual
 environment and run any tests that you may have.
@@ -41,13 +41,13 @@ environment and run any tests that you may have.
 
 PyGradle comes with several plugins available, for specific details on each plugin check the documentation specific to that plugin.
 
-| Plugin Name         | Used When                                     | Documentation |
-|---------------------|-----------------------------------------------|---------------|
-| python-sdist        | Developing Libraries                          | TODO          |
-| python-web-app      | Developing Deployable Applications            | TODO          |
-| python-cli          | Developing Command Line Applications          | TODO          |
-| python-flyer        | Developing Flyer (Flask + Ember) Applications | TODO          |
-| python-pex          | Developing Pex Applications                   | TODO          |
+| Plugin Name                 | Used When                                     | Documentation |
+|-----------------------------|-----------------------------------------------|---------------|
+| com.linkedin.python-sdist   | Developing Libraries                          | TODO          |
+| com.linkedin.python-web-app | Developing Deployable Applications            | TODO          |
+| com.linkedin.python-cli     | Developing Command Line Applications          | TODO          |
+| com.linkedin.python-flyer   | Developing Flyer (Flask + Ember) Applications | TODO          |
+| com.linkedin.python-pex     | Developing Pex Applications                   | TODO          |
 
 ## Custom Setup Tools Distribution Class
 There are some cases where you will need to implement a distribution class that can take the command 'entrypoints'. If you

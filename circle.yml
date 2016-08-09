@@ -15,7 +15,7 @@ dependencies:
 
 test:
     override:
-        - ./gradlew build --console plain --max-workers 1
+        - ./gradlew build --console plain --max-workers 1 -Prelease=true
 
     post:
         - mkdir -p $CIRCLE_TEST_REPORTS/junit/

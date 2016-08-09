@@ -16,15 +16,7 @@
 package com.linkedin.gradle.python.plugin
 
 import com.linkedin.gradle.python.PythonExtension
-import com.linkedin.gradle.python.tasks.AbstractPythonMainSourceDefaultTask
-import com.linkedin.gradle.python.tasks.AbstractPythonTestSourceDefaultTask
-import com.linkedin.gradle.python.tasks.CheckStyleGeneratorTask
-import com.linkedin.gradle.python.tasks.Flake8Task
-import com.linkedin.gradle.python.tasks.InstallVirtualEnvironmentTask
-import com.linkedin.gradle.python.tasks.PipInstallTask
-import com.linkedin.gradle.python.tasks.PyCoverageTask
-import com.linkedin.gradle.python.tasks.PyTestTask
-import com.linkedin.gradle.python.tasks.SphinxDocumentationTask
+import com.linkedin.gradle.python.tasks.*
 import com.linkedin.gradle.python.util.FileSystemUtils
 import com.linkedin.gradle.python.util.VirtualEnvExecutableHelper
 import org.gradle.api.Action
@@ -37,7 +29,8 @@ import org.gradle.api.logging.Logging
 import org.gradle.api.tasks.bundling.Compression
 import org.gradle.api.tasks.bundling.Tar
 
-@SuppressWarnings("AbcMetric") //TODO: Break apart method
+@SuppressWarnings("AbcMetric")
+//TODO: Break apart method
 class PythonPlugin implements Plugin<Project> {
 
     private static final Logger LOGGER = Logging.getLogger(PythonPlugin)
@@ -67,29 +60,32 @@ class PythonPlugin implements Plugin<Project> {
     public final static String TASK_PYTEST = 'pytest'
     public final static String TASK_SETUP_LINKS = 'installLinks'
     public final static String TASK_VENV_CREATE = 'createVirtualEnvironment'
+    public final static String TASK_PIN_REQUIREMENTS = 'pinRequirements'
+    public final static String TASK_SETUP_PY_WRITER = 'generateSetupPy'
 
     public final static Map<String, Map<String, String>> PINNED_VERSIONS = [
-        'argparse': ['group': 'pypi', 'name': 'argparse', 'version': '1.4.0'],
-        'flake8': ['group': 'pypi', 'name': 'flake8', 'version': '2.5.4'],
-        'pbr': ['group': 'pypi', 'name': 'pbr', 'version': '1.8.0'],
-        'pex': ['group': 'pypi', 'name': 'pex', 'version': '1.1.4'],
-        'pip': ['group': 'pypi', 'name': 'pip', 'version': '7.1.2'],
-        'pytest': ['group': 'pypi', 'name': 'pytest', 'version': '2.9.1'],
-        'pytest-cov': ['group': 'pypi', 'name': 'pytest-cov', 'version': '2.2.1'],
-        'pytest-xdist': ['group': 'pypi', 'name': 'pytest-xdist', 'version': '1.14'],
-        'setuptools': ['group': 'pypi', 'name': 'setuptools', 'version': '19.1.1'],
+        'argparse'      : ['group': 'pypi', 'name': 'argparse', 'version': '1.4.0'],
+        'flake8'        : ['group': 'pypi', 'name': 'flake8', 'version': '2.5.4'],
+        'pbr'           : ['group': 'pypi', 'name': 'pbr', 'version': '1.8.0'],
+        'pex'           : ['group': 'pypi', 'name': 'pex', 'version': '1.1.4'],
+        'pip'           : ['group': 'pypi', 'name': 'pip', 'version': '7.1.2'],
+        'pytest'        : ['group': 'pypi', 'name': 'pytest', 'version': '2.9.1'],
+        'pytest-cov'    : ['group': 'pypi', 'name': 'pytest-cov', 'version': '2.2.1'],
+        'pytest-xdist'  : ['group': 'pypi', 'name': 'pytest-xdist', 'version': '1.14'],
+        'setuptools'    : ['group': 'pypi', 'name': 'setuptools', 'version': '19.1.1'],
         'setuptools-git': ['group': 'pypi', 'name': 'setuptools-git', 'version': '1.1'],
-        'six': ['group': 'pypi', 'name': 'six', 'version': '1.10.0'],
-        'Sphinx': ['group': 'pypi', 'name': 'Sphinx', 'version': '1.4.1'],
-        'unittest2': ['group': 'pypi', 'name': 'unittest2', 'version': '1.1.0.1'],
-        'virtualenv': ['group': 'pypi', 'name': 'virtualenv', 'version': '15.0.1'],
-        'wheel': ['group': 'pypi', 'name': 'wheel', 'version': '0.26.0'],
+        'six'           : ['group': 'pypi', 'name': 'six', 'version': '1.10.0'],
+        'Sphinx'        : ['group': 'pypi', 'name': 'Sphinx', 'version': '1.4.1'],
+        'unittest2'     : ['group': 'pypi', 'name': 'unittest2', 'version': '1.1.0.1'],
+        'virtualenv'    : ['group': 'pypi', 'name': 'virtualenv', 'version': '15.0.1'],
+        'wheel'         : ['group': 'pypi', 'name': 'wheel', 'version': '0.26.0'],
     ]
 
     public final static String DOCUMENTATION_GROUP = 'documentation'
 
     @Override
-    @SuppressWarnings(["MethodSize", "AbcMetric"]) //TODO: Break apart method
+    @SuppressWarnings(["MethodSize", "AbcMetric"])
+    //TODO: Break apart method
     void apply(Project project) {
 
         PythonExtension settings = project.extensions.create('python', PythonExtension, project)
@@ -164,13 +160,20 @@ class PythonPlugin implements Plugin<Project> {
             }
         }
 
+        /*
+         * Write the direct dependencies into a requirements file as a list of pinned versions.
+         */
+        def pinRequirementsTask = project.tasks.create(TASK_PIN_REQUIREMENTS, PinRequirementsTask)
+
         /**
          * Install virtualenv.
          *
          * Install the virtualenv version that we implicitly depend on so that we
          * can run on systems that don't have virtualenv already installed.
          */
-        project.tasks.create(TASK_VENV_CREATE, InstallVirtualEnvironmentTask)
+        project.tasks.create(TASK_VENV_CREATE, InstallVirtualEnvironmentTask) { task ->
+            task.dependsOn pinRequirementsTask
+        }
 
         /**
          * Create a symlink to product-spec.json and config directory.
@@ -331,6 +334,7 @@ class PythonPlugin implements Plugin<Project> {
             project.artifacts.add(CONFIGURATION_PYDOCS, packageJsonDocsTask)
         }
 
+        project.tasks.create(TASK_SETUP_PY_WRITER, GenerateSetupPyTask)
     }
 
     static class PackageDocumentationAction implements Action<Tar> {

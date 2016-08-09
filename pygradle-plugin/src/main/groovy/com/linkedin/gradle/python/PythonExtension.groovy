@@ -53,7 +53,10 @@ class PythonExtension {
     /** The location of this project's setup.cfg file. */
     public String setupCfg
 
-    /** Container of the details related to the venv/python instance */
+    /** The name of the pinned requirements file. */
+    public File pinnedFile
+
+    /* Container of the details related to the venv/python instance */
     private final PythonDetails details
 
     public ConsoleOutput consoleOutput = ConsoleOutput.ASCII
@@ -64,24 +67,25 @@ class PythonExtension {
         testDir = project.file("${project.projectDir}/test").path
         srcDir = project.file("${project.projectDir}/src").path
         setupCfg = project.file("${project.projectDir}/setup.cfg").path
+        pinnedFile = project.file("pinned.txt")
 
         pythonEnvironment = [
                 'PATH': project.file("${details.virtualEnv.absolutePath}/bin").path + ':' + System.getenv('PATH'),]
 
-        pythonEnvironmentDistgradle = ['DISTGRADLE_PRODUCT_NAME'   : project.name,
-                                       'DISTGRADLE_PRODUCT_VERSION': "${ -> project.version }",]
+        pythonEnvironmentDistgradle = ['PYGRADLE_PROJECT_NAME'   : project.name,
+                                       'PYGRADLE_PROJECT_VERSION': "${ -> project.version }",]
 
         /*
          * NOTE: Do lots of sanity checking and validation here.
          * We want to be nice to our users and tell them if things are missing
          * or mis-configured as soon as possible.
          */
-        if (pythonEnvironment.containsKey('DISTGRADLE_PRODUCT_NAME')) {
-            throw new GradleException("Cannot proceed with `DISTGRADLE_PRODUCT_NAME` set in environment!")
+        if (pythonEnvironment.containsKey('PYGRADLE_PROJECT_NAME')) {
+            throw new GradleException("Cannot proceed with `PYGRADLE_PROJECT_NAME` set in environment!")
         }
 
-        if (pythonEnvironment.containsKey('DISTGRADLE_PRODUCT_VERSION')) {
-            throw new GradleException("Cannot proceed with `DISTGRADLE_PRODUCT_VERSION` set in environment!")
+        if (pythonEnvironment.containsKey('PYGRADLE_PROJECT_VERSION')) {
+            throw new GradleException("Cannot proceed with `PYGRADLE_PROJECT_VERSION` set in environment!")
         }
     }
 
@@ -91,6 +95,14 @@ class PythonExtension {
 
     public Map<String, Object> getEnvironment() {
         return pythonEnvironment
+    }
+
+    File getPinnedFile() {
+        return pinnedFile
+    }
+
+    void setPinnedFile(File pinnedFile) {
+        this.pinnedFile = pinnedFile
     }
 }
 

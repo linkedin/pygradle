@@ -24,14 +24,14 @@ public class PythonVersion {
     }
 
     /**
-     * The exact version of Python this project uses, such as '2.7.11'.
+     * @return The exact version of Python this project uses, such as '2.7.11'.
      */
     public String getPythonVersion() {
         return version;
     }
 
     /**
-     * The short version of Python this project uses, such as '2.7'.
+     * @return The short version of Python this project uses, such as '2.7'.
      */
     public String getPythonMajorMinor() {
         String[] split = version.split("\\.");
@@ -39,7 +39,7 @@ public class PythonVersion {
     }
 
     /**
-     * The major version of Python this project uses, such as '2'.
+     * @return The major version of Python this project uses, such as '2'.
      */
     public String getPythonMajor() {
         return version.split("\\.")[0];

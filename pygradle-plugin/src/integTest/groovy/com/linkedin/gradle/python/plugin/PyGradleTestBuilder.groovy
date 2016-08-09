@@ -29,7 +29,7 @@ class PyGradleTestBuilder {
     }
 
     static String createSetupPy() {
-        return PyGradleTestBuilder.getResource("/setup.py").text
+        return PyGradleTestBuilder.getResource("/templates/setup.py.template").text + '\n' + PyGradleTestBuilder.getResource("/setup.py").text
     }
 
     static String createSettingGradle() {

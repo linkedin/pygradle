@@ -36,6 +36,7 @@ public class FileSystemUtils {
      * @param project The project to run within.
      * @param target The target directory that the link points to.
      * @param destination The destination directory or the name of the link.
+     * @throws IOException if symlink can't be made
      */
     public static void makeSymLink(Project project, File target, File destination) throws IOException {
         /*

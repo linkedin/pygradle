@@ -46,7 +46,7 @@ public class PexExtension {
     }
 
     /**
-     * When <code>true</code>, wrappers will be made all pointing to a single pex file.
+     * @param fatPex when <code>true</code>, wrappers will be made all pointing to a single pex file.
      */
     public void setFatPex(boolean fatPex) {
         this.fatPex = fatPex;

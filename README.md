@@ -1,4 +1,5 @@
 # About
+
 The PyGradle build system is a set of Gradle plugins that can be used to build Python artifacts. Artifacts produced by
 PyGradle are forward and backward compatible with artifacts produced with Python's setuptools library.
 
@@ -12,7 +13,7 @@ get the best of both worlds by leveraging each tool, Python and Gradle, only for
 
 The @linkedin/pygradle-devs team feels the major advantages of using PyGradle, among many others, are the following.
 
-- You get real dependency resolution as opposed to mock dependency resolution.
+- You get real dependency resolution as opposed to 'mock' dependency resolution.
 - You get conflict resolution which resolves the notorious VersionConflict and DistributionNotFound errors that plague large projects.
 - You get the Gradle cache which is an enterprise quality caching solution that many organizations leverage.
 - You get the ability to build your Python code alongside your Java, Scala, and C++ code in a first class way.
@@ -41,13 +42,14 @@ environment and run any tests that you may have.
 
 PyGradle comes with several plugins available, for specific details on each plugin check the documentation specific to that plugin.
 
-| Plugin Name                 | Used When                                     | Documentation |
-|-----------------------------|-----------------------------------------------|---------------|
-| com.linkedin.python-sdist   | Developing Libraries                          | TODO          |
-| com.linkedin.python-web-app | Developing Deployable Applications            | TODO          |
-| com.linkedin.python-cli     | Developing Command Line Applications          | TODO          |
-| com.linkedin.python-flyer   | Developing Flyer (Flask + Ember) Applications | TODO          |
-| com.linkedin.python-pex     | Developing Pex Applications                   | TODO          |
+| Plugin Name                                           | Used When                                     |
+|-------------------------------------------------------|-----------------------------------------------|
+| [com.linkedin.python](docs/python.md)                 | Base Python Plugin                            |
+| [com.linkedin.python-sdist](docs/python-sdist.md)     | Developing Libraries                          |
+| [com.linkedin.python-web-app](docs/python-web-app.md) | Developing Deployable Applications            |
+| [com.linkedin.python-cli](docs/python-cli.md)         | Developing Command Line Applications          |
+| [com.linkedin.python-flyer](docs/python-flyer.md)     | Developing Flyer (Flask + Ember) Applications |
+| [com.linkedin.python-pex](docs/python-pex.md)         | Developing Pex Applications                   |
 
 ## Custom Setup Tools Distribution Class
 

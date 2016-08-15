@@ -37,10 +37,10 @@ public class VersionPlugin implements Plugin<Project> {
 
         File versionProperties = target.file("version.properties");
 
-        Version version = VersionFile.getVersion(versionProperties).withNextPatch();
+        Version version = VersionFile.getVersion(versionProperties);
 
         if(!target.hasProperty("release") || !Boolean.parseBoolean((String) target.property("release"))) {
-            version = version.asSnapshot();
+            version = version.withNextPatch().asSnapshot();
         }
 
         logger.lifecycle("Building using version {}", version);

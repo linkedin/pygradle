@@ -53,6 +53,14 @@ bintray {
         name = 'pygradle'
         licenses = ['Apache-2.0']
         vcsUrl = 'https://github.com/linkedin/pygradle'
+        version {
+            name = project.version
+            vcsTag = "V$project.version"
+
+            gpg {
+                sign = true
+            }
+        }
     }
 }
 

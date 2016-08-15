@@ -25,5 +25,5 @@ deployment:
     master:
         branch: master
         commands:
-            - ./gradlew versionBump -Prelease=true -Pbintray.publish=true --console plain
-            - ./gradlew bintrayUpload -Prelease=true --console plain
+            - ./gradlew versionBump -Prelease=true --console plain
+            - ./gradlew bintrayUpload -Prelease=true -Pbintray.publish=true --console plain

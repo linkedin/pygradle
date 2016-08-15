@@ -58,14 +58,15 @@ class VersionBumpTask extends DefaultTask {
         } else {
             nextVersion = currentVersion.withNextPatch()
         }
-
-        repo.tag.add(name: "v${nextVersion.toString()}")
-
+        
         VersionFile.writeVersionToFile(versionFile, nextVersion)
         repo.add(patterns: ['version.properties'])
         repo.commit(
             message: "Bumping version to ${nextVersion.toString()}\n\n[ci skip]",
             author: new Person('circleci', 'ci@pygradle.linkedin.com'))
+
+        repo.tag.add(name: "v${nextVersion.toString()}")
+
         repo.push()
         repo.push(tags: true)
         getLogger().lifecycle("Next version is: {}", nextVersion.toString())

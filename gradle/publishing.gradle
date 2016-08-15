@@ -1,0 +1,60 @@
+apply plugin: 'maven-publish'
+
+task sourceJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: groovydoc) {
+    classifier = 'javadoc'
+    from groovydoc.destinationDir
+}
+
+artifacts {
+    archives sourceJar
+    archives javadocJar
+}
+
+publishing {
+    publications {
+        standardjava(MavenPublication) {
+            from components.java
+            artifact sourceJar
+            artifact javadocJar
+            pom.withXml {
+                asNode().children().last() + {
+                    resolveStrategy = Closure.DELEGATE_FIRST
+                    description 'PyGradle, Building Python with Gradle'
+                    url 'https://github.com/linkedin/pygradle'
+                    scm {
+                        url 'https://github.com/linkedin/pygradle'
+                        connection 'scm:git:git://github.com/linkedin/pygradle.git'
+                        developerConnection 'scm:git:ssh:git@github.com:linkedin/pygradle.git'
+                    }
+                    licenses {
+                        license {
+                            name 'The Apache Software License, Version 2.0'
+                            url 'http://www.apache.org/license/LICENSE-2.0.txt'
+                            distribution 'repo'
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+bintray {
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_KEY')
+    publications = ['standardjava']
+    pkg {
+        repo = 'pygradle'
+        name = 'pygradle'
+        licenses = ['Apache-2.0']
+        vcsUrl = 'https://github.com/linkedin/pygradle'
+    }
+}
+
+bintrayUpload.dependsOn assemble
+bintrayUpload.dependsOn publishToMavenLocal

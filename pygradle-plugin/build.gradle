@@ -2,12 +2,13 @@ plugins {
     id 'groovy'
     id 'idea'
     id 'java-gradle-plugin'
-    id 'maven-publish'
     id "com.github.jk1.dependency-license-report" version "0.3.4"
     id "com.github.hierynomus.license" version "0.13.1"
     id "com.gradle.plugin-publish" version "0.9.5"
+    id "com.jfrog.bintray" version "1.7"
 }
 
+apply from: "$rootDir/gradle/publishing.gradle"
 apply from: "$rootDir/gradle/code-quality.gradle"
 
 configurations {
@@ -138,14 +139,6 @@ pluginBundle {
             id = 'com.linkedin.python-web-app'
             displayName = 'Creats a Python Web App, by default using gunicorn'
             tags = ['web-app', 'gunicorn']
-        }
-    }
-}
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
         }
     }
 }

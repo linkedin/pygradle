@@ -58,7 +58,7 @@ class VersionBumpTask extends DefaultTask {
         } else {
             nextVersion = currentVersion.withNextPatch()
         }
-        
+
         VersionFile.writeVersionToFile(versionFile, nextVersion)
         repo.add(patterns: ['version.properties'])
         repo.commit(

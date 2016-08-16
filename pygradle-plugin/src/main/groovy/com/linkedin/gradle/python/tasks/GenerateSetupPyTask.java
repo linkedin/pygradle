@@ -37,7 +37,7 @@ public class GenerateSetupPyTask extends DefaultTask {
     @TaskAction
     public void createSetupPy() throws IOException {
         File file = getProject().file("setup.py");
-        if(file.exists()) {
+        if (file.exists()) {
             logger.lifecycle("Contents of setup.py are going to be overwritten!!");
             file.delete();
         }

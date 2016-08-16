@@ -25,7 +25,7 @@ The @linkedin/pygradle-devs team feels the major advantages of using PyGradle, a
 For a quick start, lets look at a simple example of publishing a library using two dependencies.
 
     plugins {
-      id "com.linkedin.python-sdist" version "0.3.6"
+      id "com.linkedin.python-sdist" version "0.3.7"
     }
 
     dependencies {

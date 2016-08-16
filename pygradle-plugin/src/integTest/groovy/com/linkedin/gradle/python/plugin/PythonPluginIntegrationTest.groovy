@@ -57,4 +57,39 @@ class PythonPluginIntegrationTest extends Specification {
         result.task(':check').outcome == TaskOutcome.SUCCESS
         result.task(':build').outcome == TaskOutcome.SUCCESS
     }
+
+    def "can use external library"() {
+        given:
+        testProjectDir.buildFile << """
+        |plugins {
+        |    id 'com.linkedin.python'
+        |}
+        |
+        |repositories {
+        |   pyGradlePyPi()
+        |}
+        """.stripMargin().stripIndent()
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withArguments('build')
+            .withPluginClasspath()
+            .withDebug(true)
+            .build()
+        println result.output
+
+        then:
+
+        result.output.contains("BUILD SUCCESS")
+        result.output.contains('test/test_a.py ..')
+        result.task(':flake8').outcome == TaskOutcome.SUCCESS
+        result.task(':installPythonRequirements').outcome == TaskOutcome.SUCCESS
+        result.task(':installTestRequirements').outcome == TaskOutcome.SUCCESS
+        result.task(':createVirtualEnvironment').outcome == TaskOutcome.SUCCESS
+        result.task(':installProject').outcome == TaskOutcome.SUCCESS
+        result.task(':pytest').outcome == TaskOutcome.SUCCESS
+        result.task(':check').outcome == TaskOutcome.SUCCESS
+        result.task(':build').outcome == TaskOutcome.SUCCESS
+    }
 }

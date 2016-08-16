@@ -22,15 +22,19 @@ The @linkedin/pygradle-devs team feels the major advantages of using PyGradle, a
 
 # Getting Started
 
-*This section will be updated once we release the plugin into gradle's plugin repository.*
-
 For a quick start, lets look at a simple example of publishing a library using two dependencies.
 
-    apply plugin: 'com.linkedin.python-sdist'
+    plugins {
+      id "com.linkedin.python-sdist" version "0.3.6"
+    }
 
     dependencies {
         python 'pypi:requests:2.5.1'
         test 'pypi:mock:1.0.1'
+    }
+    
+    repositories {
+       pyGradlePyPi()
     }
 
 We apply a plugin `com.linkedin.python-sdist` which adds configurations `python` and `test` to the project. In the dependencies section
@@ -57,6 +61,23 @@ There are some cases where you will need to implement a distribution class that 
 a suggested setup.py for projects. You can find it in pygradle-plugin/templates/setup.py.template. In order to make it easy for
 consumers to use, we also provide a task `generateSetupPy` that will write it out to disk. Be careful, this task *will* 
 overwrite any existing setup.py in the project.
+
+## PyPi Artifacts
+
+PyGradle depends on Ivy metadata to build a dependency graph, thus we cannot use pypi directly. We do have a java library that 
+will convert libraries from pypi into Ivy located in pivy-importer. In that project you can find usage examples. The pivy-importer
+project is how the integration tests get their required dependencies.
+
+To help with on boarding, we are providing a repository that has all of pygradle's require dependencies. You can apply it by adding 
+
+    repositories {
+       pyGradlePyPi()
+    }
+
+to your build.gradle. This is not intended to be a full mirror and will never be a full mirror of pypi. It has the dependencies that
+PyGradle requires to start, and may in the future include very common libraries. The repo was seeded using the pivy-importer.
+
+For more details on the pivy-importer please [read the docs](docs/pivy-importer.md).
 
 # Developing on PyGradle
 

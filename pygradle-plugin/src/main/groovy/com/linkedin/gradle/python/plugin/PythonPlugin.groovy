@@ -24,6 +24,8 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.DependencyResolveDetails
+import org.gradle.api.artifacts.repositories.IvyArtifactRepository
+import org.gradle.api.artifacts.repositories.IvyPatternRepositoryLayout
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.tasks.bundling.Compression
@@ -335,6 +337,24 @@ class PythonPlugin implements Plugin<Project> {
         }
 
         project.tasks.create(TASK_SETUP_PY_WRITER, GenerateSetupPyTask)
+
+        project.getRepositories().metaClass.pyGradlePyPi = { ->
+            delegate.ivy(new Action<IvyArtifactRepository>() {
+                @Override
+                void execute(IvyArtifactRepository ivyArtifactRepository) {
+                    ivyArtifactRepository.setName('pygradle-pypi')
+                    ivyArtifactRepository.setUrl('https://ethankhall.bintray.com/pygradle-pypi/')
+                    ivyArtifactRepository.layout("pattern", new Action<IvyPatternRepositoryLayout>() {
+                        @Override
+                        void execute(IvyPatternRepositoryLayout repositoryLayout) {
+                            repositoryLayout.artifact('[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]')
+                            repositoryLayout.ivy('[organisation]/[module]/[revision]/[module]-[revision].ivy')
+                            repositoryLayout.setM2compatible(true)
+                        }
+                    })
+                }
+            })
+        }
     }
 
     static class PackageDocumentationAction implements Action<Tar> {

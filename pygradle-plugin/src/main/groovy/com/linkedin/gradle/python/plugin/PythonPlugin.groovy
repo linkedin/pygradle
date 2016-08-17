@@ -23,19 +23,17 @@ import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.artifacts.DependencyResolveDetails
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.repositories.IvyArtifactRepository
 import org.gradle.api.artifacts.repositories.IvyPatternRepositoryLayout
-import org.gradle.api.logging.Logger
-import org.gradle.api.logging.Logging
 import org.gradle.api.tasks.bundling.Compression
 import org.gradle.api.tasks.bundling.Tar
+
+import java.util.function.Consumer
 
 @SuppressWarnings("AbcMetric")
 //TODO: Break apart method
 class PythonPlugin implements Plugin<Project> {
-
-    private static final Logger LOGGER = Logging.getLogger(PythonPlugin)
 
     public final static String CONFIGURATION_BOOTSTRAP_REQS = 'pygradleBootstrap'
     public final static String CONFIGURATION_SETUP_REQS = 'setupRequires'
@@ -64,24 +62,6 @@ class PythonPlugin implements Plugin<Project> {
     public final static String TASK_VENV_CREATE = 'createVirtualEnvironment'
     public final static String TASK_PIN_REQUIREMENTS = 'pinRequirements'
     public final static String TASK_SETUP_PY_WRITER = 'generateSetupPy'
-
-    public final static Map<String, Map<String, String>> PINNED_VERSIONS = [
-        'argparse'      : ['group': 'pypi', 'name': 'argparse', 'version': '1.4.0'],
-        'flake8'        : ['group': 'pypi', 'name': 'flake8', 'version': '2.5.4'],
-        'pbr'           : ['group': 'pypi', 'name': 'pbr', 'version': '1.8.0'],
-        'pex'           : ['group': 'pypi', 'name': 'pex', 'version': '1.1.4'],
-        'pip'           : ['group': 'pypi', 'name': 'pip', 'version': '7.1.2'],
-        'pytest'        : ['group': 'pypi', 'name': 'pytest', 'version': '2.9.1'],
-        'pytest-cov'    : ['group': 'pypi', 'name': 'pytest-cov', 'version': '2.2.1'],
-        'pytest-xdist'  : ['group': 'pypi', 'name': 'pytest-xdist', 'version': '1.14'],
-        'setuptools'    : ['group': 'pypi', 'name': 'setuptools', 'version': '19.1.1'],
-        'setuptools-git': ['group': 'pypi', 'name': 'setuptools-git', 'version': '1.1'],
-        'six'           : ['group': 'pypi', 'name': 'six', 'version': '1.10.0'],
-        'Sphinx'        : ['group': 'pypi', 'name': 'Sphinx', 'version': '1.4.1'],
-        'unittest2'     : ['group': 'pypi', 'name': 'unittest2', 'version': '1.1.0.1'],
-        'virtualenv'    : ['group': 'pypi', 'name': 'virtualenv', 'version': '15.0.1'],
-        'wheel'         : ['group': 'pypi', 'name': 'wheel', 'version': '0.26.0'],
-    ]
 
     public final static String DOCUMENTATION_GROUP = 'documentation'
 
@@ -129,38 +109,33 @@ class PythonPlugin implements Plugin<Project> {
          * highest version of setuptools used. Provide the dependencies in the
          * best order they should be installed in setupRequires configuration.
          */
-        project.dependencies.add(CONFIGURATION_BOOTSTRAP_REQS, PINNED_VERSIONS['virtualenv'])
+        project.dependencies.add(CONFIGURATION_BOOTSTRAP_REQS, settings.forcedVersions['virtualenv'])
 
-        project.dependencies.add(CONFIGURATION_SETUP_REQS, PINNED_VERSIONS['setuptools'])
-        project.dependencies.add(CONFIGURATION_SETUP_REQS, PINNED_VERSIONS['wheel'])
-        project.dependencies.add(CONFIGURATION_SETUP_REQS, PINNED_VERSIONS['pip'])
-        project.dependencies.add(CONFIGURATION_SETUP_REQS, PINNED_VERSIONS['setuptools-git'])
-        project.dependencies.add(CONFIGURATION_SETUP_REQS, PINNED_VERSIONS['pbr'])
+        project.dependencies.add(CONFIGURATION_SETUP_REQS, settings.forcedVersions['setuptools'])
+        project.dependencies.add(CONFIGURATION_SETUP_REQS, settings.forcedVersions['wheel'])
+        project.dependencies.add(CONFIGURATION_SETUP_REQS, settings.forcedVersions['pip'])
+        project.dependencies.add(CONFIGURATION_SETUP_REQS, settings.forcedVersions['setuptools-git'])
+        project.dependencies.add(CONFIGURATION_SETUP_REQS, settings.forcedVersions['pbr'])
 
-        project.dependencies.add(CONFIGURATION_BUILD_REQS, PINNED_VERSIONS['flake8'])
-        project.dependencies.add(CONFIGURATION_BUILD_REQS, PINNED_VERSIONS['Sphinx'])
+        project.dependencies.add(CONFIGURATION_BUILD_REQS, settings.forcedVersions['flake8'])
+        project.dependencies.add(CONFIGURATION_BUILD_REQS, settings.forcedVersions['Sphinx'])
 
-        project.dependencies.add(CONFIGURATION_TEST, PINNED_VERSIONS['pytest'])
-        project.dependencies.add(CONFIGURATION_TEST, PINNED_VERSIONS['pytest-cov'])
-        project.dependencies.add(CONFIGURATION_TEST, PINNED_VERSIONS['pytest-xdist'])
+        project.dependencies.add(CONFIGURATION_TEST, settings.forcedVersions['pytest'])
+        project.dependencies.add(CONFIGURATION_TEST, settings.forcedVersions['pytest-cov'])
+        project.dependencies.add(CONFIGURATION_TEST, settings.forcedVersions['pytest-xdist'])
 
         /*
          * To prevent base dependencies, such as setuptools, from installing/reinstalling, we will
-         * pin their versions to values in the PINNED_VERSIONS map, which will contain known
+         * pin their versions to values in the extension.forcedVersions map, which will contain known
          * good versions that satisfy all the requirements.
-         *
-         * TODO: Allow people to override the map that we provide for unknown use-cases
          */
-        project.configurations.all {
-            resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-                if (PINNED_VERSIONS.containsKey(details.requested.name)) {
-                    String name = details.requested.name
-                    String version = PINNED_VERSIONS[name].version
-                    LOGGER.lifecycle("Resolving ${name} to ${name}==${version} per gradle-python resolution strategy.")
-                    details.useVersion version
-                }
+        def dependencyResolveDetails = new PyGradleDependencyResolveDetails(settings.forcedVersions)
+        project.configurations.forEach(new Consumer<Configuration>() {
+            @Override
+            void accept(Configuration configuration) {
+                configuration.resolutionStrategy.eachDependency(dependencyResolveDetails)
             }
-        }
+        })
 
         /*
          * Write the direct dependencies into a requirements file as a list of pinned versions.

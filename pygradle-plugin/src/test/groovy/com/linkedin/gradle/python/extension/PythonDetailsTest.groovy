@@ -27,7 +27,7 @@ class PythonDetailsTest extends Specification {
     @Rule
     TemporaryFolder temporaryFolder
     def project = new ProjectBuilder().build()
-    def settings = new PythonDetails(project, null)
+    def settings = new PythonDetails(project)
 
     def "interpreterPath without interpreterVersion"() {
         expect: "default system Python without any settings"

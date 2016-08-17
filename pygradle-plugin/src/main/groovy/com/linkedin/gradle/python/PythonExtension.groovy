@@ -62,7 +62,7 @@ class PythonExtension {
     public ConsoleOutput consoleOutput = ConsoleOutput.ASCII
 
     public PythonExtension(Project project) {
-        this.details = new PythonDetails(project, new File(project.buildDir, "venv"))
+        this.details = new PythonDetails(project)
         docsDir = project.file("${project.projectDir}/docs").path
         testDir = project.file("${project.projectDir}/test").path
         srcDir = project.file("${project.projectDir}/src").path
@@ -70,7 +70,7 @@ class PythonExtension {
         pinnedFile = project.file("pinned.txt")
 
         pythonEnvironment = [
-                'PATH': project.file("${details.virtualEnv.absolutePath}/bin").path + ':' + System.getenv('PATH'),]
+                'PATH': "${-> details.virtualEnv.absolutePath}/bin" + ':' + System.getenv('PATH'),]
 
         pythonEnvironmentDistgradle = ['PYGRADLE_PROJECT_NAME'   : project.name,
                                        'PYGRADLE_PROJECT_VERSION': "${ -> project.version }",]

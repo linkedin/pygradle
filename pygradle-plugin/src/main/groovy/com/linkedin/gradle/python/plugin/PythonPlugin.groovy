@@ -189,7 +189,11 @@ class PythonPlugin implements Plugin<Project> {
 
             doLast {
                 def activateLinkSource = VirtualEnvExecutableHelper.getExecutable(settings, "bin/activate")
-                FileSystemUtils.makeSymLink(project, activateLinkSource, settings.getDetails().activateLink)
+                def activateLink = settings.getDetails().activateLink
+                if (activateLink.exists()) {
+                    activateLink.delete()
+                }
+                FileSystemUtils.makeSymLink(activateLinkSource, activateLink)
             }
         }
 

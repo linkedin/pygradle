@@ -34,6 +34,7 @@ class PythonPexDistributionPlugin extends PythonBasePlugin {
     void applyTo(Project project) {
 
         project.plugins.apply(PythonPlugin)
+        def extension = ExtensionUtils.getPythonExtension(project)
         ExtensionUtils.maybeCreatePexExtension(project)
         ExtensionUtils.maybeCreateWheelExtension(project)
         DeployableExtension deployableExtension = ExtensionUtils.maybeCreateDeployableExtension(project)
@@ -41,11 +42,10 @@ class PythonPexDistributionPlugin extends PythonBasePlugin {
 
         project.afterEvaluate {
             if (settings.details.pythonVersion.pythonMajorMinor == '2.6') {
-                project.dependencies.add(PythonPlugin.CONFIGURATION_BUILD_REQS,
-                        PythonPlugin.PINNED_VERSIONS['argparse'])
+                project.dependencies.add(PythonPlugin.CONFIGURATION_BUILD_REQS, extension.forcedVersions['argparse'])
             }
         }
-        project.dependencies.add(PythonPlugin.CONFIGURATION_BUILD_REQS, PythonPlugin.PINNED_VERSIONS['pex'])
+        project.dependencies.add(PythonPlugin.CONFIGURATION_BUILD_REQS, extension.forcedVersions['pex'])
 
 
         /**

@@ -1,3 +1,5 @@
+import org.gradle.api.logging.configuration.ConsoleOutput
+
 apply plugin: 'version'
 apply plugin: 'idea'
 
@@ -16,6 +18,21 @@ subprojects {
         doLast {
             configurations.each { conf ->
                 conf.files
+            }
+        }
+    }
+
+    tasks.withType(Test) { task ->
+        if (gradle.startParameter.consoleOutput == ConsoleOutput.Plain) {   //on ci we will see tests as they run
+            task.afterTest { TestDescriptor td, TestResult tr ->
+                logger.lifecycle("[${tr.resultType}] - ${td.className}#${td.name}")
+
+            }
+        }
+        task.afterSuite { desc, result ->
+            if (!desc.parent) { // will match the outermost suite
+                logger.lifecycle("Task {} results: {} ({} tests, {} successes, {} failures, {} skipped)", task.path,
+                    result.resultType, result.testCount, result.successfulTestCount, result.failedTestCount, result.skippedTestCount)
             }
         }
     }

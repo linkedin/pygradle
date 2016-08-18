@@ -68,6 +68,8 @@ class PythonPluginIntegrationTest extends Specification {
         |repositories {
         |   pyGradlePyPi()
         |}
+        |
+        |buildDir = 'build2'
         """.stripMargin().stripIndent()
 
         when:
@@ -81,6 +83,8 @@ class PythonPluginIntegrationTest extends Specification {
 
         then:
 
+        !new File(testProjectDir.getRoot(), 'build').exists()
+        new File(testProjectDir.getRoot(), 'build2').exists()
         result.output.contains("BUILD SUCCESS")
         result.output.contains('test/test_a.py ..')
         result.task(':flake8').outcome == TaskOutcome.SUCCESS

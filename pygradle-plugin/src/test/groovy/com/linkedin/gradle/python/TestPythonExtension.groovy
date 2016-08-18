@@ -34,4 +34,52 @@ class TestPythonExtension extends Specification {
         parts.contains('/usr/bin')
     }
 
+    def 'can add new values to forced versions'() {
+        def settings = new PythonExtension(project)
+
+        when:
+        settings.forceVersion('a', 'b', 'c')
+
+        then:
+        settings.forcedVersions['b'] == ['group': 'a', 'name': 'b', 'version': 'c']
+
+        when:
+        settings.forceVersion('a:b:f')
+
+        then:
+        settings.forcedVersions['b'] == ['group': 'a', 'name': 'b', 'version': 'f']
+    }
+
+    def 'will throw if any value is null'() {
+        def settings = new PythonExtension(project)
+
+        when:
+        settings.forceVersion(null, 'b', 'c')
+
+        then:
+        def ex = thrown(NullPointerException)
+        ex.message == 'Group cannot be null'
+
+        when:
+        settings.forceVersion('a', null, 'c')
+
+        then:
+        ex = thrown(NullPointerException)
+        ex.message == 'Name cannot be null'
+
+        when:
+        settings.forceVersion('a', 'b', null)
+
+        then:
+        ex = thrown(NullPointerException)
+        ex.message == 'Version cannot be null'
+
+        when:
+        settings.forceVersion(null)
+
+        then:
+        ex = thrown(NullPointerException)
+        ex.message == 'GAV cannot be null'
+    }
+
 }

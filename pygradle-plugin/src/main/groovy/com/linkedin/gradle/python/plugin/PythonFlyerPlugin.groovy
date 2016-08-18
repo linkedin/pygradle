@@ -82,7 +82,7 @@ class PythonFlyerPlugin implements Plugin<Project> {
             task.doLast {
                 if (!project.file("${project.projectDir}/resource").exists()) {
                     println "Making the Symlink: ${project.projectDir}/resource --> ${resourceConf.singleFile}"
-                    FileSystemUtils.makeSymLink(project, resourceConf.singleFile, new File(project.projectDir, 'resource'))
+                    FileSystemUtils.makeSymLink(resourceConf.singleFile, new File(project.projectDir, 'resource'))
                 }
             }
         }

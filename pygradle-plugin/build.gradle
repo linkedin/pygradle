@@ -53,6 +53,7 @@ licenseReport {
 
 task integTest(type: Test) {
     dependsOn(':pivy-importer:importRequiredDependencies')
+    shouldRunAfter tasks.test
     testClassesDir = sourceSets.integTest.output.classesDir
     classpath = sourceSets.integTest.runtimeClasspath
     reports.html.destination = file("$buildDir/reports/integration-test")

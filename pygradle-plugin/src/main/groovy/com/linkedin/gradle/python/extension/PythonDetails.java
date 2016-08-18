@@ -26,7 +26,6 @@ public class PythonDetails {
 
     private final Project project;
 
-    private final File virtualEnv;
     private File activateLink;
     private File pythonInterpreter;
     private String virtualEnvPrompt;
@@ -34,12 +33,11 @@ public class PythonDetails {
 
     private List<File> searchPath;
 
-    public PythonDetails(Project project, File virtualenvLocation) {
+    public PythonDetails(Project project) {
         this.project = project;
         pythonInterpreter = new File("/usr/bin/python");
         updateFromPythonInterpreter();
 
-        virtualEnv = virtualenvLocation;
         activateLink = new File(project.getProjectDir(), "activate");
         virtualEnvPrompt = String.format("(%s)", project.getName());
         searchPath = ExecutablePathUtils.getPath();
@@ -61,11 +59,11 @@ public class PythonDetails {
     }
 
     public File getVirtualEnv() {
-        return virtualEnv;
+        return new File(project.getBuildDir(), "venv");
     }
 
     public File getVirtualEnvInterpreter() {
-        return new File(virtualEnv, "bin/python");
+        return new File(getVirtualEnv(), "bin/python");
     }
 
     public File getSystemPythonInterpreter() {

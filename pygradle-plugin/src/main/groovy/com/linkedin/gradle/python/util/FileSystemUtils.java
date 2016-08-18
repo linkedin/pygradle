@@ -16,8 +16,6 @@
 
 package com.linkedin.gradle.python.util;
 
-import org.gradle.api.Project;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -33,17 +31,16 @@ public class FileSystemUtils {
      * <p>
      * Make a link using the system's ``ln`` command.
      * <p>
-     * @param project The project to run within.
      * @param target The target directory that the link points to.
      * @param destination The destination directory or the name of the link.
      * @throws IOException if symlink can't be made
      */
-    public static void makeSymLink(Project project, File target, File destination) throws IOException {
+    public static void makeSymLink(File target, File destination) throws IOException {
         /*
          * Check if the file exists because the link checking logic in Gradle differs
          * between Linux and OS X machines.
          */
-        if (!project.file(destination).exists()) {
+        if (!Files.exists(destination.toPath())) {
             Files.createSymbolicLink(destination.toPath(), target.toPath());
         }
     }

@@ -56,13 +56,31 @@ class PythonExtension {
     /** The name of the pinned requirements file. */
     public File pinnedFile
 
+    /** A way to define forced versions of libraries */
+    public Map<String, Map<String, String>> forcedVersions = [
+        'argparse'      : ['group': 'pypi', 'name': 'argparse', 'version': '1.4.0'],
+        'flake8'        : ['group': 'pypi', 'name': 'flake8', 'version': '2.5.4'],
+        'pbr'           : ['group': 'pypi', 'name': 'pbr', 'version': '1.8.0'],
+        'pex'           : ['group': 'pypi', 'name': 'pex', 'version': '1.1.4'],
+        'pip'           : ['group': 'pypi', 'name': 'pip', 'version': '7.1.2'],
+        'pytest'        : ['group': 'pypi', 'name': 'pytest', 'version': '2.9.1'],
+        'pytest-cov'    : ['group': 'pypi', 'name': 'pytest-cov', 'version': '2.2.1'],
+        'pytest-xdist'  : ['group': 'pypi', 'name': 'pytest-xdist', 'version': '1.14'],
+        'setuptools'    : ['group': 'pypi', 'name': 'setuptools', 'version': '19.1.1'],
+        'setuptools-git': ['group': 'pypi', 'name': 'setuptools-git', 'version': '1.1'],
+        'six'           : ['group': 'pypi', 'name': 'six', 'version': '1.10.0'],
+        'Sphinx'        : ['group': 'pypi', 'name': 'Sphinx', 'version': '1.4.1'],
+        'virtualenv'    : ['group': 'pypi', 'name': 'virtualenv', 'version': '15.0.1'],
+        'wheel'         : ['group': 'pypi', 'name': 'wheel', 'version': '0.26.0'],
+    ]
+
     /* Container of the details related to the venv/python instance */
     private final PythonDetails details
 
     public ConsoleOutput consoleOutput = ConsoleOutput.ASCII
 
     public PythonExtension(Project project) {
-        this.details = new PythonDetails(project, new File(project.buildDir, "venv"))
+        this.details = new PythonDetails(project)
         docsDir = project.file("${project.projectDir}/docs").path
         testDir = project.file("${project.projectDir}/test").path
         srcDir = project.file("${project.projectDir}/src").path
@@ -70,7 +88,7 @@ class PythonExtension {
         pinnedFile = project.file("pinned.txt")
 
         pythonEnvironment = [
-                'PATH': project.file("${details.virtualEnv.absolutePath}/bin").path + ':' + System.getenv('PATH'),]
+                'PATH': "${ -> details.virtualEnv.absolutePath }/bin" + ':' + System.getenv('PATH'),]
 
         pythonEnvironmentDistgradle = ['PYGRADLE_PROJECT_NAME'   : project.name,
                                        'PYGRADLE_PROJECT_VERSION': "${ -> project.version }",]
@@ -87,6 +105,24 @@ class PythonExtension {
         if (pythonEnvironment.containsKey('PYGRADLE_PROJECT_VERSION')) {
             throw new GradleException("Cannot proceed with `PYGRADLE_PROJECT_VERSION` set in environment!")
         }
+    }
+
+    public void forceVersion(String group, String name, String version) {
+        Objects.requireNonNull(group, "Group cannot be null")
+        Objects.requireNonNull(name, "Name cannot be null")
+        Objects.requireNonNull(version, "Version cannot be null")
+        forcedVersions[name] = ['group': group, 'name': name, 'version': version]
+    }
+
+    public void forceVersion(String gav) {
+        Objects.requireNonNull(gav, "GAV cannot be null")
+
+        String[] split = gav.split(':')
+        if (split.length < 3) {
+            throw new GradleException("Unable to parse GAV $gav")
+        }
+
+        forceVersion(split[0], split[1], split[2])
     }
 
     public PythonDetails getDetails() {

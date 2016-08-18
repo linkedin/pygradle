@@ -40,7 +40,8 @@ public class FileSystemUtils {
          * Check if the file exists because the link checking logic in Gradle differs
          * between Linux and OS X machines.
          */
-        Files.deleteIfExists(destination.toPath());
-        Files.createSymbolicLink(destination.toPath(), target.toPath());
+        if (!Files.exists(destination.toPath())) {
+            Files.createSymbolicLink(destination.toPath(), target.toPath());
+        }
     }
 }

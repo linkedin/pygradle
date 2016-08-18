@@ -56,6 +56,7 @@ class PythonExtension {
     /** The name of the pinned requirements file. */
     public File pinnedFile
 
+    /** A way to define forced versions of libraries */
     public Map<String, Map<String, String>> forcedVersions = [
         'argparse'      : ['group': 'pypi', 'name': 'argparse', 'version': '1.4.0'],
         'flake8'        : ['group': 'pypi', 'name': 'flake8', 'version': '2.5.4'],
@@ -69,7 +70,6 @@ class PythonExtension {
         'setuptools-git': ['group': 'pypi', 'name': 'setuptools-git', 'version': '1.1'],
         'six'           : ['group': 'pypi', 'name': 'six', 'version': '1.10.0'],
         'Sphinx'        : ['group': 'pypi', 'name': 'Sphinx', 'version': '1.4.1'],
-        'unittest2'     : ['group': 'pypi', 'name': 'unittest2', 'version': '1.1.0.1'],
         'virtualenv'    : ['group': 'pypi', 'name': 'virtualenv', 'version': '15.0.1'],
         'wheel'         : ['group': 'pypi', 'name': 'wheel', 'version': '0.26.0'],
     ]

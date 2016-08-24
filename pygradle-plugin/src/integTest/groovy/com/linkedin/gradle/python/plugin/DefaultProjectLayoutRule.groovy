@@ -40,12 +40,15 @@ class DefaultProjectLayoutRule extends TemporaryFolder {
         // Create some code
         newFile('src/foo/__init__.py')
         newFile('src/foo/hello.py') << '''\
+        | from __future__ import print_function
+        |
+        |
         | def generate_welcome():
         |     return 'Hello World'
         |
         |
         | def main():
-        |     print generate_welcome()
+        |     print(generate_welcome())
         |'''.stripMargin().stripIndent()
 
         // set up the default project name

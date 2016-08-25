@@ -37,7 +37,6 @@ public class ExtensionUtils {
 
     public static <T> T maybeCreate(PythonExtension extension, String name, Class<T> type, Object... args) {
         ExtensionContainer extensionContainer = ((ExtensionAware) extension).getExtensions();
-
         T maybeExtension = extensionContainer.findByType(type);
         if (maybeExtension == null) {
             maybeExtension = extensionContainer.create(name, type, args);

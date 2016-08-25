@@ -11,6 +11,7 @@ allprojects {
 
 subprojects {
     apply plugin: 'idea'
+    apply plugin: 'java'
 
     buildDir = new File(rootProject.buildDir, path.replace(":", File.separator).substring(0))
 
@@ -44,6 +45,15 @@ subprojects {
             excludeDirs += buildDir
         }
     }
+
+    sourceCompatibility = JavaVersion.VERSION_1_7
+    targetCompatibility = JavaVersion.VERSION_1_7
+
+    afterEvaluate {
+        project.tasks.withType(org.gradle.api.plugins.quality.FindBugs)
+            .matching { it.name != 'findbugsMain' }
+            .each { it.enabled = false }
+    }
 }
 
 artifactoryPublish.skip = true
@@ -67,7 +77,7 @@ task distributeBuild(type: DistributeTask) {
 
 idea {
     project {
-        jdkName = '1.8'
-        languageLevel = '1.8'
+        jdkName = '1.7'
+        languageLevel = '1.7'
     }
 }

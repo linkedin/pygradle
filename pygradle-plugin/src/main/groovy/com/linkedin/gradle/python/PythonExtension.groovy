@@ -31,9 +31,6 @@ class PythonExtension {
     /** The environment to use for all Python commands. */
     public Map<String, Object> pythonEnvironment
 
-    /** This gradle project */
-    private final Project project
-
     /**
      * The environment to use for Python commands run on the project being
      * developed.
@@ -84,7 +81,6 @@ class PythonExtension {
 
     public PythonExtension(Project project) {
         this.details = new PythonDetails(project)
-        this.project = project
         docsDir = project.file("${project.projectDir}/docs").path
         testDir = project.file("${project.projectDir}/test").path
         srcDir = project.file("${project.projectDir}/src").path
@@ -133,8 +129,15 @@ class PythonExtension {
         return details
     }
 
-    public void details(Closure cl) {
-        project.configure(details, cl)
+    /**
+     * Configures the {@link PythonDetails} for the project.
+     *
+     * @param a {@link Closure} that will delegate to {@link PythonDetails}
+     */
+    public void details(@DelegatesTo(PythonDetails) Closure cl) {
+        cl.delegate = details
+        cl.resolveStrategy = Closure.DELEGATE_FIRST
+        cl.call()
     }
 
     public Map<String, Object> getEnvironment() {

@@ -69,6 +69,12 @@ class PythonPluginIntegrationTest extends Specification {
         |   pyGradlePyPi()
         |}
         |
+        |python {
+        |   details {
+        |       virtualEnvPrompt = 'pyGradle!'
+        |   }
+        |}
+        |
         |buildDir = 'build2'
         """.stripMargin().stripIndent()
 
@@ -87,45 +93,6 @@ class PythonPluginIntegrationTest extends Specification {
         new File(testProjectDir.getRoot(), 'build2').exists()
         result.output.contains("BUILD SUCCESS")
         result.output.contains('test/test_a.py ..')
-        result.task(':flake8').outcome == TaskOutcome.SUCCESS
-        result.task(':installPythonRequirements').outcome == TaskOutcome.SUCCESS
-        result.task(':installTestRequirements').outcome == TaskOutcome.SUCCESS
-        result.task(':createVirtualEnvironment').outcome == TaskOutcome.SUCCESS
-        result.task(':installProject').outcome == TaskOutcome.SUCCESS
-        result.task(':pytest').outcome == TaskOutcome.SUCCESS
-        result.task(':check').outcome == TaskOutcome.SUCCESS
-        result.task(':build').outcome == TaskOutcome.SUCCESS
-    }
-
-    def "can build v3 library"() {
-        given:
-        testProjectDir.buildFile << """
-        |plugins {
-        |    id 'com.linkedin.python'
-        |}
-        |
-        |python {
-        | details {
-        |   pythonVersion = 3.5
-        | }
-        |}
-        |
-        |${PyGradleTestBuilder.createRepoClosure()}
-        """.stripMargin().stripIndent()
-
-        when:
-        def result = GradleRunner.create()
-                .withProjectDir(testProjectDir.root)
-                .withArguments('build')
-                .withPluginClasspath()
-                .withDebug(true)
-                .build()
-        println result.output
-
-        then:
-
-        result.output.contains("BUILD SUCCESS")
-        result.output.contains('test/test_a.py .')
         result.task(':flake8').outcome == TaskOutcome.SUCCESS
         result.task(':installPythonRequirements').outcome == TaskOutcome.SUCCESS
         result.task(':installTestRequirements').outcome == TaskOutcome.SUCCESS

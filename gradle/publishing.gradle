@@ -1,4 +1,5 @@
 apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.artifactory'
 
 task sourceJar(type: Jar) {
     classifier = 'sources'
@@ -44,25 +45,5 @@ publishing {
     }
 }
 
-bintray {
-    user = System.getenv('BINTRAY_USER')
-    key = System.getenv('BINTRAY_KEY')
-    publications = ['standardjava']
-    pkg {
-        repo = 'pygradle'
-        name = 'pygradle'
-        licenses = ['Apache-2.0']
-        vcsUrl = 'https://github.com/linkedin/pygradle'
-        version {
-            name = project.version
-            vcsTag = "V$project.version"
-
-            gpg {
-                sign = true
-            }
-        }
-    }
-}
-
-bintrayUpload.dependsOn assemble
-bintrayUpload.dependsOn publishToMavenLocal
+artifactoryPublish.dependsOn assemble
+artifactoryPublish.dependsOn publishToMavenLocal

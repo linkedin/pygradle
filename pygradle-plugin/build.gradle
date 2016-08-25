@@ -5,7 +5,6 @@ plugins {
     id "com.github.jk1.dependency-license-report" version "0.3.4"
     id "com.github.hierynomus.license" version "0.13.1"
     id "com.gradle.plugin-publish" version "0.9.5"
-    id "com.jfrog.bintray" version "1.7"
 }
 
 apply from: "$rootDir/gradle/publishing.gradle"

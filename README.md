@@ -1,4 +1,4 @@
-[![CircleCI](https://circleci.com/gh/linkedin/pygradle.svg?style=svg)](https://circleci.com/gh/linkedin/pygradle) [ ![Download](https://api.bintray.com/packages/ethankhall/pygradle/pygradle/images/download.svg) ](https://bintray.com/ethankhall/pygradle/pygradle/_latestVersion)
+[![CircleCI](https://circleci.com/gh/linkedin/pygradle.svg?style=svg)](https://circleci.com/gh/linkedin/pygradle) [ ![Download](https://api.bintray.com/packages/linkedin/maven/pygradle-plugin/images/download.svg) ](https://bintray.com/linkedin/maven/pygradle-plugin/_latestVersion)
 
 # About
 

@@ -100,11 +100,11 @@ public class ImporterCLI {
     public static Map<String, String> buildSubstitutionMap(CommandLine line) {
         Map<String, String> sub = new LinkedHashMap<>();
         if (line.hasOption("replace")) {
-            Arrays.asList(line.getOptionValues("replace")).forEach(it -> {
+            for (String it : Arrays.asList(line.getOptionValues("replace"))) {
                 System.out.println(it);
                 String[] split = it.split("=");
                 sub.put(split[0], split[1]);
-            });
+            }
         }
         return sub;
 

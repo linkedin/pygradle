@@ -1,4 +1,4 @@
-[![CircleCI](https://circleci.com/gh/linkedin/pygradle.svg?style=svg)](https://circleci.com/gh/linkedin/pygradle) [ ![Download](https://api.bintray.com/packages/ethankhall/pygradle/pygradle/images/download.svg) ](https://bintray.com/ethankhall/pygradle/pygradle/_latestVersion)
+[![CircleCI](https://circleci.com/gh/linkedin/pygradle.svg?style=svg)](https://circleci.com/gh/linkedin/pygradle) [ ![Download](https://api.bintray.com/packages/linkedin/maven/pygradle/images/download.svg) ](https://bintray.com/linkedin/maven/pygradle/_latestVersion)
 
 # About
 
@@ -44,8 +44,10 @@ we add two dependencies, one required to run and one required for testing. With 
 artifacts from a repository (omitted from example) install requests and mock along with their dependencies to a virtual
 environment and run any tests that you may have.
 
-For a more step by step guide, check out the example project in
-[examples/](examples)
+For a more step by step guide, check out the example project in [examples/](examples). 
+
+We recommend that you use Gradle 3.0, but we will try to maintain backwards compatibility to Gradle 2.10 and above, but will require
+using Java 7 or above.
 
 ## Plugins Available
 

@@ -21,6 +21,7 @@ import com.linkedin.gradle.python.util.ExtensionUtils;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ResolvedDependency;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.tasks.Input;
@@ -49,14 +50,12 @@ public class PinRequirementsTask extends DefaultTask {
         // burn in assumptions about our transitive dependency tree to the output
         // source artifact.
         StringBuilder contents = new StringBuilder();
-        getPythonConfiguration()
-            .getResolvedConfiguration()
-            .getFirstLevelModuleDependencies().forEach(r -> {
+        for (ResolvedDependency r : getPythonConfiguration().getResolvedConfiguration().getFirstLevelModuleDependencies()) {
             if (logger.isInfoEnabled() || enableLogging) {
                 logger.lifecycle("Pinning {}=={}", r.getModuleName(), r.getModuleVersion());
             }
             contents.append(r.getModuleName()).append("==").append(r.getModuleVersion()).append("\n");  //moduleName==moduleVersion\n
-        });
+        }
 
         FileUtils.write(pinnedFile, contents);
     }

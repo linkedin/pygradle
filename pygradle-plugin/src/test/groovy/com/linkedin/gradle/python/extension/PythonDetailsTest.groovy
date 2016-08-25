@@ -34,6 +34,7 @@ class PythonDetailsTest extends Specification {
         settings.getSystemPythonInterpreter()
     }
 
+    @Requires({ new File('/usr/bin/python2.7').exists() })
     def "interpreterPath with interpreterVersion"() {
         when: "we request 2.7"
         settings.pythonVersion = '2.7'
@@ -41,6 +42,7 @@ class PythonDetailsTest extends Specification {
         settings.getSystemPythonInterpreter().path.endsWith("2.7")
     }
 
+    @Requires({ !(new File('/usr/bin/python2.5').exists()) })
     def "interpreterPath with unsupported interpreterVersion"() {
         when: "we request an unsupported version"
         settings.pythonVersion = '2.5'
@@ -71,7 +73,7 @@ class PythonDetailsTest extends Specification {
         settings.getSystemPythonInterpreter().path.endsWith("3.5")
     }
 
-    @Requires({ new File('/usr/bin/python2.7').exists() })
+    @Requires({ new File('/usr/bin/python2.7').exists() && new File('/usr/bin/python2.6').exists() })
     def "interpreterPath with systemPython set"() {
         when: "we have old systemPython setting"
         settings.pythonVersion = '2.6'

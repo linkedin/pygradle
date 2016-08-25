@@ -319,7 +319,7 @@ class PythonPlugin implements Plugin<Project> {
                 @Override
                 void execute(IvyArtifactRepository ivyArtifactRepository) {
                     ivyArtifactRepository.setName('pygradle-pypi')
-                    ivyArtifactRepository.setUrl('https://ethankhall.bintray.com/pygradle-pypi/')
+                    ivyArtifactRepository.setUrl('https://linkedin.jfrog.io/linkedin/pypi-external/')
                     ivyArtifactRepository.layout("pattern", new Action<IvyPatternRepositoryLayout>() {
                         @Override
                         void execute(IvyPatternRepositoryLayout repositoryLayout) {

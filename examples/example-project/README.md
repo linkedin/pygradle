@@ -24,7 +24,7 @@ Add a top level `build.gradle` file that leverages {py}gradle:
 
 ```
 plugins {
-    id "com.linkedin.python-sdist" version "0.3.7"
+    id "com.linkedin.python-sdist" version "0.3.9"
 }
 
 dependencies {

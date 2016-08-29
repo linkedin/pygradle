@@ -24,6 +24,7 @@ import com.linkedin.gradle.python.util.VirtualEnvExecutableHelper;
 import com.linkedin.gradle.python.util.internal.pex.FatPexGenerator;
 import com.linkedin.gradle.python.util.internal.pex.ThinPexGenerator;
 import org.apache.commons.io.FileUtils;
+import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.Input;
@@ -48,7 +49,7 @@ public class BuildPexTask extends DefaultTask {
     public void buildPex() throws Exception {
         Project project = getProject();
 
-        PythonExtension pythonExtension = ExtensionUtils.getPythonExtension(project);
+        final PythonExtension pythonExtension = ExtensionUtils.getPythonExtension(project);
         DeployableExtension deployableExtension = ExtensionUtils.getPythonComponentExtension(project, DeployableExtension.class);
         PexExtension pexExtension = ExtensionUtils.getPythonComponentExtension(project, PexExtension.class);
 
@@ -58,7 +59,13 @@ public class BuildPexTask extends DefaultTask {
             pexExtension.getPexCache().mkdirs();
         }
 
-        project.exec(execSpec -> configureExecution(pythonExtension, execSpec));
+        project.exec(new Action<ExecSpec>() {
+            @Override
+            public void execute(ExecSpec execSpec) {
+                configureExecution(pythonExtension, execSpec);
+            }
+        });
+
         deployableExtension.getDeployableBuildDir().mkdirs();
 
         if (pexExtension.isFatPex()) {

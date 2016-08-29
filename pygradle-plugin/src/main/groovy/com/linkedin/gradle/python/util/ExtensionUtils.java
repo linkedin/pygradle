@@ -30,7 +30,7 @@ public class ExtensionUtils {
         //private constructor for util class
     }
 
-    private static <T> T maybeCreate(Project project, String name, Class<T> type, Object... args) {
+    public static <T> T maybeCreate(Project project, String name, Class<T> type, Object... args) {
         PythonExtension component = getPythonExtension(project);
         ExtensionContainer extensionContainer = ((ExtensionAware) component).getExtensions();
 

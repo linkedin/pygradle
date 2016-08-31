@@ -1,8 +1,7 @@
+import com.linkedin.gradle.build.DistributeTask
 import org.gradle.api.logging.configuration.ConsoleOutput
-plugins {
-    id "com.jfrog.artifactory" version "4.4.0"
-}
 
+apply plugin: 'com.jfrog.artifactory'
 apply plugin: 'version'
 apply plugin: 'idea'
 
@@ -61,6 +60,10 @@ artifactory {
         }
     }
     clientConfig.setIncludeEnvVars(false)
+}
+
+task distributeBuild(type: DistributeTask) {
+    dependsOn ':artifactoryPublish', ':pivy-importer:artifactoryPublish', ':pygradle-plugin:artifactoryPublish'
 }
 
 idea {

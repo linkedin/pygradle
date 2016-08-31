@@ -4,7 +4,6 @@ plugins {
     id 'application'
     id "com.github.jk1.dependency-license-report" version "0.3.4"
     id "com.github.hierynomus.license" version "0.13.1"
-    id "com.jfrog.bintray" version "1.7"
     id "com.github.johnrengelman.shadow" version "1.2.3"
 }
 
@@ -72,4 +71,4 @@ publishing.publications.standardjava {
     }
 }
 
-bintrayUpload.dependsOn shadowJar
+artifactoryPublish.dependsOn shadowJar

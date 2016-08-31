@@ -82,4 +82,16 @@ class TestPythonExtension extends Specification {
         ex.message == 'GAV cannot be null'
     }
 
+    def 'will work with closure to configure python details'() {
+        def settings = new PythonExtension(project)
+
+        when:
+        settings.details {
+            virtualEnvPrompt = 'hello!'
+        }
+
+        then:
+        noExceptionThrown()
+    }
+
 }

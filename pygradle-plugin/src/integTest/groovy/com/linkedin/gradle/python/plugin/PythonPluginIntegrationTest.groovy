@@ -69,6 +69,12 @@ class PythonPluginIntegrationTest extends Specification {
         |   pyGradlePyPi()
         |}
         |
+        |python {
+        |   details {
+        |       virtualEnvPrompt = 'pyGradle!'
+        |   }
+        |}
+        |
         |buildDir = 'build2'
         """.stripMargin().stripIndent()
 

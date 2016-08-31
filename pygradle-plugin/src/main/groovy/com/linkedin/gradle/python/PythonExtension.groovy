@@ -129,6 +129,17 @@ class PythonExtension {
         return details
     }
 
+    /**
+     * Configures the {@link PythonDetails} for the project.
+     *
+     * @param a {@link Closure} that will delegate to {@link PythonDetails}
+     */
+    public void details(@DelegatesTo(PythonDetails) Closure cl) {
+        cl.delegate = details
+        cl.resolveStrategy = Closure.DELEGATE_FIRST
+        cl.call()
+    }
+
     public Map<String, Object> getEnvironment() {
         return pythonEnvironment
     }

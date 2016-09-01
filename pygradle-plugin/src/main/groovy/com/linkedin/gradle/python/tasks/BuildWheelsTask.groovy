@@ -92,12 +92,14 @@ class BuildWheelsTask extends DefaultTask {
 
             def shortHand = packageInfo.version ? "${packageInfo.name}-${packageInfo.version}" : packageInfo.name
 
+            def messageHead = 'Preparing wheel ' + shortHand
+
             if (tree.files.size() >= 1) {
-                LOGGER.lifecycle(PythonHelpers.createPrettyLine("Prepairing wheel ${shortHand}", "[SKIPPING]"))
+                LOGGER.lifecycle(PythonHelpers.createPrettyLine(messageHead, "[SKIPPING]"))
                 return
             }
 
-            LOGGER.lifecycle(PythonHelpers.createPrettyLine("Prepairing wheel ${shortHand}", "[STARTING]"))
+            LOGGER.lifecycle(PythonHelpers.createPrettyLine(messageHead, "[STARTING]"))
 
             def startTime = LocalDateTime.now()
             ExecResult installResult = project.exec { ExecSpec execSpec ->
@@ -125,7 +127,7 @@ class BuildWheelsTask extends DefaultTask {
                 if (settings.consoleOutput == ConsoleOutput.RAW) {
                     LOGGER.lifecycle(stream.toString().trim())
                 } else {
-                    String prefix = String.format("Preparing wheel %s (%d:%02d s)", shortHand, duration.toMinutes(), duration.getSeconds() % 60)
+                    String prefix = String.format(messageHead + ' (%d:%02d s)', duration.toMinutes(), duration.getSeconds() % 60)
                     LOGGER.lifecycle(PythonHelpers.createPrettyLine(prefix, "[FINISHED]"))
                 }
             }

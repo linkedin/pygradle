@@ -56,7 +56,6 @@ artifactory {
 
         defaults {
             publications ('standardjava')
-            publishIvy = false
         }
     }
     clientConfig.setIncludeEnvVars(false)

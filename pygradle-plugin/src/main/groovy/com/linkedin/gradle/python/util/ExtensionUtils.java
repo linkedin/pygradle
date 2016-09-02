@@ -30,9 +30,13 @@ public class ExtensionUtils {
         //private constructor for util class
     }
 
-    private static <T> T maybeCreate(Project project, String name, Class<T> type, Object... args) {
-        PythonExtension component = getPythonExtension(project);
-        ExtensionContainer extensionContainer = ((ExtensionAware) component).getExtensions();
+    public static <T> T maybeCreate(Project project, String name, Class<T> type, Object... args) {
+        PythonExtension extension = getPythonExtension(project);
+        return maybeCreate(extension, name, type, args);
+    }
+
+    public static <T> T maybeCreate(PythonExtension extension, String name, Class<T> type, Object... args) {
+        ExtensionContainer extensionContainer = ((ExtensionAware) extension).getExtensions();
 
         T maybeExtension = extensionContainer.findByType(type);
         if (maybeExtension == null) {
@@ -58,14 +62,22 @@ public class ExtensionUtils {
     }
 
     public static <T> T getPythonComponentExtension(Project project, Class<T> type) {
-        PythonExtension component = getPythonExtension(project);
-        ExtensionContainer extensionContainer = ((ExtensionAware) component).getExtensions();
+        PythonExtension extension = getPythonExtension(project);
+        return getPythonComponentExtension(extension, type);
+    }
+
+    public static <T> T getPythonComponentExtension(PythonExtension extension, Class<T> type) {
+        ExtensionContainer extensionContainer = ((ExtensionAware) extension).getExtensions();
         return extensionContainer.getByType(type);
     }
 
     public static <T> T findPythonComponentExtension(Project project, Class<T> type) {
-        PythonExtension component = getPythonExtension(project);
-        ExtensionContainer extensionContainer = ((ExtensionAware) component).getExtensions();
+        PythonExtension extension = getPythonExtension(project);
+        return findPythonComponentExtension(extension, type);
+    }
+
+    public static <T> T findPythonComponentExtension(PythonExtension extension, Class<T> type) {
+        ExtensionContainer extensionContainer = ((ExtensionAware) extension).getExtensions();
         return extensionContainer.findByType(type);
     }
 

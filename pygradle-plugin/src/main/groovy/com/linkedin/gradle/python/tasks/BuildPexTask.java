@@ -23,6 +23,8 @@ import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.util.VirtualEnvExecutableHelper;
 import com.linkedin.gradle.python.util.internal.pex.FatPexGenerator;
 import com.linkedin.gradle.python.util.internal.pex.ThinPexGenerator;
+import com.linkedin.gradle.python.util.pex.DefaultEntryPointTemplateProvider;
+import com.linkedin.gradle.python.util.pex.EntryPointTemplateProvider;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
@@ -33,16 +35,26 @@ import org.gradle.process.ExecSpec;
 
 import java.util.Map;
 
+/**
+ * This task builds pex files; both 'thin' and 'fat' based on the settings on {@link PexExtension}
+ *
+ * If in 'fat' pex mode, each entry point will generate it's own pex.
+ *
+ * If in 'thin' pex mode, one pex will be created and a script for each entry point will be rendered. This helps save
+ * on disk space when one pex contains multiple entry points.
+ *
+ * The entry points scripts are customizable, so there is a property {@link BuildPexTask#templateProvider} that can be set
+ * allowing the task to customize the entry point.
+ *
+ * The template that is provided will be rendered using a {@link groovy.text.SimpleTemplateEngine}, and will have two
+ * properties passed to it automatically. They are named <code>realPex</code>, gives the name of the pex to execute against
+ * and <code>entryPoint</code> which is the name of the entry point. If you wish to provide your own template, with more
+ * options they can be added to {@link BuildPexTask#additionalProperties} and they will be provided to the template engine.
+ */
 public class BuildPexTask extends DefaultTask {
 
-    @Input
-    @Optional
-    public Map<String, String> additionalProperties;
-
-    @Input
-    @Optional
-    public String entryPointTemplate;
-
+    private Map<String, String> additionalProperties;
+    private EntryPointTemplateProvider templateProvider = new DefaultEntryPointTemplateProvider();
 
     @TaskAction
     public void buildPex() throws Exception {
@@ -64,11 +76,11 @@ public class BuildPexTask extends DefaultTask {
         if (pexExtension.isFatPex()) {
             new FatPexGenerator(project).buildEntryPoints();
         } else {
-            new ThinPexGenerator(project, entryPointTemplate, additionalProperties).buildEntryPoints();
+            new ThinPexGenerator(project, templateProvider, additionalProperties).buildEntryPoints();
         }
     }
 
-    public void configureExecution(PythonExtension pythonExtension, ExecSpec spec) {
+    private void configureExecution(PythonExtension pythonExtension, ExecSpec spec) {
         WheelExtension wheelExtension = ExtensionUtils.maybeCreateWheelExtension(getProject());
 
         spec.environment(pythonExtension.pythonEnvironment);
@@ -83,4 +95,23 @@ public class BuildPexTask extends DefaultTask {
             ".");
     }
 
+    @Input
+    @Optional
+    public Map<String, String> getAdditionalProperties() {
+        return additionalProperties;
+    }
+
+    public void setAdditionalProperties(Map<String, String> additionalProperties) {
+        this.additionalProperties = additionalProperties;
+    }
+
+    @Input
+    @Optional
+    public EntryPointTemplateProvider getTemplateProvider() {
+        return templateProvider;
+    }
+
+    public void setTemplateProvider(EntryPointTemplateProvider templateProvider) {
+        this.templateProvider = templateProvider;
+    }
 }

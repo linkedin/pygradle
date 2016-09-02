@@ -15,20 +15,18 @@
  */
 package com.linkedin.gradle.python.util.internal.pex;
 
-import com.linkedin.gradle.python.extension.CliExtension;
+import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.extension.DeployableExtension;
-import com.linkedin.gradle.python.extension.PexExtension;
 import com.linkedin.gradle.python.util.EntryPointHelpers;
 import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.util.entrypoint.EntryPointWriter;
-import org.apache.commons.io.IOUtils;
+import com.linkedin.gradle.python.util.pex.EntryPointTemplateProvider;
 import org.gradle.api.Project;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.process.ExecResult;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,19 +36,19 @@ public class ThinPexGenerator implements PexGenerator {
     private static final Logger logger = Logging.getLogger(ThinPexGenerator.class);
 
     private final Project project;
-    private final String entryPointTemplate;
+    private final EntryPointTemplateProvider templateProvider;
     private final Map<String, String> extraProperties;
 
-    public ThinPexGenerator(Project project, String entryPointTemplate, Map<String, String> extraProperties) {
+    public ThinPexGenerator(Project project, EntryPointTemplateProvider templateProvider, Map<String, String> extraProperties) {
         this.project = project;
-        this.entryPointTemplate = entryPointTemplate;
+        this.templateProvider = templateProvider;
         this.extraProperties = extraProperties == null ? new HashMap<>() : extraProperties;
     }
 
     @Override
     public void buildEntryPoints() throws Exception {
-        DeployableExtension deployableExtension = ExtensionUtils.getPythonComponentExtension(project, DeployableExtension.class);
-        PexExtension pexExtension = ExtensionUtils.getPythonComponentExtension(project, PexExtension.class);
+        PythonExtension extension = ExtensionUtils.getPythonExtension(project);
+        DeployableExtension deployableExtension = ExtensionUtils.getPythonComponentExtension(extension, DeployableExtension.class);
 
         List<String> dependencies = new PipFreezeAction(project).getDependencies();
 
@@ -70,20 +68,9 @@ public class ThinPexGenerator implements PexGenerator {
             propertyMap.put("realPex", project.getName() + ".pex");
             propertyMap.put("entryPoint", entry);
 
-            new EntryPointWriter(project, getTemplate(pexExtension))
+            DefaultTemplateProviderOptions providerOptions = new DefaultTemplateProviderOptions(project, extension, entry);
+            new EntryPointWriter(project, templateProvider.retrieveTemplate(providerOptions))
                 .writeEntryPoint(new File(deployableExtension.getDeployableBinDir(), name), propertyMap);
-        }
-    }
-
-    private String getTemplate(PexExtension pexExtension) throws IOException {
-        if (entryPointTemplate != null) {
-            return entryPointTemplate;
-        }
-
-        if (ExtensionUtils.findPythonComponentExtension(project, CliExtension.class) != null && pexExtension.isPythonWrapper()) {
-            return IOUtils.toString(ThinPexGenerator.class.getResourceAsStream("/templates/pex_cli_entrypoint.py.template"));
-        } else {
-            return IOUtils.toString(ThinPexGenerator.class.getResourceAsStream("/templates/pex_non_cli_entrypoint.sh.template"));
         }
     }
 }

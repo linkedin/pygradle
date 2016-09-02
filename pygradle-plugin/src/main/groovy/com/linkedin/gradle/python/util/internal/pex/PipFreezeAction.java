@@ -42,7 +42,7 @@ class PipFreezeAction {
     }
 
     public List<String> getDependencies() {
-        PythonExtension settings = ExtensionUtils.getPythonExtension(project);
+        final PythonExtension settings = ExtensionUtils.getPythonExtension(project);
 
         // Setup requirements, build, and test dependencies + special cases
         Set<String> developmentDependencies = configurationToSet(project, PythonPlugin.CONFIGURATION_SETUP_REQS);
@@ -57,7 +57,7 @@ class PipFreezeAction {
             developmentDependencies.remove("argparse");
         }
 
-        ByteArrayOutputStream requirements = new ByteArrayOutputStream();
+        final ByteArrayOutputStream requirements = new ByteArrayOutputStream();
 
         project.exec(new Action<ExecSpec>() {
             @Override

@@ -42,7 +42,7 @@ public class ThinPexGenerator implements PexGenerator {
     public ThinPexGenerator(Project project, EntryPointTemplateProvider templateProvider, Map<String, String> extraProperties) {
         this.project = project;
         this.templateProvider = templateProvider;
-        this.extraProperties = extraProperties == null ? new HashMap<>() : extraProperties;
+        this.extraProperties = extraProperties == null ? new HashMap<String, String>() : extraProperties;
     }
 
     @Override

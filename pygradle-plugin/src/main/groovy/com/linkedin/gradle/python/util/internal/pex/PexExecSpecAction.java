@@ -67,8 +67,8 @@ class PexExecSpecAction implements Action<ExecSpec> {
 
     @Override
     public void execute(ExecSpec execSpec) {
-        execSpec.commandLine(VirtualEnvExecutableHelper.getPythonInterpreter(pythonExtension));
-        execSpec.args(VirtualEnvExecutableHelper.getPex(pythonExtension));
+        execSpec.commandLine(VirtualEnvExecutableHelper.getPythonInterpreter(pythonExtension.getDetails()));
+        execSpec.args(VirtualEnvExecutableHelper.getPex(pythonExtension.getDetails()));
 
         System.out.println(outputFile.getAbsolutePath());
 

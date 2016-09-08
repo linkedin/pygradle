@@ -37,7 +37,7 @@ class PyTestTask extends AbstractPythonTestSourceDefaultTask {
 
     @Override
     public void preExecution() {
-        args(VirtualEnvExecutableHelper.findExecutable(component, "bin/py.test").absolutePath)
+        args(VirtualEnvExecutableHelper.findExecutable(pythonDetails, "bin/py.test").absolutePath)
         if (!specificFileGiven) {
             args(component.testDir)
         }

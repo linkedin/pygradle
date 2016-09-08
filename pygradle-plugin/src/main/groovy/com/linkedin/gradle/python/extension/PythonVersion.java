@@ -15,7 +15,9 @@
  */
 package com.linkedin.gradle.python.extension;
 
-public class PythonVersion {
+import java.io.Serializable;
+
+public class PythonVersion implements Serializable {
 
     private final String version;
 

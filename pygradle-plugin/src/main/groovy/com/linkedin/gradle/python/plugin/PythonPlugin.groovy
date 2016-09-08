@@ -176,6 +176,7 @@ class PythonPlugin implements Plugin<Project> {
          * They need to be installed in a specific order. Hence, we set sorted to false here.
          */
         project.tasks.create(TASK_INSTALL_SETUP_REQS, PipInstallTask) {
+            pythonDetails = settings.details
             dependsOn project.tasks.getByName(TASK_SETUP_LINKS)
             args = ['--upgrade']
             installFileCollection = project.configurations.setupRequires
@@ -188,6 +189,7 @@ class PythonPlugin implements Plugin<Project> {
          * The build requirements are the packages we need to run all stages of the build for this product.
          */
         project.tasks.create(TASK_INSTALL_BUILD_REQS, PipInstallTask) {
+            pythonDetails = settings.details
             dependsOn project.tasks.getByName(TASK_INSTALL_SETUP_REQS)
             args = ['--upgrade']
             installFileCollection = project.configurations.build
@@ -200,6 +202,7 @@ class PythonPlugin implements Plugin<Project> {
          *
          */
         project.tasks.create(TASK_INSTALL_PYTHON_REQS, PipInstallTask) {
+            pythonDetails = settings.details
             dependsOn project.tasks.getByName(TASK_INSTALL_BUILD_REQS)
             installFileCollection = project.configurations.python
         }
@@ -210,6 +213,7 @@ class PythonPlugin implements Plugin<Project> {
          * A products test requirements are those that are listed in the ``test`` configuration and are only required for running tests.
          */
         project.tasks.create(TASK_INSTALL_TEST_REQS, PipInstallTask) {
+            pythonDetails = settings.details
             dependsOn project.tasks.getByName(TASK_INSTALL_PYTHON_REQS)
             installFileCollection = project.configurations.test
         }
@@ -220,6 +224,7 @@ class PythonPlugin implements Plugin<Project> {
          * This installs the product itself in editable mode. It is equivalent to running ``python setup.py develop`` on a Python product.
          */
         project.tasks.create(TASK_INSTALL_PROJECT, PipInstallTask) {
+            pythonDetails = settings.details
             dependsOn project.tasks.getByName(TASK_INSTALL_TEST_REQS)
             installFileCollection = project.files(project.file(project.projectDir))
             args = ['--editable']

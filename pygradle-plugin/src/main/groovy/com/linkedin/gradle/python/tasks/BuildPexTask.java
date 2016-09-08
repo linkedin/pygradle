@@ -92,8 +92,8 @@ public class BuildPexTask extends DefaultTask {
 
         spec.environment(pythonExtension.pythonEnvironment);
         spec.environment(pythonExtension.pythonEnvironmentDistgradle);
-        spec.commandLine(VirtualEnvExecutableHelper.getPythonInterpreter(pythonExtension));
-        spec.args(VirtualEnvExecutableHelper.getPip(pythonExtension),
+        spec.commandLine(VirtualEnvExecutableHelper.getPythonInterpreter(pythonExtension.getDetails()));
+        spec.args(VirtualEnvExecutableHelper.getPip(pythonExtension.getDetails()),
             "wheel",
             "--disable-pip-version-check",
             "--wheel-dir",

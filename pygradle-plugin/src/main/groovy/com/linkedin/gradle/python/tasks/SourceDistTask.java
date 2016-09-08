@@ -39,7 +39,7 @@ public class SourceDistTask extends DefaultTask {
             public void execute(ExecSpec execSpec) {
                 execSpec.environment(settings.pythonEnvironmentDistgradle);
                 execSpec.commandLine(
-                        VirtualEnvExecutableHelper.getPythonInterpreter(settings),
+                        VirtualEnvExecutableHelper.getPythonInterpreter(settings.getDetails()),
                         "setup.py",
                         "sdist",
                         "--dist-dir",

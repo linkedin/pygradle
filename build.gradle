@@ -41,6 +41,10 @@ subprojects {
         }
     }
 
+    tasks.matching { it instanceof JavaCompile || it instanceof GroovyCompile }.all {
+        it.options.compilerArgs +=  ['-Xlint:deprecation']
+    }
+
     idea {
         module {
             excludeDirs += buildDir
@@ -51,7 +55,7 @@ subprojects {
     targetCompatibility = JavaVersion.VERSION_1_7
 
     afterEvaluate {
-        project.tasks.withType(org.gradle.api.plugins.quality.FindBugs)
+        project.tasks.withType(FindBugs)
             .matching { it.name != 'findbugsMain' }
             .each { it.enabled = false }
     }

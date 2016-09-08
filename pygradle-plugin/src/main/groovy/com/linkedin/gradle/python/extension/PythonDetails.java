@@ -19,10 +19,11 @@ import com.linkedin.gradle.python.util.internal.ExecutablePathUtils;
 import org.gradle.api.Project;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.List;
 
 
-public class PythonDetails {
+public class PythonDetails implements Serializable {
 
     private final Project project;
 

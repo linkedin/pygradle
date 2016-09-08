@@ -15,14 +15,17 @@
  */
 package com.linkedin.gradle.python.tasks
 
-import com.linkedin.gradle.python.PythonExtension
+import com.linkedin.gradle.python.extension.PythonDetails
 import com.linkedin.gradle.python.plugin.PythonHelpers
 import com.linkedin.gradle.python.util.ConsoleOutput
+import com.linkedin.gradle.python.util.ExtensionUtils
 import com.linkedin.gradle.python.util.PackageInfo
 import com.linkedin.gradle.python.util.VirtualEnvExecutableHelper
+import groovy.transform.CompileStatic
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.FileCollection
+import org.gradle.api.specs.Spec
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Optional
@@ -38,7 +41,11 @@ import java.time.LocalDateTime
  *
  * TODO: Add an output to make execution faster
  */
+@CompileStatic
 class PipInstallTask extends DefaultTask {
+
+    @Input
+    PythonDetails pythonDetails
 
     @InputFiles
     FileCollection installFileCollection
@@ -55,12 +62,23 @@ class PipInstallTask extends DefaultTask {
     boolean sorted = true
 
     /**
+     * Will return true when the package should be excluded from being installed.
+     */
+    @Input
+    Spec<PackageInfo> packageExcludeFilter = new Spec<PackageInfo>() {
+        @Override
+        boolean isSatisfiedBy(PackageInfo packageInfo) {
+            return false
+        }
+    }
+
+    /**
      * Returns a set of configuration files in the insert order or sorted.
      *
      * If sorted is true (default) the sorted configuration set is returned,
      * otherwise the original order.
      */
-    Set<File> getConfigurationFiles() {
+    Collection<File> getConfigurationFiles() {
         return sorted ? installFileCollection.files.sort() : installFileCollection.files
     }
 
@@ -74,33 +92,37 @@ class PipInstallTask extends DefaultTask {
     @TaskAction
     public void pipInstall() {
 
-        PythonExtension settings = project.getExtensions().getByType(PythonExtension)
-
-        def pyVersion = settings.getDetails().getPythonVersion().pythonMajorMinor
+        def pyVersion = pythonDetails.getPythonVersion().pythonMajorMinor
+        def extension = ExtensionUtils.getPythonExtension(project)
 
         getConfigurationFiles().each { File installable ->
 
             def packageInfo = PackageInfo.fromPath(installable.getAbsolutePath())
+            def shortHand = packageInfo.version ? "${packageInfo.name}-${packageInfo.version}" : packageInfo.name
+
+            if (packageExcludeFilter.isSatisfiedBy(packageInfo)) {
+                logger.lifecycle(PythonHelpers.createPrettyLine("Install ${shortHand}", "[EXCLUDED]"))
+                return
+            }
+
             String sanitizedName = packageInfo.name.replace('-', '_')
 
             // See: https://www.python.org/dev/peps/pep-0376/
-            File egg = new File(settings.getDetails().virtualEnv, "lib/python${pyVersion}/site-packages/${sanitizedName}-${packageInfo.version}-py${pyVersion}.egg-info")
-            File dist = new File(settings.getDetails().virtualEnv, "lib/python${pyVersion}/site-packages/${sanitizedName}-${packageInfo.version}.dist-info")
+            File egg = new File(pythonDetails.virtualEnv, "lib/python${pyVersion}/site-packages/${sanitizedName}-${packageInfo.version}-py${pyVersion}.egg-info")
+            File dist = new File(pythonDetails.virtualEnv, "lib/python${pyVersion}/site-packages/${sanitizedName}-${packageInfo.version}.dist-info")
 
-            def mergedEnv = new HashMap(settings.pythonEnvironment)
+            def mergedEnv = new HashMap(extension.pythonEnvironment)
             if (environment != null) {
                 mergedEnv.putAll(environment)
             }
 
-            def commandLine = [VirtualEnvExecutableHelper.getPythonInterpreter(settings),
-                               VirtualEnvExecutableHelper.getPip(settings),
+            def commandLine = [VirtualEnvExecutableHelper.getPythonInterpreter(pythonDetails),
+                               VirtualEnvExecutableHelper.getPip(pythonDetails),
                                'install',
                                '--disable-pip-version-check',
                                '--no-deps']
             commandLine.addAll(args)
             commandLine.add(installable.getAbsolutePath())
-
-            def shortHand = packageInfo.version ? "${packageInfo.name}-${packageInfo.version}" : packageInfo.name
 
             if (project.file(egg).exists() || project.file(dist).exists()) {
                 logger.lifecycle(PythonHelpers.createPrettyLine("Install ${shortHand}", "[SKIPPING]"))
@@ -130,16 +152,22 @@ class PipInstallTask extends DefaultTask {
                  * installed?
                  */
                 logger.lifecycle(stream.toString().trim())
-                throw new GradleException(
-                    "Failed to install ${shortHand}. Please see above output for reason, or re-run your build using ``ligradle -i build`` for additional logging.")
+                throw new PipInstallException(
+                    "Failed to install ${shortHand}. Please see above output for reason, or re-run your build using ``gradle -i build`` for additional logging.")
             } else {
-                if (settings.consoleOutput == ConsoleOutput.RAW) {
+                if (extension.consoleOutput == ConsoleOutput.RAW) {
                     logger.lifecycle(stream.toString().trim())
                 } else {
                     String prefix = String.format("Install %s (%d:%02d s)", shortHand, duration.toMinutes(), duration.getSeconds() % 60)
                     logger.lifecycle(PythonHelpers.createPrettyLine(prefix, "[FINISHED]"))
                 }
             }
+        }
+    }
+
+    public static class PipInstallException extends GradleException {
+        public PipInstallException(String message) {
+            super(message)
         }
     }
 }

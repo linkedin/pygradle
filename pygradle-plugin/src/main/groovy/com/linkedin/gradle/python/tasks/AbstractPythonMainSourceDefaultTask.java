@@ -16,6 +16,7 @@
 package com.linkedin.gradle.python.tasks;
 
 import com.linkedin.gradle.python.PythonExtension;
+import com.linkedin.gradle.python.extension.PythonDetails;
 import com.linkedin.gradle.python.util.VirtualEnvExecutableHelper;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
@@ -72,9 +73,20 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask {
         return component;
     }
 
+    public PythonDetails getPythonDetails() {
+        if (null == pythonDetails) {
+            pythonDetails = getComponent().getDetails();
+        }
+        return pythonDetails;
+    }
+
+    public void setPythonDetails(PythonDetails pythonDetails) {
+        this.pythonDetails = pythonDetails;
+    }
+
     @InputDirectory
     public FileTree getVirtualEnv() {
-        ConfigurableFileTree files = getProject().fileTree(getComponent().getDetails().getVirtualEnv());
+        ConfigurableFileTree files = getProject().fileTree(getPythonDetails().getVirtualEnv());
         files.exclude(standardExcludes());
         return files;
     }
@@ -102,7 +114,7 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask {
             public void execute(ExecSpec execSpec) {
                 execSpec.environment(getComponent().pythonEnvironment);
                 execSpec.environment(getComponent().pythonEnvironmentDistgradle);
-                execSpec.commandLine(VirtualEnvExecutableHelper.getPythonInterpreter(getComponent()));
+                execSpec.commandLine(VirtualEnvExecutableHelper.getPythonInterpreter(getPythonDetails()));
                 execSpec.args(arguments);
                 execSpec.args(additionalArguments);
                 execSpec.setStandardOutput(stdOut);

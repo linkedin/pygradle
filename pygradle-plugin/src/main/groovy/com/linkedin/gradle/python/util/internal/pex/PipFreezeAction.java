@@ -64,8 +64,8 @@ class PipFreezeAction {
             public void execute(ExecSpec execSpec) {
                 execSpec.environment(settings.getEnvironment());
                 execSpec.commandLine(
-                    VirtualEnvExecutableHelper.getPythonInterpreter(settings),
-                    VirtualEnvExecutableHelper.getPip(settings),
+                    VirtualEnvExecutableHelper.getPythonInterpreter(settings.getDetails()),
+                    VirtualEnvExecutableHelper.getPip(settings.getDetails()),
                     "freeze",
                     "--disable-pip-version-check"
                 );

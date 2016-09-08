@@ -23,7 +23,7 @@ import org.gradle.process.ExecResult
 public class Flake8Task extends AbstractPythonMainSourceDefaultTask {
 
   public void preExecution() {
-    args(VirtualEnvExecutableHelper.getExecutable(component, "bin/flake8").absolutePath,
+    args(VirtualEnvExecutableHelper.getExecutable(pythonDetails, "bin/flake8").absolutePath,
         "--config", "$component.setupCfg",
         "$component.srcDir",
         "$component.testDir")

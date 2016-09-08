@@ -78,6 +78,11 @@ class PexFileUtil {
                     | This typically happens because your virtual environment contains a cached copy of ${packageName}
                     | that no other package depends on any more.
                     | Usually, this is the result of updating a package that used to depend on ${packageName}.
+                    |
+                    | Another possible reason is that you started using a newer version of Python
+                    | without checking if all the libraries you use are compatible.
+                    | If you can find the missing package in the output above with the message
+                    | [EXCLUDED], then it works only with lower versions of Python.
                     """.stripMargin().stripIndent()
                 )
 

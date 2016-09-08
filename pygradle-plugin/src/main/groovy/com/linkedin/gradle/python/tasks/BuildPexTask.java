@@ -19,6 +19,8 @@ import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.extension.DeployableExtension;
 import com.linkedin.gradle.python.extension.PexExtension;
 import com.linkedin.gradle.python.extension.WheelExtension;
+import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider;
+import com.linkedin.gradle.python.tasks.execution.TeeOutputContainer;
 import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.util.VirtualEnvExecutableHelper;
 import com.linkedin.gradle.python.util.internal.pex.FatPexGenerator;
@@ -52,10 +54,11 @@ import java.util.Map;
  * and <code>entryPoint</code> which is the name of the entry point. If you wish to provide your own template, with more
  * options they can be added to {@link BuildPexTask#additionalProperties} and they will be provided to the template engine.
  */
-public class BuildPexTask extends DefaultTask {
+public class BuildPexTask extends DefaultTask implements FailureReasonProvider {
 
     private Map<String, String> additionalProperties;
     private EntryPointTemplateProvider templateProvider = new DefaultEntryPointTemplateProvider();
+    private TeeOutputContainer container = new TeeOutputContainer(System.out, System.err);
 
     @TaskAction
     public void buildPex() throws Exception {
@@ -88,6 +91,7 @@ public class BuildPexTask extends DefaultTask {
     }
 
     private void configureExecution(PythonExtension pythonExtension, ExecSpec spec) {
+        container.execute(spec);
         WheelExtension wheelExtension = ExtensionUtils.maybeCreateWheelExtension(getProject());
 
         spec.environment(pythonExtension.pythonEnvironment);
@@ -120,5 +124,10 @@ public class BuildPexTask extends DefaultTask {
 
     public void setTemplateProvider(EntryPointTemplateProvider templateProvider) {
         this.templateProvider = templateProvider;
+    }
+
+    @Override
+    public String getReason() {
+        return container.getCommandOutput();
     }
 }

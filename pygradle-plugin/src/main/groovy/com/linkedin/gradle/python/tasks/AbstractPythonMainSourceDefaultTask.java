@@ -17,6 +17,8 @@ package com.linkedin.gradle.python.tasks;
 
 import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.extension.PythonDetails;
+import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider;
+import com.linkedin.gradle.python.tasks.execution.TeeOutputContainer;
 import com.linkedin.gradle.python.util.VirtualEnvExecutableHelper;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
@@ -43,11 +45,12 @@ import java.util.List;
  * and will only get executed right before gradle tries to figure out the inputs/outputs. By making it lazy
  * will allow {@link PythonExtension} to be updated by the project and be complete when its used in the tasks.
  */
-abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask {
+abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask implements FailureReasonProvider {
 
     FileTree sources;
     private PythonExtension component;
-    private List<String> arguments = new ArrayList<String>();
+    private PythonDetails pythonDetails;
+    private String output;
     
     @Input
     public List<String> additionalArguments = new ArrayList<String>();
@@ -109,9 +112,13 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask {
     @TaskAction
     public void executePythonProcess() {
         preExecution();
+
+        final TeeOutputContainer container = new TeeOutputContainer(stdOut, errOut);
+
         ExecResult result = getProject().exec(new Action<ExecSpec>() {
             @Override
             public void execute(ExecSpec execSpec) {
+                container.execute(execSpec);
                 execSpec.environment(getComponent().pythonEnvironment);
                 execSpec.environment(getComponent().pythonEnvironmentDistgradle);
                 execSpec.commandLine(VirtualEnvExecutableHelper.getPythonInterpreter(getPythonDetails()));
@@ -124,6 +131,8 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask {
             }
         });
 
+        output = container.getCommandOutput();
+
         processResults(result);
     }
 
@@ -134,4 +143,9 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask {
     }
 
     public abstract void processResults(ExecResult execResult);
+
+    @Override
+    public String getReason() {
+        return output;
+    }
 }

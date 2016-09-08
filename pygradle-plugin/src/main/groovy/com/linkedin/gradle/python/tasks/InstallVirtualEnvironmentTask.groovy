@@ -16,8 +16,11 @@
 package com.linkedin.gradle.python.tasks
 
 import com.linkedin.gradle.python.PythonExtension
+import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider
+import com.linkedin.gradle.python.tasks.execution.TeeOutputContainer
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
+import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.artifacts.Configuration
@@ -28,86 +31,96 @@ import org.gradle.api.specs.Spec
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
+import org.gradle.process.ExecSpec
 import org.gradle.util.VersionNumber
 
 @CompileStatic
-class InstallVirtualEnvironmentTask extends DefaultTask {
+class InstallVirtualEnvironmentTask extends DefaultTask implements FailureReasonProvider {
 
-  PythonExtension component
+    PythonExtension component
 
-  public PythonExtension getComponent() {
-    if (component == null) {
-      component = getProject().getExtensions().getByType(PythonExtension)
-    }
-    return component
-  }
-
-  @InputFiles
-  Configuration getPyGradleBootstrap() {
-    project.configurations.getByName('pygradleBootstrap')
-  }
-
-  @OutputFile
-  File getVirtualEnvDir() {
-    return getComponent().getDetails().getVirtualEnvInterpreter()
-  }
-
-  @TaskAction
-  @CompileDynamic
-  void installVEnv() {
-
-    File packageDir = new File(project.buildDir, "virtualenv-dir")
-    if (packageDir.exists()) {
-      project.delete(packageDir)
+    public PythonExtension getComponent() {
+        if (component == null) {
+            component = getProject().getExtensions().getByType(PythonExtension)
+        }
+        return component
     }
 
-    packageDir.mkdirs()
-
-    getPyGradleBootstrap().files.each { file ->
-
-      project.copy {
-        from project.tarTree(file.path)
-        into packageDir
-      }
+    @InputFiles
+    Configuration getPyGradleBootstrap() {
+        project.configurations.getByName('pygradleBootstrap')
     }
 
-    def version = findVirtualEnvDependencyVersion()
-    project.exec {
-      commandLine(
-              getComponent().getDetails().getSystemPythonInterpreter(),
-              project.file("${packageDir}/virtualenv-${version}/virtualenv.py"),
-              '--python', getComponent().getDetails().getSystemPythonInterpreter(),
-              '--prompt', getComponent().getDetails().virtualEnvPrompt,
-              getComponent().getDetails().getVirtualEnv()
-      )
+    @OutputFile
+    File getVirtualEnvDir() {
+        return getComponent().getDetails().getVirtualEnvInterpreter()
     }
 
-    project.delete(packageDir)
-  }
+    final TeeOutputContainer container = new TeeOutputContainer()
 
-  private String findVirtualEnvDependencyVersion() {
-    ResolvedConfiguration resolvedConfiguration = getPyGradleBootstrap().getResolvedConfiguration()
-    Set<ResolvedDependency> virtualEnvDependencies = resolvedConfiguration.getFirstLevelModuleDependencies(new VirtualEnvSpec())
-    if (virtualEnvDependencies.isEmpty()) {
-      throw new GradleException("Unable to find virtualenv dependency")
+    @TaskAction
+    @CompileDynamic
+    void installVEnv() {
+
+        File packageDir = new File(project.buildDir, "virtualenv-dir")
+        if (packageDir.exists()) {
+            project.delete(packageDir)
+        }
+
+        packageDir.mkdirs()
+
+        getPyGradleBootstrap().files.each { file ->
+
+            project.copy {
+                from project.tarTree(file.path)
+                into packageDir
+            }
+        }
+
+        def version = findVirtualEnvDependencyVersion()
+        project.exec(new Action<ExecSpec>() {
+            @Override
+            void execute(ExecSpec execSpec) {
+                container.execute(execSpec)
+                execSpec.commandLine(
+                    getComponent().getDetails().getSystemPythonInterpreter(),
+                    project.file("${packageDir}/virtualenv-${version}/virtualenv.py"),
+                    '--python', getComponent().getDetails().getSystemPythonInterpreter(),
+                    '--prompt', getComponent().getDetails().virtualEnvPrompt,
+                    getComponent().getDetails().getVirtualEnv())
+            }
+        })
+        project.delete(packageDir)
     }
 
-    VersionNumber highest = new VersionNumber(0, 0, 0, null)
-    for (ResolvedDependency resolvedDependency : virtualEnvDependencies) {
-      VersionNumber test = VersionNumber.parse(resolvedDependency.getModuleVersion())
-      if (test.compareTo(highest) > 0) {
-        highest = test
-      }
+    private String findVirtualEnvDependencyVersion() {
+        ResolvedConfiguration resolvedConfiguration = getPyGradleBootstrap().getResolvedConfiguration()
+        Set<ResolvedDependency> virtualEnvDependencies = resolvedConfiguration.getFirstLevelModuleDependencies(new VirtualEnvSpec())
+        if (virtualEnvDependencies.isEmpty()) {
+            throw new GradleException("Unable to find virtualenv dependency")
+        }
+
+        VersionNumber highest = new VersionNumber(0, 0, 0, null)
+        for (ResolvedDependency resolvedDependency : virtualEnvDependencies) {
+            VersionNumber test = VersionNumber.parse(resolvedDependency.getModuleVersion())
+            if (test.compareTo(highest) > 0) {
+                highest = test
+            }
+        }
+
+        return highest.toString()
     }
-
-    return highest.toString()
-  }
-
-  private class VirtualEnvSpec implements Spec<Dependency> {
 
     @Override
-    public boolean isSatisfiedBy(Dependency element) {
-      return "virtualenv" == element.getName()
+    String getReason() {
+        return container.getCommandOutput()
     }
-  }
+
+    private class VirtualEnvSpec implements Spec<Dependency> {
+
+        @Override
+        public boolean isSatisfiedBy(Dependency element) {
+            return "virtualenv" == element.getName()
+        }
+    }
 }

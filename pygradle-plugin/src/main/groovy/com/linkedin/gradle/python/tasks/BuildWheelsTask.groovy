@@ -27,6 +27,8 @@ import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.plugins.ExtensionAware
+import org.gradle.api.specs.Spec
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecResult
 import org.gradle.process.ExecSpec
@@ -63,6 +65,17 @@ class BuildWheelsTask extends DefaultTask {
     }
 
     /**
+     * Will return true when the package should be excluded from being installed.
+     */
+    @Input
+    Spec<PackageInfo> packageExcludeFilter = new Spec<PackageInfo>() {
+        @Override
+        boolean isSatisfiedBy(PackageInfo packageInfo) {
+            return false
+        }
+    }
+
+    /**
      * A helper function that builds wheels.
      * <p>
      * This function consumes a list of paths to Python packages and builds
@@ -80,6 +93,12 @@ class BuildWheelsTask extends DefaultTask {
         installables.sort().each { File installable ->
 
             def packageInfo = PackageInfo.fromPath(installable.path)
+            def shortHand = packageInfo.version ? "${packageInfo.name}-${packageInfo.version}" : packageInfo.name
+
+            if (packageExcludeFilter.isSatisfiedBy(packageInfo)) {
+                logger.lifecycle(PythonHelpers.createPrettyLine("Install ${shortHand}", "[EXCLUDED]"))
+                return
+            }
 
             // Check if a wheel exists for this product already and only build it
             // if it is missing. We don't care about the wheel details because we
@@ -90,7 +109,6 @@ class BuildWheelsTask extends DefaultTask {
 
             def stream = new ByteArrayOutputStream()
 
-            def shortHand = packageInfo.version ? "${packageInfo.name}-${packageInfo.version}" : packageInfo.name
 
             def messageHead = 'Preparing wheel ' + shortHand
 
@@ -105,8 +123,8 @@ class BuildWheelsTask extends DefaultTask {
             ExecResult installResult = project.exec { ExecSpec execSpec ->
                 execSpec.environment settings.pythonEnvironment
                 execSpec.commandLine(
-                    [VirtualEnvExecutableHelper.getPythonInterpreter(settings),
-                     VirtualEnvExecutableHelper.getPip(settings),
+                    [VirtualEnvExecutableHelper.getPythonInterpreter(settings.details),
+                     VirtualEnvExecutableHelper.getPip(settings.details),
                      'wheel',
                      '--disable-pip-version-check',
                      '--wheel-dir', wheelExtension.wheelCache,

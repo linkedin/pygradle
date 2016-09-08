@@ -17,6 +17,7 @@ package com.linkedin.gradle.python.tasks
 
 import com.linkedin.gradle.python.extension.PythonDetails
 import com.linkedin.gradle.python.plugin.PythonHelpers
+import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider
 import com.linkedin.gradle.python.util.ConsoleOutput
 import com.linkedin.gradle.python.util.ExtensionUtils
 import com.linkedin.gradle.python.util.PackageInfo
@@ -42,7 +43,7 @@ import java.time.LocalDateTime
  * TODO: Add an output to make execution faster
  */
 @CompileStatic
-class PipInstallTask extends DefaultTask {
+class PipInstallTask extends DefaultTask implements FailureReasonProvider {
 
     @Input
     PythonDetails pythonDetails
@@ -71,6 +72,8 @@ class PipInstallTask extends DefaultTask {
             return false
         }
     }
+
+    private String lastInstallMessage = null
 
     /**
      * Returns a set of configuration files in the insert order or sorted.
@@ -143,6 +146,7 @@ class PipInstallTask extends DefaultTask {
             def endTime = LocalDateTime.now()
             def duration = Duration.between(startTime, endTime)
 
+            def message = stream.toString().trim()
             if (installResult.exitValue != 0) {
                 /*
                  * TODO: maintain a list of packages that failed to install, and report a failure
@@ -151,12 +155,14 @@ class PipInstallTask extends DefaultTask {
                  * installed? E.g., we see pyOpenSSL>0.15 failed to install, do you have libffi
                  * installed?
                  */
-                logger.lifecycle(stream.toString().trim())
+                logger.lifecycle(message)
+                lastInstallMessage = message
+
                 throw new PipInstallException(
                     "Failed to install ${shortHand}. Please see above output for reason, or re-run your build using ``gradle -i build`` for additional logging.")
             } else {
                 if (extension.consoleOutput == ConsoleOutput.RAW) {
-                    logger.lifecycle(stream.toString().trim())
+                    logger.lifecycle(message)
                 } else {
                     String prefix = String.format("Install %s (%d:%02d s)", shortHand, duration.toMinutes(), duration.getSeconds() % 60)
                     logger.lifecycle(PythonHelpers.createPrettyLine(prefix, "[FINISHED]"))
@@ -169,5 +175,10 @@ class PipInstallTask extends DefaultTask {
         public PipInstallException(String message) {
             super(message)
         }
+    }
+
+    @Override
+    String getReason() {
+        return lastInstallMessage
     }
 }

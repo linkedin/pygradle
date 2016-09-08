@@ -20,7 +20,6 @@ import groovy.transform.CompileStatic
 import org.gradle.api.internal.tasks.options.Option
 import org.gradle.process.ExecResult
 
-
 /**
  * Run py.test on test directory
  */
@@ -47,8 +46,6 @@ class PyTestTask extends AbstractPythonTestSourceDefaultTask {
     void processResults(ExecResult execResult) {
         if (execResult.exitValue == NO_TESTS_COLLECTED_ERRNO) {
             logger.warn("***** WARNING: You did not write any tests! *****")
-        } else {
-            execResult.assertNormalExitValue()
         }
     }
 

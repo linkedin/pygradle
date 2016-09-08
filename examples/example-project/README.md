@@ -50,7 +50,9 @@ The contents of your `setup.py`, `setup.cfg` and other boilerplate can be whatev
 $ ./gradlew generateSetupPy
 ```
 
-The `setup.py` in this example was created using the above task, by default the "setup" section at the bottom is commented out, so please look it over before continuing.
+The `setup.py` in this example was created using the above task, by default the "setup" section at the bottom is commented out, so please look it over before continuing. For this example we want to uncomment the whole section at the bottom of the setup.py.
+
+*Note:* The `generateSetupPy` task should only be used to bootstrap a project and should be checked in to a project.
 
 ---
 

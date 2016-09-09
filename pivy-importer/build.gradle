@@ -72,3 +72,4 @@ publishing.publications.standardjava {
 }
 
 artifactoryPublish.dependsOn shadowJar
+build.dependsOn shadowJar

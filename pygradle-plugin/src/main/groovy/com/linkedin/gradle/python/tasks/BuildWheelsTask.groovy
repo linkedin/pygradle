@@ -16,9 +16,11 @@
 package com.linkedin.gradle.python.tasks
 
 import com.linkedin.gradle.python.PythonExtension
+import com.linkedin.gradle.python.extension.PythonDetails
 import com.linkedin.gradle.python.extension.WheelExtension
 import com.linkedin.gradle.python.plugin.PythonHelpers
 import com.linkedin.gradle.python.util.ConsoleOutput
+import com.linkedin.gradle.python.util.ExtensionUtils
 import com.linkedin.gradle.python.util.PackageInfo
 import com.linkedin.gradle.python.util.VirtualEnvExecutableHelper
 import org.gradle.api.DefaultTask
@@ -26,7 +28,6 @@ import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
-import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.specs.Spec
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
@@ -40,10 +41,12 @@ class BuildWheelsTask extends DefaultTask {
 
     private static final Logger LOGGER = Logging.getLogger(BuildWheelsTask)
 
+    private PythonExtension pythonExtension
+    private PythonDetails details
+
     @TaskAction
     public void buildWheelsTask() {
-        PythonExtension settings = project.getExtensions().getByType(PythonExtension)
-        buildWheels(project, project.configurations.python.files, settings)
+        buildWheels(project, project.configurations.python.files, getPythonDetails())
 
         /*
          * If pexDependencies are empty or its wheels are already
@@ -57,11 +60,11 @@ class BuildWheelsTask extends DefaultTask {
          * and Pex requires it, so we need to include it as a dependency
          */
         project.configurations.build.files.each { file ->
-            if (settings.details.pythonVersion.pythonMajorMinor == '2.6' && file.name.contains('argparse')) {
+            if (getPythonDetails().pythonVersion.pythonMajorMinor == '2.6' && file.name.contains('argparse')) {
                 pexDependencies.add(file)
             }
         }
-        buildWheels(project, pexDependencies, settings)
+        buildWheels(project, pexDependencies, getPythonDetails())
     }
 
     /**
@@ -75,6 +78,23 @@ class BuildWheelsTask extends DefaultTask {
         }
     }
 
+    @Input
+    PythonDetails getPythonDetails() {
+        if (null == details) {
+            details = getPythonExtension().details
+        }
+
+        return details
+    }
+
+    @Input
+    PythonExtension getPythonExtension() {
+        if (null == pythonExtension) {
+            pythonExtension = ExtensionUtils.getPythonExtension(project)
+        }
+        return pythonExtension
+    }
+
     /**
      * A helper function that builds wheels.
      * <p>
@@ -86,9 +106,10 @@ class BuildWheelsTask extends DefaultTask {
      * @param installables A collection of Python source distributions to compile as wheels.
      * @param env The environment to pass along to <pre>pip</pre>.
      */
-    protected static void buildWheels(Project project, Collection<File> installables, PythonExtension settings) {
+    protected static void buildWheels(Project project, Collection<File> installables, PythonDetails pythonDetails) {
 
-        WheelExtension wheelExtension = (settings as ExtensionAware).getExtensions().findByType(WheelExtension)
+        WheelExtension wheelExtension = ExtensionUtils.getPythonComponentExtension(project, WheelExtension)
+        def pythonExtension = ExtensionUtils.getPythonExtension(project)
 
         installables.sort().each { File installable ->
 
@@ -104,8 +125,8 @@ class BuildWheelsTask extends DefaultTask {
             // if it is missing. We don't care about the wheel details because we
             // always build these locally.
             def tree = project.fileTree(
-                    dir: wheelExtension.wheelCache,
-                    include: "**/${packageInfo.name.replace('-', '_')}-${packageInfo.version}-*.whl")
+                dir: wheelExtension.wheelCache,
+                include: "**/${packageInfo.name.replace('-', '_')}-${packageInfo.version}-*.whl")
 
             def stream = new ByteArrayOutputStream()
 
@@ -121,16 +142,16 @@ class BuildWheelsTask extends DefaultTask {
 
             def startTime = LocalDateTime.now()
             ExecResult installResult = project.exec { ExecSpec execSpec ->
-                execSpec.environment settings.pythonEnvironment
+                execSpec.environment pythonExtension.pythonEnvironment
                 execSpec.commandLine(
-                    [VirtualEnvExecutableHelper.getPythonInterpreter(settings.details),
-                     VirtualEnvExecutableHelper.getPip(settings.details),
+                    [VirtualEnvExecutableHelper.getPythonInterpreter(pythonDetails),
+                     VirtualEnvExecutableHelper.getPip(pythonDetails),
                      'wheel',
                      '--disable-pip-version-check',
                      '--wheel-dir', wheelExtension.wheelCache,
                      '--no-deps',
                      installable
-                ])
+                    ])
                 execSpec.standardOutput = stream
                 execSpec.errorOutput = stream
                 execSpec.ignoreExitValue = true
@@ -142,7 +163,7 @@ class BuildWheelsTask extends DefaultTask {
                 LOGGER.error(stream.toString().trim())
                 throw new GradleException("Failed to build wheel for ${shortHand}. Please see above output for reason, or re-run your build using ``--info`` for additional logging.")
             } else {
-                if (settings.consoleOutput == ConsoleOutput.RAW) {
+                if (pythonExtension.consoleOutput == ConsoleOutput.RAW) {
                     LOGGER.lifecycle(stream.toString().trim())
                 } else {
                     String prefix = String.format(messageHead + ' (%d:%02d s)', duration.toMinutes(), duration.getSeconds() % 60)

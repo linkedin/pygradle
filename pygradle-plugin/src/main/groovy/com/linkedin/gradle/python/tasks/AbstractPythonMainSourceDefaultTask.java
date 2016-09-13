@@ -48,12 +48,13 @@ import java.util.List;
 abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask implements FailureReasonProvider {
 
     FileTree sources;
+    private List<String> arguments = new ArrayList<>();
     private PythonExtension component;
     private PythonDetails pythonDetails;
     private String output;
-    
+
     @Input
-    public List<String> additionalArguments = new ArrayList<String>();
+    public List<String> additionalArguments = new ArrayList<>();
 
     @InputFiles
     public FileCollection getSourceFiles() {
@@ -118,15 +119,15 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask im
         ExecResult result = getProject().exec(new Action<ExecSpec>() {
             @Override
             public void execute(ExecSpec execSpec) {
-                container.execute(execSpec);
                 execSpec.environment(getComponent().pythonEnvironment);
                 execSpec.environment(getComponent().pythonEnvironmentDistgradle);
                 execSpec.commandLine(VirtualEnvExecutableHelper.getPythonInterpreter(getPythonDetails()));
                 execSpec.args(arguments);
                 execSpec.args(additionalArguments);
-                execSpec.setStandardOutput(stdOut);
-                execSpec.setErrorOutput(errOut);
                 execSpec.setIgnoreExitValue(ignoreExitValue);
+
+                container.execute(execSpec);
+
                 configureExecution(execSpec);
             }
         });

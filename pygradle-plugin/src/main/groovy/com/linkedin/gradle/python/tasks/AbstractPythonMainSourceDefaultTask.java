@@ -47,6 +47,9 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask {
     FileTree sources;
     private PythonExtension component;
     private List<String> arguments = new ArrayList<String>();
+    
+    @Input
+    public List<String> additionalArguments = new ArrayList<String>();
 
     @InputFiles
     public FileCollection getSourceFiles() {
@@ -101,6 +104,7 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask {
                 execSpec.environment(getComponent().pythonEnvironmentDistgradle);
                 execSpec.commandLine(VirtualEnvExecutableHelper.getPythonInterpreter(getComponent()));
                 execSpec.args(arguments);
+                execSpec.args(additionalArguments);
                 execSpec.setStandardOutput(stdOut);
                 execSpec.setErrorOutput(errOut);
                 execSpec.setIgnoreExitValue(ignoreExitValue);

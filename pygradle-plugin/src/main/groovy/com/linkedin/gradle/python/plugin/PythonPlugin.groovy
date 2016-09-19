@@ -150,6 +150,7 @@ class PythonPlugin implements Plugin<Project> {
          */
         project.tasks.create(TASK_VENV_CREATE, InstallVirtualEnvironmentTask) { task ->
             task.dependsOn pinRequirementsTask
+            task.pythonDetails = settings.details
         }
 
         /**

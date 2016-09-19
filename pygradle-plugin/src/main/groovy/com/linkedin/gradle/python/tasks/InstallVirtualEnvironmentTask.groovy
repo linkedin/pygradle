@@ -15,7 +15,7 @@
  */
 package com.linkedin.gradle.python.tasks
 
-import com.linkedin.gradle.python.PythonExtension
+import com.linkedin.gradle.python.extension.PythonDetails
 import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider
 import com.linkedin.gradle.python.tasks.execution.TeeOutputContainer
 import groovy.transform.CompileDynamic
@@ -37,14 +37,7 @@ import org.gradle.util.VersionNumber
 @CompileStatic
 class InstallVirtualEnvironmentTask extends DefaultTask implements FailureReasonProvider {
 
-    PythonExtension component
-
-    public PythonExtension getComponent() {
-        if (component == null) {
-            component = getProject().getExtensions().getByType(PythonExtension)
-        }
-        return component
-    }
+    private PythonDetails pythonDetails
 
     @InputFiles
     Configuration getPyGradleBootstrap() {
@@ -53,7 +46,7 @@ class InstallVirtualEnvironmentTask extends DefaultTask implements FailureReason
 
     @OutputFile
     File getVirtualEnvDir() {
-        return getComponent().getDetails().getVirtualEnvInterpreter()
+        return pythonDetails.getVirtualEnvInterpreter()
     }
 
     final TeeOutputContainer container = new TeeOutputContainer()
@@ -83,11 +76,11 @@ class InstallVirtualEnvironmentTask extends DefaultTask implements FailureReason
             void execute(ExecSpec execSpec) {
                 container.execute(execSpec)
                 execSpec.commandLine(
-                    getComponent().getDetails().getSystemPythonInterpreter(),
+                    pythonDetails.getSystemPythonInterpreter(),
                     project.file("${packageDir}/virtualenv-${version}/virtualenv.py"),
-                    '--python', getComponent().getDetails().getSystemPythonInterpreter(),
-                    '--prompt', getComponent().getDetails().virtualEnvPrompt,
-                    getComponent().getDetails().getVirtualEnv())
+                    '--python', pythonDetails.getSystemPythonInterpreter(),
+                    '--prompt', pythonDetails.virtualEnvPrompt,
+                    pythonDetails.getVirtualEnv())
             }
         })
         project.delete(packageDir)
@@ -114,6 +107,14 @@ class InstallVirtualEnvironmentTask extends DefaultTask implements FailureReason
     @Override
     String getReason() {
         return container.getCommandOutput()
+    }
+
+    public void setPythonDetails(PythonDetails pythonDetails) {
+        this.pythonDetails = pythonDetails
+    }
+
+    public PythonDetails getPythonDetails() {
+        return pythonDetails
     }
 
     private class VirtualEnvSpec implements Spec<Dependency> {

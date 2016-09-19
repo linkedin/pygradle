@@ -23,6 +23,7 @@ import com.linkedin.gradle.python.util.ConsoleOutput
 import com.linkedin.gradle.python.util.ExtensionUtils
 import com.linkedin.gradle.python.util.PackageInfo
 import com.linkedin.gradle.python.util.VirtualEnvExecutableHelper
+import groovy.transform.TypeChecked
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -106,7 +107,7 @@ class BuildWheelsTask extends DefaultTask {
      * @param installables A collection of Python source distributions to compile as wheels.
      * @param env The environment to pass along to <pre>pip</pre>.
      */
-    protected static void buildWheels(Project project, Collection<File> installables, PythonDetails pythonDetails) {
+    protected void buildWheels(Project project, Collection<File> installables, PythonDetails pythonDetails) {
 
         WheelExtension wheelExtension = ExtensionUtils.getPythonComponentExtension(project, WheelExtension)
         def pythonExtension = ExtensionUtils.getPythonExtension(project)

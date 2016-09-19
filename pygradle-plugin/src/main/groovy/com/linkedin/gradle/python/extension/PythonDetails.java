@@ -27,6 +27,7 @@ public class PythonDetails implements Serializable {
 
     private final Project project;
 
+    private final File venvOverride;
     private File activateLink;
     private File pythonInterpreter;
     private String virtualEnvPrompt;
@@ -35,6 +36,10 @@ public class PythonDetails implements Serializable {
     private List<File> searchPath;
 
     public PythonDetails(Project project) {
+        this(project, null);
+    }
+
+    public PythonDetails(Project project, File venvDir) {
         this.project = project;
         pythonInterpreter = new File("/usr/bin/python");
         updateFromPythonInterpreter();
@@ -42,6 +47,7 @@ public class PythonDetails implements Serializable {
         activateLink = new File(project.getProjectDir(), "activate");
         virtualEnvPrompt = String.format("(%s)", project.getName());
         searchPath = ExecutablePathUtils.getPath();
+        venvOverride = venvDir;
     }
 
     private void updateFromPythonInterpreter() {
@@ -60,7 +66,11 @@ public class PythonDetails implements Serializable {
     }
 
     public File getVirtualEnv() {
-        return new File(project.getBuildDir(), "venv");
+        if (null == venvOverride) {
+            return new File(project.getBuildDir(), "venv");
+        } else {
+            return venvOverride;
+        }
     }
 
     public File getVirtualEnvInterpreter() {

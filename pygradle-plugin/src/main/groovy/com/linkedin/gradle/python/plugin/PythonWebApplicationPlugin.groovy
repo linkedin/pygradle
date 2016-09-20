@@ -55,7 +55,7 @@ class PythonWebApplicationPlugin extends PythonBasePlugin {
             task.deployableExtension = deployableExtension
             task.wheelExtension = wheelExtension
             task.pexExtension = pexExtension
-            task.pythonInterpreter = settings.details.virtualEnvInterpreter.path
+            task.pythonInterpreter = settings.details.systemPythonInterpreter.path
             task.executable = new File(deployableExtension.deployableBinDir, "gunicorn")
             task.entryPoint = GUNICORN_ENTRYPOINT
         }

@@ -112,7 +112,7 @@ class PexExecSpecAction implements Action<ExecSpec> {
             pexExtension.getPexCache(),
             new File(deployableExtension.getDeployableBinDir(), pexName),
             wheelExtension.getWheelCache(),
-            pythonExtension.getDetails().getVirtualEnvInterpreter(),
+            pythonExtension.getDetails().getSystemPythonInterpreter(),
             entryPoint,
             dependencies);
     }
@@ -135,7 +135,7 @@ class PexExecSpecAction implements Action<ExecSpec> {
             pexExtension.getPexCache(),
             new File(deployableExtension.getDeployableBinDir(), pexName + ".pex"),
             wheelExtension.getWheelCache(),
-            pythonExtension.getDetails().getVirtualEnvInterpreter(),
+            pythonExtension.getDetails().getSystemPythonInterpreter(),
             null,
             dependencies);
     }

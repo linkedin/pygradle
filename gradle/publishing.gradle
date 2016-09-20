@@ -44,7 +44,11 @@ publishing {
             }
         }
         ivyJava(IvyPublication) {
-          from components.java
+            if (project.version.isSnapshot() && project.hasProperty('enableLongVersion')) {
+                revision = project.version.withBuildNumber(startTime)
+                println("Testing Version : " + revision)
+            }
+            from components.java
         }
     }
     repositories {

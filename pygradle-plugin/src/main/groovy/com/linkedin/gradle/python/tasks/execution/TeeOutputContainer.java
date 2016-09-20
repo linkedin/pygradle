@@ -16,7 +16,6 @@
 package com.linkedin.gradle.python.tasks.execution;
 
 import org.apache.commons.io.output.TeeOutputStream;
-import org.gradle.api.Action;
 import org.gradle.process.ExecSpec;
 
 import java.io.ByteArrayOutputStream;
@@ -25,7 +24,7 @@ import java.io.OutputStream;
 /**
  * Collects all the output of commands so they can be used elsewhere
  */
-public class TeeOutputContainer implements Action<ExecSpec>  {
+public class TeeOutputContainer  {
 
     private final ByteArrayOutputStream mergedStream = new ByteArrayOutputStream();
     private final OutputStream teeStdOut;
@@ -41,8 +40,7 @@ public class TeeOutputContainer implements Action<ExecSpec>  {
     }
 
 
-    @Override
-    public void execute(ExecSpec execSpec) {
+    public void setOutputs(ExecSpec execSpec) {
         execSpec.setStandardOutput(teeStdOut);
         execSpec.setErrorOutput(teeErrOut);
     }

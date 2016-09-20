@@ -126,7 +126,7 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask im
                 execSpec.args(additionalArguments);
                 execSpec.setIgnoreExitValue(ignoreExitValue);
 
-                container.execute(execSpec);
+                container.setOutputs(execSpec);
 
                 configureExecution(execSpec);
             }

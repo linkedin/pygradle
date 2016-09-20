@@ -98,14 +98,14 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider {
         def pyVersion = pythonDetails.getPythonVersion().pythonMajorMinor
         def extension = ExtensionUtils.getPythonExtension(project)
 
-        getConfigurationFiles().each { File installable ->
+        for (File installable : getConfigurationFiles()) {
 
             def packageInfo = PackageInfo.fromPath(installable.getAbsolutePath())
             def shortHand = packageInfo.version ? "${packageInfo.name}-${packageInfo.version}" : packageInfo.name
 
             if (packageExcludeFilter.isSatisfiedBy(packageInfo)) {
                 logger.lifecycle(PythonHelpers.createPrettyLine("Install ${shortHand}", "[EXCLUDED]"))
-                return
+                continue
             }
 
             String sanitizedName = packageInfo.name.replace('-', '_')
@@ -129,7 +129,7 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider {
 
             if (project.file(egg).exists() || project.file(dist).exists()) {
                 logger.lifecycle(PythonHelpers.createPrettyLine("Install ${shortHand}", "[SKIPPING]"))
-                return
+                continue
             }
 
             logger.lifecycle(PythonHelpers.createPrettyLine("Install ${shortHand}", "[STARTING]"))

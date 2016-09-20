@@ -74,7 +74,7 @@ class InstallVirtualEnvironmentTask extends DefaultTask implements FailureReason
         project.exec(new Action<ExecSpec>() {
             @Override
             void execute(ExecSpec execSpec) {
-                container.execute(execSpec)
+                container.setOutputs(execSpec)
                 execSpec.commandLine(
                     pythonDetails.getSystemPythonInterpreter(),
                     project.file("${packageDir}/virtualenv-${version}/virtualenv.py"),

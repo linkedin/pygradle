@@ -9,6 +9,10 @@ allprojects {
     group = 'com.linkedin.pygradle'
 }
 
+ext {
+    startTime = System.currentTimeMillis()
+}
+
 subprojects {
     apply plugin: 'idea'
     apply plugin: 'java'

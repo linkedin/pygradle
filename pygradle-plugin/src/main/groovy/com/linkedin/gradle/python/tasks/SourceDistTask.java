@@ -40,7 +40,7 @@ public class SourceDistTask extends DefaultTask implements FailureReasonProvider
         getProject().exec(new Action<ExecSpec>() {
             @Override
             public void execute(ExecSpec execSpec) {
-                container.execute(execSpec);
+                container.setOutputs(execSpec);
                 execSpec.environment(settings.pythonEnvironmentDistgradle);
                 execSpec.commandLine(
                         VirtualEnvExecutableHelper.getPythonInterpreter(settings.getDetails()),

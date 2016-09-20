@@ -91,7 +91,7 @@ public class BuildPexTask extends DefaultTask implements FailureReasonProvider {
     }
 
     private void configureExecution(PythonExtension pythonExtension, ExecSpec spec) {
-        container.execute(spec);
+        container.setOutputs(spec);
         WheelExtension wheelExtension = ExtensionUtils.maybeCreateWheelExtension(getProject());
 
         spec.environment(pythonExtension.pythonEnvironment);

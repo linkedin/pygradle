@@ -65,9 +65,9 @@ class PexFileUtil {
             if (buildPexResult.exitValue != 0) {
                 def outputString = output.toString().trim()
                 println(outputString)
-                def packageMatcher = (outputString =~ /(?s).*Could not satisfy all requirements for ([\w\-]+):.*/)
+                def packageMatcher = (outputString =~ /(?s).*Could not satisfy all requirements for ([\w.-]+):.*/)
                 def packageName = "<see output above>"
-                if (packageMatcher.hasGroup()) {
+                if (packageMatcher.matches()) {
                     packageName = packageMatcher[0][1]
                 }
 

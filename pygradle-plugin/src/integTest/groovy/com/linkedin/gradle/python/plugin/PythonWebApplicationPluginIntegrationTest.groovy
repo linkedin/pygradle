@@ -58,5 +58,13 @@ class PythonWebApplicationPluginIntegrationTest extends Specification {
         result.task(':check').outcome == TaskOutcome.SUCCESS
         result.task(':build').outcome == TaskOutcome.SUCCESS
         result.task(':packageWebApplication').outcome == TaskOutcome.SUCCESS
+
+        when: "we have a pex file"
+        def line
+        new File(testProjectDir.getRoot(), "build/deployable/bin/testProject.pex").withReader { line = it.readLine() }
+
+        then: "its shebang line is not pointing to a virtualenv"
+        line.startsWith("#!") && !line.contains("venv")
+
     }
 }

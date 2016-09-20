@@ -62,6 +62,13 @@ class PexIntegrationTest extends Specification {
         new File(testProjectDir.getRoot(), "build/deployable/bin/hello_world").exists()
         new File(testProjectDir.getRoot(), "build/deployable/bin/testProject.pex").exists()
 
+        when: "we have a pex file"
+        def line
+        new File(testProjectDir.getRoot(), "build/deployable/bin/testProject.pex").withReader { line = it.readLine() }
+
+        then: "its shebang line is not pointing to a virtualenv"
+        line.startsWith("#!") && !line.contains("venv")
+
         when:
         def out = new StringBuilder()
         def proc = "${testProjectDir.getRoot().getAbsolutePath()}/build/deployable/bin/hello_world".execute()
@@ -113,6 +120,13 @@ class PexIntegrationTest extends Specification {
         result.task(':buildPex').outcome == TaskOutcome.SUCCESS
 
         new File(testProjectDir.getRoot(), "build/deployable/bin/hello_world").exists()
+
+        when: "we have a pex file"
+        def line
+        new File(testProjectDir.getRoot(), "build/deployable/bin/hello_world").withReader { line = it.readLine() }
+
+        then: "its shebang line is not pointing to a virtualenv"
+        line.startsWith("#!") && !line.contains("venv")
 
         when:
         def out = new StringBuilder()

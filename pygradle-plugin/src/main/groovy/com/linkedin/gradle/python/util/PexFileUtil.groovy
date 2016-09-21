@@ -104,7 +104,12 @@ class PexFileUtil {
 
         /** Special cases, such as sphinx-rtd-theme with weird metadata */
         Set<String> specialCases = new HashSet<String>()
-        specialCases.addAll(['sphinx-rtd-theme', 'sphinx_rtd_theme'])
+        specialCases.addAll(['sphinx-rtd-theme',
+                             'sphinx_rtd_theme',
+                             'setuptools-scm',
+                             'setuptools_scm',
+                             'setuptools-subversion',
+                             'setuptools_subversion'])
 
         /** Setup requirements, build, and test dependencies + special cases */
         Set<String> developmentDependencies = configurationToSet(project.configurations.setupRequires.files)

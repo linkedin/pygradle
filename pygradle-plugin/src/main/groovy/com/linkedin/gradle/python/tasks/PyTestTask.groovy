@@ -46,6 +46,8 @@ class PyTestTask extends AbstractPythonTestSourceDefaultTask {
     void processResults(ExecResult execResult) {
         if (execResult.exitValue == NO_TESTS_COLLECTED_ERRNO) {
             logger.warn("***** WARNING: You did not write any tests! *****")
+        } else {
+            execResult.assertNormalExitValue()
         }
     }
 

@@ -115,3 +115,4 @@ publish a version until we can validate the changes internally.
 was merged into pip master that fixes the issue (https://github.com/pypa/pip/pull/3701), a version of pip with the fix in it
 has not been released yet. If this is an issue for your org, you could release a version of pip with this fix in it. For
 more details on the change and issues please review https://github.com/pypa/pip/pull/3701 and https://github.com/pypa/pip/pull/3079
+

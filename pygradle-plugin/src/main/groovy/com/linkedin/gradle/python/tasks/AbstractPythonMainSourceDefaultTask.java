@@ -28,6 +28,7 @@ import org.gradle.api.file.FileTree;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputDirectory;
 import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecResult;
 import org.gradle.process.ExecSpec;
@@ -70,6 +71,7 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask im
         return new String[]{"**/*.pyc", "**/*.pyo", "**/__pycache__/"};
     }
 
+    @Internal
     public PythonExtension getComponent() {
         if (null == component) {
             component = getProject().getExtensions().getByType(PythonExtension.class);
@@ -77,6 +79,7 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask im
         return component;
     }
 
+    @Internal
     public PythonDetails getPythonDetails() {
         if (null == pythonDetails) {
             pythonDetails = getComponent().getDetails();
@@ -145,6 +148,7 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask im
 
     public abstract void processResults(ExecResult execResult);
 
+    @Internal
     @Override
     public String getReason() {
         return output;

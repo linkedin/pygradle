@@ -49,10 +49,11 @@ class PipFreezeOutputParserTest extends Specification {
             |wheel==0.26.0'''.stripMargin().stripIndent()
 
         expect:
-        PipFreezeOutputParser.getDependencies(
-            ['pbr', 'Babel', 'pep8', 'py', 'setuptools', 'pytest-xdist', 'Jinja2', 'flake8', 'snowballstemmer',
-             'alabaster', 'sphinx_rtd_theme', 'Pygments', 'pytest-cov', 'pip', 'mccabe', 'docutils', 'coverage', 'pex',
-             'six', 'setuptools-git', 'pyflakes', 'pytest', 'sphinx-rtd-theme', 'wheel', 'imagesize', 'argparse',
-             'Sphinx', 'colorama', 'pytz'], freezeOutput) == ['testProject']
+        PipFreezeOutputParser.getDependencies([
+            'pbr', 'Babel', 'pep8', 'py', 'setuptools', 'pytest-xdist', 'Jinja2', 'flake8', 'snowballstemmer',
+            'alabaster', 'sphinx_rtd_theme', 'Pygments', 'pytest-cov', 'pip', 'mccabe', 'docutils', 'coverage', 'pex',
+            'six', 'setuptools-git', 'pyflakes', 'pytest', 'wheel', 'imagesize', 'argparse', 'Sphinx', 'colorama',
+            'pytz'
+        ], freezeOutput) == ['testProject']
     }
 }

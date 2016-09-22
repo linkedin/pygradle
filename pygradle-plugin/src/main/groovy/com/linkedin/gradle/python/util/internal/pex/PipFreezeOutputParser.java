@@ -36,7 +36,9 @@ class PipFreezeOutputParser {
         for (String it : requirements.split("\n")) {
             String[] split = it.split("==");
             String name = split[0];
-            if (!ignoredDependencies.contains(name)) {
+            // The tar name can have _ when package name has -, so check both.
+            if (!(ignoredDependencies.contains(name)
+                || ignoredDependencies.contains(name.replace("-", "_")))) {
                 reqs.add(name);
             }
         }

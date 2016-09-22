@@ -50,7 +50,14 @@ class PipFreezeAction {
         developmentDependencies.addAll(configurationToSet(project, PythonPlugin.CONFIGURATION_TEST));
 
         // Special cases, such as sphinx-rtd-theme with weird metadata
-        developmentDependencies.addAll(Arrays.asList("sphinx-rtd-theme", "sphinx_rtd_theme"));
+        developmentDependencies.addAll(Arrays.asList(
+            "sphinx-rtd-theme",
+            "sphinx_rtd_theme",
+            "setuptools-scm",
+            "setuptools_scm",
+            "setuptools-subversion",
+            "setuptools_subversion"
+        ));
         developmentDependencies.removeAll(configurationToSet(project, PythonPlugin.CONFIGURATION_PYTHON));
 
         if (Objects.equals(settings.getDetails().getPythonVersion().getPythonMajorMinor(), "2.6") && developmentDependencies.contains("argparse")) {

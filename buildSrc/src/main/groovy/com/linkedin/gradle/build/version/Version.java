@@ -81,4 +81,8 @@ public class Version {
     public boolean isSnapshot() {
         return snapshot;
     }
+
+    public String withBuildNumber(Long buildNumber) {
+        return String.format("%d.%d.%d.%d-SNAPSHOT", major, minor, patch, buildNumber);
+    }
 }

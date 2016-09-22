@@ -65,9 +65,9 @@ class PexFileUtil {
             if (buildPexResult.exitValue != 0) {
                 def outputString = output.toString().trim()
                 println(outputString)
-                def packageMatcher = (outputString =~ /(?s).*Could not satisfy all requirements for ([\w\-]+):.*/)
+                def packageMatcher = (outputString =~ /(?s).*Could not satisfy all requirements for ([\w.-]+):.*/)
                 def packageName = "<see output above>"
-                if (packageMatcher.hasGroup()) {
+                if (packageMatcher.matches()) {
                     packageName = packageMatcher[0][1]
                 }
 
@@ -78,6 +78,11 @@ class PexFileUtil {
                     | This typically happens because your virtual environment contains a cached copy of ${packageName}
                     | that no other package depends on any more.
                     | Usually, this is the result of updating a package that used to depend on ${packageName}.
+                    |
+                    | Another possible reason is that you started using a newer version of Python
+                    | without checking if all the libraries you use are compatible.
+                    | If you can find the missing package in the output above with the message
+                    | [EXCLUDED], then it works only with lower versions of Python.
                     """.stripMargin().stripIndent()
                 )
 
@@ -99,7 +104,12 @@ class PexFileUtil {
 
         /** Special cases, such as sphinx-rtd-theme with weird metadata */
         Set<String> specialCases = new HashSet<String>()
-        specialCases.addAll(['sphinx-rtd-theme', 'sphinx_rtd_theme'])
+        specialCases.addAll(['sphinx-rtd-theme',
+                             'sphinx_rtd_theme',
+                             'setuptools-scm',
+                             'setuptools_scm',
+                             'setuptools-subversion',
+                             'setuptools_subversion'])
 
         /** Setup requirements, build, and test dependencies + special cases */
         Set<String> developmentDependencies = configurationToSet(project.configurations.setupRequires.files)

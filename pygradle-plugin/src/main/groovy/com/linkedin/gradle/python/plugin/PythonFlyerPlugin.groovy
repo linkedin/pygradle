@@ -96,10 +96,6 @@ class PythonFlyerPlugin implements Plugin<Project> {
          */
         project.tasks.create(name: TASK_PACKAGE_RESOURCE_FILES, type: Copy) { Copy copy ->
             def deployableExtension = ExtensionUtils.maybeCreateDeployableExtension(project)
-
-            copy.inputs.dir(resourceConf)
-            copy.outputs.dir("${deployableExtension.deployableBuildDir}/resource")
-
             copy.dependsOn(project.tasks['buildWebApplication'])
 
             copy.from resourceConf

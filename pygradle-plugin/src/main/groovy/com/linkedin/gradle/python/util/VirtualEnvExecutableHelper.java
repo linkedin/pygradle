@@ -16,6 +16,7 @@
 package com.linkedin.gradle.python.util;
 
 import com.linkedin.gradle.python.PythonExtension;
+import com.linkedin.gradle.python.extension.PythonDetails;
 
 import java.io.File;
 
@@ -25,16 +26,31 @@ public class VirtualEnvExecutableHelper {
         //private constructor for util class
     }
 
+    @Deprecated
     public static File getPythonInterpreter(PythonExtension pythonExtension) {
-        return pythonExtension.getDetails().getVirtualEnvInterpreter();
+        return getPythonInterpreter(pythonExtension.getDetails());
     }
 
+    public static File getPythonInterpreter(PythonDetails pythonDetails) {
+        return pythonDetails.getVirtualEnvInterpreter();
+    }
+
+    @Deprecated
     public static File getPip(PythonExtension pythonExtension) {
-        return getExecutable(pythonExtension, "bin/pip");
+        return getPip(pythonExtension.getDetails());
     }
 
+    public static File getPip(PythonDetails pythonDetails) {
+        return getExecutable(pythonDetails, "bin/pip");
+    }
+
+    @Deprecated
     public static File getPex(PythonExtension pythonExtension) {
-        return getExecutable(pythonExtension, "bin/pex");
+        return getPex(pythonExtension.getDetails());
+    }
+
+    public static File getPex(PythonDetails pythonDetails) {
+        return getExecutable(pythonDetails, "bin/pex");
     }
 
     public static File getExecutable(File file) {
@@ -45,11 +61,21 @@ public class VirtualEnvExecutableHelper {
         return file;
     }
 
+    @Deprecated
     public static File getExecutable(PythonExtension pythonExtension, String path) {
-        return getExecutable(new File(pythonExtension.getDetails().getVirtualEnv(), path));
+        return getExecutable(pythonExtension.getDetails(), path);
     }
 
+    public static File getExecutable(PythonDetails pythonDetails, String path) {
+        return getExecutable(new File(pythonDetails.getVirtualEnv(), path));
+    }
+
+    @Deprecated
     public static File findExecutable(PythonExtension pythonExtension, String path) {
-        return new File(pythonExtension.getDetails().getVirtualEnv(), path);
+        return findExecutable(pythonExtension.getDetails(), path);
+    }
+
+    public static File findExecutable(PythonDetails pythonDetails, String path) {
+        return new File(pythonDetails.getVirtualEnv(), path);
     }
 }

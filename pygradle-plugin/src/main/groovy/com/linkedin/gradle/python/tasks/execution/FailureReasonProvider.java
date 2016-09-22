@@ -13,23 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.tasks
+package com.linkedin.gradle.python.tasks.execution;
 
-import com.linkedin.gradle.python.util.VirtualEnvExecutableHelper
-import groovy.transform.CompileStatic
-import org.gradle.process.ExecResult
+/**
+ * Used by tasks that will provide output messages when something goes wrong.
+ *
+ * This is useful for collecting metric information.
+ */
+public interface FailureReasonProvider {
 
-@CompileStatic
-public class Flake8Task extends AbstractPythonMainSourceDefaultTask {
-
-  public void preExecution() {
-    args(VirtualEnvExecutableHelper.getExecutable(pythonDetails, "bin/flake8").absolutePath,
-        "--config", "$component.setupCfg",
-        "$component.srcDir",
-        "$component.testDir")
-  }
-
-  @Override
-  void processResults(ExecResult execResult) {
-  }
+    /**
+     * @return the message for what went wrong
+     */
+    String getReason();
 }

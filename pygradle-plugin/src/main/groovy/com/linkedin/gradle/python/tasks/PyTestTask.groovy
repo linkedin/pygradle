@@ -20,7 +20,6 @@ import groovy.transform.CompileStatic
 import org.gradle.api.internal.tasks.options.Option
 import org.gradle.process.ExecResult
 
-
 /**
  * Run py.test on test directory
  */
@@ -37,7 +36,7 @@ class PyTestTask extends AbstractPythonTestSourceDefaultTask {
 
     @Override
     public void preExecution() {
-        args(VirtualEnvExecutableHelper.findExecutable(component, "bin/py.test").absolutePath)
+        args(VirtualEnvExecutableHelper.findExecutable(pythonDetails, "bin/py.test").absolutePath)
         if (!specificFileGiven) {
             args(component.testDir)
         }

@@ -16,6 +16,9 @@
 package com.linkedin.gradle.python.tasks;
 
 import com.linkedin.gradle.python.PythonExtension;
+import com.linkedin.gradle.python.extension.PythonDetails;
+import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider;
+import com.linkedin.gradle.python.tasks.execution.TeeOutputContainer;
 import com.linkedin.gradle.python.util.VirtualEnvExecutableHelper;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
@@ -25,6 +28,7 @@ import org.gradle.api.file.FileTree;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputDirectory;
 import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecResult;
 import org.gradle.process.ExecSpec;
@@ -42,14 +46,16 @@ import java.util.List;
  * and will only get executed right before gradle tries to figure out the inputs/outputs. By making it lazy
  * will allow {@link PythonExtension} to be updated by the project and be complete when its used in the tasks.
  */
-abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask {
+abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask implements FailureReasonProvider {
 
     FileTree sources;
+    private List<String> arguments = new ArrayList<>();
     private PythonExtension component;
-    private List<String> arguments = new ArrayList<String>();
-    
+    private PythonDetails pythonDetails;
+    private String output;
+
     @Input
-    public List<String> additionalArguments = new ArrayList<String>();
+    public List<String> additionalArguments = new ArrayList<>();
 
     @InputFiles
     public FileCollection getSourceFiles() {
@@ -65,6 +71,7 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask {
         return new String[]{"**/*.pyc", "**/*.pyo", "**/__pycache__/"};
     }
 
+    @Internal
     public PythonExtension getComponent() {
         if (null == component) {
             component = getProject().getExtensions().getByType(PythonExtension.class);
@@ -72,9 +79,21 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask {
         return component;
     }
 
+    @Internal
+    public PythonDetails getPythonDetails() {
+        if (null == pythonDetails) {
+            pythonDetails = getComponent().getDetails();
+        }
+        return pythonDetails;
+    }
+
+    public void setPythonDetails(PythonDetails pythonDetails) {
+        this.pythonDetails = pythonDetails;
+    }
+
     @InputDirectory
     public FileTree getVirtualEnv() {
-        ConfigurableFileTree files = getProject().fileTree(getComponent().getDetails().getVirtualEnv());
+        ConfigurableFileTree files = getProject().fileTree(getPythonDetails().getVirtualEnv());
         files.exclude(standardExcludes());
         return files;
     }
@@ -97,20 +116,26 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask {
     @TaskAction
     public void executePythonProcess() {
         preExecution();
+
+        final TeeOutputContainer container = new TeeOutputContainer(stdOut, errOut);
+
         ExecResult result = getProject().exec(new Action<ExecSpec>() {
             @Override
             public void execute(ExecSpec execSpec) {
                 execSpec.environment(getComponent().pythonEnvironment);
                 execSpec.environment(getComponent().pythonEnvironmentDistgradle);
-                execSpec.commandLine(VirtualEnvExecutableHelper.getPythonInterpreter(getComponent()));
+                execSpec.commandLine(VirtualEnvExecutableHelper.getPythonInterpreter(getPythonDetails()));
                 execSpec.args(arguments);
                 execSpec.args(additionalArguments);
-                execSpec.setStandardOutput(stdOut);
-                execSpec.setErrorOutput(errOut);
                 execSpec.setIgnoreExitValue(ignoreExitValue);
+
+                container.setOutputs(execSpec);
+
                 configureExecution(execSpec);
             }
         });
+
+        output = container.getCommandOutput();
 
         processResults(result);
     }
@@ -122,4 +147,10 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask {
     }
 
     public abstract void processResults(ExecResult execResult);
+
+    @Internal
+    @Override
+    public String getReason() {
+        return output;
+    }
 }

@@ -18,6 +18,8 @@ package com.linkedin.gradle.python.tasks;
 import java.io.File;
 
 import com.linkedin.gradle.python.PythonExtension;
+import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider;
+import com.linkedin.gradle.python.tasks.execution.TeeOutputContainer;
 import com.linkedin.gradle.python.util.VirtualEnvExecutableHelper;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
@@ -27,8 +29,9 @@ import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecSpec;
 
 
-public class SourceDistTask extends DefaultTask {
+public class SourceDistTask extends DefaultTask implements FailureReasonProvider {
 
+    private TeeOutputContainer container = new TeeOutputContainer();
     @TaskAction
     public void packageSdist() {
 
@@ -37,9 +40,10 @@ public class SourceDistTask extends DefaultTask {
         getProject().exec(new Action<ExecSpec>() {
             @Override
             public void execute(ExecSpec execSpec) {
+                container.setOutputs(execSpec);
                 execSpec.environment(settings.pythonEnvironmentDistgradle);
                 execSpec.commandLine(
-                        VirtualEnvExecutableHelper.getPythonInterpreter(settings),
+                        VirtualEnvExecutableHelper.getPythonInterpreter(settings.getDetails()),
                         "setup.py",
                         "sdist",
                         "--dist-dir",
@@ -56,5 +60,10 @@ public class SourceDistTask extends DefaultTask {
 
     private File getDistDir() {
         return new File(getProject().getBuildDir(), "distributions");
+    }
+
+    @Override
+    public String getReason() {
+        return container.getCommandOutput();
     }
 }

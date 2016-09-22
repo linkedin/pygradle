@@ -42,7 +42,7 @@ class SphinxDocumentationTask extends AbstractPythonMainSourceDefaultTask {
 
     @Override
     public void preExecution() {
-        args(VirtualEnvExecutableHelper.getExecutable(component, "bin/sphinx-build").absolutePath,
+        args(VirtualEnvExecutableHelper.getExecutable(pythonDetails, "bin/sphinx-build").absolutePath,
             '-b', type.builderName,
             project.file(component.docsDir).getAbsolutePath(),
             "${getDocDir().getAbsolutePath()}")

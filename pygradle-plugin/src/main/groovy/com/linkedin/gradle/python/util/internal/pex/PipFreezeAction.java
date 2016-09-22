@@ -26,7 +26,6 @@ import org.gradle.process.ExecSpec;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -44,16 +43,15 @@ class PipFreezeAction {
     public List<String> getDependencies() {
         final PythonExtension settings = ExtensionUtils.getPythonExtension(project);
 
-        // Setup requirements, build, and test dependencies + special cases
+        // Setup requirements, build, and test dependencies
         Set<String> developmentDependencies = configurationToSet(project, PythonPlugin.CONFIGURATION_SETUP_REQS);
         developmentDependencies.addAll(configurationToSet(project, PythonPlugin.CONFIGURATION_BUILD_REQS));
         developmentDependencies.addAll(configurationToSet(project, PythonPlugin.CONFIGURATION_TEST));
 
-        // Special cases, such as sphinx-rtd-theme with weird metadata
-        developmentDependencies.addAll(Arrays.asList("sphinx-rtd-theme", "sphinx_rtd_theme"));
         developmentDependencies.removeAll(configurationToSet(project, PythonPlugin.CONFIGURATION_PYTHON));
 
-        if (Objects.equals(settings.getDetails().getPythonVersion().getPythonMajorMinor(), "2.6") && developmentDependencies.contains("argparse")) {
+        if (Objects.equals(settings.getDetails().getPythonVersion().getPythonMajorMinor(), "2.6")
+            && developmentDependencies.contains("argparse")) {
             developmentDependencies.remove("argparse");
         }
 

@@ -102,20 +102,10 @@ class PexFileUtil {
     static List<String> pipFreeze(Project project) {
         PythonExtension settings = project.getExtensions().getByType(PythonExtension)
 
-        /** Special cases, such as sphinx-rtd-theme with weird metadata */
-        Set<String> specialCases = new HashSet<String>()
-        specialCases.addAll(['sphinx-rtd-theme',
-                             'sphinx_rtd_theme',
-                             'setuptools-scm',
-                             'setuptools_scm',
-                             'setuptools-subversion',
-                             'setuptools_subversion'])
-
-        /** Setup requirements, build, and test dependencies + special cases */
+        // Setup requirements, build, and test dependencies
         Set<String> developmentDependencies = configurationToSet(project.configurations.setupRequires.files)
         developmentDependencies.addAll(configurationToSet(project.configurations.build.files))
         developmentDependencies.addAll(configurationToSet(project.configurations.test.files))
-        developmentDependencies.addAll(specialCases)
         developmentDependencies.removeAll(configurationToSet(project.configurations.python.files))
 
         if (settings.details.pythonVersion.pythonMajorMinor == '2.6' && developmentDependencies.contains('argparse')) {
@@ -127,8 +117,8 @@ class PexFileUtil {
         project.exec {
             environment settings.pythonEnvironment
             commandLine([
-                    VirtualEnvExecutableHelper.getPythonInterpreter(settings),
-                    VirtualEnvExecutableHelper.getPip(settings),
+                    VirtualEnvExecutableHelper.getPythonInterpreter(settings.getDetails()),
+                    VirtualEnvExecutableHelper.getPip(settings.getDetails()),
                     'freeze',
                     '--disable-pip-version-check',
             ])
@@ -139,7 +129,9 @@ class PexFileUtil {
 
         requirements.toString().split('\n').each {
             def (String name, String version) = it.split('==')
-            if (!developmentDependencies.contains(name)) {
+            // The tar name can have _ when package name has -, so check both.
+            if (!(developmentDependencies.contains(name)
+                || developmentDependencies.contains(name.replace('-', '_')))) {
                 reqs.add(name)
             }
         }

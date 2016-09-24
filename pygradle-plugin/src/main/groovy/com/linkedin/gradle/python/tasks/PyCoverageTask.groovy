@@ -50,11 +50,13 @@ class PyCoverageTask extends PyTestTask {
      * Include coverage data
      */
     public void preExecution() {
-        args('--cov',
+        extraArgs.addAll(
+            '--cov',
             project.file(component.srcDir).getAbsolutePath(),
             '--cov-report=xml',
             '--cov-report=html',
-            '--cov-report=term')
+            '--cov-report=term'
+        )
 
         super.preExecution()
     }

@@ -58,11 +58,13 @@ subprojects {
     sourceCompatibility = JavaVersion.VERSION_1_7
     targetCompatibility = JavaVersion.VERSION_1_7
 
+    /* temporarily disable to fit in CI memory limit
     afterEvaluate {
         project.tasks.withType(FindBugs)
             .matching { it.name != 'findbugsMain' }
             .each { it.enabled = false }
     }
+    */
 }
 
 artifactoryPublish.skip = true

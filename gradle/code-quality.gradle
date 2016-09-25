@@ -1,5 +1,5 @@
 apply plugin: 'codenarc'
-apply plugin: 'findbugs'
+// apply plugin: 'findbugs'
 apply plugin: 'checkstyle'
 
 checkstyle {
@@ -19,6 +19,7 @@ codenarc {
     configFile = file("$rootDir/codequality/codenarc/rules.groovy")
 }
 
+/* Temporarily disable to stay within CI memory limit
 findbugs {
     ignoreFailures = true
 }
@@ -29,5 +30,6 @@ tasks.withType(FindBugs) {
         html.enabled = true
     }
 }
+*/
 
 tasks.build.dependsOn(tasks.checkstyleMain)

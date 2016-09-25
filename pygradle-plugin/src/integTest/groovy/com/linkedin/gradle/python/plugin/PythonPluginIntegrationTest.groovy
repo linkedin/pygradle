@@ -38,7 +38,7 @@ class PythonPluginIntegrationTest extends Specification {
         when:
         def result = GradleRunner.create()
                 .withProjectDir(testProjectDir.root)
-                .withArguments('build')
+                .withArguments('build', 'coverage')
                 .withPluginClasspath()
                 .withDebug(true)
                 .build()
@@ -48,6 +48,11 @@ class PythonPluginIntegrationTest extends Specification {
 
         result.output.contains("BUILD SUCCESS")
         result.output.contains('test/test_a.py ..')
+        result.output.contains('--- coverage: ')
+        result.output.contains('src/foo/hello          5      1    80%')
+        result.output.contains('TOTAL                  5      1    80%')
+        result.output.contains('Coverage HTML written to dir htmlcov')
+        result.output.contains('Coverage XML written to file coverage.xml')
         result.task(':flake8').outcome == TaskOutcome.SUCCESS
         result.task(':installPythonRequirements').outcome == TaskOutcome.SUCCESS
         result.task(':installTestRequirements').outcome == TaskOutcome.SUCCESS
@@ -56,6 +61,7 @@ class PythonPluginIntegrationTest extends Specification {
         result.task(':pytest').outcome == TaskOutcome.SUCCESS
         result.task(':check').outcome == TaskOutcome.SUCCESS
         result.task(':build').outcome == TaskOutcome.SUCCESS
+        result.task(':coverage').outcome == TaskOutcome.SUCCESS
     }
 
     def "can use external library"() {

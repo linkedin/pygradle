@@ -28,7 +28,10 @@ class PyTestTask extends AbstractPythonTestSourceDefaultTask {
 
     private static final int NO_TESTS_COLLECTED_ERRNO = 5
 
+    /** specific test file was given and only the tests in that file should be executed */
     boolean specificFileGiven = false
+    /** extra args for subclasses, such as coverage */
+    List<String> extraArgs = []
 
     PyTestTask() {
         ignoreExitValue = true
@@ -37,6 +40,9 @@ class PyTestTask extends AbstractPythonTestSourceDefaultTask {
     @Override
     public void preExecution() {
         args(VirtualEnvExecutableHelper.findExecutable(pythonDetails, "bin/py.test").absolutePath)
+        if (extraArgs != []) {
+            args(extraArgs)
+        }
         if (!specificFileGiven) {
             args(component.testDir)
         }

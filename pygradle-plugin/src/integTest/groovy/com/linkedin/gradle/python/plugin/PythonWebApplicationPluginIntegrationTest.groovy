@@ -66,5 +66,15 @@ class PythonWebApplicationPluginIntegrationTest extends Specification {
         then: "its shebang line is not pointing to a virtualenv"
         line.startsWith("#!") && !line.contains("venv")
 
+        when:
+        def out = new StringBuilder()
+        def proc = "${testProjectDir.getRoot().getAbsolutePath()}/build/deployable/bin/hello_world".execute()
+        proc.consumeProcessOutput(out, out)
+        proc.waitForOrKill(1000)
+        println out.toString()
+
+        then:
+        out.toString() == "Hello World\n"
+
     }
 }

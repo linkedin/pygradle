@@ -31,7 +31,7 @@ For a quick start, lets look at a simple example of publishing a library using t
     }
 
     dependencies {
-        python 'pypi:requests:2.5.1'
+        python 'pypi:requests:2.9.1'
         test 'pypi:mock:1.0.1'
     }
     

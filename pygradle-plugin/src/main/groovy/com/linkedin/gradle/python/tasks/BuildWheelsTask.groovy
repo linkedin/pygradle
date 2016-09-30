@@ -115,9 +115,10 @@ class BuildWheelsTask extends DefaultTask {
 
             def packageInfo = PackageInfo.fromPath(installable.path)
             def shortHand = packageInfo.version ? "${packageInfo.name}-${packageInfo.version}" : packageInfo.name
+            def messageHead = 'Preparing wheel ' + shortHand
 
             if (packageExcludeFilter.isSatisfiedBy(packageInfo)) {
-                logger.lifecycle(PythonHelpers.createPrettyLine("Install ${shortHand}", "[EXCLUDED]"))
+                logger.lifecycle(PythonHelpers.createPrettyLine(messageHead, "[EXCLUDED]"))
                 return
             }
 
@@ -129,9 +130,6 @@ class BuildWheelsTask extends DefaultTask {
                 include: "**/${packageInfo.name.replace('-', '_')}-${packageInfo.version}-*.whl")
 
             def stream = new ByteArrayOutputStream()
-
-
-            def messageHead = 'Preparing wheel ' + shortHand
 
             if (tree.files.size() >= 1) {
                 LOGGER.lifecycle(PythonHelpers.createPrettyLine(messageHead, "[SKIPPING]"))

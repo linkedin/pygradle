@@ -24,7 +24,6 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ResolvedDependency;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
-import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
@@ -35,8 +34,6 @@ import java.io.IOException;
 public class PinRequirementsTask extends DefaultTask {
 
     private static final Logger logger = Logging.getLogger(PinRequirementsTask.class);
-
-    private boolean enableLogging = false;
 
     @TaskAction
     public void writeOutPinnedFile() throws IOException {
@@ -51,9 +48,7 @@ public class PinRequirementsTask extends DefaultTask {
         // source artifact.
         StringBuilder contents = new StringBuilder();
         for (ResolvedDependency r : getPythonConfiguration().getResolvedConfiguration().getFirstLevelModuleDependencies()) {
-            if (logger.isInfoEnabled() || enableLogging) {
-                logger.lifecycle("Pinning {}=={}", r.getModuleName(), r.getModuleVersion());
-            }
+            logger.info("Pinning {}=={}", r.getModuleName(), r.getModuleVersion());
             contents.append(r.getModuleName()).append("==").append(r.getModuleVersion()).append("\n");  //moduleName==moduleVersion\n
         }
 
@@ -71,14 +66,5 @@ public class PinRequirementsTask extends DefaultTask {
     public File getPinnedFile() {
         PythonExtension pythonExtension = ExtensionUtils.getPythonExtension(getProject());
         return pythonExtension.getPinnedFile();
-    }
-
-    @Input
-    public boolean isEnableLogging() {
-        return enableLogging;
-    }
-
-    public void setEnableLogging(boolean enableLogging) {
-        this.enableLogging = enableLogging;
     }
 }

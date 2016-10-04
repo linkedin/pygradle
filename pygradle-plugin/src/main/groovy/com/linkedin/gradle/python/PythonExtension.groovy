@@ -29,7 +29,7 @@ import org.gradle.api.Project
 class PythonExtension {
 
     /** The environment to use for all Python commands. */
-    public Map<String, Object> pythonEnvironment
+    public Map<String, String> pythonEnvironment
 
     /**
      * The environment to use for Python commands run on the project being
@@ -39,7 +39,7 @@ class PythonExtension {
      * words, this environment will only be passed to commands that use a
      * <code>setup.py</code> file.
      */
-    public Map<String, Object> pythonEnvironmentDistgradle
+    public Map<String, String> pythonEnvironmentDistgradle
 
     /** The location of this project's Sphinx documentation directory. */
     public String docsDir

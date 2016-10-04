@@ -15,6 +15,7 @@
  */
 package com.linkedin.gradle.python.extension;
 
+import com.linkedin.gradle.python.exception.MissingInterpreterException;
 import com.linkedin.gradle.python.util.internal.ExecutablePathUtils;
 import org.gradle.api.Project;
 
@@ -52,7 +53,7 @@ public class PythonDetails implements Serializable {
 
     private void updateFromPythonInterpreter() {
         if (pythonInterpreter == null || !pythonInterpreter.exists()) {
-            throw new RuntimeException("Unable to find or execute python");
+            throw new MissingInterpreterException("Unable to find or execute python");
         }
         pythonVersion = new PythonVersion(PythonVersionParser.parsePythonVersion(project, pythonInterpreter));
     }

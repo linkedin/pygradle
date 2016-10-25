@@ -24,7 +24,7 @@ class PyGradleTestBuilder {
             | max-line-length = 160
             |
             | [pytest]
-            | addopts = --ignore build/ --ignore dist/
+            | addopts = --ignore build/ --ignore dist/ --junitxml TEST-pytest.xml
             '''.stripMargin().stripIndent()
     }
 

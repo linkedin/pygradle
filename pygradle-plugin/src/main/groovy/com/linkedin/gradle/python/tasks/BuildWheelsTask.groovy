@@ -164,7 +164,7 @@ class BuildWheelsTask extends DefaultTask {
                 if (pythonExtension.consoleOutput == ConsoleOutput.RAW) {
                     LOGGER.lifecycle(stream.toString().trim())
                 } else {
-                    String prefix = String.format(messageHead + ' (%d:%02d s)', duration.toMinutes(), duration.getSeconds() % 60)
+                    String prefix = String.format(messageHead + ' (%d:%02d.%03d s)', duration.toMinutes(), duration.getSeconds() % 60, (int)(duration.getNano() / 1000000))
                     LOGGER.lifecycle(PythonHelpers.createPrettyLine(prefix, "[FINISHED]"))
                 }
             }

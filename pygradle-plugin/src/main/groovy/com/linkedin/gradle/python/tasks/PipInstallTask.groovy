@@ -164,7 +164,7 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider {
                 if (extension.consoleOutput == ConsoleOutput.RAW) {
                     logger.lifecycle(message)
                 } else {
-                    String prefix = String.format("Install %s (%d:%02d s)", shortHand, duration.toMinutes(), duration.getSeconds() % 60)
+                    String prefix = String.format("Install (%d:%02d.%03d s)", duration.toMinutes(), duration.getSeconds() % 60, (int)(duration.getNano() / 1000000))
                     logger.lifecycle(PythonHelpers.createPrettyLine(prefix, "[FINISHED]"))
                 }
             }

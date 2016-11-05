@@ -25,6 +25,11 @@ public class PythonVersion implements Serializable {
         this.version = version;
     }
 
+    private String getVersionPart(int position) {
+        String[] parts = version.split("\\.");
+        return parts[position];
+    }
+
     /**
      * @return The exact version of Python this project uses, such as '2.7.11'.
      */
@@ -36,14 +41,27 @@ public class PythonVersion implements Serializable {
      * @return The short version of Python this project uses, such as '2.7'.
      */
     public String getPythonMajorMinor() {
-        String[] split = version.split("\\.");
-        return String.format("%s.%s", split[0], split[1]);
+        return String.format("%s.%s", getVersionPart(0), getVersionPart(1));
     }
 
     /**
      * @return The major version of Python this project uses, such as '2'.
      */
     public String getPythonMajor() {
-        return version.split("\\.")[0];
+        return getVersionPart(0);
+    }
+
+    /**
+     * @return The minor version of Python this project uses, such as '7'.
+     */
+    public String getPythonMinor() {
+        return getVersionPart(1);
+    }
+
+    /**
+     * @return The patch version of Python this project uses, such as '11'.
+     */
+    public String getPythonPatch() {
+        return getVersionPart(2);
     }
 }

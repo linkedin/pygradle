@@ -51,6 +51,9 @@ public class ImporterCLI {
             root.setLevel(Level.WARN);
         }
 
+        if (!line.hasOption("repo")) {
+            throw new RuntimeException("Unable to continue, no repository location given on the command line (use the --repo switch)");
+        }
         final File repoPath = new File(line.getOptionValue("repo"));
         final DependencySubstitution replacements = new DependencySubstitution(buildSubstitutionMap(line));
 

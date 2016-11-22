@@ -17,39 +17,19 @@ package com.linkedin.gradle.python.tasks;
 
 import java.io.File;
 
-import com.linkedin.gradle.python.PythonExtension;
-import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider;
-import com.linkedin.gradle.python.tasks.execution.TeeOutputContainer;
-import com.linkedin.gradle.python.util.VirtualEnvExecutableHelper;
-import org.gradle.api.Action;
-import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.OutputFile;
-import org.gradle.api.tasks.TaskAction;
-import org.gradle.process.ExecSpec;
+import org.gradle.process.ExecResult;
 
 
-public class SourceDistTask extends DefaultTask implements FailureReasonProvider {
+public class SourceDistTask extends AbstractPythonMainSourceDefaultTask {
 
-    private TeeOutputContainer container = new TeeOutputContainer();
-    @TaskAction
-    public void packageSdist() {
+    public SourceDistTask() {
+        args("setup.py", "sdist", "--dist-dir", getDistDir().getAbsolutePath());
+    }
 
-        final PythonExtension settings = getProject().getExtensions().getByType(PythonExtension.class);
-
-        getProject().exec(new Action<ExecSpec>() {
-            @Override
-            public void execute(ExecSpec execSpec) {
-                container.setOutputs(execSpec);
-                execSpec.environment(settings.pythonEnvironmentDistgradle);
-                execSpec.commandLine(
-                        VirtualEnvExecutableHelper.getPythonInterpreter(settings.getDetails()),
-                        "setup.py",
-                        "sdist",
-                        "--dist-dir",
-                        getDistDir().getAbsolutePath());
-            }
-        });
+    @Override
+    public void processResults(ExecResult execResult) {
     }
 
     @OutputFile
@@ -62,8 +42,4 @@ public class SourceDistTask extends DefaultTask implements FailureReasonProvider
         return new File(getProject().getBuildDir(), "distributions");
     }
 
-    @Override
-    public String getReason() {
-        return container.getCommandOutput();
-    }
 }

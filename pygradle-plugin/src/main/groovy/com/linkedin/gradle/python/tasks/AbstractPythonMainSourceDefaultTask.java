@@ -68,7 +68,7 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask im
     }
 
     public String[] standardExcludes() {
-        return new String[]{"**/*.pyc", "**/*.pyo", "**/__pycache__/"};
+        return new String[]{"**/*.pyc", "**/*.pyo", "**/__pycache__/", "**/*.egg-info/"};
     }
 
     @Internal

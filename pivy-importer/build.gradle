@@ -37,7 +37,7 @@ task importRequiredDependencies(type: JavaExec) { task ->
 
     def replacements = ['alabaster:0.7=alabaster:0.7.1', 'pytz:0a=pytz:2016.4', 'Babel:0.8=Babel:1.0',
                         'sphinx_rtd_theme:0.1=sphinx_rtd_theme:0.1.1', 'chardet:2.2=chardet:2.3.0',
-                        'setuptools:0.6a2=setuptools:19.1.1'].join(",")
+                        'setuptools:0.6a2=setuptools:19.1.1', 'idna:2.0.0=idna:2.0'].join(",")
     def packagesToInclude = ['virtualenv:15.0.1', 'pip:7.1.2', 'setuptools:19.1.1', 'setuptools-git:1.1',
                              'flake8:2.4.0', 'flake8:2.5.4', 'pytest:2.9.1', 'pytest-cov:2.2.1', 'pytest-xdist:1.14',
                              'wheel:0.26.0', 'pbr:1.8.0', 'Sphinx:1.4.1', 'six:1.10.0', 'pex:1.1.4',

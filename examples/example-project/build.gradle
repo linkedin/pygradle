@@ -1,5 +1,5 @@
 plugins {
-  id "com.linkedin.python-sdist" version "0.3.9"
+  id "com.linkedin.python-sdist" version "0.3.29"
 }
 
 dependencies {

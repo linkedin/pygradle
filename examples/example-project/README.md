@@ -18,7 +18,7 @@ $ tree
 
 *Note the lack of a setup.py, more on this in a moment...*
 
-If you have not already installed Gradle, feel free to do so now, [documentation here](https://docs.gradle.org/current/userguide/installation.html). Or, if you are using osx and brew you can simple `brew install gradle`.
+If you have not already installed Gradle (preferably version 3.0+, but we strive to be backwards compatible with 2.10+), feel free to do so now, [documentation here](https://docs.gradle.org/current/userguide/installation.html). Or, if you are using osx and brew you can simply `brew install gradle`.
 
 Add a top level `build.gradle` file that leverages {py}gradle:
 

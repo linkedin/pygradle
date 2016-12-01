@@ -23,6 +23,7 @@ import com.linkedin.gradle.python.util.ConsoleOutput
 import com.linkedin.gradle.python.util.ExtensionUtils
 import com.linkedin.gradle.python.util.PackageInfo
 import com.linkedin.gradle.python.util.VirtualEnvExecutableHelper
+import groovy.time.TimeCategory
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -33,8 +34,6 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecResult
 import org.gradle.process.ExecSpec
-
-import java.util.concurrent.TimeUnit
 
 class BuildWheelsTask extends DefaultTask {
 
@@ -137,7 +136,7 @@ class BuildWheelsTask extends DefaultTask {
 
             LOGGER.lifecycle(PythonHelpers.createPrettyLine(messageHead, "[STARTING]"))
 
-            def startTime = System.currentTimeMillis()
+            def startTime = new Date()
             ExecResult installResult = project.exec { ExecSpec execSpec ->
                 execSpec.environment pythonExtension.pythonEnvironment
                 execSpec.commandLine(
@@ -153,8 +152,8 @@ class BuildWheelsTask extends DefaultTask {
                 execSpec.errorOutput = stream
                 execSpec.ignoreExitValue = true
             }
-            def endTime = System.currentTimeMillis()
-            def duration = endTime - startTime
+            def endTime = new Date()
+            def duration = TimeCategory.minus(endTime, startTime)
 
             if (installResult.exitValue != 0) {
                 LOGGER.error(stream.toString().trim())
@@ -163,7 +162,7 @@ class BuildWheelsTask extends DefaultTask {
                 if (pythonExtension.consoleOutput == ConsoleOutput.RAW) {
                     LOGGER.lifecycle(stream.toString().trim())
                 } else {
-                    String prefix = String.format("Install (%d s)", TimeUnit.MILLISECONDS.toSeconds(duration))
+                    String prefix = String.format(messageHead + " (%d:%02d s)", duration.minutes, duration.seconds % 60)
                     LOGGER.lifecycle(PythonHelpers.createPrettyLine(prefix, "[FINISHED]"))
                 }
             }

@@ -22,6 +22,7 @@ import com.linkedin.gradle.python.util.ConsoleOutput
 import com.linkedin.gradle.python.util.ExtensionUtils
 import com.linkedin.gradle.python.util.PackageInfo
 import com.linkedin.gradle.python.util.VirtualEnvExecutableHelper
+import groovy.time.TimeCategory
 import groovy.transform.CompileStatic
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
@@ -33,8 +34,6 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecResult
 import org.gradle.process.ExecSpec
-
-import java.util.concurrent.TimeUnit
 
 /**
  * Execute pip install
@@ -133,7 +132,7 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider {
 
             logger.lifecycle(PythonHelpers.createPrettyLine("Install ${shortHand}", "[STARTING]"))
 
-            def startTime = System.currentTimeMillis()
+            def startTime = new Date()
             def stream = new ByteArrayOutputStream()
             ExecResult installResult = project.exec { ExecSpec execSpec ->
                 execSpec.environment mergedEnv
@@ -142,8 +141,8 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider {
                 execSpec.errorOutput = stream
                 execSpec.ignoreExitValue = true
             }
-            def endTime = System.currentTimeMillis()
-            def duration = endTime - startTime
+            def endTime = new Date()
+            def duration = TimeCategory.minus(endTime, startTime)
 
             def message = stream.toString().trim()
             if (installResult.exitValue != 0) {
@@ -163,7 +162,7 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider {
                 if (extension.consoleOutput == ConsoleOutput.RAW) {
                     logger.lifecycle(message)
                 } else {
-                    String prefix = String.format("Install (%d s)", TimeUnit.MILLISECONDS.toSeconds(duration))
+                    String prefix = String.format("Install (%d:%02d s)", duration.minutes, duration.seconds % 60)
                     logger.lifecycle(PythonHelpers.createPrettyLine(prefix, "[FINISHED]"))
                 }
             }

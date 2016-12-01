@@ -23,13 +23,10 @@ import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.repositories.IvyArtifactRepository
 import org.gradle.api.artifacts.repositories.IvyPatternRepositoryLayout
 import org.gradle.api.tasks.bundling.Compression
 import org.gradle.api.tasks.bundling.Tar
-
-import java.util.function.Consumer
 
 @SuppressWarnings("AbcMetric")
 //TODO: Break apart method
@@ -130,12 +127,9 @@ class PythonPlugin implements Plugin<Project> {
          * good versions that satisfy all the requirements.
          */
         def dependencyResolveDetails = new PyGradleDependencyResolveDetails(settings.forcedVersions)
-        project.configurations.forEach(new Consumer<Configuration>() {
-            @Override
-            void accept(Configuration configuration) {
-                configuration.resolutionStrategy.eachDependency(dependencyResolveDetails)
-            }
-        })
+        project.configurations.each { configuration ->
+            configuration.resolutionStrategy.eachDependency(dependencyResolveDetails)
+        }
 
         /*
          * Write the direct dependencies into a requirements file as a list of pinned versions.

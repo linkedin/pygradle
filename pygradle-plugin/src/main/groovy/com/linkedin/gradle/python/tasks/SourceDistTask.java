@@ -35,7 +35,8 @@ public class SourceDistTask extends AbstractPythonMainSourceDefaultTask {
     @OutputFile
     public File getSdistOutput() {
         Project project = getProject();
-        return new File(getDistDir(), 
+        return new File(
+                getDistDir(), 
                 String.format(
                         "%s-%s.tar.gz", 
                         project.getName(), 

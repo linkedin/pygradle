@@ -34,8 +34,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecResult
 import org.gradle.process.ExecSpec
 
-import java.time.Duration
-import java.time.LocalDateTime
+import java.util.concurrent.TimeUnit
 
 class BuildWheelsTask extends DefaultTask {
 
@@ -138,7 +137,7 @@ class BuildWheelsTask extends DefaultTask {
 
             LOGGER.lifecycle(PythonHelpers.createPrettyLine(messageHead, "[STARTING]"))
 
-            def startTime = LocalDateTime.now()
+            def startTime = System.currentTimeMillis()
             ExecResult installResult = project.exec { ExecSpec execSpec ->
                 execSpec.environment pythonExtension.pythonEnvironment
                 execSpec.commandLine(
@@ -154,8 +153,8 @@ class BuildWheelsTask extends DefaultTask {
                 execSpec.errorOutput = stream
                 execSpec.ignoreExitValue = true
             }
-            def endTime = LocalDateTime.now()
-            def duration = Duration.between(startTime, endTime)
+            def endTime = System.currentTimeMillis()
+            def duration = endTime - startTime
 
             if (installResult.exitValue != 0) {
                 LOGGER.error(stream.toString().trim())
@@ -164,7 +163,7 @@ class BuildWheelsTask extends DefaultTask {
                 if (pythonExtension.consoleOutput == ConsoleOutput.RAW) {
                     LOGGER.lifecycle(stream.toString().trim())
                 } else {
-                    String prefix = String.format(messageHead + ' (%d:%02d.%03d s)', duration.toMinutes(), duration.getSeconds() % 60, (int)(duration.getNano() / 1000000))
+                    String prefix = String.format("Install (%d s)", TimeUnit.MILLISECONDS.toSeconds(duration))
                     LOGGER.lifecycle(PythonHelpers.createPrettyLine(prefix, "[FINISHED]"))
                 }
             }

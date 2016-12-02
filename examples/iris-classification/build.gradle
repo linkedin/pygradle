@@ -11,7 +11,7 @@ project.tasks.findByName('installPythonRequirements').sorted = false
 dependencies {
     python 'pypi:numpy:1.11.2'
     python 'pypi:pandas:0.19.1'
-	python 'pypi:scipy:0.18.1'
+    python 'pypi:scipy:0.18.1'
     python 'pypi:scikit-learn:0.18'
     // pandas depends on pytz>=2011k, which cannot be satisfied automatically
     // since 2011k does not conform to correct versioning (see

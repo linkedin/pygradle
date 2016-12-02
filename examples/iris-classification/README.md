@@ -40,8 +40,7 @@ $ ./gradlew build
 
 Then, after a longish build run, you should be able to call the executable in order to see the output which should be similar to this:
 
-	root@64e86ed8927a:iris-classification# ./build/deployable/bin/classify_iris
+	# ./build/deployable/bin/classify_iris
 	Accuracy score on the IRIS dataset using a 60/40 split: 0.966666666667
-	root@64e86ed8927a:iris-classification#
 
 Great! You just managed to use the scipy/numpy/sklearn stack with pygradle!

@@ -18,6 +18,7 @@ package com.linkedin.python.importer.deps
 import com.linkedin.python.importer.distribution.SourceDistPackage
 import com.linkedin.python.importer.ivy.IvyFileWriter
 import com.linkedin.python.importer.pypi.PypiApiCache
+import com.linkedin.python.importer.util.ProxyDetector
 import groovy.util.logging.Slf4j
 import org.apache.http.client.fluent.Request
 
@@ -78,8 +79,14 @@ class DependencyDownloader {
         def contents = new File(destDir, filename)
 
         if (!contents.exists()) {
-            Request.Get(url)
-                .connectTimeout(5000)
+            def proxy = ProxyDetector.maybeGetHttpProxy()
+
+            def builder = Request.Get(url)
+            if (null != proxy) {
+                builder = builder.viaProxy(proxy)
+            }
+
+            builder.connectTimeout(5000)
                 .socketTimeout(5000)
                 .execute().saveContent(contents)
         }

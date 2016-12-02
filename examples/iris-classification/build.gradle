@@ -1,0 +1,37 @@
+plugins {
+  id "com.linkedin.python-cli" version "0.3.24"
+}
+
+version=1.0
+
+// we need to define an explicit installation sequence for the dependencies,
+// see issue 75 here: https://github.com/linkedin/pygradle/issues/75 
+project.tasks.findByName('installPythonRequirements').sorted = false
+
+dependencies {
+    python 'pypi:numpy:1.11.2'
+    python 'pypi:pandas:0.19.1'
+	python 'pypi:scipy:0.18.1'
+    python 'pypi:scikit-learn:0.18'
+    // pandas depends on pytz>=2011k, which cannot be satisfied automatically
+    // since 2011k does not conform to correct versioning (see
+    // http://stackoverflow.com/questions/18230956/could-not-find-a-version-that-satisfies-the-requirement-pytz)
+    // therefore, explicitly include dependencies here:
+    python 'pypi:pytz:2016.4'
+    python 'pypi:python-dateutil:2.6.0'
+}
+
+repositories {
+	pyGradlePyPi()
+
+	// as LinkedIn only provides an initial set of pypi libraries along with Ivy-Metadata, 
+	// we will use a local repository which is populated with libraries and metadata using
+	// the pivy-importer. 
+	ivy{
+		url "/tmp/repo"
+		layout 'pattern' , {
+			artifact '[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]'
+			ivy '[organisation]/[module]/[revision]/[module]-[revision].ivy'
+		}
+	}
+}

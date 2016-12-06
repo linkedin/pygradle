@@ -15,9 +15,11 @@
  */
 package com.linkedin.python.importer.pypi
 
+import com.linkedin.python.importer.util.ProxyDetector
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import org.apache.http.client.fluent.Request
+
 
 @Slf4j
 class PypiApiCache {
@@ -31,8 +33,13 @@ class PypiApiCache {
     static private Map<String, Object> downloadMetadata(String dependency) {
         def url = "https://pypi.python.org/pypi/$dependency/json"
         log.debug("Metadata url: {}", url)
-        def content = Request.Get(url)
-            .connectTimeout(10000)
+        def proxy = ProxyDetector.maybeGetHttpProxy()
+
+        def builder = Request.Get(url)
+        if (null != proxy) {
+            builder = builder.viaProxy(proxy)
+        }
+        def content = builder.connectTimeout(10000)
             .socketTimeout(10000)
             .execute().returnContent().asString()
 

@@ -1,7 +1,5 @@
 '''
 Created on 24.11.2016
-
-@author: busche
 '''
 import unittest
 from sklearn import datasets

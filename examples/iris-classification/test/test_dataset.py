@@ -1,6 +1,3 @@
-'''
-Created on 24.11.2016
-'''
 import unittest
 from sklearn import datasets
 

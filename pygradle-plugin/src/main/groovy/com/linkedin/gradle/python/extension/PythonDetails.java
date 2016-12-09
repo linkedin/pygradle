@@ -42,9 +42,6 @@ public class PythonDetails implements Serializable {
 
     public PythonDetails(Project project, File venvDir) {
         this.project = project;
-        pythonInterpreter = new File("/usr/bin/python");
-        updateFromPythonInterpreter();
-
         activateLink = new File(project.getProjectDir(), "activate");
         virtualEnvPrompt = String.format("(%s)", project.getName());
         searchPath = ExecutablePathUtils.getPath();
@@ -79,6 +76,7 @@ public class PythonDetails implements Serializable {
     }
 
     public File getSystemPythonInterpreter() {
+        findPythonWhenAbsent();
         return pythonInterpreter;
     }
 
@@ -133,6 +131,17 @@ public class PythonDetails implements Serializable {
     }
 
     public PythonVersion getPythonVersion() {
+        findPythonWhenAbsent();
         return pythonVersion;
+    }
+
+    private void findPythonWhenAbsent() {
+        if (pythonInterpreter == null) {
+            File python = ExecutablePathUtils.getExecutable(searchPath, "python");
+            if (python == null) {
+                python = new File("/usr/bin/python");
+            }
+            setSystemPythonInterpreter(python.getAbsolutePath());
+        }
     }
 }

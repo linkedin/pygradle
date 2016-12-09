@@ -123,10 +123,6 @@ public class PythonDetails implements Serializable {
 
     public void setSystemPythonInterpreter(String path) {
         pythonInterpreter = new File(path);
-        if (!pythonInterpreter.exists()) {
-            throw new RuntimeException("Unable to find " + path);
-        }
-
         updateFromPythonInterpreter();
     }
 

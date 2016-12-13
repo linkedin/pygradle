@@ -18,12 +18,18 @@ package com.linkedin.python.importer.deps
 class DependencySubstitution {
 
     final Map<String, String> replacementMap
+    final Map<String, String> forceMap
 
-    DependencySubstitution(Map<String, String> replacementMap) {
+    DependencySubstitution(Map<String, String> replacementMap, Map<String, String> forceMap) {
         this.replacementMap = replacementMap
+        this.forceMap = forceMap
     }
 
     String maybeReplace(String dependency) {
+        def name = dependency.split(":")[0]
+        if (forceMap.containsKey(name)) {
+            return "$name:${forceMap[name]}"
+        }
         if (replacementMap.containsKey(dependency)) {
             return replacementMap.get(dependency)
         } else {

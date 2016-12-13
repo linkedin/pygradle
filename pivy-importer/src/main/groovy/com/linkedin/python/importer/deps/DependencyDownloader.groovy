@@ -59,6 +59,10 @@ class DependencyDownloader {
         version = projectDetails.maybeFixVersion(version)
         def sdistDetails = projectDetails.findVersion(version).find { it.packageType == 'sdist' }
 
+        if (sdistDetails == null) {
+            throw new RuntimeException("Unable to find source dist for $dep")
+        }
+
         def destDir = new File(ivyRepoRoot, "pypi/${name}/${version}")
 
         destDir.mkdirs()

@@ -28,8 +28,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class ImporterCLI {
 
@@ -55,7 +57,7 @@ public class ImporterCLI {
             throw new RuntimeException("Unable to continue, no repository location given on the command line (use the --repo switch)");
         }
         final File repoPath = new File(line.getOptionValue("repo"));
-        final DependencySubstitution replacements = new DependencySubstitution(buildSubstitutionMap(line));
+        final DependencySubstitution replacements = new DependencySubstitution(buildSubstitutionMap(line), buildForceMap(line));
 
         repoPath.mkdirs();
 
@@ -64,11 +66,27 @@ public class ImporterCLI {
         }
 
 
+        Set<String> processedDependencies = new HashSet<>();
         for (String dependency : line.getArgList()) {
-            new DependencyDownloader(dependency, repoPath, replacements).download();
+            DependencyDownloader dependencyDownloader = new DependencyDownloader(dependency, repoPath, replacements);
+            dependencyDownloader.getProcessedDependencies().addAll(processedDependencies);
+            dependencyDownloader.download();
+            processedDependencies.addAll(dependencyDownloader.getProcessedDependencies());
         }
 
         logger.info("Execution Finished!");
+    }
+
+    private static Map<String, String> buildForceMap(CommandLine line) {
+        Map<String, String> sub = new LinkedHashMap<>();
+        if (line.hasOption("force")) {
+            for (String it : Arrays.asList(line.getOptionValues("force"))) {
+                System.out.println(it);
+                String[] split = it.split(":");
+                sub.put(split[0], split[1]);
+            }
+        }
+        return sub;
     }
 
     private static Options createOptions() {
@@ -93,10 +111,18 @@ public class ImporterCLI {
             .desc("Sets logging level to WARN")
             .build();
 
+        Option force = Option.builder()
+            .longOpt("force")
+            .numberOfArgs(Option.UNLIMITED_VALUES)
+            .desc("Noted like name:version")
+            .valueSeparator(',')
+            .build();
+
         Options options = new Options();
         options.addOption(replacement);
         options.addOption(repo);
         options.addOption(quite);
+        options.addOption(force);
         return options;
     }
 

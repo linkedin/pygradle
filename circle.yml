@@ -2,7 +2,7 @@ machine:
     java:
         version: oraclejdk8
     post:
-        - pyenv global pyenv global 2.7.9 3.5.0 3.4.3 2.6.8
+        - pyenv global 2.7.9 3.5.0 3.4.3 2.6.8
     environment:
         GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m -XX:+HeapDumpOnOutOfMemoryError"'
 

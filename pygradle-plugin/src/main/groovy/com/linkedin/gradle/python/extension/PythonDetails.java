@@ -22,7 +22,7 @@ import org.gradle.api.Project;
 import java.io.File;
 import java.io.Serializable;
 import java.util.List;
-
+import org.apache.tools.ant.taskdefs.condition.Os;
 
 public class PythonDetails implements Serializable {
 
@@ -133,7 +133,14 @@ public class PythonDetails implements Serializable {
 
     private void findPythonWhenAbsent() {
         if (pythonInterpreter == null) {
-            File python = ExecutablePathUtils.getExecutable(searchPath, "python");
+
+            String exeName = "python";
+
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                exeName = "python.exe";
+            }
+
+            File python = ExecutablePathUtils.getExecutable(searchPath, exeName);
             if (python == null) {
                 python = new File("/usr/bin/python");
             }

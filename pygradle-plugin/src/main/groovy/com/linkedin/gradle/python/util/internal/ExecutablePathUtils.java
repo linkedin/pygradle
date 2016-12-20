@@ -15,6 +15,8 @@
  */
 package com.linkedin.gradle.python.util.internal;
 
+import com.linkedin.gradle.python.util.SystemExecutables;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,9 +28,21 @@ public class ExecutablePathUtils {
         //private constructor for util class
     }
 
-    public static File getExecutable(List<File> pathList, String exeName) {
+    public static File getExecutable(List<File> pathList, SystemExecutables exeName) {
+        return getExecutable(pathList, exeName, null);
+    }
+
+    public static File getExecutable(List<File> pathList, SystemExecutables exeName, String versionAware) {
+
         for (File dir : pathList) {
-            File candidate = new File(dir, exeName);
+            File candidate;
+
+            if (versionAware != null) {
+                candidate = new File(dir, exeName.getExecutable(versionAware));
+            } else {
+                candidate = new File(dir, exeName.getExecutable());
+            }
+
             if (candidate.isFile()) {
                 return candidate;
             }

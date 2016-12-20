@@ -22,7 +22,10 @@ import org.gradle.api.Project;
 import java.io.File;
 import java.io.Serializable;
 import java.util.List;
-import org.apache.tools.ant.taskdefs.condition.Os;
+
+import static com.linkedin.gradle.python.util.SystemExecutables.ACTIVATE;
+import static com.linkedin.gradle.python.util.SystemExecutables.PYTHON;
+import static com.linkedin.gradle.python.util.SystemExecutables.PYTHON_VERSION_AWARE;
 
 public class PythonDetails implements Serializable {
 
@@ -42,7 +45,7 @@ public class PythonDetails implements Serializable {
 
     public PythonDetails(Project project, File venvDir) {
         this.project = project;
-        activateLink = new File(project.getProjectDir(), "activate");
+        activateLink = new File(project.getProjectDir(), ACTIVATE.getExecutable());
         virtualEnvPrompt = String.format("(%s)", project.getName());
         searchPath = ExecutablePathUtils.getPath();
         venvOverride = venvDir;
@@ -72,7 +75,7 @@ public class PythonDetails implements Serializable {
     }
 
     public File getVirtualEnvInterpreter() {
-        return new File(getVirtualEnv(), "bin/python");
+        return new File(getVirtualEnv(), "bin/" + PYTHON.getExecutable());
     }
 
     public File getSystemPythonInterpreter() {
@@ -117,7 +120,7 @@ public class PythonDetails implements Serializable {
             pythonVersion = "3.5";
         }
 
-        pythonInterpreter = ExecutablePathUtils.getExecutable(searchPath, String.format("python%s", pythonVersion));
+        pythonInterpreter = ExecutablePathUtils.getExecutable(searchPath, PYTHON_VERSION_AWARE, pythonVersion);
         updateFromPythonInterpreter();
     }
 
@@ -133,14 +136,7 @@ public class PythonDetails implements Serializable {
 
     private void findPythonWhenAbsent() {
         if (pythonInterpreter == null) {
-
-            String exeName = "python";
-
-            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                exeName = "python.exe";
-            }
-
-            File python = ExecutablePathUtils.getExecutable(searchPath, exeName);
+            File python = ExecutablePathUtils.getExecutable(searchPath, PYTHON);
             if (python == null) {
                 python = new File("/usr/bin/python");
             }

@@ -15,9 +15,11 @@
  */
 package com.linkedin.gradle.python.extension
 
+import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
+import spock.lang.IgnoreIf
 import spock.lang.Requires
 import spock.lang.Specification
 
@@ -89,6 +91,9 @@ class PythonDetailsTest extends Specification {
         thrown(RuntimeException)
     }
 
+    // Have to ignore this if its a windows machine trying due to the fact its
+    // based on shell
+    @IgnoreIf({ Os.isFamily(Os.FAMILY_WINDOWS) })
     def "can prepend search path"() {
         temporaryFolder.newFolder('foo')
         temporaryFolder.newFolder('bar')
@@ -109,6 +114,9 @@ class PythonDetailsTest extends Specification {
         settings.systemPythonInterpreter == fakePython
     }
 
+    // Have to ignore this if its a windows machine trying due to the fact its
+    // based on shell
+    @IgnoreIf({ Os.isFamily(Os.FAMILY_WINDOWS) })
     def "can append search path"() {
         temporaryFolder.newFolder('foo')
         temporaryFolder.newFolder('bar')

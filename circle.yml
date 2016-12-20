@@ -3,6 +3,7 @@ machine:
         version: oraclejdk8
     post:
         - pyenv global 2.7.9 3.5.0 3.4.3 2.6.8
+        - chmod --recursive a-w ~/.pyenv/versions #Builds fail when we have write permissions, so disableing it
     environment:
         GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m -XX:+HeapDumpOnOutOfMemoryError"'
 

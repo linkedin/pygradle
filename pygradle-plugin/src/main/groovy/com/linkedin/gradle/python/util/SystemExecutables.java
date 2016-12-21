@@ -27,7 +27,7 @@ public enum SystemExecutables {
 
         if (Os.isFamily(Os.FAMILY_WINDOWS)) {
             exeNameReturn = exeName + "." +  winExtension;
-        } else if (Os.isFamily(Os.FAMILY_UNIX)) {
+        } else if ((Os.isFamily(Os.FAMILY_UNIX)) || (Os.isFamily(Os.FAMILY_MAC))) {
             if (nixExtension != null) {
                 exeNameReturn = exeName + "." + nixExtension;
             } else {

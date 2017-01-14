@@ -31,10 +31,10 @@ For a quick start, lets look at a simple example of publishing a library using t
     }
 
     dependencies {
-        python 'pypi:requests:2.9.1'
-        test 'pypi:mock:1.0.1'
+        python 'pypi:requests:2.12.4'
+        test 'pypi:mock:2.0.0'
     }
-    
+
     repositories {
        pyGradlePyPi()
     }
@@ -44,7 +44,7 @@ we add two dependencies, one required to run and one required for testing. With 
 artifacts from a repository (omitted from example) install requests and mock along with their dependencies to a virtual
 environment and run any tests that you may have.
 
-For a more step by step guide, check out the example project in [examples/](examples). 
+For a more step by step guide, check out the example project in [examples/](examples).
 
 We recommend that you use Gradle 3.0, but we will try to maintain backwards compatibility to Gradle 2.10 and above, but will require
 using Java 7 or above.
@@ -66,16 +66,16 @@ PyGradle comes with several plugins available, for specific details on each plug
 
 There are some cases where you will need to implement a distribution class that can take the command 'entrypoints'. We provide
 a suggested setup.py for projects. You can find it in pygradle-plugin/templates/setup.py.template. In order to make it easy for
-consumers to use, we also provide a task `generateSetupPy` that will write it out to disk. Be careful, this task *will* 
+consumers to use, we also provide a task `generateSetupPy` that will write it out to disk. Be careful, this task *will*
 overwrite any existing setup.py in the project.
 
 ## PyPi Artifacts
 
-PyGradle depends on Ivy metadata to build a dependency graph, thus we cannot use pypi directly. We do have a java library that 
+PyGradle depends on Ivy metadata to build a dependency graph, thus we cannot use pypi directly. We do have a java library that
 will convert libraries from pypi into Ivy located in pivy-importer. In that project you can find usage examples. The pivy-importer
 project is how the integration tests get their required dependencies.
 
-To help with on boarding, we are providing a repository that has all of pygradle's require dependencies. You can apply it by adding 
+To help with on boarding, we are providing a repository that has all of pygradle's require dependencies. You can apply it by adding
 
     repositories {
        pyGradlePyPi()
@@ -109,10 +109,3 @@ We prefer that you squash commits into a single commit for a single change, mult
 From time to time LinkedIn maintainers may find issues with the changes that break our internal tests. When this happens we will
 allow the merge to happen but add tests and update the code to make our internal tests pass. This means that we probably won't
 publish a version until we can validate the changes internally.
-
-# Known Potential Issues
-- Due to a bug in pip, when trying to install scipy may fail. A potential work around is to use a newer version of pip. A PR
-was merged into pip master that fixes the issue (https://github.com/pypa/pip/pull/3701), a version of pip with the fix in it
-has not been released yet. If this is an issue for your org, you could release a version of pip with this fix in it. For
-more details on the change and issues please review https://github.com/pypa/pip/pull/3701 and https://github.com/pypa/pip/pull/3079
-

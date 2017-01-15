@@ -15,6 +15,8 @@
  */
 package com.linkedin.gradle.python.util.internal;
 
+import com.linkedin.gradle.python.util.OperatingSystem;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,8 +29,10 @@ public class ExecutablePathUtils {
     }
 
     public static File getExecutable(List<File> pathList, String exeName) {
+        String executableName = OperatingSystem.current().getExecutableName(exeName);
         for (File dir : pathList) {
-            File candidate = new File(dir, exeName);
+            File candidate = new File(dir, executableName);
+            System.out.println("Checking " + candidate.toString());
             if (candidate.isFile()) {
                 return candidate;
             }

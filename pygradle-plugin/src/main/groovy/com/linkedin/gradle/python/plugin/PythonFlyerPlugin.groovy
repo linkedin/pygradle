@@ -23,7 +23,7 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.Copy
 
-
+import java.nio.file.Paths
 /**
  * A Flyer plugin.
  * <p>
@@ -80,8 +80,8 @@ class PythonFlyerPlugin implements Plugin<Project> {
             task.dependsOn resourceConf
 
             task.doLast {
-                if (!project.file("${project.projectDir}/resource").exists()) {
-                    println "Making the Symlink: ${project.projectDir}/resource --> ${resourceConf.singleFile}"
+                if (!Paths.get(project.projectDir.getAbsolutePath(), "resource").toFile().exists()) {
+                    println "Making the Symlink: ${project.projectDir}${File.separatorChar}resource --> ${resourceConf.singleFile}"
                     FileSystemUtils.makeSymLink(resourceConf.singleFile, new File(project.projectDir, 'resource'))
                 }
             }

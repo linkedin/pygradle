@@ -20,6 +20,8 @@ import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Rule
 import spock.lang.Specification
 
+import java.nio.file.Paths
+
 
 class PipIntegrationTest extends Specification {
 
@@ -50,12 +52,12 @@ class PipIntegrationTest extends Specification {
         println result.output
 
         then:
-        def file = new File(testProjectDir.getRoot(), "pinned.txt")
+        def file = testProjectDir.getRoot().toPath().resolve(Paths.get("foo", "pinned.txt")).toFile()
         file.exists()
         file.text ==~ 'flake8==(.*?)\n'
 
         result.output.contains("BUILD SUCCESS")
-        result.task(':pinRequirements').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:pinRequirements').outcome == TaskOutcome.SUCCESS
 
         when:
         result = GradleRunner.create()
@@ -71,7 +73,7 @@ class PipIntegrationTest extends Specification {
         file.text ==~ 'flake8==(.*?)\n'
 
         result.output.contains("BUILD SUCCESS")
-        result.task(':pinRequirements').outcome == TaskOutcome.UP_TO_DATE
+        result.task(':foo:pinRequirements').outcome == TaskOutcome.UP_TO_DATE
 
         when:
         testProjectDir.buildFile << """\
@@ -93,7 +95,7 @@ class PipIntegrationTest extends Specification {
         file.readLines().collect { it.split("==")[0] } as Set == ["flake8", "wheel"] as Set
 
         result.output.contains("BUILD SUCCESS")
-        result.task(':pinRequirements').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:pinRequirements').outcome == TaskOutcome.SUCCESS
     }
 
 }

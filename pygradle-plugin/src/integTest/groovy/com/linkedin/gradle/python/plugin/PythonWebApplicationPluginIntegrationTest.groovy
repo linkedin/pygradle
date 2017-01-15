@@ -20,6 +20,9 @@ import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Rule
 import spock.lang.Specification
 
+import java.nio.file.Path
+import java.nio.file.Paths
+
 class PythonWebApplicationPluginIntegrationTest extends Specification {
 
     @Rule
@@ -48,7 +51,7 @@ class PythonWebApplicationPluginIntegrationTest extends Specification {
         then:
 
         result.output.contains("BUILD SUCCESS")
-        result.output.contains('test/test_a.py ..')
+        result.output.contains("test${File.separatorChar}test_a.py ..")
         result.task(':flake8').outcome == TaskOutcome.SUCCESS
         result.task(':installPythonRequirements').outcome == TaskOutcome.SUCCESS
         result.task(':installTestRequirements').outcome == TaskOutcome.SUCCESS
@@ -58,17 +61,17 @@ class PythonWebApplicationPluginIntegrationTest extends Specification {
         result.task(':check').outcome == TaskOutcome.SUCCESS
         result.task(':build').outcome == TaskOutcome.SUCCESS
         result.task(':packageWebApplication').outcome == TaskOutcome.SUCCESS
+        Path deployablePath = testProjectDir.getRoot().toPath().resolve(Paths.get('foo', 'build', 'deployable', 'bin'))
 
         when: "we have a pex file"
-        def line
-        new File(testProjectDir.getRoot(), "build/deployable/bin/testProject.pex").withReader { line = it.readLine() }
+        def line = new String(deployablePath.resolve('foo.pex').bytes, "UTF-8").substring(0, 100)
 
         then: "its shebang line is not pointing to a virtualenv"
         line.startsWith("#!") && !line.contains("venv")
 
         when:
         def out = new StringBuilder()
-        def proc = "${testProjectDir.getRoot().getAbsolutePath()}/build/deployable/bin/hello_world".execute()
+        def proc = deployablePath.resolve('hello_world').toString().execute()
         proc.consumeProcessOutput(out, out)
         proc.waitForOrKill(1000)
         println out.toString()

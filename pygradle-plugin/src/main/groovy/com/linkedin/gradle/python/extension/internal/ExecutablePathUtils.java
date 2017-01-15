@@ -13,7 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.util.internal;
+package com.linkedin.gradle.python.extension.internal;
+
+import com.linkedin.gradle.python.util.OperatingSystem;
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -22,13 +26,17 @@ import java.util.regex.Pattern;
 
 public class ExecutablePathUtils {
 
+    private static final Logger logger = Logging.getLogger(ExecutablePathUtils.class);
+
     private ExecutablePathUtils() {
         //private constructor for util class
     }
 
     public static File getExecutable(List<File> pathList, String exeName) {
+        String executableName = OperatingSystem.current().getExecutableName(exeName);
         for (File dir : pathList) {
-            File candidate = new File(dir, exeName);
+            File candidate = new File(dir, executableName);
+            logger.debug("Checking for exec {} in {}", exeName, candidate.toString());
             if (candidate.isFile()) {
                 return candidate;
             }

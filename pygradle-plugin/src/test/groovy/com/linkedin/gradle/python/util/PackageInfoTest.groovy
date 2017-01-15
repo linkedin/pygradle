@@ -60,6 +60,14 @@ class PackageInfoTest extends Specification {
         assert packageInfo.version == '0.8.5'
     }
 
+    def 'can parse a windows path'() {
+        when:
+        def packageInfo = PackageInfo.fromPath('Z:\\pygradle\\build\\ivy-repo\\pypi\\setuptools\\19.1.1\\setuptools-19.1.1')
+        then:
+        assert packageInfo.name == 'setuptools'
+        assert packageInfo.version == '19.1.1'
+    }
+
     def 'can not parse a sdist that has an unknown extension'() {
         when:
         PackageInfo.fromPath('foo-1.0.0.xxx')

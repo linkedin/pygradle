@@ -15,8 +15,11 @@
  */
 package com.linkedin.gradle.python.util.internal
 
+import com.linkedin.gradle.python.extension.internal.ExecutablePathUtils
+import com.linkedin.gradle.python.util.OperatingSystem
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
+import spock.lang.Requires
 import spock.lang.Specification
 
 
@@ -25,7 +28,19 @@ class ExecutablePathUtilsTest extends Specification {
     @Rule
     TemporaryFolder temporaryFolder
 
-    def 'can pre-pend a folder to the search path'() {
+    @Requires({ OperatingSystem.current() == OperatingSystem.WINDOWS })
+    def 'can pre-pend a folder to the search path - windows'() {
+        temporaryFolder.newFolder("foo")
+        temporaryFolder.newFolder("bar")
+        def fooExample = temporaryFolder.newFile('foo/example.exe')
+        def barExample = temporaryFolder.newFile('bar/example.exe')
+
+        expect:
+        ExecutablePathUtils.getExecutable([fooExample.parentFile, barExample.parentFile], 'example') == fooExample
+    }
+
+    @Requires({ OperatingSystem.current() == OperatingSystem.UNIX })
+    def 'can pre-pend a folder to the search path - linux'() {
         temporaryFolder.newFolder("foo")
         temporaryFolder.newFolder("bar")
         def fooExample = temporaryFolder.newFile('foo/example.sh')

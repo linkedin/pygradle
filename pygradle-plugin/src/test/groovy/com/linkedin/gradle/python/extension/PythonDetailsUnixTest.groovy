@@ -15,6 +15,7 @@
  */
 package com.linkedin.gradle.python.extension
 
+import com.linkedin.gradle.python.util.OperatingSystem
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
@@ -22,7 +23,8 @@ import spock.lang.Requires
 import spock.lang.Specification
 
 
-class PythonDetailsTest extends Specification {
+@Requires({ OperatingSystem.current() == OperatingSystem.UNIX })
+class PythonDetailsUnixTest extends Specification {
 
     @Rule
     TemporaryFolder temporaryFolder

@@ -15,6 +15,7 @@
  */
 package com.linkedin.gradle.python.util
 
+import org.apache.commons.io.FilenameUtils
 import org.gradle.api.GradleException
 
 import java.util.regex.Matcher
@@ -58,12 +59,13 @@ class PackageInfo {
      */
     public static PackageInfo fromPath(String packagePath) {
         def extensionRegex = /\.tar\.gz|\.zip|\.tar|\.tar\.bz2|\.tgz/
-        def nameVersionRegex = /^((.*)\/)*(?<name>[a-zA-Z0-9._\-]+)-(?<version>([0-9][0-9a-z\.]+(-.*)*))$/
+        def nameVersionRegex = /^(?<name>[a-zA-Z0-9._\-]+)-(?<version>([0-9][0-9a-z\.]+(-.*)*))$/
 
-        def packageName = packagePath.split(extensionRegex).first()
+        def filename = FilenameUtils.getName(packagePath)
+        def packageName = filename.split(extensionRegex).first()
 
         if (new File(packagePath).isDirectory()) {
-            return new PackageInfo(packagePath.split(File.separator)[-1], null)
+            return new PackageInfo(filename, null)
         }
 
         if (packagePath == packageName) {

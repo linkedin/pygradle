@@ -19,7 +19,6 @@ import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.extension.PythonDetails;
 import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider;
 import com.linkedin.gradle.python.tasks.execution.TeeOutputContainer;
-import com.linkedin.gradle.python.util.VirtualEnvExecutableHelper;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.ConfigurableFileTree;
@@ -124,7 +123,7 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask im
             public void execute(ExecSpec execSpec) {
                 execSpec.environment(getComponent().pythonEnvironment);
                 execSpec.environment(getComponent().pythonEnvironmentDistgradle);
-                execSpec.commandLine(VirtualEnvExecutableHelper.getPythonInterpreter(getPythonDetails()));
+                execSpec.commandLine(getPythonDetails().getVirtualEnvInterpreter());
                 execSpec.args(arguments);
                 execSpec.args(additionalArguments);
                 execSpec.setIgnoreExitValue(ignoreExitValue);

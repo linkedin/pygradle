@@ -16,11 +16,13 @@
 package com.linkedin.gradle.python.extension;
 
 import com.linkedin.gradle.python.exception.MissingInterpreterException;
-import com.linkedin.gradle.python.util.internal.ExecutablePathUtils;
+import com.linkedin.gradle.python.extension.internal.ExecutablePathUtils;
+import com.linkedin.gradle.python.util.OperatingSystem;
 import org.gradle.api.Project;
 
 import java.io.File;
 import java.io.Serializable;
+import java.nio.file.Paths;
 import java.util.List;
 
 
@@ -29,10 +31,12 @@ public class PythonDetails implements Serializable {
     private final Project project;
 
     private final File venvOverride;
+    private final VirtualEnvironment virtualEnvironment;
     private File activateLink;
     private File pythonInterpreter;
     private String virtualEnvPrompt;
     private PythonVersion pythonVersion;
+    private OperatingSystem operatingSystem = OperatingSystem.current();
 
     private List<File> searchPath;
 
@@ -42,10 +46,11 @@ public class PythonDetails implements Serializable {
 
     public PythonDetails(Project project, File venvDir) {
         this.project = project;
-        activateLink = new File(project.getProjectDir(), "activate");
+        activateLink = new File(project.getProjectDir(), operatingSystem.getScriptName("activate"));
         virtualEnvPrompt = String.format("(%s)", project.getName());
         searchPath = ExecutablePathUtils.getPath();
         venvOverride = venvDir;
+        this.virtualEnvironment = new VirtualEnvironment(this);
     }
 
     private void updateFromPythonInterpreter() {
@@ -72,7 +77,9 @@ public class PythonDetails implements Serializable {
     }
 
     public File getVirtualEnvInterpreter() {
-        return new File(getVirtualEnv(), "bin/python");
+        String binDir = VirtualEnvironment.getPythonApplicationDirectory();
+        String binName = operatingSystem.getExecutableName("python");
+        return Paths.get(getVirtualEnv().getAbsolutePath(), binDir, binName).toFile();
     }
 
     public File getSystemPythonInterpreter() {
@@ -139,5 +146,9 @@ public class PythonDetails implements Serializable {
             }
             setSystemPythonInterpreter(python.getAbsolutePath());
         }
+    }
+
+    public VirtualEnvironment getVirtualEnvironment() {
+        return virtualEnvironment;
     }
 }

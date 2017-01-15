@@ -17,6 +17,8 @@ package com.linkedin.gradle.python.plugin
 
 import org.junit.rules.TemporaryFolder
 
+import java.nio.file.Paths
+
 class DefaultProjectLayoutRule extends TemporaryFolder {
 
     public File buildFile
@@ -24,22 +26,22 @@ class DefaultProjectLayoutRule extends TemporaryFolder {
     protected void before() throws Throwable {
         super.before()
         setupProject()
-        buildFile = newFile("build.gradle")
+        buildFile = newFile(Paths.get('foo', "build.gradle").toString())
     }
 
     @SuppressWarnings("UnnecessaryOverridingMethod") //docs for testing
     protected void after() {
         //It's useful to comment this out if you need to look at the test env
-        super.after()
+//        super.after()
     }
 
     private void setupProject() {
-        newFolder('src', 'foo')
-        newFolder('test')
+        newFolder('foo', 'src', 'foo')
+        newFolder('foo', 'test')
 
         // Create some code
-        newFile('src/foo/__init__.py')
-        newFile('src/foo/hello.py') << '''\
+        newFile(Paths.get('foo', 'src', 'foo', '__init__.py').toString())
+        newFile(Paths.get('foo', 'src', 'foo', 'hello.py').toString()) << '''\
         | from __future__ import print_function
         |
         |
@@ -52,16 +54,18 @@ class DefaultProjectLayoutRule extends TemporaryFolder {
         |'''.stripMargin().stripIndent()
 
         // set up the default project name
-        newFile('settings.gradle') << PyGradleTestBuilder.createSettingGradle()
+        def settingsGradle = newFile('settings.gradle')
+        settingsGradle << PyGradleTestBuilder.createSettingGradle()
+        settingsGradle << "\ninclude ':foo'\n"
 
         // Create a setup file
-        newFile('setup.py') << PyGradleTestBuilder.createSetupPy()
+        newFile(Paths.get('foo', 'setup.py').toString()) << PyGradleTestBuilder.createSetupPy()
 
         // Create the setup.cfg file
-        newFile('setup.cfg') << PyGradleTestBuilder.createSetupCfg()
+        newFile(Paths.get('foo', 'setup.cfg').toString()) << PyGradleTestBuilder.createSetupCfg()
 
         // Create the test directory and a simple test
-        newFile('test/test_a.py') << '''\
+        newFile(Paths.get('foo', 'test', 'test_a.py').toString()) << '''\
             | from foo.hello import generate_welcome
             |
             |
@@ -74,6 +78,6 @@ class DefaultProjectLayoutRule extends TemporaryFolder {
             |     assert generate_welcome() == 'Hello World'
             '''.stripMargin().stripIndent()
 
-        newFile("MANIFEST.in") << ''
+        newFile(Paths.get('foo', "MANIFEST.in").toString()) << ''
     }
 }

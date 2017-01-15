@@ -21,7 +21,6 @@ import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider
 import com.linkedin.gradle.python.util.ConsoleOutput
 import com.linkedin.gradle.python.util.ExtensionUtils
 import com.linkedin.gradle.python.util.PackageInfo
-import com.linkedin.gradle.python.util.VirtualEnvExecutableHelper
 import groovy.time.TimeCategory
 import groovy.transform.CompileStatic
 import org.gradle.api.DefaultTask
@@ -117,8 +116,8 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider {
                 mergedEnv.putAll(environment)
             }
 
-            def commandLine = [VirtualEnvExecutableHelper.getPythonInterpreter(pythonDetails),
-                               VirtualEnvExecutableHelper.getPip(pythonDetails),
+            def commandLine = [pythonDetails.getVirtualEnvInterpreter(),
+                               pythonDetails.getVirtualEnvironment().getPip(),
                                'install',
                                '--disable-pip-version-check',
                                '--no-deps']

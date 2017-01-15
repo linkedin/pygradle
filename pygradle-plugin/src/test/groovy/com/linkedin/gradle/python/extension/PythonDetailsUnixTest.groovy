@@ -23,7 +23,7 @@ import spock.lang.Requires
 import spock.lang.Specification
 
 
-@Requires({ OperatingSystem.current() == OperatingSystem.UNIX})
+@Requires({ OperatingSystem.current() == OperatingSystem.UNIX })
 class PythonDetailsUnixTest extends Specification {
 
     @Rule

@@ -44,12 +44,12 @@ class PythonDetailsWindowsTest extends Specification {
     def setup() {
         settings = new PythonDetails(project)
         addExecutables(settings)
-        buildPythonExec(temporaryFolder.newFolder('python3.5.1', 'bin'), WindowsBinaryUnpacker.PythonVersion.PYTHON_35)
+        buildPythonExec(temporaryFolder.newFolder('python3.5.1', VirtualEnvironment.getPythonApplicationDirectory()), WindowsBinaryUnpacker.PythonVersion.PYTHON_35)
     }
 
     void addExecutables(PythonDetails details) {
         WindowsBinaryUnpacker.PythonVersion.values().each {
-            def folder = temporaryFolder.newFolder("python${it.major}.${it.minor}", 'bin')
+            def folder = temporaryFolder.newFolder("python${it.major}.${it.minor}", VirtualEnvironment.getPythonApplicationDirectory())
             details.prependExecutableDirectory(buildPythonExec(folder, it))
         }
     }
@@ -97,7 +97,7 @@ class PythonDetailsWindowsTest extends Specification {
     def "interpreterPath with systemPython set"() {
         when: "we have old systemPython setting"
         settings.pythonVersion = '2.6'
-        def path = Paths.get(temporaryFolder.getRoot().absolutePath, 'python3.5.1', 'bin', 'python3.5.exe').toString()
+        def path = Paths.get(temporaryFolder.getRoot().absolutePath, 'python3.5.1', VirtualEnvironment.getPythonApplicationDirectory(), 'python3.5.exe').toString()
         settings.systemPythonInterpreter = path
         then: "we get that as interpreter path"
         settings.systemPythonInterpreter.absolutePath == path

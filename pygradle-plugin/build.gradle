@@ -55,9 +55,9 @@ task integTest(type: Test) {
     shouldRunAfter tasks.test
     testClassesDir = sourceSets.integTest.output.classesDir
     classpath = sourceSets.integTest.runtimeClasspath
-    reports.html.destination = file("$buildDir/reports/integration-test")
+    reports.html.destination = file("$buildDir${File.separatorChar}reports${File.separatorChar}integration-test")
 
-    environment['TEST_REPO'] = "${rootProject.buildDir}/ivy-repo"
+    environment['TEST_REPO'] = rootProject.buildDir.toString().replace('\\', '/') + '/ivy-repo'
 }
 
 check.dependsOn integTest

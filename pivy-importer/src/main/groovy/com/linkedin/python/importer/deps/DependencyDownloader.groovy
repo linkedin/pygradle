@@ -20,6 +20,7 @@ import com.linkedin.python.importer.ivy.IvyFileWriter
 import com.linkedin.python.importer.pypi.PypiApiCache
 import com.linkedin.python.importer.util.ProxyDetector
 import groovy.util.logging.Slf4j
+import org.apache.commons.io.FilenameUtils
 import org.apache.http.client.fluent.Request
 
 import java.nio.file.Paths
@@ -79,7 +80,7 @@ class DependencyDownloader {
 
     static File downloadArtifact(File destDir, String url) {
 
-        def filename = Paths.get(url).getFileName().toString()
+        def filename = FilenameUtils.getName(new URL(url).getPath())
         def contents = new File(destDir, filename)
 
         if (!contents.exists()) {

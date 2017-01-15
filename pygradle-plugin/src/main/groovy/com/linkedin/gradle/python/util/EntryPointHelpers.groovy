@@ -16,8 +16,11 @@
 package com.linkedin.gradle.python.util
 
 import com.linkedin.gradle.python.PythonExtension
+import groovy.transform.TypeChecked
 import org.gradle.api.Project
+import org.gradle.process.ExecSpec
 
+@TypeChecked
 public class EntryPointHelpers {
 
     private EntryPointHelpers() {
@@ -36,17 +39,17 @@ public class EntryPointHelpers {
     static public List<String> collectEntryPoints(Project project) {
         PythonExtension settings = project.getExtensions().getByType(PythonExtension)
         def entryPointsBuf = new ByteArrayOutputStream()
-        project.exec {
-            environment settings.pythonEnvironment + settings.pythonEnvironmentDistgradle
-            commandLine([
-                    VirtualEnvExecutableHelper.getPythonInterpreter(settings),
-                    'setup.py',
-                    'entrypoints',
+        project.exec { ExecSpec exec ->
+            exec.environment settings.pythonEnvironment + settings.pythonEnvironmentDistgradle
+            exec.commandLine([
+                settings.details.getVirtualEnvInterpreter().absolutePath,
+                'setup.py',
+                'entrypoints',
             ])
-            standardOutput entryPointsBuf
+            exec.standardOutput = entryPointsBuf
         }
         def entryPoints = []
-        entryPointsBuf.toString().split('\n').each {
+        entryPointsBuf.toString().split(System.getProperty("line.separator")).each {
             if (it != 'running entrypoints') {
                 entryPoints << it
             }

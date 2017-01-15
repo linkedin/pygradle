@@ -20,6 +20,8 @@ import com.linkedin.gradle.python.util.ConsoleOutput
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 
+import java.nio.file.Paths
+
 /**
  * Configuration settings for Python products.
  * <p>
@@ -83,14 +85,14 @@ class PythonExtension {
 
     public PythonExtension(Project project) {
         this.details = new PythonDetails(project)
-        docsDir = project.file("${project.projectDir}/docs").path
-        testDir = project.file("${project.projectDir}/test").path
-        srcDir = project.file("${project.projectDir}/src").path
-        setupCfg = project.file("${project.projectDir}/setup.cfg").path
+        docsDir = Paths.get(project.projectDir.absolutePath, "docs").toFile().path
+        testDir = Paths.get(project.projectDir.absolutePath, "test").toFile().path
+        srcDir = Paths.get(project.projectDir.absolutePath, "src").toFile().path
+        setupCfg = Paths.get(project.projectDir.absolutePath, "setup.cfg").toFile().path
         pinnedFile = project.file("pinned.txt")
 
         pythonEnvironment = [
-                'PATH': "${ -> details.virtualEnv.absolutePath }/bin" + ':' + System.getenv('PATH'),]
+                'PATH': "${ -> Paths.get(details.virtualEnv.absolutePath, 'bin').toFile().absolutePath }" + File.pathSeparator + System.getenv('PATH'),]
 
         pythonEnvironmentDistgradle = ['PYGRADLE_PROJECT_NAME'   : project.name,
                                        'PYGRADLE_PROJECT_VERSION': "${ -> project.version }",]

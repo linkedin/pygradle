@@ -63,7 +63,7 @@ class DependencyDownloader {
             throw new RuntimeException("Unable to find source dist for $dep")
         }
 
-        def destDir = new File(ivyRepoRoot, "pypi/${name}/${version}")
+        def destDir = Paths.get(ivyRepoRoot.absolutePath, "pypi", name, version).toFile()
 
         destDir.mkdirs()
 

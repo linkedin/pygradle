@@ -22,6 +22,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.Project
 
 import java.nio.file.Paths
+
 /**
  * Configuration settings for Python products.
  * <p>

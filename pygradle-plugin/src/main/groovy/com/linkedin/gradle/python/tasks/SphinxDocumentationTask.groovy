@@ -29,7 +29,7 @@ class SphinxDocumentationTask extends AbstractPythonMainSourceDefaultTask {
     @OutputDirectory
     File getDocDir() {
         def typeString = type.toString().toLowerCase()
-        return new File(project.buildDir, "docs/${typeString}/${project.name}-${-> project.version}-docs-${typeString}")
+        return new File(project.buildDir, "docs/${ typeString }/${ project.name }-${ -> project.version }-docs-${ typeString }")
     }
 
     /**
@@ -43,7 +43,7 @@ class SphinxDocumentationTask extends AbstractPythonMainSourceDefaultTask {
         args(pythonDetails.virtualEnvironment.findExecutable('sphinx-build').absolutePath,
             '-b', type.builderName,
             project.file(component.docsDir).getAbsolutePath(),
-            "${getDocDir().getAbsolutePath()}")
+            "${ getDocDir().getAbsolutePath() }")
     }
 
     @Override

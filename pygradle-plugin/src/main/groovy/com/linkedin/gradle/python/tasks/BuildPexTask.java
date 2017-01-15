@@ -22,7 +22,6 @@ import com.linkedin.gradle.python.extension.WheelExtension;
 import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider;
 import com.linkedin.gradle.python.tasks.execution.TeeOutputContainer;
 import com.linkedin.gradle.python.util.ExtensionUtils;
-import com.linkedin.gradle.python.util.VirtualEnvExecutableHelper;
 import com.linkedin.gradle.python.util.internal.pex.FatPexGenerator;
 import com.linkedin.gradle.python.util.internal.pex.ThinPexGenerator;
 import com.linkedin.gradle.python.util.pex.DefaultEntryPointTemplateProvider;
@@ -97,8 +96,8 @@ public class BuildPexTask extends DefaultTask implements FailureReasonProvider {
 
         spec.environment(pythonExtension.pythonEnvironment);
         spec.environment(pythonExtension.pythonEnvironmentDistgradle);
-        spec.commandLine(VirtualEnvExecutableHelper.getPythonInterpreter(pythonExtension.getDetails()));
-        spec.args(VirtualEnvExecutableHelper.getPip(pythonExtension.getDetails()),
+        spec.commandLine(pythonExtension.getDetails().getVirtualEnvInterpreter());
+        spec.args(pythonExtension.getDetails().getVirtualEnvironment().getPip(),
             "wheel",
             "--disable-pip-version-check",
             "--wheel-dir",

@@ -33,6 +33,7 @@ class PipFreezeOutputParser {
     static List<String> getDependencies(Collection<String> ignoredDependencies, String requirements) {
         List<String> reqs = new ArrayList<>();
 
+        // In regex world \n will also match the windows CR+LF
         for (String it : requirements.split("\n")) {
             String[] split = it.split("==");
             String name = split[0];

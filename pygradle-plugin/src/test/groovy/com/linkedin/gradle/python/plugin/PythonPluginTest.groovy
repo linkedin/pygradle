@@ -81,7 +81,7 @@ class PythonPluginTest extends Specification {
         project.plugins.apply('com.linkedin.python')
         def details = project.getExtensions().getByType(PythonExtension).getDetails()
 
-        if(OperatingSystem.current() == OperatingSystem.WINDOWS) {
+        if (OperatingSystem.current() == OperatingSystem.WINDOWS) {
             def folder = temporaryFolder.newFolder("python2.6", 'bin')
             details.prependExecutableDirectory(buildPythonExec(folder, WindowsBinaryUnpacker.PythonVersion.PYTHON_26))
         }

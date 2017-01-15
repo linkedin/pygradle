@@ -53,10 +53,11 @@ class PexExecOutputParser {
             packageName = matcher.group(0);
         }
 
-        throw new GradleException("Failed to build a pex file (see output above)!\n"
-            + "\n"
-            + "This typically happens because your virtual environment contains a cached copy of " + packageName + "\n"
-            + "that no other package depends on any more.\n"
+        String lineSeperator = System.getProperty("line.separator");
+        throw new GradleException("Failed to build a pex file (see output above)!" + lineSeperator
+            + lineSeperator
+            + "This typically happens because your virtual environment contains a cached copy of " + packageName + lineSeperator
+            + "that no other package depends on any more." + lineSeperator
             + "Usually, this is the result of updating a package that used to depend on " + packageName + "."
         );
     }

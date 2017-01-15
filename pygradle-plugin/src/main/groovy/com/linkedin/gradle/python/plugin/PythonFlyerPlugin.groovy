@@ -24,6 +24,7 @@ import org.gradle.api.Task
 import org.gradle.api.tasks.Copy
 
 import java.nio.file.Paths
+
 /**
  * A Flyer plugin.
  * <p>

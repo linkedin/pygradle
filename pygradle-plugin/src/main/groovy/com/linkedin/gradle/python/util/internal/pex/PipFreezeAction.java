@@ -19,18 +19,13 @@ import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.plugin.PythonPlugin;
 import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.util.PackageInfo;
-import com.linkedin.gradle.python.util.VirtualEnvExecutableHelper;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.process.ExecSpec;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 class PipFreezeAction {
 
@@ -62,8 +57,8 @@ class PipFreezeAction {
             public void execute(ExecSpec execSpec) {
                 execSpec.environment(settings.getEnvironment());
                 execSpec.commandLine(
-                    VirtualEnvExecutableHelper.getPythonInterpreter(settings.getDetails()),
-                    VirtualEnvExecutableHelper.getPip(settings.getDetails()),
+                    settings.getDetails().getVirtualEnvInterpreter(),
+                    settings.getDetails().getVirtualEnvironment().getPip(),
                     "freeze",
                     "--disable-pip-version-check"
                 );

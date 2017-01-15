@@ -56,10 +56,10 @@ class PexFileUtil {
                 execSpec.errorOutput = output
                 execSpec.ignoreExitValue = true
                 execSpec.commandLine([
-                        VirtualEnvExecutableHelper.getPythonInterpreter(settings),
-                        VirtualEnvExecutableHelper.getPex(settings),
-                        *arguments,
-                        *pipFreeze(project),
+                    settings.details.getVirtualEnvInterpreter(),
+                    settings.details.getVirtualEnvironment().getPex(),
+                    *arguments,
+                    *pipFreeze(project),
                 ])
             }
             if (buildPexResult.exitValue != 0) {
@@ -117,17 +117,17 @@ class PexFileUtil {
         project.exec {
             environment settings.pythonEnvironment
             commandLine([
-                    VirtualEnvExecutableHelper.getPythonInterpreter(settings.getDetails()),
-                    VirtualEnvExecutableHelper.getPip(settings.getDetails()),
-                    'freeze',
-                    '--disable-pip-version-check',
+                settings.details.getVirtualEnvInterpreter(),
+                settings.details.getVirtualEnvironment().getPip(),
+                'freeze',
+                '--disable-pip-version-check',
             ])
             standardOutput requirements
         }
 
         List<String> reqs = []
 
-        requirements.toString().split('\n').each {
+        requirements.toString().split(System.getProperty("line.separator")).each {
             def (String name, String version) = it.split('==')
             // The tar name can have _ when package name has -, so check both.
             if (!(developmentDependencies.contains(name)

@@ -15,6 +15,7 @@
  */
 package com.linkedin.gradle.python.util.internal
 
+import com.linkedin.gradle.python.extension.internal.ExecutablePathUtils
 import com.linkedin.gradle.python.util.OperatingSystem
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder

@@ -15,34 +15,57 @@
  */
 package com.linkedin.gradle.python.extension
 
+import com.linkedin.gradle.python.util.OperatingSystem
+import com.linkedin.gradle.python.util.WindowsBinaryUnpacker
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Requires
 import spock.lang.Specification
 
+import java.nio.file.Paths
 
-class PythonDetailsTest extends Specification {
+import static com.linkedin.gradle.python.util.WindowsBinaryUnpacker.buildPythonExec
+
+@Requires({ OperatingSystem.current() == OperatingSystem.WINDOWS })
+class PythonDetailsWindowsTest extends Specification {
+
+    class CustomTemporaryFolder extends TemporaryFolder {
+        protected void after() {
+
+        }
+    }
 
     @Rule
-    TemporaryFolder temporaryFolder
+    CustomTemporaryFolder temporaryFolder = new CustomTemporaryFolder()
     def project = new ProjectBuilder().build()
-    def settings = new PythonDetails(project)
+    PythonDetails settings
+
+    def setup() {
+        settings = new PythonDetails(project)
+        addExecutables(settings)
+        buildPythonExec(temporaryFolder.newFolder('python3.5.1', 'bin'), WindowsBinaryUnpacker.PythonVersion.PYTHON_35)
+    }
+
+    void addExecutables(PythonDetails details) {
+        WindowsBinaryUnpacker.PythonVersion.values().each {
+            def folder = temporaryFolder.newFolder("python${it.major}.${it.minor}", 'bin')
+            details.prependExecutableDirectory(buildPythonExec(folder, it))
+        }
+    }
 
     def "interpreterPath without interpreterVersion"() {
         expect: "default system Python without any settings"
         settings.getSystemPythonInterpreter()
     }
 
-    @Requires({ new File('/usr/bin/python2.7').exists() })
     def "interpreterPath with interpreterVersion"() {
         when: "we request 2.7"
         settings.pythonVersion = '2.7'
         then: "we get 2.7"
-        settings.getSystemPythonInterpreter().path.endsWith("2.7")
+        settings.getSystemPythonInterpreter().path.endsWith("2.7.exe")
     }
 
-    @Requires({ !(new File('/usr/bin/python2.5').exists()) })
     def "interpreterPath with unsupported interpreterVersion"() {
         when: "we request an unsupported version"
         settings.pythonVersion = '2.5'
@@ -57,29 +80,27 @@ class PythonDetailsTest extends Specification {
         thrown(RuntimeException)
     }
 
-    @Requires({ new File('/usr/bin/python2.6').exists() })
     def "interpreterPath with major only 2 interpreterVersion"() {
         when: "we request only the major version 2"
         settings.pythonVersion = '2'
         then: "we get the default major version 2 cleanpython or the system default if cleanptyhon is not installed"
-        settings.getSystemPythonInterpreter().path.endsWith("2.6")
+        settings.getSystemPythonInterpreter().path.endsWith("2.6.exe")
     }
 
-    @Requires({ new File('/usr/bin/python3.5').exists() })
     def "interpreterPath with major only 3 interpreterVersion"() {
         when: "we request only the major version 3"
         settings.pythonVersion = '3'
         then: "we get the default major version 3 cleanpython or the system default if cleanpython is not installed"
-        settings.getSystemPythonInterpreter().path.endsWith("3.5")
+        settings.getSystemPythonInterpreter().path.endsWith("3.5.exe")
     }
 
-    @Requires({ new File('/usr/bin/python2.7').exists() && new File('/usr/bin/python2.6').exists() })
     def "interpreterPath with systemPython set"() {
         when: "we have old systemPython setting"
         settings.pythonVersion = '2.6'
-        settings.systemPythonInterpreter = '/usr/bin/python2.7'
+        def path = Paths.get(temporaryFolder.getRoot().absolutePath, 'python3.5.1', 'bin', 'python3.5.exe').toString()
+        settings.systemPythonInterpreter = path
         then: "we get that as interpreter path"
-        settings.systemPythonInterpreter.absolutePath == '/usr/bin/python2.7'
+        settings.systemPythonInterpreter.absolutePath == path
     }
 
     def "interpreterPath with nonsense interpreterVersion"() {
@@ -87,45 +108,5 @@ class PythonDetailsTest extends Specification {
         settings.pythonVersion = 'x.y'
         then: "the exception is thrown"
         thrown(RuntimeException)
-    }
-
-    def "can prepend search path"() {
-        temporaryFolder.newFolder('foo')
-        temporaryFolder.newFolder('bar')
-        def fakePython = temporaryFolder.newFile('foo/python3.5')
-        fakePython.text = "#!/bin/bash\necho Python 3.5.6"
-        fakePython.executable = true
-
-        def shadowFakePython = temporaryFolder.newFile('bar/python3.5')
-        shadowFakePython.text = "#!/bin/bash\necho Python 3.5.6"
-        shadowFakePython.executable = true
-
-        when:
-        settings.prependExecutableDirectory(shadowFakePython.parentFile)
-        settings.prependExecutableDirectory(fakePython.parentFile)
-        settings.pythonVersion = '3.5'
-
-        then:
-        settings.systemPythonInterpreter == fakePython
-    }
-
-    def "can append search path"() {
-        temporaryFolder.newFolder('foo')
-        temporaryFolder.newFolder('bar')
-        def fakePython = temporaryFolder.newFile('foo/python2.1')
-        fakePython.text = "#!/bin/bash\necho Python 2.1"
-        fakePython.executable = true
-
-        def shadowFakePython = temporaryFolder.newFile('bar/python2.1')
-        shadowFakePython.text = "#!/bin/bash\necho Python 2.1"
-        shadowFakePython.executable = true
-
-        when:
-        settings.appendExecutableDirectory(fakePython.parentFile)
-        settings.appendExecutableDirectory(shadowFakePython.parentFile)
-        settings.pythonVersion = '2.1'
-
-        then:
-        settings.systemPythonInterpreter == fakePython
     }
 }

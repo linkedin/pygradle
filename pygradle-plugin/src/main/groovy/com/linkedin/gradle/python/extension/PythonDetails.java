@@ -21,6 +21,7 @@ import org.gradle.api.Project;
 
 import java.io.File;
 import java.io.Serializable;
+import java.nio.file.Paths;
 import java.util.List;
 
 
@@ -72,7 +73,7 @@ public class PythonDetails implements Serializable {
     }
 
     public File getVirtualEnvInterpreter() {
-        return new File(getVirtualEnv(), "bin/python");
+        return Paths.get(getVirtualEnv().getAbsolutePath(), "bin", "python").toFile();
     }
 
     public File getSystemPythonInterpreter() {

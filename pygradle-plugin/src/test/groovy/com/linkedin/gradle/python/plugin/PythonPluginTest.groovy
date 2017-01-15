@@ -17,10 +17,14 @@ package com.linkedin.gradle.python.plugin
 
 import com.linkedin.gradle.python.PythonExtension
 import com.linkedin.gradle.python.tasks.PipInstallTask
+import com.linkedin.gradle.python.util.OperatingSystem
+import com.linkedin.gradle.python.util.WindowsBinaryUnpacker
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
+
+import static com.linkedin.gradle.python.util.WindowsBinaryUnpacker.buildPythonExec
 
 class PythonPluginTest extends Specification {
 
@@ -75,8 +79,15 @@ class PythonPluginTest extends Specification {
         when:
         def project = new ProjectBuilder().build()
         project.plugins.apply('com.linkedin.python')
+        def details = project.getExtensions().getByType(PythonExtension).getDetails()
+
+        if(OperatingSystem.current() == OperatingSystem.WINDOWS) {
+            def folder = temporaryFolder.newFolder("python2.6", 'bin')
+            details.prependExecutableDirectory(buildPythonExec(folder, WindowsBinaryUnpacker.PythonVersion.PYTHON_26))
+        }
+
         then:
-        project.getExtensions().getByType(PythonExtension).getDetails().pythonVersion.pythonVersion
+        details.pythonVersion.pythonVersion
     }
 
     def 'install project has the root file in the collection'() {

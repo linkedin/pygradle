@@ -18,7 +18,6 @@ package com.linkedin.gradle.python.plugin
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Rule
-import spock.lang.IgnoreRest
 import spock.lang.Specification
 
 import java.nio.file.Path
@@ -84,7 +83,6 @@ class PexIntegrationTest extends Specification {
         out.toString() == "Hello World\n"
     }
 
-    @IgnoreRest
     def "can build fat pex"() {
         given:
         testProjectDir.buildFile << """\

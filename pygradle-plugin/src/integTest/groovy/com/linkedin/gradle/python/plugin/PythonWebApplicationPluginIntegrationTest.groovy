@@ -52,15 +52,15 @@ class PythonWebApplicationPluginIntegrationTest extends Specification {
 
         result.output.contains("BUILD SUCCESS")
         result.output.contains("test${File.separatorChar}test_a.py ..")
-        result.task(':flake8').outcome == TaskOutcome.SUCCESS
-        result.task(':installPythonRequirements').outcome == TaskOutcome.SUCCESS
-        result.task(':installTestRequirements').outcome == TaskOutcome.SUCCESS
-        result.task(':createVirtualEnvironment').outcome == TaskOutcome.SUCCESS
-        result.task(':installProject').outcome == TaskOutcome.SUCCESS
-        result.task(':pytest').outcome == TaskOutcome.SUCCESS
-        result.task(':check').outcome == TaskOutcome.SUCCESS
-        result.task(':build').outcome == TaskOutcome.SUCCESS
-        result.task(':packageWebApplication').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:flake8').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:installPythonRequirements').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:installTestRequirements').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:createVirtualEnvironment').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:installProject').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:pytest').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:check').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:build').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:packageWebApplication').outcome == TaskOutcome.SUCCESS
         Path deployablePath = testProjectDir.getRoot().toPath().resolve(Paths.get('foo', 'build', 'deployable', 'bin'))
 
         when: "we have a pex file"

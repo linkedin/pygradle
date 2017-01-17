@@ -125,7 +125,7 @@ class PexIntegrationTest extends Specification {
         deployablePath.resolve('hello_world').toFile().exists()
 
         when: "we have a pex file"
-        def line = new String(deployablePath.resolve('foo.pex').bytes, "UTF-8").substring(0, 100)
+        def line = new String(deployablePath.resolve('hello_world').bytes, "UTF-8").substring(0, 100)
 
         then: "its shebang line is not pointing to a virtualenv"
         line.startsWith("#!") && !line.contains("venv")

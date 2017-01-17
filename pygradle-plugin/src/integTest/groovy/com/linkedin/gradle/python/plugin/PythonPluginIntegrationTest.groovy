@@ -53,15 +53,15 @@ class PythonPluginIntegrationTest extends Specification {
         result.output.contains('TOTAL                  5      1    80%')
         result.output.contains('Coverage HTML written to dir htmlcov')
         result.output.contains('Coverage XML written to file coverage.xml')
-        result.task(':flake8').outcome == TaskOutcome.SUCCESS
-        result.task(':installPythonRequirements').outcome == TaskOutcome.SUCCESS
-        result.task(':installTestRequirements').outcome == TaskOutcome.SUCCESS
-        result.task(':createVirtualEnvironment').outcome == TaskOutcome.SUCCESS
-        result.task(':installProject').outcome == TaskOutcome.SUCCESS
-        result.task(':pytest').outcome == TaskOutcome.SUCCESS
-        result.task(':check').outcome == TaskOutcome.SUCCESS
-        result.task(':build').outcome == TaskOutcome.SUCCESS
-        result.task(':coverage').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:flake8').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:installPythonRequirements').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:installTestRequirements').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:createVirtualEnvironment').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:installProject').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:pytest').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:check').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:build').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:coverage').outcome == TaskOutcome.SUCCESS
     }
 
     def "can use external library"() {
@@ -95,17 +95,17 @@ class PythonPluginIntegrationTest extends Specification {
 
         then:
 
-        !new File(testProjectDir.getRoot(), 'build').exists()
-        new File(testProjectDir.getRoot(), 'build2').exists()
+        !new File(testProjectDir.getRoot(), 'foo/build').exists()
+        new File(testProjectDir.getRoot(), 'foo/build2').exists()
         result.output.contains("BUILD SUCCESS")
         result.output.contains("test${File.separatorChar}test_a.py ..")
-        result.task(':flake8').outcome == TaskOutcome.SUCCESS
-        result.task(':installPythonRequirements').outcome == TaskOutcome.SUCCESS
-        result.task(':installTestRequirements').outcome == TaskOutcome.SUCCESS
-        result.task(':createVirtualEnvironment').outcome == TaskOutcome.SUCCESS
-        result.task(':installProject').outcome == TaskOutcome.SUCCESS
-        result.task(':pytest').outcome == TaskOutcome.SUCCESS
-        result.task(':check').outcome == TaskOutcome.SUCCESS
-        result.task(':build').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:flake8').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:installPythonRequirements').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:installTestRequirements').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:createVirtualEnvironment').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:installProject').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:pytest').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:check').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:build').outcome == TaskOutcome.SUCCESS
     }
 }

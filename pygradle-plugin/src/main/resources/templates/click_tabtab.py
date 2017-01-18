@@ -393,7 +393,7 @@ def generate_completions(name, click_obj):
 def main():
     ran = False
     console_scripts = list(
-        pkg_resources.working_set.__iter__().next().get_entry_map(group='console_scripts').items()
+        next(iter(pkg_resources.working_set)).get_entry_map(group='console_scripts').items()
     )
     for name, entrypoint in console_scripts:
         try:

@@ -46,7 +46,9 @@ public class FileSystemUtils {
                 Files.createSymbolicLink(destination.toPath(), target.toPath());
             }
         } else {
-            Files.copy(target.toPath(), destination.toPath());
+            if (!Files.exists(destination.toPath())) {
+                Files.copy(target.toPath(), destination.toPath());
+            }
         }
     }
 }

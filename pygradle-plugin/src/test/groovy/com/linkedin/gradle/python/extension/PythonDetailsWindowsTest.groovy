@@ -55,7 +55,7 @@ class PythonDetailsWindowsTest extends Specification {
     }
 
     def "interpreterPath without interpreterVersion"() {
-        expect: "default system Python without any settings"
+        expect: "default system Python without any details"
         settings.getSystemPythonInterpreter()
     }
 

@@ -15,6 +15,7 @@
  */
 package com.linkedin.gradle.python.plugin
 
+import com.linkedin.gradle.python.util.PexFileUtil
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Rule
@@ -64,7 +65,7 @@ class PythonWebApplicationPluginIntegrationTest extends Specification {
         Path deployablePath = testProjectDir.getRoot().toPath().resolve(Paths.get('foo', 'build', 'deployable', 'bin'))
 
         when: "we have a pex file"
-        def line = new String(deployablePath.resolve('foo.pex').bytes, "UTF-8").substring(0, 100)
+        def line = new String(deployablePath.resolve(PexFileUtil.createThinPexFilename('foo')).bytes, "UTF-8").substring(0, 100)
 
         then: "its shebang line is not pointing to a virtualenv"
         line.startsWith("#!") && !line.contains("venv")

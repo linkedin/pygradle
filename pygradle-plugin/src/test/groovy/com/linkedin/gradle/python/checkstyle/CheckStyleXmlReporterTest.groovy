@@ -23,7 +23,7 @@ import javax.xml.XMLConstants
 import javax.xml.transform.stream.StreamSource
 import javax.xml.validation.SchemaFactory
 
-class TestCheckStyleXmlReporter extends Specification {
+class CheckStyleXmlReporterTest extends Specification {
 
   def 'parses strings properly'() {
     setup:

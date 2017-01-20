@@ -49,8 +49,8 @@ class PythonPluginIntegrationTest extends Specification {
         result.output.contains("BUILD SUCCESS")
         result.output.contains("test${File.separatorChar}test_a.py ..")
         result.output.contains('--- coverage: ')
-        result.output.contains("src${File.separatorChar}foo${File.separatorChar}hello          5      1    80%")
-        result.output.contains('TOTAL                  5      1    80%')
+        result.output.contains("src${File.separatorChar}foo${File.separatorChar}hello")
+        result.output.contains('TOTAL')
         result.output.contains('Coverage HTML written to dir htmlcov')
         result.output.contains('Coverage XML written to file coverage.xml')
         result.task(':foo:flake8').outcome == TaskOutcome.SUCCESS

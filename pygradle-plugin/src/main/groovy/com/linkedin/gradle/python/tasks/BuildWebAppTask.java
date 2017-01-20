@@ -80,7 +80,7 @@ public class BuildWebAppTask extends DefaultTask {
         } else {
             HashMap<String, String> options = new HashMap<>();
             options.put("entryPoint", PythonWebApplicationPlugin.GUNICORN_ENTRYPOINT);
-            options.put("realPex", getProject().getName() + ".pex");
+            options.put("realPex", PexFileUtil.createThinPexFilename(getProject().getName()));
             String template = IOUtils.toString(ThinPexGenerator.class.getResourceAsStream("/templates/pex_non_cli_entrypoint.sh.template"));
             new EntryPointWriter(getProject(), template).writeEntryPoint(new File(deployableExtension.getDeployableBinDir(), "gunicorn"), options);
         }

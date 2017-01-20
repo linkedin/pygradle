@@ -28,7 +28,7 @@ import java.util.List;
 
 public class PythonDetails implements Serializable {
 
-    private final Project project;
+    private transient final Project project;
 
     private final File venvOverride;
     private final VirtualEnvironment virtualEnvironment;

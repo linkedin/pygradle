@@ -116,3 +116,17 @@ was merged into pip master that fixes the issue (https://github.com/pypa/pip/pul
 has not been released yet. If this is an issue for your org, you could release a version of pip with this fix in it. For
 more details on the change and issues please review https://github.com/pypa/pip/pull/3701 and https://github.com/pypa/pip/pull/3079
 
+# Window Support
+
+PyGradle has basic support for windows. We would like to note that pex is not offically supported on Windows, 
+while it seems to work properly we cannot guarantee it.
+
+For those users who are on Windows, we would love to get feedback about how this works for you.
+
+## Caveats
+
+- Building PyGradle, the integration tests require that Python be available in your PATH.
+- On Windows pex format defaults to fat.
+- On Windows all pex files are renamed to `.py`, on Unix based systems they are `.pex`.
+- To run a pex on windows, you must have Python installed and the `.py` extension needs to be registered to the python 
+  you want to run.

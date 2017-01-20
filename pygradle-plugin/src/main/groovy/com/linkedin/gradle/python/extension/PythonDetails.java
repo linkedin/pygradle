@@ -16,7 +16,6 @@
 package com.linkedin.gradle.python.extension;
 
 import com.linkedin.gradle.python.exception.MissingInterpreterException;
-import com.linkedin.gradle.python.extension.internal.ExecutablePathUtils;
 import com.linkedin.gradle.python.util.OperatingSystem;
 import org.gradle.api.Project;
 
@@ -48,7 +47,7 @@ public class PythonDetails implements Serializable {
         this.project = project;
         activateLink = new File(project.getProjectDir(), operatingSystem.getScriptName("activate"));
         virtualEnvPrompt = String.format("(%s)", project.getName());
-        searchPath = ExecutablePathUtils.getPath();
+        searchPath = operatingSystem.getPath();
         venvOverride = venvDir;
         this.virtualEnvironment = new VirtualEnvironment(this);
     }
@@ -124,7 +123,7 @@ public class PythonDetails implements Serializable {
             pythonVersion = "3.5";
         }
 
-        pythonInterpreter = ExecutablePathUtils.getExecutable(searchPath, String.format("python%s", pythonVersion));
+        pythonInterpreter = operatingSystem.findInPath(searchPath, operatingSystem.getExecutableName(String.format("python%s", pythonVersion)));
         updateFromPythonInterpreter();
     }
 
@@ -140,7 +139,7 @@ public class PythonDetails implements Serializable {
 
     private void findPythonWhenAbsent() {
         if (pythonInterpreter == null) {
-            File python = ExecutablePathUtils.getExecutable(searchPath, "python");
+            File python = operatingSystem.findInPath(searchPath, operatingSystem.getExecutableName("python"));
             if (python == null) {
                 python = new File("/usr/bin/python");
             }

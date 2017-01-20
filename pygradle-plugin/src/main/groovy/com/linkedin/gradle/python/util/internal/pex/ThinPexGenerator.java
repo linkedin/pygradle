@@ -19,6 +19,7 @@ import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.extension.DeployableExtension;
 import com.linkedin.gradle.python.util.EntryPointHelpers;
 import com.linkedin.gradle.python.util.ExtensionUtils;
+import com.linkedin.gradle.python.util.PexFileUtil;
 import com.linkedin.gradle.python.util.entrypoint.EntryPointWriter;
 import com.linkedin.gradle.python.util.pex.EntryPointTemplateProvider;
 import org.gradle.api.Project;
@@ -65,7 +66,7 @@ public class ThinPexGenerator implements PexGenerator {
 
             Map<String, String> propertyMap = new HashMap<>();
             propertyMap.putAll(extraProperties);
-            propertyMap.put("realPex", project.getName() + ".pex");
+            propertyMap.put("realPex", PexFileUtil.createThinPexFilename(project.getName()));
             propertyMap.put("entryPoint", entry);
             propertyMap.put("cliName", name);
 

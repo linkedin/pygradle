@@ -123,7 +123,7 @@ abstract public class OperatingSystem {
      * Locates the given executable in the system path. Returns null if not found.
      */
     @Nullable
-    public File findInPath(String name) {
+    public File findInPath(List<File> path, String name) {
         String exeName = getExecutableName(name);
         if (exeName.contains(File.separator)) {
             File candidate = new File(exeName);
@@ -132,7 +132,7 @@ abstract public class OperatingSystem {
             }
             return null;
         }
-        for (File dir : getPath()) {
+        for (File dir : path) {
             File candidate = new File(dir, exeName);
             if (candidate.isFile()) {
                 return candidate;

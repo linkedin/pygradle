@@ -20,7 +20,7 @@ import com.linkedin.gradle.python.checkstyle.model.StyleViolation
 import spock.lang.Specification
 import spock.lang.Unroll
 
-class TestStyleViolation extends Specification {
+class StyleViolationTest extends Specification {
 
   @Unroll
   def 'can parse #code code correctly'() {

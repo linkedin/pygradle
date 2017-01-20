@@ -154,4 +154,19 @@ class PexFileUtil {
         return configNames
     }
 
+    public static String createThinPexFilename(String name) {
+        if (OperatingSystem.current() == OperatingSystem.WINDOWS) {
+            return name + ".py"
+        } else {
+            return name + ".pex"
+        }
+    }
+
+    public static String createFatPexFilename(String name) {
+        if (OperatingSystem.current() == OperatingSystem.WINDOWS) {
+            return name + ".py"
+        } else {
+            return name
+        }
+    }
 }

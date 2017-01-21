@@ -38,7 +38,7 @@ class PythonPluginIntegrationTest extends Specification {
         when:
         def result = GradleRunner.create()
                 .withProjectDir(testProjectDir.root)
-                .withArguments('build', 'coverage')
+                .withArguments('build', 'coverage', '-s')
                 .withPluginClasspath()
                 .withDebug(true)
                 .build()
@@ -74,15 +74,7 @@ class PythonPluginIntegrationTest extends Specification {
 
         then: //Build will skip things that it should
         result.output.contains("BUILD SUCCESS")
-        result.task(':foo:flake8').outcome == TaskOutcome.SKIPPED
-        result.task(':foo:installPythonRequirements').outcome == TaskOutcome.SKIPPED
-        result.task(':foo:installTestRequirements').outcome == TaskOutcome.SKIPPED
-        result.task(':foo:createVirtualEnvironment').outcome == TaskOutcome.SKIPPED
-        result.task(':foo:installProject').outcome == TaskOutcome.SKIPPED
-        result.task(':foo:pytest').outcome == TaskOutcome.SKIPPED
-        result.task(':foo:check').outcome == TaskOutcome.SKIPPED
-        result.task(':foo:build').outcome == TaskOutcome.SKIPPED
-        result.task(':foo:coverage').outcome == TaskOutcome.SKIPPED
+        result.output.contains("[SKIPPING]")
     }
 
     def "can use external library"() {

@@ -32,7 +32,7 @@ class DefaultProjectLayoutRule extends TemporaryFolder {
     @SuppressWarnings("UnnecessaryOverridingMethod") //docs for testing
     protected void after() {
         //It's useful to comment this out if you need to look at the test env
-//        super.after()
+        super.after()
     }
 
     private void setupProject() {

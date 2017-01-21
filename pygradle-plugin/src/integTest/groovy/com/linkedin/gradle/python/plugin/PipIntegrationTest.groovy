@@ -54,7 +54,7 @@ class PipIntegrationTest extends Specification {
         then:
         def file = testProjectDir.getRoot().toPath().resolve(Paths.get("foo", "pinned.txt")).toFile()
         file.exists()
-        file.text ==~ 'flake8==(.*?)\n'
+        file.text ==~ "flake8==(.*?)${System.getProperty("line.separator")}"
 
         result.output.contains("BUILD SUCCESS")
         result.task(':foo:pinRequirements').outcome == TaskOutcome.SUCCESS
@@ -70,7 +70,7 @@ class PipIntegrationTest extends Specification {
 
         then:
         file.exists()
-        file.text ==~ 'flake8==(.*?)\n'
+        file.text ==~ "flake8==(.*?)${System.getProperty("line.separator")}"
 
         result.output.contains("BUILD SUCCESS")
         result.task(':foo:pinRequirements').outcome == TaskOutcome.UP_TO_DATE

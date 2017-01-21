@@ -36,6 +36,12 @@ class PythonWebApplicationPluginIntegrationTest extends Specification {
         |    id 'com.linkedin.python-web-app'
         |}
         |
+        |python {
+        |  pex {
+        |    fatPex = true
+        |  }
+        |}
+        |
         |version = '1.2.3'
         |${PyGradleTestBuilder.createRepoClosure()}
         """.stripMargin().stripIndent()
@@ -65,13 +71,13 @@ class PythonWebApplicationPluginIntegrationTest extends Specification {
         Path deployablePath = testProjectDir.getRoot().toPath().resolve(Paths.get('foo', 'build', 'deployable', 'bin'))
 
         when: "we have a pex file"
-        def line = new String(deployablePath.resolve(PexFileUtil.createThinPexFilename('foo')).bytes, "UTF-8").substring(0, 100)
+        def line = new String(deployablePath.resolve(PexFileUtil.createFatPexFilename('hello_world')).bytes, "UTF-8").substring(0, 100)
 
         then: "its shebang line is not pointing to a virtualenv"
         line.startsWith("#!") && !line.contains("venv")
 
         when:
-        def out = ExecUtils.run(deployablePath.resolve('hello_world'))
+        def out = ExecUtils.run(deployablePath.resolve(PexFileUtil.createFatPexFilename('hello_world')))
         println out
 
         then:

@@ -1,10 +1,4 @@
 environment:
-  global:
-    # SDK v7.0 MSVC Express 2008's SetEnv.cmd script will fail if the
-    # /E:ON and /V:ON options are not enabled in the batch script intepreter
-    # See: http://stackoverflow.com/a/13751649/163740
-    CMD_IN_ENV: "cmd /E:ON /V:ON /C .\\appveyor\\run_with_env.cmd"
-
   matrix:
 
     # Pre-installed Python versions, which Appveyor may upgrade to
@@ -15,20 +9,13 @@ environment:
     - PYTHON: "C:\\Python33"
     - PYTHON: "C:\\Python34"
 
-install:
-
-  # Prepend newly installed Python to the PATH of this build (this cannot be
-  # done from inside the powershell script as it would require to restart
-  # the parent CMD process).
-  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
-
 build_script:
   # Build the compiled extension
-  - "%CMD_IN_ENV% gradlew.bat assemble"
+  - "gradlew.bat assemble"
 
 test_script:
   # Run the project tests
-  - "%CMD_IN_ENV% gradlew.bat build"
+  - "gradlew.bat build"
 
 artifacts:
   # Archive the generated packages in the ci.appveyor.com build report.

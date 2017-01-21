@@ -20,6 +20,7 @@ import com.linkedin.gradle.python.plugin.PythonHelpers
 import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider
 import com.linkedin.gradle.python.util.ConsoleOutput
 import com.linkedin.gradle.python.util.ExtensionUtils
+import com.linkedin.gradle.python.util.OperatingSystem
 import com.linkedin.gradle.python.util.PackageInfo
 import groovy.time.TimeCategory
 import groovy.transform.CompileStatic
@@ -33,6 +34,9 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecResult
 import org.gradle.process.ExecSpec
+
+import java.nio.file.Path
+import java.nio.file.Paths
 
 /**
  * Execute pip install
@@ -94,6 +98,7 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider {
 
         def pyVersion = pythonDetails.getPythonVersion().pythonMajorMinor
         def extension = ExtensionUtils.getPythonExtension(project)
+        def sitePackages = findSitePackages()
 
         for (File installable : getConfigurationFiles()) {
 
@@ -108,8 +113,8 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider {
             String sanitizedName = packageInfo.name.replace('-', '_')
 
             // See: https://www.python.org/dev/peps/pep-0376/
-            File egg = new File(pythonDetails.virtualEnv, "lib/python${pyVersion}/site-packages/${sanitizedName}-${packageInfo.version}-py${pyVersion}.egg-info")
-            File dist = new File(pythonDetails.virtualEnv, "lib/python${pyVersion}/site-packages/${sanitizedName}-${packageInfo.version}.dist-info")
+            File egg = sitePackages.resolve("${ sanitizedName }-${ packageInfo.version }-py${ pyVersion }.egg-info").toFile()
+            File dist = sitePackages.resolve("${sanitizedName}-${packageInfo.version}.dist-info").toFile()
 
             def mergedEnv = new HashMap(extension.pythonEnvironment)
             if (environment != null) {
@@ -171,6 +176,15 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider {
     public static class PipInstallException extends GradleException {
         public PipInstallException(String message) {
             super(message)
+        }
+    }
+
+    private Path findSitePackages() {
+        def pyVersion = pythonDetails.getPythonVersion().pythonMajorMinor
+        if (OperatingSystem.current().isUnix()) {
+            return pythonDetails.virtualEnv.toPath().resolve(Paths.get("lib", "python${ pyVersion }", "site-packages"))
+        } else {
+            return pythonDetails.virtualEnv.toPath().resolve(Paths.get("Lib", "site-packages"))
         }
     }
 

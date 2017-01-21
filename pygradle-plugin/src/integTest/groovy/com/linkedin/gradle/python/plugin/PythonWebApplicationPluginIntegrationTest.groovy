@@ -71,14 +71,11 @@ class PythonWebApplicationPluginIntegrationTest extends Specification {
         line.startsWith("#!") && !line.contains("venv")
 
         when:
-        def out = new StringBuilder()
-        def proc = deployablePath.resolve('hello_world').toString().execute()
-        proc.consumeProcessOutput(out, out)
-        proc.waitForOrKill(1000)
-        println out.toString()
+        def out = ExecUtils.run(deployablePath.resolve('hello_world'))
+        println out
 
         then:
-        out.toString() == "Hello World\n"
+        out.toString() == "Hello World${System.getProperty("line.separator")}".toString()
 
     }
 }

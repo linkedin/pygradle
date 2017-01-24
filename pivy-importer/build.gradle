@@ -41,7 +41,8 @@ task importRequiredDependencies(type: JavaExec) { task ->
     def packagesToInclude = ['virtualenv:15.0.1', 'pip:7.1.2', 'setuptools:19.1.1', 'setuptools-git:1.1',
                              'flake8:2.4.0', 'flake8:2.5.4', 'pytest:2.9.1', 'pytest-cov:2.2.1', 'pytest-xdist:1.14',
                              'wheel:0.26.0', 'pbr:1.8.0', 'Sphinx:1.4.1', 'six:1.10.0', 'pex:1.1.4',
-                             'requests:2.10.0', 'Flask:0.11.1', 'docutils:0.12'].join(" ")
+                             'requests:2.10.0', 'Flask:0.11.1', 'docutils:0.12', 'appdirs:1.4.0',
+                             'packaging:16.8'].join(" ")
     def forceDeps = ['docutils:0.12'].join(',')
     args "--repo ${getIvyRepo().absolutePath} $packagesToInclude --replace $replacements --force $forceDeps".split(' ')
 

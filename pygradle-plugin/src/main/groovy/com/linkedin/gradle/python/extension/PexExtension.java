@@ -24,7 +24,7 @@ import org.gradle.api.Project;
 public class PexExtension {
 
     private File pexCache;
-    private boolean fatPex = OperatingSystem.current() == OperatingSystem.WINDOWS;  //Defaulting to fat pex's on windows
+    private boolean fatPex = OperatingSystem.current().isWindows(); //Defaulting to fat pex's on windows
     private boolean pythonWrapper = true;
 
     public PexExtension(Project project) {

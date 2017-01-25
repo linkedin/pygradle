@@ -156,7 +156,7 @@ class PythonPlugin implements Plugin<Project> {
             outputs.file(settings.getDetails().activateLink)
 
             doLast {
-                def activateLinkSource = settings.getDetails().virtualEnvironment.getScript( "activate")
+                def activateLinkSource = settings.getDetails().virtualEnvironment.getScript("activate")
                 def activateLink = settings.getDetails().activateLink
                 FileSystemUtils.makeSymLink(activateLinkSource, activateLink)
             }

@@ -58,8 +58,10 @@ class PythonExtension {
 
     /** A way to define forced versions of libraries */
     public Map<String, Map<String, String>> forcedVersions = [
+        'appdirs'       : ['group': 'pypi', 'name': 'appdirs', 'version': '1.4.0'],
         'argparse'      : ['group': 'pypi', 'name': 'argparse', 'version': '1.4.0'],
         'flake8'        : ['group': 'pypi', 'name': 'flake8', 'version': '2.5.4'],
+        'packaging'     : ['group': 'pypi', 'name': 'packaging', 'version': '16.8'],
         'pbr'           : ['group': 'pypi', 'name': 'pbr', 'version': '1.8.0'],
         'pex'           : ['group': 'pypi', 'name': 'pex', 'version': '1.1.4'],
         'pip'           : ['group': 'pypi', 'name': 'pip', 'version': '7.1.2'],

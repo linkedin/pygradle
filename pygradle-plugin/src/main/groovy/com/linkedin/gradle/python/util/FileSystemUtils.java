@@ -41,7 +41,7 @@ public class FileSystemUtils {
          * Check if the file exists because the link checking logic in Gradle differs
          * between Linux and OS X machines.
          */
-        if (OperatingSystem.current() == OperatingSystem.UNIX) {
+        if (OperatingSystem.current().isUnix()) {
             if (!Files.exists(destination.toPath())) {
                 Files.createSymbolicLink(destination.toPath(), target.toPath());
             }

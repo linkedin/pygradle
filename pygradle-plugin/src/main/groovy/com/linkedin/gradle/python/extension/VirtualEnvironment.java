@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.linkedin.gradle.python.extension;
 
 import com.linkedin.gradle.python.util.OperatingSystem;
@@ -47,7 +47,7 @@ public class VirtualEnvironment {
     }
 
     public static String getPythonApplicationDirectory() {
-        return OperatingSystem.current() == OperatingSystem.WINDOWS ? "Scripts" : "bin";
+        return OperatingSystem.current().isWindows() ? "Scripts" : "bin";
     }
 
     public File getExecutable(String path) {

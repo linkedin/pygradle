@@ -155,7 +155,7 @@ class PexFileUtil {
     }
 
     public static String createThinPexFilename(String name) {
-        if (OperatingSystem.current() == OperatingSystem.WINDOWS) {
+        if (OperatingSystem.current().isWindows()) {
             return name + ".py"
         } else {
             return name + ".pex"
@@ -163,7 +163,7 @@ class PexFileUtil {
     }
 
     public static String createFatPexFilename(String name) {
-        if (OperatingSystem.current() == OperatingSystem.WINDOWS) {
+        if (OperatingSystem.current().isWindows()) {
             return name + ".py"
         } else {
             return name

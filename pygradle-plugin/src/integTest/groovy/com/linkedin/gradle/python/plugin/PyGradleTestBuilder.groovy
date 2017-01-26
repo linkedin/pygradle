@@ -43,7 +43,7 @@ class PyGradleTestBuilder {
             |repositories {
             |  ivy {
             |    name 'pypi-local'
-            |    url "${System.getenv('TEST_REPO')}"
+            |    url "file:///${System.getenv('TEST_REPO')}"
             |    layout "pattern", {
             |      ivy "[organisation]/[module]/[revision]/[module]-[revision].ivy"
             |      artifact "[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"

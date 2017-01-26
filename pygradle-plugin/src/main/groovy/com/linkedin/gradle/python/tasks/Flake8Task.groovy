@@ -15,7 +15,6 @@
  */
 package com.linkedin.gradle.python.tasks
 
-import com.linkedin.gradle.python.util.VirtualEnvExecutableHelper
 import groovy.transform.CompileStatic
 import org.gradle.process.ExecResult
 
@@ -23,7 +22,7 @@ import org.gradle.process.ExecResult
 public class Flake8Task extends AbstractPythonMainSourceDefaultTask {
 
   public void preExecution() {
-    args(VirtualEnvExecutableHelper.getExecutable(pythonDetails, "bin/flake8").absolutePath,
+    args(pythonDetails.virtualEnvironment.findExecutable("flake8").absolutePath,
         "--config", "$component.setupCfg",
         "$component.srcDir",
         "$component.testDir")

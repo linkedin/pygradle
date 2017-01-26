@@ -31,7 +31,8 @@ public class FileSystemUtils {
      * <p>
      * Make a link using the system's ``ln`` command.
      * <p>
-     * @param target The target directory that the link points to.
+     *
+     * @param target      The target directory that the link points to.
      * @param destination The destination directory or the name of the link.
      * @throws IOException if symlink can't be made
      */
@@ -40,8 +41,14 @@ public class FileSystemUtils {
          * Check if the file exists because the link checking logic in Gradle differs
          * between Linux and OS X machines.
          */
-        if (!Files.exists(destination.toPath())) {
-            Files.createSymbolicLink(destination.toPath(), target.toPath());
+        if (OperatingSystem.current().isUnix()) {
+            if (!Files.exists(destination.toPath())) {
+                Files.createSymbolicLink(destination.toPath(), target.toPath());
+            }
+        } else {
+            if (!Files.exists(destination.toPath())) {
+                Files.copy(target.toPath(), destination.toPath());
+            }
         }
     }
 }

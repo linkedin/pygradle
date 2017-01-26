@@ -17,13 +17,14 @@ package com.linkedin.gradle.python.extension;
 
 import java.io.File;
 
+import com.linkedin.gradle.python.util.OperatingSystem;
 import org.gradle.api.Project;
 
 
 public class PexExtension {
 
     private File pexCache;
-    private boolean fatPex = false;
+    private boolean fatPex = OperatingSystem.current().isWindows(); //Defaulting to fat pex's on windows
     private boolean pythonWrapper = true;
 
     public PexExtension(Project project) {

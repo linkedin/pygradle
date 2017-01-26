@@ -15,12 +15,10 @@
  */
 package com.linkedin.gradle.python.tasks
 
-import com.linkedin.gradle.python.util.VirtualEnvExecutableHelper
 import groovy.transform.CompileStatic
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.process.ExecResult
-
 
 /**
  * Generates Sphinx Documentation
@@ -31,7 +29,7 @@ class SphinxDocumentationTask extends AbstractPythonMainSourceDefaultTask {
     @OutputDirectory
     File getDocDir() {
         def typeString = type.toString().toLowerCase()
-        return new File(project.buildDir, "docs/${typeString}/${project.name}-${ -> project.version }-docs-${typeString}")
+        return new File(project.buildDir, "docs/${ typeString }/${ project.name }-${ -> project.version }-docs-${ typeString }")
     }
 
     /**
@@ -42,10 +40,10 @@ class SphinxDocumentationTask extends AbstractPythonMainSourceDefaultTask {
 
     @Override
     public void preExecution() {
-        args(VirtualEnvExecutableHelper.getExecutable(pythonDetails, "bin/sphinx-build").absolutePath,
+        args(pythonDetails.virtualEnvironment.findExecutable('sphinx-build').absolutePath,
             '-b', type.builderName,
             project.file(component.docsDir).getAbsolutePath(),
-            "${getDocDir().getAbsolutePath()}")
+            "${ getDocDir().getAbsolutePath() }")
     }
 
     @Override

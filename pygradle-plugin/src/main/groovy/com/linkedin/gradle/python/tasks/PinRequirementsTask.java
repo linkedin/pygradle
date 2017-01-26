@@ -49,7 +49,10 @@ public class PinRequirementsTask extends DefaultTask {
         StringBuilder contents = new StringBuilder();
         for (ResolvedDependency r : getPythonConfiguration().getResolvedConfiguration().getFirstLevelModuleDependencies()) {
             logger.info("Pinning {}=={}", r.getModuleName(), r.getModuleVersion());
-            contents.append(r.getModuleName()).append("==").append(r.getModuleVersion()).append("\n");  //moduleName==moduleVersion\n
+            contents.append(r.getModuleName())
+                .append("==")
+                .append(r.getModuleVersion())
+                .append(System.getProperty("line.separator"));  //moduleName==moduleVersion\n
         }
 
         FileUtils.write(pinnedFile, contents);

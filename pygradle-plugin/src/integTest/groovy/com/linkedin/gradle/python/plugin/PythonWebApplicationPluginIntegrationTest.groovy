@@ -15,10 +15,14 @@
  */
 package com.linkedin.gradle.python.plugin
 
+import com.linkedin.gradle.python.util.PexFileUtil
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Rule
 import spock.lang.Specification
+
+import java.nio.file.Path
+import java.nio.file.Paths
 
 class PythonWebApplicationPluginIntegrationTest extends Specification {
 
@@ -30,6 +34,12 @@ class PythonWebApplicationPluginIntegrationTest extends Specification {
         testProjectDir.buildFile << """\
         |plugins {
         |    id 'com.linkedin.python-web-app'
+        |}
+        |
+        |python {
+        |  pex {
+        |    fatPex = true
+        |  }
         |}
         |
         |version = '1.2.3'
@@ -48,33 +58,30 @@ class PythonWebApplicationPluginIntegrationTest extends Specification {
         then:
 
         result.output.contains("BUILD SUCCESS")
-        result.output.contains('test/test_a.py ..')
-        result.task(':flake8').outcome == TaskOutcome.SUCCESS
-        result.task(':installPythonRequirements').outcome == TaskOutcome.SUCCESS
-        result.task(':installTestRequirements').outcome == TaskOutcome.SUCCESS
-        result.task(':createVirtualEnvironment').outcome == TaskOutcome.SUCCESS
-        result.task(':installProject').outcome == TaskOutcome.SUCCESS
-        result.task(':pytest').outcome == TaskOutcome.SUCCESS
-        result.task(':check').outcome == TaskOutcome.SUCCESS
-        result.task(':build').outcome == TaskOutcome.SUCCESS
-        result.task(':packageWebApplication').outcome == TaskOutcome.SUCCESS
+        result.output.contains("test${File.separatorChar}test_a.py ..")
+        result.task(':foo:flake8').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:installPythonRequirements').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:installTestRequirements').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:createVirtualEnvironment').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:installProject').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:pytest').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:check').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:build').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:packageWebApplication').outcome == TaskOutcome.SUCCESS
+        Path deployablePath = testProjectDir.getRoot().toPath().resolve(Paths.get('foo', 'build', 'deployable', 'bin'))
 
         when: "we have a pex file"
-        def line
-        new File(testProjectDir.getRoot(), "build/deployable/bin/testProject.pex").withReader { line = it.readLine() }
+        def line = new String(deployablePath.resolve(PexFileUtil.createFatPexFilename('hello_world')).bytes, "UTF-8").substring(0, 100)
 
         then: "its shebang line is not pointing to a virtualenv"
         line.startsWith("#!") && !line.contains("venv")
 
         when:
-        def out = new StringBuilder()
-        def proc = "${testProjectDir.getRoot().getAbsolutePath()}/build/deployable/bin/hello_world".execute()
-        proc.consumeProcessOutput(out, out)
-        proc.waitForOrKill(1000)
-        println out.toString()
+        def out = ExecUtils.run(deployablePath.resolve(PexFileUtil.createFatPexFilename('hello_world')))
+        println out
 
         then:
-        out.toString() == "Hello World\n"
+        out.toString() == "Hello World${System.getProperty("line.separator")}".toString()
 
     }
 }

@@ -18,7 +18,6 @@ package com.linkedin.gradle.python.plugin
 import com.linkedin.gradle.python.PythonExtension
 import com.linkedin.gradle.python.tasks.*
 import com.linkedin.gradle.python.util.FileSystemUtils
-import com.linkedin.gradle.python.util.VirtualEnvExecutableHelper
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -150,17 +149,14 @@ class PythonPlugin implements Plugin<Project> {
         }
 
         /**
-         * Create a symlink to product-spec.json and config directory.
-         *
-         * This maintains compatibility with many of the assumptions our tooling
-         * makes around Python projects and mppy.
+         * Creates a link so users can activate into the virtual environment.
          */
         project.tasks.create(TASK_SETUP_LINKS) {
             dependsOn project.tasks.getByName(TASK_VENV_CREATE)
             outputs.file(settings.getDetails().activateLink)
 
             doLast {
-                def activateLinkSource = VirtualEnvExecutableHelper.getExecutable(settings, "bin/activate")
+                def activateLinkSource = settings.getDetails().virtualEnvironment.getScript("activate")
                 def activateLink = settings.getDetails().activateLink
                 FileSystemUtils.makeSymLink(activateLinkSource, activateLink)
             }

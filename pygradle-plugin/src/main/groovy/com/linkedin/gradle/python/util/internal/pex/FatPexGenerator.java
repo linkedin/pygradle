@@ -16,6 +16,7 @@
 package com.linkedin.gradle.python.util.internal.pex;
 
 import com.linkedin.gradle.python.util.EntryPointHelpers;
+import com.linkedin.gradle.python.util.PexFileUtil;
 import org.gradle.api.Project;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
@@ -40,7 +41,7 @@ public class FatPexGenerator implements PexGenerator {
         for (String it : EntryPointHelpers.collectEntryPoints(project)) {
             logger.lifecycle("Processing entry point: {}", it);
             String[] split = it.split("=");
-            String name = split[0].trim();
+            String name = PexFileUtil.createFatPexFilename(split[0].trim());
             String entry = split[1].trim();
 
             PexExecSpecAction action = PexExecSpecAction.withEntryPoint(project, name, entry, dependencies);

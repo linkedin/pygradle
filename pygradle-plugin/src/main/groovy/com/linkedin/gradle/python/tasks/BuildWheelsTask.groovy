@@ -22,7 +22,6 @@ import com.linkedin.gradle.python.plugin.PythonHelpers
 import com.linkedin.gradle.python.util.ConsoleOutput
 import com.linkedin.gradle.python.util.ExtensionUtils
 import com.linkedin.gradle.python.util.PackageInfo
-import com.linkedin.gradle.python.util.VirtualEnvExecutableHelper
 import groovy.time.TimeCategory
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
@@ -140,8 +139,8 @@ class BuildWheelsTask extends DefaultTask {
             ExecResult installResult = project.exec { ExecSpec execSpec ->
                 execSpec.environment pythonExtension.pythonEnvironment
                 execSpec.commandLine(
-                    [VirtualEnvExecutableHelper.getPythonInterpreter(pythonDetails),
-                     VirtualEnvExecutableHelper.getPip(pythonDetails),
+                    [pythonDetails.getVirtualEnvInterpreter(),
+                     pythonDetails.getVirtualEnvironment().getPip(),
                      'wheel',
                      '--disable-pip-version-check',
                      '--wheel-dir', wheelExtension.wheelCache,

@@ -15,23 +15,36 @@
  */
 package com.linkedin.gradle.python.plugin
 
+import com.linkedin.gradle.python.util.OperatingSystem
+import com.linkedin.gradle.python.util.PexFileUtil
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Rule
+import spock.lang.IgnoreIf
 import spock.lang.Specification
+
+import java.nio.file.Path
+import java.nio.file.Paths
 
 class PexIntegrationTest extends Specification {
 
     @Rule
     final DefaultProjectLayoutRule testProjectDir = new DefaultProjectLayoutRule()
 
+    @IgnoreIf({ OperatingSystem.current() == OperatingSystem.WINDOWS })
     def "can build thin pex"() {
+        testProjectDir
         given:
         testProjectDir.buildFile << """\
         |plugins {
         |    id 'com.linkedin.python-pex'
         |}
         |
+        |python {
+        |  pex {
+        |    fatPex = false
+        |  }
+        |}
         |${PyGradleTestBuilder.createRepoClosure()}
         """.stripMargin().stripIndent()
 
@@ -44,40 +57,36 @@ class PexIntegrationTest extends Specification {
             .build()
         println result.output
 
-        println "ls ${testProjectDir.getRoot().getAbsolutePath()}/build/deployable/bin/".execute().text
+        Path deployablePath = testProjectDir.root.toPath().resolve(Paths.get('foo', 'build', 'deployable', "bin"))
 
         then:
 
         result.output.contains("BUILD SUCCESS")
-        result.task(':flake8').outcome == TaskOutcome.SUCCESS
-        result.task(':installPythonRequirements').outcome == TaskOutcome.SUCCESS
-        result.task(':installTestRequirements').outcome == TaskOutcome.SUCCESS
-        result.task(':createVirtualEnvironment').outcome == TaskOutcome.SUCCESS
-        result.task(':installProject').outcome == TaskOutcome.SUCCESS
-        result.task(':pytest').outcome == TaskOutcome.SUCCESS
-        result.task(':check').outcome == TaskOutcome.SUCCESS
-        result.task(':build').outcome == TaskOutcome.SUCCESS
-        result.task(':buildPex').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:flake8').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:installPythonRequirements').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:installTestRequirements').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:createVirtualEnvironment').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:installProject').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:pytest').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:check').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:build').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:buildPex').outcome == TaskOutcome.SUCCESS
 
-        new File(testProjectDir.getRoot(), "build/deployable/bin/hello_world").exists()
-        new File(testProjectDir.getRoot(), "build/deployable/bin/testProject.pex").exists()
+        deployablePath.resolve('hello_world').toFile().exists()
+        deployablePath.resolve(PexFileUtil.createThinPexFilename('foo')).toFile().exists()
 
         when: "we have a pex file"
-        def line
-        new File(testProjectDir.getRoot(), "build/deployable/bin/testProject.pex").withReader { line = it.readLine() }
+        def line = new String(deployablePath.resolve(PexFileUtil.createThinPexFilename('foo')).bytes, "UTF-8").substring(0, 100)
 
         then: "its shebang line is not pointing to a virtualenv"
         line.startsWith("#!") && !line.contains("venv")
 
         when:
-        def out = new StringBuilder()
-        def proc = "${testProjectDir.getRoot().getAbsolutePath()}/build/deployable/bin/hello_world".execute()
-        proc.consumeProcessOutput(out, out)
-        proc.waitForOrKill(1000)
-        println out.toString()
+        def out = ExecUtils.run(deployablePath.resolve('hello_world'))
+        println out
 
         then:
-        out.toString() == "Hello World\n"
+        out.toString() == "Hello World${System.getProperty("line.separator")}".toString()
     }
 
     def "can build fat pex"() {
@@ -104,38 +113,35 @@ class PexIntegrationTest extends Specification {
             .build()
         println result.output
 
-        println "ls ${testProjectDir.getRoot().getAbsolutePath()}/build/deployable/bin/".execute().text
-
         then:
 
         result.output.contains("BUILD SUCCESS")
-        result.task(':flake8').outcome == TaskOutcome.SUCCESS
-        result.task(':installPythonRequirements').outcome == TaskOutcome.SUCCESS
-        result.task(':installTestRequirements').outcome == TaskOutcome.SUCCESS
-        result.task(':createVirtualEnvironment').outcome == TaskOutcome.SUCCESS
-        result.task(':installProject').outcome == TaskOutcome.SUCCESS
-        result.task(':pytest').outcome == TaskOutcome.SUCCESS
-        result.task(':check').outcome == TaskOutcome.SUCCESS
-        result.task(':build').outcome == TaskOutcome.SUCCESS
-        result.task(':buildPex').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:flake8').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:installPythonRequirements').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:installTestRequirements').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:createVirtualEnvironment').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:installProject').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:pytest').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:check').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:build').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:buildPex').outcome == TaskOutcome.SUCCESS
 
-        new File(testProjectDir.getRoot(), "build/deployable/bin/hello_world").exists()
+        Path deployablePath = testProjectDir.root.toPath().resolve(Paths.get('foo', 'build', 'deployable', "bin"))
+        def pexFile = deployablePath.resolve(PexFileUtil.createFatPexFilename('hello_world'))
+
+        pexFile.toFile().exists()
 
         when: "we have a pex file"
-        def line
-        new File(testProjectDir.getRoot(), "build/deployable/bin/hello_world").withReader { line = it.readLine() }
+        def line = new String(pexFile.bytes, "UTF-8").substring(0, 100)
 
         then: "its shebang line is not pointing to a virtualenv"
         line.startsWith("#!") && !line.contains("venv")
 
         when:
-        def out = new StringBuilder()
-        def proc = "${testProjectDir.getRoot().getAbsolutePath()}/build/deployable/bin/hello_world".execute()
-        proc.consumeProcessOutput(out, out)
-        proc.waitForOrKill(1000)
-        println out.toString()
+        def out = ExecUtils.run(pexFile)
+        println out
 
         then:
-        out.toString() == "Hello World\n"
+        out.toString() == "Hello World${System.getProperty("line.separator")}".toString()
     }
 }

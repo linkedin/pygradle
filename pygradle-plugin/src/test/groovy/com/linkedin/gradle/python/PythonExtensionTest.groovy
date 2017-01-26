@@ -15,23 +15,25 @@
  */
 package com.linkedin.gradle.python
 
+import com.linkedin.gradle.python.extension.VirtualEnvironment
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
-class TestPythonExtension extends Specification {
+import java.nio.file.Paths
+
+class PythonExtensionTest extends Specification {
 
     def project = new ProjectBuilder().build()
 
     def "pythonEnvironment path"() {
         when: "path parts are separated"
         def settings = new PythonExtension(project)
-        List<String> parts = settings.pythonEnvironment.get('PATH').toString().tokenize(':')
+        List<String> parts = settings.pythonEnvironment.get('PATH').toString().tokenize(File.pathSeparator)
         then: "they have venv python PATH + system env PATH"
         !parts.empty
         parts.size() > 1
-        parts[0].endsWith('/build/venv/bin')
-        parts.contains('/bin')
-        parts.contains('/usr/bin')
+        parts[0].endsWith(Paths.get("build", "venv", VirtualEnvironment.getPythonApplicationDirectory()).toString())
+        parts.containsAll(System.getenv('PATH').tokenize(File.pathSeparator))
     }
 
     def 'can add new values to forced versions'() {

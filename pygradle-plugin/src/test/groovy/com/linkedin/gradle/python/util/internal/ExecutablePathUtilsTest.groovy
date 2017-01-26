@@ -19,6 +19,7 @@ import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
+import static com.linkedin.gradle.python.util.SystemExecutables.TEST_FILE
 
 class ExecutablePathUtilsTest extends Specification {
 
@@ -28,10 +29,10 @@ class ExecutablePathUtilsTest extends Specification {
     def 'can pre-pend a folder to the search path'() {
         temporaryFolder.newFolder("foo")
         temporaryFolder.newFolder("bar")
-        def fooExample = temporaryFolder.newFile('foo/example.sh')
-        def barExample = temporaryFolder.newFile('bar/example.sh')
+        def fooExample = temporaryFolder.newFile('foo/' + TEST_FILE.getExecutable())
+        def barExample = temporaryFolder.newFile('bar/' + TEST_FILE.getExecutable())
 
         expect:
-        ExecutablePathUtils.getExecutable([fooExample.parentFile, barExample.parentFile], 'example.sh') == fooExample
+        ExecutablePathUtils.getExecutable([fooExample.parentFile, barExample.parentFile], TEST_FILE) == fooExample
     }
 }

@@ -15,13 +15,18 @@
  */
 package com.linkedin.gradle.python
 
+import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.testfixtures.ProjectBuilder
+import spock.lang.IgnoreIf
 import spock.lang.Specification
 
 class TestPythonExtension extends Specification {
 
     def project = new ProjectBuilder().build()
 
+    // Have to ignore this if its a windows machine trying due to the fact its
+    // based on shell
+    @IgnoreIf({ Os.isFamily(Os.FAMILY_WINDOWS) })
     def "pythonEnvironment path"() {
         when: "path parts are separated"
         def settings = new PythonExtension(project)

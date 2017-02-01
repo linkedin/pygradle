@@ -49,10 +49,11 @@ import java.util.Map;
  * The entry points scripts are customizable, so there is a property {@link BuildPexTask#templateProvider} that can be set
  * allowing the task to customize the entry point.
  *
- * The template that is provided will be rendered using a {@link groovy.text.SimpleTemplateEngine}, and will have two
- * properties passed to it automatically. They are named <code>realPex</code>, gives the name of the pex to execute against
- * and <code>entryPoint</code> which is the name of the entry point. If you wish to provide your own template, with more
- * options they can be added to {@link BuildPexTask#additionalProperties} and they will be provided to the template engine.
+ * The template that is provided will be rendered using a {@link groovy.text.SimpleTemplateEngine}, and will have three
+ * properties passed to it automatically. They are named <code>realPex</code>, gives the name of the pex to execute against,
+ * <code>cliName</code>, which is the name of your script (the left-hand-side in setup.py), and <code>entryPoint</code> which is the
+ * name of the entry point. If you wish to provide your own template, with more options they can be added to
+ * {@link BuildPexTask#additionalProperties} and they will be provided to the template engine.
  */
 public class BuildPexTask extends DefaultTask implements FailureReasonProvider {
 

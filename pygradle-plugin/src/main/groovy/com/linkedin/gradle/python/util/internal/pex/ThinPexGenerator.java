@@ -67,6 +67,7 @@ public class ThinPexGenerator implements PexGenerator {
             propertyMap.putAll(extraProperties);
             propertyMap.put("realPex", project.getName() + ".pex");
             propertyMap.put("entryPoint", entry);
+            propertyMap.put("cliName", name);
 
             DefaultTemplateProviderOptions providerOptions = new DefaultTemplateProviderOptions(project, extension, entry);
             new EntryPointWriter(project, templateProvider.retrieveTemplate(providerOptions))

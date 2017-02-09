@@ -95,7 +95,7 @@ class PexIntegrationTest extends Specification {
         |plugins {
         |    id 'com.linkedin.python-pex'
         |}
-        |
+        |version = "1.0.0"
         |python {
         |  pex {
         |    fatPex = true

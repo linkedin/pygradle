@@ -107,7 +107,7 @@ class PyGradleWithSlimProjectsTest extends Specification {
         result.task(":${testProjectDir.PROJECT_NAME_DIR}:buildDocsHtml").outcome == TaskOutcome.SUCCESS
         result.output.contains("Running Sphinx v1.4.1")
         result.output.contains("building [html]: targets for 1 source files that are out of date")
-        result.output.contains("copying static files... done")
-        result.output.contains("dumping object inventory... done")
+        result.output.contains("copying static files")
+        result.output.contains("dumping object inventory")
     }
 }

@@ -16,3 +16,4 @@ out/
 pivy-importer/ivy-repo/
 examples/example-project/activate
 examples/example-project/pinned.txt
+.DS_Store

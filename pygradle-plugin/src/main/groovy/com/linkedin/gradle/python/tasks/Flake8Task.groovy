@@ -21,14 +21,32 @@ import org.gradle.process.ExecResult
 @CompileStatic
 public class Flake8Task extends AbstractPythonMainSourceDefaultTask {
 
-  public void preExecution() {
-    args(pythonDetails.virtualEnvironment.findExecutable("flake8").absolutePath,
-        "--config", "$component.setupCfg",
-        "$component.srcDir",
-        "$component.testDir")
-  }
+    public void preExecution() {
+        /*
+         Modified to only include folders that exist. if no folders exist, then
+         the task isn't actually run.
+          */
+        def sArgs = [pythonDetails.virtualEnvironment.findExecutable("flake8").absolutePath,
+                     "--config", "$component.setupCfg"]
 
-  @Override
-  void processResults(ExecResult execResult) {
-  }
+        def paths = []
+        if (project.file(component.srcDir).exists()) {
+            paths.add(component.srcDir)
+        }
+
+        if (project.file(component.testDir).exists()) {
+            paths.add(component.testDir)
+        }
+
+        if (paths.size() > 0) {
+            sArgs.addAll(paths)
+            args(sArgs.toListString())
+        } else {
+            project.logger.lifecycle("Flake8 task skipped, no folders")
+        }
+    }
+
+    @Override
+    void processResults(ExecResult execResult) {
+    }
 }

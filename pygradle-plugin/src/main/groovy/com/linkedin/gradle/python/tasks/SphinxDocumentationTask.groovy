@@ -39,12 +39,14 @@ class SphinxDocumentationTask extends AbstractPythonMainSourceDefaultTask {
     public DocType type
 
     @Override
-    public void preExecution() {
-        if (!project.file(component.docsDir).exists()) {
+    void preExecution() {
+        if (project.file(component.docsDir).exists()) {
             args(pythonDetails.virtualEnvironment.findExecutable('sphinx-build').absolutePath,
                 '-b', type.builderName,
                 project.file(component.docsDir).getAbsolutePath(),
                 "${getDocDir().getAbsolutePath()}")
+        } else {
+            project.logger.warn("Sphinx docs dir doesn't exist.  Aborting")
         }
     }
 
@@ -55,7 +57,7 @@ class SphinxDocumentationTask extends AbstractPythonMainSourceDefaultTask {
     /**
      * Types of documentation that are supported by Sphinx
      */
-    public enum DocType {
+    enum DocType {
         JSON('json'),
         HTML('html')
 

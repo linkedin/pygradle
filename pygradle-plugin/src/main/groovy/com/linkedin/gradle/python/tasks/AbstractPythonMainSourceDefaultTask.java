@@ -108,6 +108,10 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask im
         arguments.addAll(Arrays.asList(args));
     }
 
+    public void args(List<String> args) {
+        arguments.addAll(args);
+    }
+
     public void args(Collection<String> args) {
         arguments.addAll(args);
     }

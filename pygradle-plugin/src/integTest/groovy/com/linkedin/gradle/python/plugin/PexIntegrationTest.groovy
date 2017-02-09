@@ -51,7 +51,7 @@ class PexIntegrationTest extends Specification {
         when:
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withArguments('build', '--stacktrace')
+            .withArguments('build', '--stacktrace', '--info')
             .withPluginClasspath()
             .withDebug(true)
             .build()

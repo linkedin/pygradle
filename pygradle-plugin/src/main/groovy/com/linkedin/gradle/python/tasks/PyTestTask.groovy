@@ -37,10 +37,18 @@ class PyTestTask extends AbstractPythonTestSourceDefaultTask {
         ignoreExitValue = true
     }
 
+    def dissableTests(){
+        logger.warn(NO_TEST_WARNING)
+        def coverageTask = project.tasks.findByName("coverage")
+        if (coverageTask != null){
+            coverageTask.enabled = false
+        }
+    }
+
     @Override
     public void preExecution() {
         if (!project.file(component.testDir).exists()) {
-            logger.warn(NO_TEST_WARNING)
+            dissableTests()
         } else {
             args(pythonDetails.virtualEnvironment.findExecutable("py.test").absolutePath)
             if (extraArgs != []) {
@@ -55,7 +63,7 @@ class PyTestTask extends AbstractPythonTestSourceDefaultTask {
     @Override
     void processResults(ExecResult execResult) {
         if (execResult.exitValue == NO_TESTS_COLLECTED_ERRNO) {
-            logger.warn(NO_TEST_WARNING)
+            dissableTests()
         } else {
             execResult.assertNormalExitValue()
         }

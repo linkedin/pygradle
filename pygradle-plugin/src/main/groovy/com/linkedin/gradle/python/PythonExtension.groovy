@@ -84,12 +84,23 @@ class PythonExtension {
 
     public ConsoleOutput consoleOutput = ConsoleOutput.ASCII
 
-    public PythonExtension(Project project) {
+    PythonExtension(Project project) {
         this.details = new PythonDetails(project)
         docsDir = Paths.get(project.projectDir.absolutePath, "docs").toFile().path
         testDir = Paths.get(project.projectDir.absolutePath, "test").toFile().path
         srcDir = Paths.get(project.projectDir.absolutePath, "src").toFile().path
         setupCfg = Paths.get(project.projectDir.absolutePath, "setup.cfg").toFile().path
+
+        // creating a flake8 config file if one doesn't exist, this prevents "file not found" issues.
+        def cfgCheck = project.file(setupCfg)
+        if (!cfgCheck.exists()){
+            project.logger.lifecycle("Flake8 config file doesn't exist, creating default")
+            cfgCheck.createNewFile()
+            cfgCheck << "[flake8]"
+        } else {
+            project.logger.lifecycle("Flake8 config file exists")
+        }
+
         pinnedFile = project.file("pinned.txt")
 
         def applicationDirectory = VirtualEnvironment.getPythonApplicationDirectory()
@@ -114,14 +125,14 @@ class PythonExtension {
         }
     }
 
-    public void forceVersion(String group, String name, String version) {
+    void forceVersion(String group, String name, String version) {
         Objects.requireNonNull(group, "Group cannot be null")
         Objects.requireNonNull(name, "Name cannot be null")
         Objects.requireNonNull(version, "Version cannot be null")
         forcedVersions[name] = ['group': group, 'name': name, 'version': version]
     }
 
-    public void forceVersion(String gav) {
+    void forceVersion(String gav) {
         Objects.requireNonNull(gav, "GAV cannot be null")
 
         String[] split = gav.split(':')
@@ -132,7 +143,7 @@ class PythonExtension {
         forceVersion(split[0], split[1], split[2])
     }
 
-    public PythonDetails getDetails() {
+    PythonDetails getDetails() {
         return details
     }
 
@@ -141,13 +152,13 @@ class PythonExtension {
      *
      * @param a {@link Closure} that will delegate to {@link PythonDetails}
      */
-    public void details(@DelegatesTo(PythonDetails) Closure cl) {
+    void details(@DelegatesTo(PythonDetails) Closure cl) {
         cl.delegate = details
         cl.resolveStrategy = Closure.DELEGATE_FIRST
         cl.call()
     }
 
-    public Map<String, Object> getEnvironment() {
+    Map<String, Object> getEnvironment() {
         return pythonEnvironment
     }
 

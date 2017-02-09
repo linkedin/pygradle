@@ -29,7 +29,7 @@ public class Flake8Task extends AbstractPythonMainSourceDefaultTask {
         List<String> sArgs = [pythonDetails.virtualEnvironment.findExecutable("flake8").absolutePath,
                      "--config", component.setupCfg]
 
-        if (!project.file(pythonDetails.virtualEnvironment.findExecutable("flake8").absolutePath).exists()){
+        if (!project.file(pythonDetails.virtualEnvironment.findExecutable("flake8").absolutePath).exists()) {
             project.logger.error("Flake8 executable not found")
             project.logger.error("Flake8: ${pythonDetails.virtualEnvironment.findExecutable("flake8").absolutePath}")
         } else {

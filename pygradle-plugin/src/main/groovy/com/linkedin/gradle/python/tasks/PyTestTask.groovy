@@ -37,10 +37,10 @@ class PyTestTask extends AbstractPythonTestSourceDefaultTask {
         ignoreExitValue = true
     }
 
-    def dissableTests(){
+    def dissableTests() {
         logger.warn(NO_TEST_WARNING)
         def coverageTask = project.tasks.findByName("coverage")
-        if (coverageTask != null){
+        if (coverageTask != null) {
             coverageTask.enabled = false
         }
     }

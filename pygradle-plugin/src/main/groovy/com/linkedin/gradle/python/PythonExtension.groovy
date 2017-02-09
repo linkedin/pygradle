@@ -93,7 +93,7 @@ class PythonExtension {
 
         // creating a flake8 config file if one doesn't exist, this prevents "file not found" issues.
         def cfgCheck = project.file(setupCfg)
-        if (!cfgCheck.exists()){
+        if (!cfgCheck.exists()) {
             project.logger.lifecycle("Flake8 config file doesn't exist, creating default")
             cfgCheck.createNewFile()
             cfgCheck << "[flake8]"

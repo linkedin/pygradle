@@ -1,3 +1,18 @@
+/*
+ * Copyright 2016 LinkedIn Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.linkedin.gradle.python.plugin
 
 import org.gradle.testkit.runner.GradleRunner
@@ -10,24 +25,24 @@ import spock.lang.Specification
  * This test class is designed to test scenarios where we are only using pygradle for documentation and
  * other scenarios where it may be included in the project, but not active.
  */
-class PyGradleWithSlimProjects extends Specification {
+class PyGradleWithSlimProjectsTest extends Specification {
 
     @Rule
     final DefaultBlankProjectLayoutRule testProjectDir = new DefaultBlankProjectLayoutRule()
 
-    def setup(){
+    def setup() {
 
     }
 
     def "verify works with blank project"() {
         given:
         testProjectDir.buildFile << """
-        plugins {
-            id 'com.linkedin.python'
-        }
-        
-        ${PyGradleTestBuilder.createRepoClosure()}
-        """
+        | plugins {
+        |     id 'com.linkedin.python'
+        | }
+        |
+        | ${PyGradleTestBuilder.createRepoClosure()}
+        """.stripMargin().stripIndent()
 
         when:
         def result = GradleRunner.create()
@@ -70,12 +85,12 @@ class PyGradleWithSlimProjects extends Specification {
     def "verify docs only nothing else"() {
         given:
         testProjectDir.buildFile << """
-        plugins {
-            id 'com.linkedin.python'
-        }
-        
-        ${PyGradleTestBuilder.createRepoClosure()}
-        """
+        | plugins {
+        |     id 'com.linkedin.python'
+        | }
+        |
+        | ${PyGradleTestBuilder.createRepoClosure()}
+        """.stripMargin().stripIndent()
 
         testProjectDir.copyBuildDocsInfo()
 

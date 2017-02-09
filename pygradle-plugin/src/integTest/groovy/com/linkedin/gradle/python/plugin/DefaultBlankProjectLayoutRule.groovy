@@ -45,7 +45,7 @@ class DefaultBlankProjectLayoutRule extends TemporaryFolder {
         settingsGradle << "\ninclude ':foo'\n"
     }
 
-    void copyBuildDocsInfo(){
+    void copyBuildDocsInfo() {
         String docsFldr = "docs"
 
         newFolder(PROJECT_NAME_DIR, docsFldr)
@@ -61,45 +61,45 @@ class DefaultBlankProjectLayoutRule extends TemporaryFolder {
     }
 
     @SuppressWarnings("GrMethodMayBeStatic")
-    String sphinxConfigData(){
+    String sphinxConfigData() {
         """
-        import os
-        
-        extensions = [
-            'sphinx.ext.autodoc',
-            'sphinx.ext.doctest',
-            'sphinx.ext.intersphinx',
-            'sphinx.ext.todo',
-            'sphinx.ext.coverage',
-            'sphinx.ext.mathjax',
-            'sphinx.ext.ifconfig',
-            'sphinx.ext.viewcode',
-        ]
-        
-        templates_path = ['_templates']
-        source_suffix = '.rst'
-        master_doc = 'index'
-        project =os.getenv('PYGRADLE_PROJECT_NAME')
-        copyright = u'2017, PygradleTests'
-        version = os.getenv('PYGRADLE_PROJECT_VERSION')
-        release = version
-        language = None
-        exclude_patterns = ['_build']
-        pygments_style = 'sphinx'
-        keep_warnings = True
-        todo_include_todos = True
-        html_theme = 'bizstyle'
-        html_theme_options = {}
-        html_static_path = ['_static']
-        htmlhelp_basename = '@htmlhelp_basename@'
-        latex_elements = {
-        }
-        latex_documents = [
-          (master_doc, '@projectName@.tex', u'@projectName@ Documentation',
-           u'@author@', 'manual'),
-        ]
-        epub_title = project
-        epub_copyright = copyright
-        epub_exclude_files = ['search.html']""".stripIndent()
+        | import os
+        |
+        | extensions = [
+        |     'sphinx.ext.autodoc',
+        |     'sphinx.ext.doctest',
+        |     'sphinx.ext.intersphinx',
+        |     'sphinx.ext.todo',
+        |     'sphinx.ext.coverage',
+        |     'sphinx.ext.mathjax',
+        |     'sphinx.ext.ifconfig',
+        |     'sphinx.ext.viewcode',
+        | ]
+        |
+        | templates_path = ['_templates']
+        | source_suffix = '.rst'
+        | master_doc = 'index'
+        | project =os.getenv('PYGRADLE_PROJECT_NAME')
+        | copyright = u'2017, PygradleTests'
+        | version = os.getenv('PYGRADLE_PROJECT_VERSION')
+        | release = version
+        | language = None
+        | exclude_patterns = ['_build']
+        | pygments_style = 'sphinx'
+        | keep_warnings = True
+        | todo_include_todos = True
+        | html_theme = 'bizstyle'
+        | html_theme_options = {}
+        | html_static_path = ['_static']
+        | htmlhelp_basename = '@htmlhelp_basename@'
+        | latex_elements = {
+        | }
+        | latex_documents = [
+        |   (master_doc, '@projectName@.tex', u'@projectName@ Documentation',
+        |    u'@author@', 'manual'),
+        | ]
+        | epub_title = project
+        | epub_copyright = copyright
+        | epub_exclude_files = ['search.html']""".stripMargin().stripIndent()
     }
 }

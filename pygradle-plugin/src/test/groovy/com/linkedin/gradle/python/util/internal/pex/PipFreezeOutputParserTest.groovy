@@ -33,7 +33,7 @@ class PipFreezeOutputParserTest extends Specification {
             |mccabe==0.2.1
             |pbr==1.8.0
             |pep8==1.5.7
-            |pex==1.1.4
+            |pex==1.2.2
             |py==1.4.29
             |pyflakes==0.8.1
             |Pygments==2.0

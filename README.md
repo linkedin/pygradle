@@ -1,10 +1,10 @@
 # PyGradle
 
-[![CircleCI](https://img.shields.io/circleci/project/github/linkedin/pygradle.svg?style=flat-square)]()
-[![AppVeyor](https://img.shields.io/appveyor/ci/ethankhall/pygradle.svg?style=flat-square)]()
-[![license](https://img.shields.io/github/license/linkedin/pygradle.svg?style=flat-square)]()
-[![Bintray](https://img.shields.io/bintray/v/linkedin/maven/pygradle-plugin.svg?style=flat-square)]()
-[![Linkedin](https://img.shields.io/badge/opensource-linkedin-blue.svg?style=flat-square)]()
+[![CircleCI](https://img.shields.io/circleci/project/github/linkedin/pygradle.svg?style=flat-square)](https://circleci.com/gh/linkedin/pygradle)
+[![AppVeyor](https://img.shields.io/appveyor/ci/ethankhall/pygradle.svg?style=flat-square)](https://ci.appveyor.com/project/ethankhall/pygradle)
+[![Bintray](https://img.shields.io/bintray/v/linkedin/maven/pygradle-plugin.svg?style=flat-square)](https://bintray.com/linkedin/maven/pygradle-plugin)
+[![Linkedin](https://img.shields.io/badge/opensource-linkedin-blue.svg?style=flat-square)](https://engineering.linkedin.com/)
+[![license](https://img.shields.io/github/license/linkedin/pygradle.svg?style=flat-square)](LICENSE)
 
 PyGradle is an enterprise Python build system.
 

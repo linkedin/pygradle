@@ -24,7 +24,7 @@ class CleanSaveVenvTask extends DefaultTask {
     @TaskAction
     void cleanProject() throws Exception {
         project.buildDir.eachFile { f ->
-            if (f.name != 'venv'){
+            if (f.name != 'venv') {
                 f.delete()
             }
         }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.plugin
+package com.linkedin.gradle.python.plugin.testutils
 
 class PyGradleTestBuilder {
 

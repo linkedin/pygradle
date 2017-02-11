@@ -42,6 +42,7 @@ class PythonPlugin implements Plugin<Project> {
     public final static String CONFIGURATION_WHEEL = 'wheel'
 
     public final static String TASK_BUILD_DOCS = 'buildDocs'
+    public final static String TASK_CLEAN_SAVE_VENV = 'cleanSaveVenv'
     public final static String TASK_CHECK = 'check'
     public final static String TASK_COVERAGE = 'coverage'
     public final static String TASK_FLAKE = 'flake8'
@@ -60,6 +61,7 @@ class PythonPlugin implements Plugin<Project> {
     public final static String TASK_SETUP_PY_WRITER = 'generateSetupPy'
 
     public final static String DOCUMENTATION_GROUP = 'documentation'
+    public final static String BUILD_GROUP = 'build'
 
     @Override
     @SuppressWarnings(["MethodSize", "AbcMetric"])
@@ -161,6 +163,12 @@ class PythonPlugin implements Plugin<Project> {
                 FileSystemUtils.makeSymLink(activateLinkSource, activateLink)
             }
         }
+
+        /**
+         * task that cleans the project but leaves the venv in tact.  Helpful for projects on windows that
+         * take a very long time to build the venv.
+         */
+        project.tasks.create([name: TASK_CLEAN_SAVE_VENV, type: CleanSaveVenvTask, group: BUILD_GROUP])
 
         /**
          * Install core setup requirements into virtualenv.

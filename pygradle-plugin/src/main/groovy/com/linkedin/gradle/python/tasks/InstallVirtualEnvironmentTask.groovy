@@ -15,11 +15,13 @@
  */
 package com.linkedin.gradle.python.tasks
 
+import com.linkedin.gradle.python.PythonExtension
 import com.linkedin.gradle.python.extension.PythonDetails
 import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider
 import com.linkedin.gradle.python.tasks.execution.TeeOutputContainer
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
+import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
@@ -33,6 +35,8 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecSpec
 import org.gradle.util.VersionNumber
+
+import java.nio.file.Paths
 
 @CompileStatic
 class InstallVirtualEnvironmentTask extends DefaultTask implements FailureReasonProvider {
@@ -84,6 +88,45 @@ class InstallVirtualEnvironmentTask extends DefaultTask implements FailureReason
             }
         })
         project.delete(packageDir)
+        buildPipConfFile()
+    }
+
+    /**
+     * Writes a new pip.conf file.  You can configure the contents of this file with the python extension
+     * or leave it blank for it to pick up the pip.conf in your system properties.
+     *
+     * index-url = https://pypi.python.org/simple/
+     * @return
+     */
+    private buildPipConfFile() {
+        def fileExtension
+
+        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+            fileExtension = "ini"
+        } else {
+            fileExtension = "conf"
+        }
+
+        File pip = new File(Paths.get(pythonDetails.getVirtualEnv().absolutePath, "pip.${fileExtension}").toString())
+        if (!pip.exists()) {
+            println("creating pip.${fileExtension}")
+            pip.createNewFile()
+            PythonExtension pythonExtension = project.extensions.getByName("python") as PythonExtension
+
+            Map<String, Map<String, String>> pipConfig = pythonExtension.pipConfig
+
+            if (pipConfig.size() > 0) {
+                pipConfig.each { k, v ->
+                    pip.withWriter { out ->
+                        out.println "[${k}]"
+
+                        v.each { key, value ->
+                            out.println "${key} = ${value}"
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private String findVirtualEnvDependencyVersion() {

@@ -15,6 +15,9 @@
  */
 package com.linkedin.gradle.python.plugin
 
+import com.linkedin.gradle.python.plugin.testutils.DefaultProjectLayoutRule
+import com.linkedin.gradle.python.plugin.testutils.ExecUtils
+import com.linkedin.gradle.python.plugin.testutils.PyGradleTestBuilder
 import com.linkedin.gradle.python.util.OperatingSystem
 import com.linkedin.gradle.python.util.PexFileUtil
 import org.gradle.testkit.runner.GradleRunner

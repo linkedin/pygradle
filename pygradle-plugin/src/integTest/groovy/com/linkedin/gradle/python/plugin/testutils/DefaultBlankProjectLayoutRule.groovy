@@ -13,32 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.plugin
-
-import org.junit.rules.TemporaryFolder
+package com.linkedin.gradle.python.plugin.testutils
 
 import java.nio.file.Paths
 
-class DefaultBlankProjectLayoutRule extends TemporaryFolder {
-
-    public static final String PROJECT_NAME_DIR = "foo"
-
-    public File buildFile
-
-    protected void before() throws Throwable {
-        super.before()
-        newFolder(PROJECT_NAME_DIR)
-        setupProject()
-        buildFile = newFile(Paths.get(PROJECT_NAME_DIR, "build.gradle").toString())
-    }
-
-    @SuppressWarnings("UnnecessaryOverridingMethod") //docs for testing
-    protected void after() {
-        //It's useful to comment this out if you need to look at the test env
-        //super.after()
-    }
-
-    private void setupProject() {
+class DefaultBlankProjectLayoutRule extends DefaultProjectLayoutRule {
+    @Override
+    void setupProject() {
         // set up the default project name
         def settingsGradle = newFile('settings.gradle')
         settingsGradle << PyGradleTestBuilder.createSettingGradle()

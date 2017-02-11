@@ -59,6 +59,10 @@ class PythonExtension {
     /** The name of the pinned requirements file. */
     public File pinnedFile
 
+    /** Settings that can be put into the pip.conf file in the venv */
+    public Map<String, Map<String, String>> pipConfig = [:]
+
+
     /** A way to define forced versions of libraries */
     public Map<String, Map<String, String>> forcedVersions = [
         'appdirs'       : ['group': 'pypi', 'name': 'appdirs',          'version': '1.4.0'],
@@ -94,11 +98,11 @@ class PythonExtension {
         // creating a flake8 config file if one doesn't exist, this prevents "file not found" issues.
         def cfgCheck = project.file(setupCfg)
         if (!cfgCheck.exists()) {
-            project.logger.lifecycle("Flake8 config file doesn't exist, creating default")
+            project.logger.info("Flake8 config file doesn't exist, creating default")
             cfgCheck.createNewFile()
             cfgCheck << "[flake8]"
         } else {
-            project.logger.lifecycle("Flake8 config file exists")
+            project.logger.info("Flake8 config file exists")
         }
 
         pinnedFile = project.file("pinned.txt")

@@ -15,11 +15,12 @@
  */
 package com.linkedin.gradle.python.plugin
 
+import com.linkedin.gradle.python.plugin.testutils.DefaultBlankProjectLayoutRule
+import com.linkedin.gradle.python.plugin.testutils.PyGradleTestBuilder
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Rule
 import spock.lang.Specification
-
 
 /**
  * This test class is designed to test scenarios where we are only using pygradle for documentation and
@@ -34,11 +35,14 @@ class PyGradleWithSlimProjectsTest extends Specification {
 
     }
 
-    def "verify works with blank project"() {
+    def "verify works with blank project with pipconfig"() {
         given:
         testProjectDir.buildFile << """
         | plugins {
         |     id 'com.linkedin.python'
+        | }
+        | python{
+        |     pipConfig = ['global':['index-url': 'https://<login>:<password>@your.repo.com/custom/url', 'timeout': '60']]
         | }
         |
         | ${PyGradleTestBuilder.createRepoClosure()}
@@ -57,7 +61,7 @@ class PyGradleWithSlimProjectsTest extends Specification {
         result.task(":${testProjectDir.PROJECT_NAME_DIR}:build").outcome == TaskOutcome.SUCCESS
 
         // "Build will skip things that it should"
-        result.output.contains("Flake8 config file doesn't exist, creating default")
+        result.output.contains("Flake8 task skipped, no folders")
         result.output.contains("BUILD SUCCESS")
         result.output.contains("[SKIPPING]")
 
@@ -88,7 +92,9 @@ class PyGradleWithSlimProjectsTest extends Specification {
         | plugins {
         |     id 'com.linkedin.python'
         | }
-        |
+        | python{
+        |     pipConfig = ['global':['index-url': 'https://<login>:<password>@your.repo.com/custom/url', 'timeout': '60']]
+        | }
         | ${PyGradleTestBuilder.createRepoClosure()}
         """.stripMargin().stripIndent()
 

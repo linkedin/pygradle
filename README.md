@@ -96,6 +96,13 @@ To publish to a local repo, run `./gradlew publishToMavenLocal`. This will publi
 the metadata format. To use this version, be sure to update the version in the project under test and add `mavenLocal()` to the
 repositories.
 
+If you are building on Windows, PyGradle will avoid using your system temporary folder for integration tests and instead
+create and use the folder `c:\tmp`.  This is to avoid issues with Windows's 260 character path limit.  Make 
+sure your user account has the ablity to create and use this folder or your integration tests will fail.
+
+If you are using Windows 10, it is possible to go beyond that 260 character limit, but not with this product. 
+That policy change only applies to managed applications.  PyGradle's unit tests are not managed applications.
+
 ## Contributing
 
 To contribute to PyGradle please fork the project, make your changes locally and open a pull request. If possible include a

@@ -18,6 +18,7 @@ package com.linkedin.gradle.python.plugin.testutils
 import java.nio.file.Paths
 
 class DefaultBlankProjectLayoutRule extends DefaultProjectLayoutRule {
+
     @Override
     void setupProject() {
         // set up the default project name
@@ -26,14 +27,15 @@ class DefaultBlankProjectLayoutRule extends DefaultProjectLayoutRule {
         settingsGradle << "\ninclude ':foo'\n"
     }
 
+
     void copyBuildDocsInfo() {
         String docsFldr = "docs"
 
         newFolder(PROJECT_NAME_DIR, docsFldr)
-        def spinxConfig = newFile(Paths.get(PROJECT_NAME_DIR, docsFldr, "conf.py").toString())
+        def spinxConfig = newFile(Paths.get(PROJECT_NAME_DIR, docsFldr, "conf.py").toFile().path)
         spinxConfig << sphinxConfigData()
 
-        def indexRs = newFile(Paths.get(PROJECT_NAME_DIR, docsFldr, "index.rst").toString())
+        def indexRs = newFile(Paths.get(PROJECT_NAME_DIR, docsFldr, "index.rst").toFile().path)
 
         indexRs << """
             This Is Cool

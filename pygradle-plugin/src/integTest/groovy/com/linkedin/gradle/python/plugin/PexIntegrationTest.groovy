@@ -33,7 +33,6 @@ class PexIntegrationTest extends Specification {
 
     @Rule
     final DefaultProjectLayoutRule testProjectDir = new DefaultProjectLayoutRule()
-
     @IgnoreIf({ OperatingSystem.current() == OperatingSystem.WINDOWS })
     def "can build thin pex"() {
         testProjectDir

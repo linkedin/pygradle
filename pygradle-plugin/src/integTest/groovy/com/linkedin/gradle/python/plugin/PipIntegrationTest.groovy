@@ -28,7 +28,6 @@ class PipIntegrationTest extends Specification {
 
     @Rule
     final DefaultProjectLayoutRule testProjectDir = new DefaultProjectLayoutRule()
-
     def "will write out pinned.txt"() {
         given:
         testProjectDir.buildFile << """\

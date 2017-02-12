@@ -26,7 +26,6 @@ class PythonPluginIntegrationTest extends Specification {
 
     @Rule
     final DefaultProjectLayoutRule testProjectDir = new DefaultProjectLayoutRule()
-
     def "can build library"() {
         given:
         testProjectDir.buildFile << """

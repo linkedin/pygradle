@@ -18,6 +18,7 @@ package com.linkedin.gradle.python.plugin
 import com.linkedin.gradle.python.PythonExtension
 import com.linkedin.gradle.python.tasks.PipInstallTask
 import com.linkedin.gradle.python.util.OperatingSystem
+import com.linkedin.gradle.python.util.StandardTextValues
 import com.linkedin.gradle.python.util.WindowsBinaryUnpacker
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Rule
@@ -58,13 +59,14 @@ class PythonPluginTest extends Specification {
         def project = new ProjectBuilder().build()
         project.plugins.apply('com.linkedin.python')
         then:
-        for (c in [PythonPlugin.CONFIGURATION_DEFAULT,
-                   PythonPlugin.CONFIGURATION_PYTHON,
-                   PythonPlugin.CONFIGURATION_WHEEL,
-                   PythonPlugin.CONFIGURATION_VENV]) {
+        for (c in [StandardTextValues.CONFIGURATION_DEFAULT.value,
+                   StandardTextValues.CONFIGURATION_PYTHON.value,
+                   StandardTextValues.CONFIGURATION_WHEEL.value,
+                   StandardTextValues.CONFIGURATION_VENV.value]) {
             assert project.configurations.getByName(c)
         }
-        assert (project.configurations.getByName(PythonPlugin.CONFIGURATION_DEFAULT).getExtendsFrom()*.name == [PythonPlugin.CONFIGURATION_PYTHON])
+        assert (project.configurations.getByName(StandardTextValues.CONFIGURATION_DEFAULT.value).getExtendsFrom()*.name
+            == [StandardTextValues.CONFIGURATION_PYTHON.value])
     }
 
     def 'can apply java'() {
@@ -100,7 +102,7 @@ class PythonPluginTest extends Specification {
         project.plugins.apply('com.linkedin.python')
 
         then:
-        PipInstallTask install = (PipInstallTask) project.tasks.getByName(PythonPlugin.TASK_INSTALL_PROJECT)
+        PipInstallTask install = (PipInstallTask) project.tasks.getByName(StandardTextValues.TASK_INSTALL_PROJECT.value)
         install.installFileCollection.getFiles().size() == 1
         install.installFileCollection.getFiles().first().getName() == projectDir.getName()
     }

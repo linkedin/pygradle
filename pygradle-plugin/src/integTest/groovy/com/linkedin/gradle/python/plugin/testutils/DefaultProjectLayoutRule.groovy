@@ -15,7 +15,7 @@
  */
 package com.linkedin.gradle.python.plugin.testutils
 
-import org.apache.tools.ant.taskdefs.condition.Os
+import com.linkedin.gradle.python.util.OperatingSystem
 import org.junit.rules.ExternalResource
 import org.junit.rules.TemporaryFolder
 
@@ -32,8 +32,7 @@ class DefaultProjectLayoutRule extends ExternalResource implements ProjectLayout
 
     @SuppressWarnings("GrMethodMayBeStatic")
     private File buildCreateWinTemp() {
-        // GRADLE_TEST_TEMP_FOLDER
-        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        if (OperatingSystem.current().isWindows()) {
             File tmpFldr = new File("c:/tmp")
             if (!tmpFldr.exists()) {
                 tmpFldr.mkdirs()

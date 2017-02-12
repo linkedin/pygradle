@@ -15,14 +15,14 @@
  */
 package com.linkedin.gradle.python.checkstyle.model;
 
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.gradle.api.logging.Logger;
-import org.gradle.api.logging.Logging;
 
 
 /**

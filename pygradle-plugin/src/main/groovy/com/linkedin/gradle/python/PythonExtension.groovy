@@ -95,16 +95,6 @@ class PythonExtension {
         srcDir = Paths.get(project.projectDir.absolutePath, "src").toFile().path
         setupCfg = Paths.get(project.projectDir.absolutePath, "setup.cfg").toFile().path
 
-        // creating a flake8 config file if one doesn't exist, this prevents "file not found" issues.
-        def cfgCheck = project.file(setupCfg)
-        if (!cfgCheck.exists()) {
-            project.logger.info("Flake8 config file doesn't exist, creating default")
-            cfgCheck.createNewFile()
-            cfgCheck << "[flake8]"
-        } else {
-            project.logger.info("Flake8 config file exists")
-        }
-
         pinnedFile = project.file("pinned.txt")
 
         def applicationDirectory = VirtualEnvironment.getPythonApplicationDirectory()

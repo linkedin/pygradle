@@ -40,14 +40,10 @@ class SphinxDocumentationTask extends AbstractPythonMainSourceDefaultTask {
 
     @Override
     void preExecution() {
-        if (project.file(component.docsDir).exists()) {
-            args(pythonDetails.virtualEnvironment.findExecutable('sphinx-build').absolutePath,
-                '-b', type.builderName,
-                project.file(component.docsDir).getAbsolutePath(),
-                "${getDocDir().getAbsolutePath()}")
-        } else {
-            project.logger.warn("Sphinx docs dir doesn't exist.  Aborting")
-        }
+        args(pythonDetails.virtualEnvironment.findExecutable('sphinx-build').absolutePath,
+            '-b', type.builderName,
+            project.file(component.docsDir).getAbsolutePath(),
+            "${getDocDir().getAbsolutePath()}")
     }
 
     @Override

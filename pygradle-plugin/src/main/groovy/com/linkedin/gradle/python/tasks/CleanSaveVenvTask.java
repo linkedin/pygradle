@@ -13,19 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.tasks
+package com.linkedin.gradle.python.tasks;
 
-import org.gradle.api.DefaultTask
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.DefaultTask;
+import org.gradle.api.tasks.TaskAction;
+
+import java.io.File;
 
 
-class CleanSaveVenvTask extends DefaultTask {
+public class CleanSaveVenvTask extends DefaultTask {
 
     @TaskAction
-    void cleanProject() throws Exception {
-        project.buildDir.eachFile { f ->
-            if (f.name != 'venv') {
-                f.delete()
+    public void cleanProject() throws Exception {
+        File buildDir = getProject().getBuildDir();
+        File[] directoryListing = buildDir.listFiles();
+        if (directoryListing != null) {
+            for (File f : directoryListing) {
+                if (!f.getName().equals("venv")) {
+                    f.delete();
+                }
             }
         }
     }

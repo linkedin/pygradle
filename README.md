@@ -1,139 +1,105 @@
-[![CircleCI](https://circleci.com/gh/linkedin/pygradle.svg?style=svg)](https://circleci.com/gh/linkedin/pygradle) [ ![Download](https://api.bintray.com/packages/linkedin/maven/pygradle-plugin/images/download.svg) ](https://bintray.com/linkedin/maven/pygradle-plugin/_latestVersion)
+# PyGradle
 
-# About
+[![CircleCI](https://img.shields.io/circleci/project/github/linkedin/pygradle.svg?style=flat-square)]()
+[![AppVeyor](https://img.shields.io/appveyor/ci/ethankhall/pygradle.svg?style=flat-square)]()
+[![license](https://img.shields.io/github/license/linkedin/pygradle.svg?style=flat-square)]()
+[![Bintray](https://img.shields.io/bintray/v/linkedin/maven/pygradle-plugin.svg?style=flat-square)]()
+[![Linkedin](https://img.shields.io/badge/opensource-linkedin-blue.svg?style=flat-square)]()
 
-The PyGradle build system is a set of Gradle plugins that can be used to build Python artifacts. Artifacts produced by
-PyGradle are forward and backward compatible with artifacts produced with Python's setuptools library.
+PyGradle is an enterprise Python build system.
 
-## Why should I use PyGradle?
+PyGradle leverages [Gradle](https://gradle.org/) to empower Python's existing
+ecosystem to solve problems like dependency management, polyglot projects, and
+[lots more](https://engineering.linkedin.com/blog/2016/08/introducing--py-gradle--an-open-source-python-plugin-for-gradle).
+LinkedIn has been using PyGradle for several years to successfully manage
+thousands of Python dependencies.
 
-Although most aspects of the Python ecosystem are exceptional, there are some aspects that aren't so great. The Python
-ecosystem is extremely productive in aspects such as local development, artifact management, library functionality, and
-more. But, the Python ecosystem does struggle with things like dependency management, dependency resolution, conflict
-resolution, integration with existing metadata systems, and more. Projects that are built with the PyGradle build system
-get the best of both worlds by leveraging each tool, Python and Gradle, only for what it is good at.
+PyGradle produces artifacts, e.g., source distributions, that are forward and
+backward compatible with artifacts produced by vanilla
+[setuptools](https://setuptools.readthedocs.io/en/latest/), so there is nothing
+stopping you from using PyGradle with one, two, or all of your Python projects
+right away!
 
-The @linkedin/pygradle-devs team feels the major advantages of using PyGradle, among many others, are the following.
+As a general philosophy, we strive enhance Python rather than replace it,
+thereby keeping open source Python development idiomatic and intuitive.
 
-- You get real dependency resolution as opposed to 'mock' dependency resolution.
-- You get conflict resolution which resolves the notorious VersionConflict and DistributionNotFound errors that plague large projects.
-- You get the Gradle cache which is an enterprise quality caching solution that many organizations leverage.
-- You get the ability to build your Python code alongside your Java, Scala, and C++ code in a first class way.
-- You get a pluggable build system that can quickly be customized or adapted to support new technologies like pex.
-- You get to integrate completely with the metadata systems that teams have spent millions of engineering dollars working on.
+# Usage
 
-# Getting Started
+PyGradle does not include batteries: there are a few things that you're going
+to have to do to use PyGradle for things beyond our provided [examples](examples).
 
-For a quick start, lets look at a simple example of publishing a library using two dependencies.
+In particular, you're going to have to:
 
-    plugins {
-      id "com.linkedin.python-sdist" version "0.3.9"
-    }
+- Decide how you want to host your artifacts.
+- Decide how you want to distribute a custom setuptools distribution class.
+- Author your build.gradle file.
 
-    dependencies {
-        python 'pypi:requests:2.9.1'
-        test 'pypi:mock:1.0.1'
-    }
-    
-    repositories {
-       pyGradlePyPi()
-    }
+These decisions and tasks shouldn't take to long for you finish, but they are
+required. A deeper dive into what it takes to get started, how you can use our
+demonstrative Artifactory instance, and a few project examples is available in
+our detailed [getting started](docs/getting-started.md) guide.
 
-We apply a plugin `com.linkedin.python-sdist` which adds configurations `python` and `test` to the project. In the dependencies section
-we add two dependencies, one required to run and one required for testing. With this information PyGradle will download the
-artifacts from a repository (omitted from example) install requests and mock along with their dependencies to a virtual
-environment and run any tests that you may have.
+Although not required, if you've never used Gradle before, you might
+find reading Gradle's [user guide](https://docs.gradle.org/3.3/userguide/userguide.html)
+helpful.
 
-For a more step by step guide, check out the example project in [examples/](examples). 
+## Plugins
 
-We recommend that you use Gradle 3.0, but we will try to maintain backwards compatibility to Gradle 2.10 and above, but will require
-using Java 7 or above.
+PyGradle comes with several plugins available, for specific details on each
+plugin check the documentation specific to that plugin.
 
-## Plugins Available
+| Plugin                                                        | Usage                                         |
+|---------------------------------------------------------------|-----------------------------------------------|
+| [com.linkedin.python](docs/plugins/python.md)                 | Extending PyGradle                            |
+| [com.linkedin.python-sdist](docs/plugins/python-sdist.md)     | Developing Source Distributions               |
+| [com.linkedin.python-web-app](docs/plugins/python-web-app.md) | Developing Flask/Gunicorn Web Applications    |
+| [com.linkedin.python-cli](docs/plugins/python-cli.md)         | Developing Command Line Applications          |
+| [com.linkedin.python-flyer](docs/plugins/python-flyer.md)     | Developing Flyer (Flask + Ember) Applications |
+| [com.linkedin.python-pex](docs/plugins/python-pex.md)         | Developing Pex Applications                   |
 
-PyGradle comes with several plugins available, for specific details on each plugin check the documentation specific to that plugin.
+# Developers
 
-| Plugin Name                                           | Used When                                     |
-|-------------------------------------------------------|-----------------------------------------------|
-| [com.linkedin.python](docs/python.md)                 | Base Python Plugin                            |
-| [com.linkedin.python-sdist](docs/python-sdist.md)     | Developing Libraries                          |
-| [com.linkedin.python-web-app](docs/python-web-app.md) | Developing Deployable Applications            |
-| [com.linkedin.python-cli](docs/python-cli.md)         | Developing Command Line Applications          |
-| [com.linkedin.python-flyer](docs/python-flyer.md)     | Developing Flyer (Flask + Ember) Applications |
-| [com.linkedin.python-pex](docs/python-pex.md)         | Developing Pex Applications                   |
+We're actively maintaining PyGradle and accepting pull requests.
 
-## Custom Setup Tools Distribution Class
+If you're interested in contributing code to PyGradle, please see our
+[developers](docs/developers.md) document to get started. This document covers
+how to build, test, and debug PyGradle, and kindly asks that you follow a few
+conventions when submitting pull requests.
 
-There are some cases where you will need to implement a distribution class that can take the command 'entrypoints'. We provide
-a suggested setup.py for projects. You can find it in pygradle-plugin/templates/setup.py.template. In order to make it easy for
-consumers to use, we also provide a task `generateSetupPy` that will write it out to disk. Be careful, this task *will* 
-overwrite any existing setup.py in the project.
+# Compatibility
 
-## PyPi Artifacts
+## Software
 
-PyGradle depends on Ivy metadata to build a dependency graph, thus we cannot use pypi directly. We do have a java library that 
-will convert libraries from pypi into Ivy located in pivy-importer. In that project you can find usage examples. The pivy-importer
-project is how the integration tests get their required dependencies.
+We support PyGradle on the following software versions.
 
-To help with on boarding, we are providing a repository that has all of pygradle's require dependencies. You can apply it by adding 
+| Software | Version |
+|----------|---------|
+| Java     | 7.0     |
+| Gradle   | 3.0     |
 
-    repositories {
-       pyGradlePyPi()
-    }
+We're happy to review and merge pull requests that add additional support to
+future versions of software.
 
-to your build.gradle. This is not intended to be a full mirror and will never be a full mirror of pypi. It has the dependencies that
-PyGradle requires to start, and may in the future include very common libraries. The repo was seeded using the pivy-importer.
+## Platforms
 
-For more details on the pivy-importer please [read the docs](docs/pivy-importer.md).
+PyGradle works on the following platforms.
 
-# Developing on PyGradle
+| Platform  | Support    |
+|-----------|------------|
+| Linux     | Full       |
+| OS X      | Full       |
+| Windows   | Partial    |
 
-## Building PyGradle
-
-To build PyGradle run `./gradlew build`. This will compile the project, run the tests and integration tests.
-
-To publish to a local repo, run `./gradlew publishToMavenLocal`. This will publish PyGradle artifacts to ~/.m2 using maven as
-the metadata format. To use this version, be sure to update the version in the project under test and add `mavenLocal()` to the
-repositories.
-
-If you are building on Windows, PyGradle will avoid using your system temporary folder for integration tests and instead
-create and use the folder `c:\tmp`.  This is to avoid issues with Windows's 260 character path limit.  Make 
-sure your user account has the ablity to create and use this folder or your integration tests will fail.
-
-If you are using Windows 10, it is possible to go beyond that 260 character limit, but not with this product. 
-That policy change only applies to managed applications.  PyGradle's unit tests are not managed applications.
-
-## Contributing
-
-To contribute to PyGradle please fork the project, make your changes locally and open a pull request. If possible include a
-description about why this change is being added along with tests that validate the changes. Your commits must pass checkstyle
-and codenarc. Any substantial change should include unit/integration tests.
-
-A CI build runs with every pull request, the build must pass before we will merge any commits.
-
-We prefer that you squash commits into a single commit for a single change, multiple changes may be multiple commits.
-
-From time to time LinkedIn maintainers may find issues with the changes that break our internal tests. When this happens we will
-allow the merge to happen but add tests and update the code to make our internal tests pass. This means that we probably won't
-publish a version until we can validate the changes internally.
+Additional compatibility notes are availabe [here](docs/compatibility.md).
+We're happy to review and merge pull requests that add support for additional
+platforms.
 
 # Known Potential Issues
-- Due to a bug in pip, when trying to install scipy may fail. A potential work around is to use a newer version of pip. A PR
-was merged into pip master that fixes the issue (https://github.com/pypa/pip/pull/3701), a version of pip with the fix in it
-has not been released yet. If this is an issue for your org, you could release a version of pip with this fix in it. For
-more details on the change and issues please review https://github.com/pypa/pip/pull/3701 and https://github.com/pypa/pip/pull/3079
 
-# Window Support
-
-PyGradle has basic support for windows. We would like to note that pex is not offically supported on Windows, 
-while it seems to work properly we cannot guarantee it.
-
-For those users who are on Windows, we would love to get feedback about how this works for you.
-
-## Caveats
-
-- Building PyGradle, the integration tests require that Python be available in your PATH.
-- On Windows pex format defaults to fat.
-- On Windows all pex files are renamed to `.py`, on Unix based systems they are `.pex`.
-- To run a pex on windows, you must have Python installed and the `.py` extension needs to be registered to the python 
-  you want to run.
+- Due to a bug in pip, when trying to install scipy may fail. A potential work
+around is to use a newer version of pip. A PR was merged into pip master that
+fixes the issue (https://github.com/pypa/pip/pull/3701), a version of pip with
+the fix in it has not been released yet. If this is an issue for your org, you
+could release a version of pip with this fix in it. For more details on the
+change and issues please review https://github.com/pypa/pip/pull/3701 and
+https://github.com/pypa/pip/pull/3079

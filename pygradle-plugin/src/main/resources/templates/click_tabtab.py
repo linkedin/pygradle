@@ -21,11 +21,10 @@ from __future__ import print_function
 
 import logging
 import os
+import pkg_resources
 import re
 import sys
 import textwrap
-
-import pkg_resources
 
 try:
     import click

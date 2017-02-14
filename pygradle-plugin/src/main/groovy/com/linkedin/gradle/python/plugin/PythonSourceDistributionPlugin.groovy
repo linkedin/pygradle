@@ -17,6 +17,7 @@ package com.linkedin.gradle.python.plugin
 
 
 import com.linkedin.gradle.python.tasks.SourceDistTask
+import com.linkedin.gradle.python.util.StandardTextValues
 import org.gradle.api.Project
 
 class PythonSourceDistributionPlugin extends PythonBasePlugin {
@@ -30,7 +31,7 @@ class PythonSourceDistributionPlugin extends PythonBasePlugin {
          * Create a Python source distribution.
          */
         def sdistPackageTask = project.tasks.create(TASK_PACKAGE_SDIST, SourceDistTask) {
-            dependsOn(project.tasks.getByName(PythonPlugin.TASK_INSTALL_PROJECT))
+            dependsOn(project.tasks.getByName(StandardTextValues.TASK_INSTALL_PROJECT.value))
         }
 
         def sdistArtifactInfo = [
@@ -41,7 +42,7 @@ class PythonSourceDistributionPlugin extends PythonBasePlugin {
                 builtBy: project.tasks.getByName(TASK_PACKAGE_SDIST),
         ]
 
-        project.artifacts.add(PythonPlugin.CONFIGURATION_DEFAULT, sdistArtifactInfo)
+        project.artifacts.add(StandardTextValues.CONFIGURATION_DEFAULT.value, sdistArtifactInfo)
     }
 
 }

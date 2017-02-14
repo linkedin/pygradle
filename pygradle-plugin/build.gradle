@@ -59,7 +59,7 @@ task integTest(type: Test) {
     classpath = sourceSets.integTest.runtimeClasspath
     reports.html.destination = file("$buildDir${File.separatorChar}reports${File.separatorChar}integration-test")
 
-    environment['TEST_REPO'] = rootProject.buildDir.toString().replace('\\', '/') + '/ivy-repo'
+    environment['TEST_REPO'] = rootProject.buildDir.toURI().toURL().toString() + '/ivy-repo'
 }
 
 check.dependsOn integTest
@@ -68,6 +68,7 @@ gradlePlugin {
     pluginSourceSet project.sourceSets.main
     testSourceSets project.sourceSets.integTest
 
+    //noinspection GroovyAssignabilityCheck
     plugins {
         pythonPlugin {
             id = 'com.linkedin.python'
@@ -107,6 +108,7 @@ pluginBundle {
     description = 'Building Python with Gradle'
     tags = ['python']
 
+    //noinspection GroovyAssignabilityCheck
     plugins {
         pythonPlugin {
             id = 'com.linkedin.python'

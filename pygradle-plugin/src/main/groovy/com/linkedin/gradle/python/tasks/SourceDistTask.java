@@ -15,11 +15,11 @@
  */
 package com.linkedin.gradle.python.tasks;
 
-import java.io.File;
-
 import org.gradle.api.Project;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.process.ExecResult;
+
+import java.io.File;
 
 
 public class SourceDistTask extends AbstractPythonMainSourceDefaultTask {
@@ -36,10 +36,10 @@ public class SourceDistTask extends AbstractPythonMainSourceDefaultTask {
     public File getSdistOutput() {
         Project project = getProject();
         return new File(
-                getDistDir(), 
+                getDistDir(),
                 String.format(
-                        "%s-%s.tar.gz", 
-                        project.getName(), 
+                        "%s-%s.tar.gz",
+                        project.getName(),
                         project.getVersion().toString().replace("_", "-")));
     }
 

@@ -18,6 +18,7 @@ package com.linkedin.gradle.python.tasks
 import com.linkedin.gradle.python.extension.PythonDetails
 import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider
 import com.linkedin.gradle.python.tasks.execution.TeeOutputContainer
+import com.linkedin.gradle.python.util.pip.PipConfFile
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.gradle.api.Action
@@ -55,6 +56,8 @@ class InstallVirtualEnvironmentTask extends DefaultTask implements FailureReason
     @CompileDynamic
     void installVEnv() {
 
+        PipConfFile pipConfFile = new PipConfFile(project, pythonDetails)
+
         File packageDir = new File(project.buildDir, "virtualenv-dir")
         if (packageDir.exists()) {
             project.delete(packageDir)
@@ -63,7 +66,6 @@ class InstallVirtualEnvironmentTask extends DefaultTask implements FailureReason
         packageDir.mkdirs()
 
         getPyGradleBootstrap().files.each { file ->
-
             project.copy {
                 from project.tarTree(file.path)
                 into packageDir
@@ -84,6 +86,7 @@ class InstallVirtualEnvironmentTask extends DefaultTask implements FailureReason
             }
         })
         project.delete(packageDir)
+        pipConfFile.buildPipConfFile()
     }
 
     private String findVirtualEnvDependencyVersion() {

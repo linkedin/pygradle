@@ -18,6 +18,16 @@ test and add `mavenLocal()` to the repositories. This will configure your
 project to look in `~/.m2` in addition to other repositories you have
 configured when pulling artifacts.
 
+If you are building on Windows, PyGradle will avoid using your system temporary 
+folder for integration tests and instead create and use the folder `c:\tmp`.  This 
+is to avoid issues with Windows's 260 character path limit.  Make sure your user 
+account has the ablity to create and use this folder or your integration tests will fail.
+
+If you are using Windows 10, it is possible to go beyond that 260 character limit, 
+but not with this product.  That policy change only applies to managed applications.  
+PyGradle's unit tests are not managed applications.
+
+
 ## Contributing
 
 To contribute to PyGradle please fork the project, make your changes locally,

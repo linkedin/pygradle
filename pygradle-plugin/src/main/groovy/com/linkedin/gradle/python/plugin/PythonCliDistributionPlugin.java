@@ -17,6 +17,7 @@ package com.linkedin.gradle.python.plugin;
 
 import com.linkedin.gradle.python.tasks.GenerateCompletionsTask;
 import com.linkedin.gradle.python.util.ExtensionUtils;
+import com.linkedin.gradle.python.util.StandardTextValues;
 import org.gradle.api.Project;
 
 
@@ -30,7 +31,7 @@ public class PythonCliDistributionPlugin extends PythonBasePlugin {
         ExtensionUtils.maybeCreateCliExtension(project);
 
         GenerateCompletionsTask completionsTask = project.getTasks().create(TASK_GENERATE_COMPLETIONS, GenerateCompletionsTask.class);
-        completionsTask.dependsOn(project.getTasks().getByName(PythonPlugin.TASK_INSTALL_PROJECT));
+        completionsTask.dependsOn(project.getTasks().getByName(StandardTextValues.TASK_INSTALL_PROJECT.getValue()));
 
         project.getTasks().getByName(PythonPexDistributionPlugin.TASK_BUILD_PEX).dependsOn(project.getTasks().getByName(TASK_GENERATE_COMPLETIONS));
     }

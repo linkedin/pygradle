@@ -19,6 +19,7 @@ import com.linkedin.gradle.python.extension.DeployableExtension
 import com.linkedin.gradle.python.tasks.BuildPexTask
 import com.linkedin.gradle.python.tasks.BuildWheelsTask
 import com.linkedin.gradle.python.util.ExtensionUtils
+import com.linkedin.gradle.python.util.StandardTextValues
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.tasks.bundling.Compression
@@ -42,10 +43,10 @@ class PythonPexDistributionPlugin extends PythonBasePlugin {
 
         project.afterEvaluate {
             if (settings.details.pythonVersion.pythonMajorMinor == '2.6') {
-                project.dependencies.add(PythonPlugin.CONFIGURATION_BUILD_REQS, extension.forcedVersions['argparse'])
+                project.dependencies.add(StandardTextValues.CONFIGURATION_BUILD_REQS.value, extension.forcedVersions['argparse'])
             }
         }
-        project.dependencies.add(PythonPlugin.CONFIGURATION_BUILD_REQS, extension.forcedVersions['pex'])
+        project.dependencies.add(StandardTextValues.CONFIGURATION_BUILD_REQS.value, extension.forcedVersions['pex'])
 
 
         /**
@@ -54,7 +55,7 @@ class PythonPexDistributionPlugin extends PythonBasePlugin {
          * We need wheels to build pex files.
          */
         project.tasks.create(TASK_BUILD_WHEELS, BuildWheelsTask) { task ->
-            task.dependsOn project.tasks.getByName(PythonPlugin.TASK_INSTALL_PROJECT)
+            task.dependsOn project.tasks.getByName(StandardTextValues.TASK_INSTALL_PROJECT.value)
         }
 
         project.tasks.create(TASK_BUILD_PEX, BuildPexTask) { task ->
@@ -72,6 +73,6 @@ class PythonPexDistributionPlugin extends PythonBasePlugin {
         })
         packageDeployable.dependsOn(project.tasks.getByName(TASK_BUILD_PEX))
 
-        project.artifacts.add(PythonPlugin.CONFIGURATION_DEFAULT, packageDeployable)
+        project.artifacts.add(StandardTextValues.CONFIGURATION_DEFAULT.value, packageDeployable)
     }
 }

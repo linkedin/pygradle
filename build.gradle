@@ -23,6 +23,7 @@ subprojects {
         description = 'Download all dependencies to help with CI cacheing'
         group = 'CI'
         doLast {
+            //noinspection GroovyAssignabilityCheck
             configurations.each { conf ->
                 conf.files
             }

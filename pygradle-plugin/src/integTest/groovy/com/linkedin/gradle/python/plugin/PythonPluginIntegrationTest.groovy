@@ -15,6 +15,8 @@
  */
 package com.linkedin.gradle.python.plugin
 
+import com.linkedin.gradle.python.plugin.testutils.DefaultProjectLayoutRule
+import com.linkedin.gradle.python.plugin.testutils.PyGradleTestBuilder
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Rule
@@ -24,7 +26,6 @@ class PythonPluginIntegrationTest extends Specification {
 
     @Rule
     final DefaultProjectLayoutRule testProjectDir = new DefaultProjectLayoutRule()
-
     def "can build library"() {
         given:
         testProjectDir.buildFile << """

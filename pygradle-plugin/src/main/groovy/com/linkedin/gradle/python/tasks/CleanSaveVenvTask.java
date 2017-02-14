@@ -13,26 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.extension;
+package com.linkedin.gradle.python.tasks;
 
-import org.gradle.api.Project;
+import org.gradle.api.DefaultTask;
+import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
 
 
-public class WheelExtension {
+public class CleanSaveVenvTask extends DefaultTask {
 
-  private File wheelCache;
-
-  public WheelExtension(Project project) {
-    wheelCache = new File(project.getBuildDir(), "wheel-cache");
-  }
-
-  public File getWheelCache() {
-    return wheelCache;
-  }
-
-  public void setWheelCache(File wheelCache) {
-    this.wheelCache = wheelCache;
-  }
+    @TaskAction
+    public void cleanProject() throws Exception {
+        File buildDir = getProject().getBuildDir();
+        File[] directoryListing = buildDir.listFiles();
+        if (directoryListing != null) {
+            for (File f : directoryListing) {
+                if (!f.getName().equals("venv")) {
+                    f.delete();
+                }
+            }
+        }
+    }
 }

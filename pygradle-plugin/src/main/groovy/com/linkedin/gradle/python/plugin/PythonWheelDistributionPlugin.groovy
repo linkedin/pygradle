@@ -15,6 +15,7 @@
  */
 package com.linkedin.gradle.python.plugin
 
+import com.linkedin.gradle.python.util.StandardTextValues
 import org.gradle.api.Project
 
 
@@ -32,7 +33,7 @@ class PythonWheelDistributionPlugin extends PythonBasePlugin {
          * Create a Python wheel distribution.
          */
         project.tasks.create(TASK_PACKAGE_WHEEL) {
-            dependsOn(project.tasks.getByName(PythonPlugin.TASK_INSTALL_PROJECT))
+            dependsOn(project.tasks.getByName(StandardTextValues.TASK_INSTALL_PROJECT.value))
             outputs.file(wheelArtifact)
             doLast {
                 project.exec {
@@ -49,7 +50,7 @@ class PythonWheelDistributionPlugin extends PythonBasePlugin {
                 builtBy: project.tasks.getByName(TASK_PACKAGE_WHEEL),
         ]
         if (!project.spec.version.contains('SNAPSHOT')) {
-          project.artifacts.add(PythonPlugin.CONFIGURATION_WHEEL, wheelArtifactInfo)
+          project.artifacts.add(StandardTextValues.CONFIGURATION_WHEEL.value, wheelArtifactInfo)
         }
 
     }

@@ -59,24 +59,28 @@ class PythonExtension {
     /** The name of the pinned requirements file. */
     public File pinnedFile
 
+    /** Settings that can be put into the pip.conf file in the venv */
+    public Map<String, Map<String, String>> pipConfig = [:]
+
+
     /** A way to define forced versions of libraries */
     public Map<String, Map<String, String>> forcedVersions = [
-        'appdirs'       : ['group': 'pypi', 'name': 'appdirs', 'version': '1.4.0'],
-        'argparse'      : ['group': 'pypi', 'name': 'argparse', 'version': '1.4.0'],
-        'flake8'        : ['group': 'pypi', 'name': 'flake8', 'version': '2.5.4'],
-        'packaging'     : ['group': 'pypi', 'name': 'packaging', 'version': '16.8'],
-        'pbr'           : ['group': 'pypi', 'name': 'pbr', 'version': '1.8.0'],
-        'pex'           : ['group': 'pypi', 'name': 'pex', 'version': '1.1.4'],
-        'pip'           : ['group': 'pypi', 'name': 'pip', 'version': '7.1.2'],
-        'pytest'        : ['group': 'pypi', 'name': 'pytest', 'version': '2.9.1'],
-        'pytest-cov'    : ['group': 'pypi', 'name': 'pytest-cov', 'version': '2.2.1'],
-        'pytest-xdist'  : ['group': 'pypi', 'name': 'pytest-xdist', 'version': '1.14'],
-        'setuptools'    : ['group': 'pypi', 'name': 'setuptools', 'version': '19.1.1'],
-        'setuptools-git': ['group': 'pypi', 'name': 'setuptools-git', 'version': '1.1'],
-        'six'           : ['group': 'pypi', 'name': 'six', 'version': '1.10.0'],
-        'Sphinx'        : ['group': 'pypi', 'name': 'Sphinx', 'version': '1.4.1'],
-        'virtualenv'    : ['group': 'pypi', 'name': 'virtualenv', 'version': '15.0.1'],
-        'wheel'         : ['group': 'pypi', 'name': 'wheel', 'version': '0.26.0'],
+        'appdirs'       : ['group': 'pypi', 'name': 'appdirs',          'version': '1.4.0'],
+        'argparse'      : ['group': 'pypi', 'name': 'argparse',         'version': '1.4.0'],
+        'flake8'        : ['group': 'pypi', 'name': 'flake8',           'version': '2.5.4'],
+        'packaging'     : ['group': 'pypi', 'name': 'packaging',        'version': '16.8'],
+        'pbr'           : ['group': 'pypi', 'name': 'pbr',              'version': '1.8.0'],
+        'pex'           : ['group': 'pypi', 'name': 'pex',              'version': '1.1.4'],
+        'pip'           : ['group': 'pypi', 'name': 'pip',              'version': '9.0.1'],
+        'pytest'        : ['group': 'pypi', 'name': 'pytest',           'version': '2.9.1'],
+        'pytest-cov'    : ['group': 'pypi', 'name': 'pytest-cov',       'version': '2.2.1'],
+        'pytest-xdist'  : ['group': 'pypi', 'name': 'pytest-xdist',     'version': '1.14'],
+        'setuptools'    : ['group': 'pypi', 'name': 'setuptools',       'version': '19.1.1'],
+        'setuptools-git': ['group': 'pypi', 'name': 'setuptools-git',   'version': '1.1'],
+        'six'           : ['group': 'pypi', 'name': 'six',              'version': '1.10.0'],
+        'Sphinx'        : ['group': 'pypi', 'name': 'Sphinx',           'version': '1.4.1'],
+        'virtualenv'    : ['group': 'pypi', 'name': 'virtualenv',       'version': '15.0.1'],
+        'wheel'         : ['group': 'pypi', 'name': 'wheel',            'version': '0.26.0'],
     ]
 
     /* Container of the details related to the venv/python instance */
@@ -84,12 +88,13 @@ class PythonExtension {
 
     public ConsoleOutput consoleOutput = ConsoleOutput.ASCII
 
-    public PythonExtension(Project project) {
+    PythonExtension(Project project) {
         this.details = new PythonDetails(project)
         docsDir = Paths.get(project.projectDir.absolutePath, "docs").toFile().path
         testDir = Paths.get(project.projectDir.absolutePath, "test").toFile().path
         srcDir = Paths.get(project.projectDir.absolutePath, "src").toFile().path
         setupCfg = Paths.get(project.projectDir.absolutePath, "setup.cfg").toFile().path
+
         pinnedFile = project.file("pinned.txt")
 
         def applicationDirectory = VirtualEnvironment.getPythonApplicationDirectory()

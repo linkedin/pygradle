@@ -15,9 +15,9 @@
  */
 package com.linkedin.gradle.python.extension;
 
-import java.io.File;
-
 import org.gradle.api.Project;
+
+import java.io.File;
 
 
 public class DeployableExtension {

@@ -26,6 +26,7 @@ import org.gradle.process.ExecResult
 class PyTestTask extends AbstractPythonTestSourceDefaultTask {
 
     private static final int NO_TESTS_COLLECTED_ERRNO = 5
+    private static final String NO_TEST_WARNING = "***** WARNING: You did not write any tests! *****"
 
     /** specific test file was given and only the tests in that file should be executed */
     boolean specificFileGiven = false
@@ -38,19 +39,19 @@ class PyTestTask extends AbstractPythonTestSourceDefaultTask {
 
     @Override
     public void preExecution() {
-        args(pythonDetails.virtualEnvironment.findExecutable("py.test").absolutePath)
-        if (extraArgs != []) {
-            args(extraArgs)
-        }
-        if (!specificFileGiven) {
-            args(component.testDir)
-        }
+            args(pythonDetails.virtualEnvironment.findExecutable("py.test").absolutePath)
+            if (extraArgs != []) {
+                args(extraArgs)
+            }
+            if (!specificFileGiven) {
+                args(component.testDir)
+            }
     }
 
     @Override
     void processResults(ExecResult execResult) {
         if (execResult.exitValue == NO_TESTS_COLLECTED_ERRNO) {
-            logger.warn("***** WARNING: You did not write any tests! *****")
+            logger.warn(NO_TEST_WARNING)
         } else {
             execResult.assertNormalExitValue()
         }

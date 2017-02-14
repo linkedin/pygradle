@@ -87,6 +87,29 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider {
     }
 
     /**
+     * Method that checks to ensure that the current project is prepared to pip install.  It ignores the
+     * base pygradle libraries
+     *
+     * @param installable file object for the system to install
+     * @return
+     */
+    private boolean isReadyForInstall(File installable) {
+        if (installable.absolutePath == project.projectDir.absolutePath) {
+            /*
+            we are installing the product itself.  Now lets see if its ready for it
+            this ignores dependencies
+             */
+            def setupPyFile = new File(installable.absolutePath, "setup.py")
+            if (!setupPyFile.exists()) {
+                logger.lifecycle(PythonHelpers.createPrettyLine("Install ${project.name}", "[ABORTED]"))
+                project.logger.warn("setup.py missing, skipping venv install for product ${project.name}.  Run 'gradle generateSetupPy' to generate a generic file")
+                return false
+            }
+        }
+        return true
+    }
+
+    /**
      * Install things into a virtual environment.
      * <p>
      * Always run <code>pip install --no-deps <args></code> with arguments. This prevents
@@ -94,80 +117,80 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider {
      * express and download dependencies.
      */
     @TaskAction
-    public void pipInstall() {
-
+    void pipInstall() {
         def pyVersion = pythonDetails.getPythonVersion().pythonMajorMinor
         def extension = ExtensionUtils.getPythonExtension(project)
         def sitePackages = findSitePackages()
 
         for (File installable : getConfigurationFiles()) {
+            if (isReadyForInstall(installable)) {
+                def packageInfo = PackageInfo.fromPath(installable.getAbsolutePath())
+                def shortHand = packageInfo.version ? "${packageInfo.name}-${packageInfo.version}" : packageInfo.name
 
-            def packageInfo = PackageInfo.fromPath(installable.getAbsolutePath())
-            def shortHand = packageInfo.version ? "${packageInfo.name}-${packageInfo.version}" : packageInfo.name
+                if (packageExcludeFilter.isSatisfiedBy(packageInfo)) {
+                    logger.lifecycle(PythonHelpers.createPrettyLine("Install ${shortHand}", "[EXCLUDED]"))
+                    continue
+                }
 
-            if (packageExcludeFilter.isSatisfiedBy(packageInfo)) {
-                logger.lifecycle(PythonHelpers.createPrettyLine("Install ${shortHand}", "[EXCLUDED]"))
-                continue
-            }
+                String sanitizedName = packageInfo.name.replace('-', '_')
 
-            String sanitizedName = packageInfo.name.replace('-', '_')
+                // See: https://www.python.org/dev/peps/pep-0376/
+                File egg = sitePackages.resolve("${sanitizedName}-${packageInfo.version}-py${pyVersion}.egg-info").toFile()
+                File dist = sitePackages.resolve("${sanitizedName}-${packageInfo.version}.dist-info").toFile()
 
-            // See: https://www.python.org/dev/peps/pep-0376/
-            File egg = sitePackages.resolve("${ sanitizedName }-${ packageInfo.version }-py${ pyVersion }.egg-info").toFile()
-            File dist = sitePackages.resolve("${sanitizedName}-${packageInfo.version}.dist-info").toFile()
+                def mergedEnv = new HashMap(extension.pythonEnvironment)
+                if (environment != null) {
+                    mergedEnv.putAll(environment)
+                }
 
-            def mergedEnv = new HashMap(extension.pythonEnvironment)
-            if (environment != null) {
-                mergedEnv.putAll(environment)
-            }
+                def commandLine = [pythonDetails.getVirtualEnvInterpreter(),
+                                   pythonDetails.getVirtualEnvironment().getPip(),
+                                   'install',
+                                   '--disable-pip-version-check',
+                                   '--no-deps']
+                commandLine.addAll(args)
+                commandLine.add(installable.getAbsolutePath())
 
-            def commandLine = [pythonDetails.getVirtualEnvInterpreter(),
-                               pythonDetails.getVirtualEnvironment().getPip(),
-                               'install',
-                               '--disable-pip-version-check',
-                               '--no-deps']
-            commandLine.addAll(args)
-            commandLine.add(installable.getAbsolutePath())
+                if (project.file(egg).exists() || project.file(dist).exists()) {
+                    logger.lifecycle(PythonHelpers.createPrettyLine("Install ${shortHand}", "[SKIPPING]"))
+                    continue
+                }
 
-            if (project.file(egg).exists() || project.file(dist).exists()) {
-                logger.lifecycle(PythonHelpers.createPrettyLine("Install ${shortHand}", "[SKIPPING]"))
-                continue
-            }
+                logger.lifecycle(PythonHelpers.createPrettyLine("Install ${shortHand}", "[STARTING]"))
 
-            logger.lifecycle(PythonHelpers.createPrettyLine("Install ${shortHand}", "[STARTING]"))
+                def startTime = new Date()
+                def stream = new ByteArrayOutputStream()
+                ExecResult installResult = project.exec { ExecSpec execSpec ->
+                    execSpec.environment mergedEnv
+                    execSpec.commandLine(commandLine)
+                    execSpec.standardOutput = stream
+                    execSpec.errorOutput = stream
+                    execSpec.ignoreExitValue = true
+                }
+                def endTime = new Date()
+                def duration = TimeCategory.minus(endTime, startTime)
 
-            def startTime = new Date()
-            def stream = new ByteArrayOutputStream()
-            ExecResult installResult = project.exec { ExecSpec execSpec ->
-                execSpec.environment mergedEnv
-                execSpec.commandLine(commandLine)
-                execSpec.standardOutput = stream
-                execSpec.errorOutput = stream
-                execSpec.ignoreExitValue = true
-            }
-            def endTime = new Date()
-            def duration = TimeCategory.minus(endTime, startTime)
-
-            def message = stream.toString().trim()
-            if (installResult.exitValue != 0) {
-                /*
-                 * TODO: maintain a list of packages that failed to install, and report a failure
-                 * report at the end. We can leverage our domain expertise here to provide very
-                 * meaningful errors. E.g., we see lxml failed to install, do you have libxml2
-                 * installed? E.g., we see pyOpenSSL>0.15 failed to install, do you have libffi
-                 * installed?
-                 */
-                logger.lifecycle(message)
-                lastInstallMessage = message
-
-                throw new PipInstallException(
-                    "Failed to install ${shortHand}. Please see above output for reason, or re-run your build using ``gradle -i build`` for additional logging.")
-            } else {
-                if (extension.consoleOutput == ConsoleOutput.RAW) {
+                def message = stream.toString().trim()
+                if (installResult.exitValue != 0) {
+                    /*
+                     * TODO: maintain a list of packages that failed to install, and report a failure
+                     * report at the end. We can leverage our domain expertise here to provide very
+                     * meaningful errors. E.g., we see lxml failed to install, do you have libxml2
+                     * installed? E.g., we see pyOpenSSL>0.15 failed to install, do you have libffi
+                     * installed?
+                     */
                     logger.lifecycle(message)
+                    lastInstallMessage = message
+
+                    throw new PipInstallException(
+                        "Failed to install ${shortHand}. Please see above output for reason, or re-run your build using ``gradle -i build`` for additional logging.")
                 } else {
-                    String prefix = String.format("Install (%d:%02d.%03d s)", duration.minutes, duration.seconds % 60, duration.millis % 1000)
-                    logger.lifecycle(PythonHelpers.createPrettyLine(prefix, "[FINISHED]"))
+                    if (extension.consoleOutput == ConsoleOutput.RAW) {
+                        logger.lifecycle(message)
+                    } else {
+                        String prefix = String.format("Install (%d:%02d.%03d s)", duration.minutes, duration.seconds % 60, duration.millis % 1000)
+                        logger.lifecycle(PythonHelpers.createPrettyLine(prefix, "[FINISHED]"))
+                    }
                 }
             }
         }
@@ -182,7 +205,7 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider {
     private Path findSitePackages() {
         def pyVersion = pythonDetails.getPythonVersion().pythonMajorMinor
         if (OperatingSystem.current().isUnix()) {
-            return pythonDetails.virtualEnv.toPath().resolve(Paths.get("lib", "python${ pyVersion }", "site-packages"))
+            return pythonDetails.virtualEnv.toPath().resolve(Paths.get("lib", "python${pyVersion}", "site-packages"))
         } else {
             return pythonDetails.virtualEnv.toPath().resolve(Paths.get("Lib", "site-packages"))
         }

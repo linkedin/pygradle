@@ -17,6 +17,7 @@ package com.linkedin.gradle.python.plugin
 
 import com.linkedin.gradle.python.util.ExtensionUtils
 import com.linkedin.gradle.python.util.FileSystemUtils
+import com.linkedin.gradle.python.util.StandardTextValues
 import groovy.transform.CompileStatic
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -88,7 +89,7 @@ class PythonFlyerPlugin implements Plugin<Project> {
             }
         }
 
-        project.tasks.getByName(PythonPlugin.TASK_INSTALL_PROJECT).dependsOn(project.tasks.getByName(TASK_SETUP_RESOURCE_LINK))
+        project.tasks.getByName(StandardTextValues.TASK_INSTALL_PROJECT.value).dependsOn(project.tasks.getByName(TASK_SETUP_RESOURCE_LINK))
 
 
         /*

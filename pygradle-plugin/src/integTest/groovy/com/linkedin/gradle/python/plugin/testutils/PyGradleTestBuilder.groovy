@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.plugin
+package com.linkedin.gradle.python.plugin.testutils
 
 class PyGradleTestBuilder {
 
@@ -38,12 +38,26 @@ class PyGradleTestBuilder {
             |""".stripMargin().stripIndent()
     }
 
+    /**
+     * A convenience method that uses the uri path that is set in the build.gradle file for the ivy location
+     *
+     * @return
+     */
     static String createRepoClosure() {
+        createRepoClosure(System.getenv('TEST_REPO'))
+    }
+
+    /**
+     * Creates a local repo block for a test
+     * @param pathURL path url to use as the location of the ivy project
+     * @return
+     */
+    static String createRepoClosure(String pathURL) {
         return """\
             |repositories {
             |  ivy {
             |    name 'pypi-local'
-            |    url "file:///${System.getenv('TEST_REPO')}"
+                 url "${pathURL}"
             |    layout "pattern", {
             |      ivy "[organisation]/[module]/[revision]/[module]-[revision].ivy"
             |      artifact "[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"

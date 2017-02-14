@@ -21,14 +21,44 @@ import org.gradle.process.ExecResult
 @CompileStatic
 public class Flake8Task extends AbstractPythonMainSourceDefaultTask {
 
-  public void preExecution() {
-    args(pythonDetails.virtualEnvironment.findExecutable("flake8").absolutePath,
-        "--config", "$component.setupCfg",
-        "$component.srcDir",
-        "$component.testDir")
-  }
+    public void preExecution() {
+        /*
+         Modified to only include folders that exist. if no folders exist, then
+         the task isn't actually run.
+          */
+        List<String> sArgs = [pythonDetails.virtualEnvironment.findExecutable("flake8").absolutePath,
+                     "--config", component.setupCfg]
 
-  @Override
-  void processResults(ExecResult execResult) {
-  }
+        def paths = []
+        if (project.file(component.srcDir).exists()) {
+            project.logger.info("Flake8: adding ${component.srcDir}")
+            paths.add(component.srcDir)
+        } else {
+            project.logger.info("Flake8: srcDir doesn't exist")
+        }
+
+        if (project.file(component.testDir).exists()) {
+            project.logger.info("Flake8: adding ${component.testDir}")
+            paths.add(component.testDir)
+        } else {
+            project.logger.info("Flake8: testDir doesn't exist")
+        }
+
+        // creating a flake8 config file if one doesn't exist, this prevents "file not found" issues.
+        def cfgCheck = project.file(component.setupCfg)
+        if (!cfgCheck.exists()) {
+            project.logger.info("Flake8 config file doesn't exist, creating default")
+            cfgCheck.createNewFile()
+            cfgCheck << "[flake8]"
+        } else {
+            project.logger.info("Flake8 config file exists")
+        }
+
+        sArgs.addAll(paths)
+        args(sArgs)
+    }
+
+    @Override
+    void processResults(ExecResult execResult) {
+    }
 }

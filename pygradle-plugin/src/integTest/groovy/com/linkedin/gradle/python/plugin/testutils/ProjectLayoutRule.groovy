@@ -13,26 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.extension;
+package com.linkedin.gradle.python.plugin.testutils
 
-import org.gradle.api.Project;
-
-import java.io.File;
-
-
-public class WheelExtension {
-
-  private File wheelCache;
-
-  public WheelExtension(Project project) {
-    wheelCache = new File(project.getBuildDir(), "wheel-cache");
-  }
-
-  public File getWheelCache() {
-    return wheelCache;
-  }
-
-  public void setWheelCache(File wheelCache) {
-    this.wheelCache = wheelCache;
-  }
+trait ProjectLayoutRule {
+    abstract void before() throws Throwable
+    abstract void after()
+    abstract void create() throws IOException
+    abstract File newFile(String fileName) throws IOException
+    abstract File newFile() throws IOException
+    abstract File newFolder(String folder) throws IOException
+    abstract File newFolder(String... folderNames) throws IOException
+    abstract File newFolder() throws IOException
+    abstract File getRoot()
+    abstract void delete()
 }

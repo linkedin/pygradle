@@ -15,6 +15,9 @@
  */
 package com.linkedin.gradle.python.plugin
 
+import com.linkedin.gradle.python.plugin.testutils.DefaultProjectLayoutRule
+import com.linkedin.gradle.python.plugin.testutils.ExecUtils
+import com.linkedin.gradle.python.plugin.testutils.PyGradleTestBuilder
 import com.linkedin.gradle.python.util.OperatingSystem
 import com.linkedin.gradle.python.util.PexFileUtil
 import org.gradle.testkit.runner.GradleRunner
@@ -30,7 +33,6 @@ class PexIntegrationTest extends Specification {
 
     @Rule
     final DefaultProjectLayoutRule testProjectDir = new DefaultProjectLayoutRule()
-
     @IgnoreIf({ OperatingSystem.current() == OperatingSystem.WINDOWS })
     def "can build thin pex"() {
         testProjectDir
@@ -51,7 +53,7 @@ class PexIntegrationTest extends Specification {
         when:
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withArguments('build', '--stacktrace')
+            .withArguments('build', '--stacktrace', '--info')
             .withPluginClasspath()
             .withDebug(true)
             .build()
@@ -95,7 +97,7 @@ class PexIntegrationTest extends Specification {
         |plugins {
         |    id 'com.linkedin.python-pex'
         |}
-        |
+        |version = "1.0.0"
         |python {
         |  pex {
         |    fatPex = true

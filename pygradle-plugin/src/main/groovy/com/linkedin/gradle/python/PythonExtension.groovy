@@ -71,7 +71,7 @@ class PythonExtension {
         'packaging'     : ['group': 'pypi', 'name': 'packaging',        'version': '16.8'],
         'pbr'           : ['group': 'pypi', 'name': 'pbr',              'version': '1.8.0'],
         'pex'           : ['group': 'pypi', 'name': 'pex',              'version': '1.1.4'],
-        'pip'           : ['group': 'pypi', 'name': 'pip',              'version': '7.1.2'],
+        'pip'           : ['group': 'pypi', 'name': 'pip',              'version': '9.0.1'],
         'pytest'        : ['group': 'pypi', 'name': 'pytest',           'version': '2.9.1'],
         'pytest-cov'    : ['group': 'pypi', 'name': 'pytest-cov',       'version': '2.2.1'],
         'pytest-xdist'  : ['group': 'pypi', 'name': 'pytest-xdist',     'version': '1.14'],
@@ -119,14 +119,14 @@ class PythonExtension {
         }
     }
 
-    void forceVersion(String group, String name, String version) {
+    public void forceVersion(String group, String name, String version) {
         Objects.requireNonNull(group, "Group cannot be null")
         Objects.requireNonNull(name, "Name cannot be null")
         Objects.requireNonNull(version, "Version cannot be null")
         forcedVersions[name] = ['group': group, 'name': name, 'version': version]
     }
 
-    void forceVersion(String gav) {
+    public void forceVersion(String gav) {
         Objects.requireNonNull(gav, "GAV cannot be null")
 
         String[] split = gav.split(':')
@@ -137,7 +137,7 @@ class PythonExtension {
         forceVersion(split[0], split[1], split[2])
     }
 
-    PythonDetails getDetails() {
+    public PythonDetails getDetails() {
         return details
     }
 
@@ -146,13 +146,13 @@ class PythonExtension {
      *
      * @param a {@link Closure} that will delegate to {@link PythonDetails}
      */
-    void details(@DelegatesTo(PythonDetails) Closure cl) {
+    public void details(@DelegatesTo(PythonDetails) Closure cl) {
         cl.delegate = details
         cl.resolveStrategy = Closure.DELEGATE_FIRST
         cl.call()
     }
 
-    Map<String, Object> getEnvironment() {
+    public Map<String, Object> getEnvironment() {
         return pythonEnvironment
     }
 

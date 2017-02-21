@@ -17,12 +17,13 @@ package com.linkedin.gradle.python.plugin
 
 
 import com.linkedin.gradle.python.tasks.SourceDistTask
-import com.linkedin.gradle.python.util.StandardTextValues
+import com.linkedin.gradle.python.util.StandardTextValuesConfiguration
+import com.linkedin.gradle.python.util.StandardTextValuesTasks
 import org.gradle.api.Project
 
-class PythonSourceDistributionPlugin extends PythonBasePlugin {
+import static com.linkedin.gradle.python.util.StandardTextValuesTasks.PACKAGE_SDIST
 
-    public final static String TASK_PACKAGE_SDIST = 'packageSdist'
+class PythonSourceDistributionPlugin extends PythonBasePlugin {
 
     @Override
     void applyTo(Project project) {
@@ -30,8 +31,8 @@ class PythonSourceDistributionPlugin extends PythonBasePlugin {
         /**
          * Create a Python source distribution.
          */
-        def sdistPackageTask = project.tasks.create(TASK_PACKAGE_SDIST, SourceDistTask) {
-            dependsOn(project.tasks.getByName(StandardTextValues.TASK_INSTALL_PROJECT.value))
+        def sdistPackageTask = project.tasks.create(PACKAGE_SDIST.value, SourceDistTask) {
+            dependsOn(project.tasks.getByName(StandardTextValuesTasks.INSTALL_PROJECT.value))
         }
 
         def sdistArtifactInfo = [
@@ -39,10 +40,10 @@ class PythonSourceDistributionPlugin extends PythonBasePlugin {
                 type: 'tgz',
                 extension: 'tar.gz',
                 file: sdistPackageTask.getSdistOutput(),
-                builtBy: project.tasks.getByName(TASK_PACKAGE_SDIST),
+                builtBy: project.tasks.getByName(PACKAGE_SDIST.value),
         ]
 
-        project.artifacts.add(StandardTextValues.CONFIGURATION_DEFAULT.value, sdistArtifactInfo)
+        project.artifacts.add(StandardTextValuesConfiguration.DEFAULT.value, sdistArtifactInfo)
     }
 
 }

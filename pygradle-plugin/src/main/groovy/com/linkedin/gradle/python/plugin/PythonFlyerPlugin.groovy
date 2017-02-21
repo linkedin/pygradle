@@ -17,7 +17,6 @@ package com.linkedin.gradle.python.plugin
 
 import com.linkedin.gradle.python.util.ExtensionUtils
 import com.linkedin.gradle.python.util.FileSystemUtils
-import com.linkedin.gradle.python.util.StandardTextValues
 import groovy.transform.CompileStatic
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -25,6 +24,8 @@ import org.gradle.api.Task
 import org.gradle.api.tasks.Copy
 
 import java.nio.file.Paths
+
+import static com.linkedin.gradle.python.util.StandardTextValuesTasks.*
 
 /**
  * A Flyer plugin.
@@ -57,8 +58,7 @@ import java.nio.file.Paths
 @CompileStatic
 class PythonFlyerPlugin implements Plugin<Project> {
 
-    public final static String TASK_SETUP_RESOURCE_LINK = 'setupResourceLink'
-    public final static String TASK_PACKAGE_RESOURCE_FILES = 'packageResourceFiles'
+
 
     @Override
     void apply(Project project) {
@@ -77,7 +77,7 @@ class PythonFlyerPlugin implements Plugin<Project> {
          * And for both local development and LID deployment, the resource folder will have the
          * same relative directory. This will also simplify the logic in python project.
          */
-        project.tasks.create(TASK_SETUP_RESOURCE_LINK) { Task task ->
+        project.tasks.create(SETUP_RESOURCE_LINK.value) { Task task ->
 
             task.dependsOn resourceConf
 
@@ -89,16 +89,16 @@ class PythonFlyerPlugin implements Plugin<Project> {
             }
         }
 
-        project.tasks.getByName(StandardTextValues.TASK_INSTALL_PROJECT.value).dependsOn(project.tasks.getByName(TASK_SETUP_RESOURCE_LINK))
+        project.tasks.getByName(INSTALL_PROJECT.value).dependsOn(project.tasks.getByName(SETUP_RESOURCE_LINK.value))
 
 
         /*
          * In order to make the resource files accessible when deploying the project, we need to copy the
          * static files into the 'deployable' directory.
          */
-        project.tasks.create(name: TASK_PACKAGE_RESOURCE_FILES, type: Copy) { Copy copy ->
+        project.tasks.create(name: PACKAGE_RESOURCE_FILES.value, type: Copy) { Copy copy ->
             def deployableExtension = ExtensionUtils.maybeCreateDeployableExtension(project)
-            copy.dependsOn(project.tasks['buildWebApplication'])
+            copy.dependsOn(project.tasks[BUILD_WEB_APPLICATION.value])
 
             copy.from resourceConf
             copy.into "${deployableExtension.deployableBuildDir}/resource"
@@ -106,6 +106,6 @@ class PythonFlyerPlugin implements Plugin<Project> {
 
 
         // Make sure we've copied all the files before running the task: packageDeployable
-        project.tasks.getByName(PythonWebApplicationPlugin.TASK_PACKAGE_WEB_APPLICATION).dependsOn(project.tasks.getByName(TASK_PACKAGE_RESOURCE_FILES))
+        project.tasks.getByName(PACKAGE_WEB_APPLICATION.value).dependsOn(project.tasks.getByName(PACKAGE_RESOURCE_FILES.value))
     }
 }

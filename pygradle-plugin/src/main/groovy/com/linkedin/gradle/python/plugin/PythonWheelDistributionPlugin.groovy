@@ -15,7 +15,8 @@
  */
 package com.linkedin.gradle.python.plugin
 
-import com.linkedin.gradle.python.util.StandardTextValues
+import com.linkedin.gradle.python.util.StandardTextValuesConfiguration
+import com.linkedin.gradle.python.util.StandardTextValuesTasks
 import org.gradle.api.Project
 
 
@@ -33,7 +34,7 @@ class PythonWheelDistributionPlugin extends PythonBasePlugin {
          * Create a Python wheel distribution.
          */
         project.tasks.create(TASK_PACKAGE_WHEEL) {
-            dependsOn(project.tasks.getByName(StandardTextValues.TASK_INSTALL_PROJECT.value))
+            dependsOn(project.tasks.getByName(StandardTextValuesTasks.INSTALL_PROJECT.value))
             outputs.file(wheelArtifact)
             doLast {
                 project.exec {
@@ -50,7 +51,7 @@ class PythonWheelDistributionPlugin extends PythonBasePlugin {
                 builtBy: project.tasks.getByName(TASK_PACKAGE_WHEEL),
         ]
         if (!project.spec.version.contains('SNAPSHOT')) {
-          project.artifacts.add(StandardTextValues.CONFIGURATION_WHEEL.value, wheelArtifactInfo)
+          project.artifacts.add(StandardTextValuesConfiguration.WHEEL.value, wheelArtifactInfo)
         }
 
     }

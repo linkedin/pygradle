@@ -20,17 +20,13 @@ import com.linkedin.gradle.python.extension.PexExtension
 import com.linkedin.gradle.python.extension.WheelExtension
 import com.linkedin.gradle.python.tasks.BuildWebAppTask
 import com.linkedin.gradle.python.util.ExtensionUtils
-import com.linkedin.gradle.python.util.StandardTextValues
+import com.linkedin.gradle.python.util.StandardTextValuesConfiguration
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.tasks.bundling.Compression
 import org.gradle.api.tasks.bundling.Tar
-
+import static com.linkedin.gradle.python.util.StandardTextValuesTasks.*
 class PythonWebApplicationPlugin extends PythonBasePlugin {
-
-    public final static String TASK_BUILD_PEX = 'buildPex'
-    public final static String TASK_BUILD_WEB_APPLICATION = 'buildWebApplication'
-    public final static String TASK_PACKAGE_WEB_APPLICATION = 'packageWebApplication'
 
     public final static String GUNICORN_ENTRYPOINT = 'gunicorn.app.wsgiapp:run'
 
@@ -50,9 +46,9 @@ class PythonWebApplicationPlugin extends PythonBasePlugin {
          * binary on disk that is next to the control file. Make sure this is
          * possible by exploding gunicorn as a pex file.
          */
-        project.tasks.create(TASK_BUILD_WEB_APPLICATION, BuildWebAppTask) { task ->
+        project.tasks.create(BUILD_WEB_APPLICATION.value, BuildWebAppTask) { task ->
             task.description = 'Build a web app, by default using gunicorn, but it\'s configurable.'
-            task.dependsOn(TASK_BUILD_PEX)
+            task.dependsOn(BUILD_PEX.value)
             task.deployableExtension = deployableExtension
             task.wheelExtension = wheelExtension
             task.pexExtension = pexExtension
@@ -61,7 +57,7 @@ class PythonWebApplicationPlugin extends PythonBasePlugin {
             task.entryPoint = GUNICORN_ENTRYPOINT
         }
 
-        def packageDeployable = project.tasks.create(TASK_PACKAGE_WEB_APPLICATION, Tar, new Action<Tar>() {
+        def packageDeployable = project.tasks.create(PACKAGE_WEB_APPLICATION.value, Tar, new Action<Tar>() {
             @Override
             void execute(Tar tar) {
                 tar.compression = Compression.GZIP
@@ -70,9 +66,9 @@ class PythonWebApplicationPlugin extends PythonBasePlugin {
                 tar.from(deployableExtension.deployableBuildDir)
             }
         })
-        packageDeployable.dependsOn(project.tasks.getByName(TASK_BUILD_WEB_APPLICATION))
+        packageDeployable.dependsOn(project.tasks.getByName(BUILD_WEB_APPLICATION.value))
 
-        project.artifacts.add(StandardTextValues.CONFIGURATION_DEFAULT.value, packageDeployable)
+        project.artifacts.add(StandardTextValuesConfiguration.DEFAULT.value, packageDeployable)
 
     }
 }

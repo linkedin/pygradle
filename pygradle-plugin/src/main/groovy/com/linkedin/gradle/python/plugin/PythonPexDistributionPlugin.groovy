@@ -19,17 +19,15 @@ import com.linkedin.gradle.python.extension.DeployableExtension
 import com.linkedin.gradle.python.tasks.BuildPexTask
 import com.linkedin.gradle.python.tasks.BuildWheelsTask
 import com.linkedin.gradle.python.util.ExtensionUtils
-import com.linkedin.gradle.python.util.StandardTextValues
+import com.linkedin.gradle.python.util.StandardTextValuesConfiguration
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.tasks.bundling.Compression
 import org.gradle.api.tasks.bundling.Tar
 
-class PythonPexDistributionPlugin extends PythonBasePlugin {
+import static com.linkedin.gradle.python.util.StandardTextValuesTasks.*
 
-    public final static String TASK_BUILD_WHEELS = 'buildWheels'
-    public final static String TASK_BUILD_PEX = 'buildPex'
-    public final static String TASK_PACKAGE_DEPLOYABLE = 'packageDeployable'
+class PythonPexDistributionPlugin extends PythonBasePlugin {
 
     @Override
     void applyTo(Project project) {
@@ -43,10 +41,10 @@ class PythonPexDistributionPlugin extends PythonBasePlugin {
 
         project.afterEvaluate {
             if (settings.details.pythonVersion.pythonMajorMinor == '2.6') {
-                project.dependencies.add(StandardTextValues.CONFIGURATION_BUILD_REQS.value, extension.forcedVersions['argparse'])
+                project.dependencies.add(StandardTextValuesConfiguration.BUILD_REQS.value, extension.forcedVersions['argparse'])
             }
         }
-        project.dependencies.add(StandardTextValues.CONFIGURATION_BUILD_REQS.value, extension.forcedVersions['pex'])
+        project.dependencies.add(StandardTextValuesConfiguration.BUILD_REQS.value, extension.forcedVersions['pex'])
 
 
         /**
@@ -54,15 +52,15 @@ class PythonPexDistributionPlugin extends PythonBasePlugin {
          *
          * We need wheels to build pex files.
          */
-        project.tasks.create(TASK_BUILD_WHEELS, BuildWheelsTask) { task ->
-            task.dependsOn project.tasks.getByName(StandardTextValues.TASK_INSTALL_PROJECT.value)
+        project.tasks.create(BUILD_WHEELS.value, BuildWheelsTask) { task ->
+            task.dependsOn project.tasks.getByName(INSTALL_PROJECT.value)
         }
 
-        project.tasks.create(TASK_BUILD_PEX, BuildPexTask) { task ->
-            task.dependsOn(project.tasks.getByName(TASK_BUILD_WHEELS))
+        project.tasks.create(BUILD_PEX.value, BuildPexTask) { task ->
+            task.dependsOn(project.tasks.getByName(BUILD_WHEELS.value))
         }
 
-        def packageDeployable = project.tasks.create(TASK_PACKAGE_DEPLOYABLE, Tar, new Action<Tar>() {
+        def packageDeployable = project.tasks.create(PACKAGE_DEPLOYABLE.value, Tar, new Action<Tar>() {
             @Override
             void execute(Tar tar) {
                 tar.compression = Compression.GZIP
@@ -71,8 +69,8 @@ class PythonPexDistributionPlugin extends PythonBasePlugin {
                 tar.from(deployableExtension.deployableBuildDir)
             }
         })
-        packageDeployable.dependsOn(project.tasks.getByName(TASK_BUILD_PEX))
+        packageDeployable.dependsOn(project.tasks.getByName(BUILD_PEX.value))
 
-        project.artifacts.add(StandardTextValues.CONFIGURATION_DEFAULT.value, packageDeployable)
+        project.artifacts.add(StandardTextValuesConfiguration.DEFAULT.value, packageDeployable)
     }
 }

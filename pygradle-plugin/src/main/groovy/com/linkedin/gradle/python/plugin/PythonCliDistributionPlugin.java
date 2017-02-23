@@ -17,22 +17,34 @@ package com.linkedin.gradle.python.plugin;
 
 import com.linkedin.gradle.python.tasks.GenerateCompletionsTask;
 import com.linkedin.gradle.python.util.ExtensionUtils;
-import com.linkedin.gradle.python.util.StandardTextValuesTasks;
 import org.gradle.api.Project;
-import static com.linkedin.gradle.python.util.StandardTextValuesTasks.GENERATE_COMPLETIONS;
-import static com.linkedin.gradle.python.util.StandardTextValuesTasks.BUILD_PEX;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.linkedin.gradle.python.util.StandardTextValuesTasks.*;
 
 public class PythonCliDistributionPlugin extends PythonBasePlugin {
 
     @Override
     public void applyTo(Project project) {
-        project.getPlugins().apply(PythonPexDistributionPlugin.class);
+
+        addPluginLocal(PythonPexDistributionPlugin.class);
+
         ExtensionUtils.maybeCreateCliExtension(project);
 
-        GenerateCompletionsTask completionsTask = project.getTasks().create(GENERATE_COMPLETIONS.getValue(), GenerateCompletionsTask.class);
-        completionsTask.dependsOn(project.getTasks().getByName(StandardTextValuesTasks.INSTALL_PROJECT.getValue()));
+        addTaskLocal(buildGENERATE_COMPLETIONSTask());
 
-        project.getTasks().getByName(BUILD_PEX.getValue()).dependsOn(project.getTasks().getByName(GENERATE_COMPLETIONS.getValue()));
+        aDependsOnB(GENERATE_COMPLETIONS, INSTALL_PROJECT);
+        aDependsOnB(BUILD_PEX, GENERATE_COMPLETIONS);
     }
 
+    private Map<String, Object> buildGENERATE_COMPLETIONSTask(){
+        Map<String, Object> myTask = new HashMap<>();
+
+        myTask.put("name", GENERATE_COMPLETIONS);
+        myTask.put("type", GenerateCompletionsTask.class);
+
+        return myTask;
+    }
 }

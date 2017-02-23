@@ -50,6 +50,7 @@ enum StandardTextValuesConfiguration {
 enum StandardTextValuesGroup {
     DOCUMENTATION('documentation'),
     BUILD('build'),
+    HELP('help'),
     VERIFICATION('verification'),
     PYGRADLE('pygradle tasks'),
     PYGRADLE_VENV('pygradle virtual environment')
@@ -70,6 +71,8 @@ enum StandardTextValuesGroup {
     }
 }
 
+
+
 enum StandardTextValuesTasks {
 
     //com.linkedin.python
@@ -86,8 +89,8 @@ enum StandardTextValuesTasks {
     INSTALL_SETUP_REQS(StandardTextValuesGroup.PYGRADLE_VENV, 'installSetupRequirements', "Install core setup requirements into virtualenv."),
     INSTALL_TEST_REQS(StandardTextValuesGroup.PYGRADLE_VENV, 'installTestRequirements', "Install the product's Python test requirements."),
 
-    BUILD_DOCS_HTML(StandardTextValuesGroup.DOCUMENTATION, 'buildDocsHtml', "Create documentation using Sphinx."),
-    BUILD_DOCS_JSON(StandardTextValuesGroup.DOCUMENTATION, 'buildDocsJson', "Create documentation using Sphinx."),
+    BUILD_DOCS_HTML(StandardTextValuesGroup.DOCUMENTATION, 'buildDocsHtml', "Create documentation in HTML using Sphinx."),
+    BUILD_DOCS_JSON(StandardTextValuesGroup.DOCUMENTATION, 'buildDocsJson', "Create documentation in JSON using Sphinx."),
     BUILD_DOCS(StandardTextValuesGroup.DOCUMENTATION, 'buildDocs', "Create documentation using Sphinx."),
     PACKAGE_DOCS(StandardTextValuesGroup.DOCUMENTATION, 'packageDocs', "Tar up the documentation."),
     PACKAGE_JSON_DOCS(StandardTextValuesGroup.DOCUMENTATION, 'packageJsonDocs', "Tar up the JSON documentation."),
@@ -99,26 +102,26 @@ enum StandardTextValuesTasks {
     PYTEST(StandardTextValuesGroup.VERIFICATION, 'pytest', "Run tests using py.test. This uses the setup.cfg if present to configure py.test."),
 
     //com.linkedin.python-pex
-    BUILD_WHEELS(null, 'buildWheels', ""),
-    BUILD_PEX(null, 'buildPex', ""),
-    PACKAGE_DEPLOYABLE(null, 'packageDeployable', ""),
+    BUILD_WHEELS(StandardTextValuesGroup.BUILD, 'buildWheels', "Builds a python deployable Wheels file"),
+    BUILD_PEX(StandardTextValuesGroup.BUILD, 'buildPex', "Builds a python linux and mac compatible Pex file"),
+    PACKAGE_DEPLOYABLE(StandardTextValuesGroup.BUILD, 'packageDeployable', "Packages the Pex file for deployment"),
 
     //com.linkedin.python-cli
-    GENERATE_COMPLETIONS(null, "generateCompletions", ""),
+    GENERATE_COMPLETIONS(StandardTextValuesGroup.PYGRADLE, "generateCompletions", "Creates the shell completions files"),
 
     //com.linkedin.python-web-app
-    BUILD_WEB_APPLICATION(null, 'buildWebApplication', ""),
-    PACKAGE_WEB_APPLICATION(null, 'packageWebApplication', ""),
+    BUILD_WEB_APPLICATION(StandardTextValuesGroup.BUILD, 'buildWebApplication', ""),
+    PACKAGE_WEB_APPLICATION(StandardTextValuesGroup.PYGRADLE, 'packageWebApplication', ""),
 
     //com.linkedin.python-flyer
-    SETUP_RESOURCE_LINK(null, 'setupResourceLink', ""),
-    PACKAGE_RESOURCE_FILES(null, 'packageResourceFiles', ""),
+    SETUP_RESOURCE_LINK(StandardTextValuesGroup.PYGRADLE, 'setupResourceLink', ""),
+    PACKAGE_RESOURCE_FILES(StandardTextValuesGroup.BUILD, 'packageResourceFiles', ""),
 
     //com.linkedin.python-sdist
-    PACKAGE_SDIST(null, 'packageSdist', ""),
+    PACKAGE_SDIST(StandardTextValuesGroup.BUILD, 'packageSdist', ""),
 
     //gradle
-    TASKS(null, 'tasks', "")
+    TASKS(StandardTextValuesGroup.HELP, 'tasks', "Gradle Core Tasks task")
 
     private final String value
     private final StandardTextValuesGroup group

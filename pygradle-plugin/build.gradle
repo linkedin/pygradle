@@ -75,6 +75,11 @@ gradlePlugin {
             implementationClass = 'com.linkedin.gradle.python.plugin.PythonPlugin'
         }
 
+        pythonSphinx {
+            id = 'com.linkedin.python-sphinx'
+            implementationClass = 'com.linkedin.gradle.python.plugin.PythonSphinxPlugin'
+        }
+
         pythonCliPlugin {
             id = 'com.linkedin.python-cli'
             implementationClass = 'com.linkedin.gradle.python.plugin.PythonCliDistributionPlugin'

@@ -31,8 +31,10 @@ class PythonPexDistributionPlugin extends PythonBasePlugin {
 
     @Override
     void applyTo(Project project) {
+        this.project = project
 
         project.plugins.apply(PythonPlugin)
+
         def extension = ExtensionUtils.getPythonExtension(project)
         ExtensionUtils.maybeCreatePexExtension(project)
         ExtensionUtils.maybeCreateWheelExtension(project)
@@ -46,21 +48,15 @@ class PythonPexDistributionPlugin extends PythonBasePlugin {
         }
         project.dependencies.add(StandardTextValuesConfiguration.BUILD_REQS.value, extension.forcedVersions['pex'])
 
-
         /**
          * Build wheels.
          *
          * We need wheels to build pex files.
          */
-        project.tasks.create(BUILD_WHEELS.value, BuildWheelsTask) { task ->
-            task.dependsOn project.tasks.getByName(INSTALL_PROJECT.value)
-        }
+        addTaskLocal(['name': BUILD_WHEELS, 'type': BuildWheelsTask])
+        addTaskLocal(['name': BUILD_PEX, 'type': BuildPexTask])
 
-        project.tasks.create(BUILD_PEX.value, BuildPexTask) { task ->
-            task.dependsOn(project.tasks.getByName(BUILD_WHEELS.value))
-        }
-
-        def packageDeployable = project.tasks.create(PACKAGE_DEPLOYABLE.value, Tar, new Action<Tar>() {
+        def packageDeployable = addTaskLocal(['name': PACKAGE_DEPLOYABLE, 'type': Tar, 'action': new Action<Tar>() {
             @Override
             void execute(Tar tar) {
                 tar.compression = Compression.GZIP
@@ -68,9 +64,13 @@ class PythonPexDistributionPlugin extends PythonBasePlugin {
                 tar.extension = 'tar.gz'
                 tar.from(deployableExtension.deployableBuildDir)
             }
-        })
-        packageDeployable.dependsOn(project.tasks.getByName(BUILD_PEX.value))
+        }])
 
         project.artifacts.add(StandardTextValuesConfiguration.DEFAULT.value, packageDeployable)
+
+        // now that everything is defined, do the depends.
+        aDependsOnB(BUILD_WHEELS, INSTALL_PROJECT)
+        aDependsOnB(BUILD_PEX, BUILD_WHEELS)
+        aDependsOnB(PACKAGE_DEPLOYABLE, BUILD_PEX)
     }
 }

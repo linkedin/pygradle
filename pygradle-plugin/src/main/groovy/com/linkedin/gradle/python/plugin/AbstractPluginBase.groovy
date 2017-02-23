@@ -1,5 +1,6 @@
 package com.linkedin.gradle.python.plugin
 
+import com.linkedin.gradle.python.PythonExtension
 import com.linkedin.gradle.python.util.StandardTextValuesConfiguration
 import com.linkedin.gradle.python.util.StandardTextValuesTasks
 import org.gradle.api.Plugin
@@ -7,8 +8,11 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
 
+import static com.linkedin.gradle.python.util.StandardTextValuesConfiguration.*
+
 abstract class AbstractPluginBase implements Plugin<Project> {
 
+    public static final String PYTHON_EXTENSION_NAME = 'python'
     Project project
 
     abstract void apply(Project project)
@@ -19,11 +23,11 @@ abstract class AbstractPluginBase implements Plugin<Project> {
      * @param plugin plug class to add
      * @return
      */
-//    protected <T extends Plugin> T addPluginLocal(Class<T> plugin){
-//        if (!project.plugins.withType(plugin)){
-//            project.plugins.apply(plugin)
-//        }
-//    }
+    protected <T extends Plugin> T addPluginLocal(Class<T> plugin) {
+        if (!project.plugins.withType(plugin)){
+            project.plugins.apply(plugin)
+        }
+    }
 //
 //    protected <T extends Plugin> T addPluginRootProject(Class<T> plugin){
 //        project.rootProject.plugins.apply(plugin)
@@ -54,7 +58,7 @@ abstract class AbstractPluginBase implements Plugin<Project> {
 //        null
 //    }
 
-    private Map<String, ?> fillTaskMap(Map<String, ?> task){
+    private Map<String, ?> fillTaskMap(Map<String, ?> task) {
         def taskid = task.get('name')
         if (taskid instanceof StandardTextValuesTasks){
             task['group'] = taskid.group
@@ -65,7 +69,7 @@ abstract class AbstractPluginBase implements Plugin<Project> {
     protected Task addTaskLocal(Map<String, ?> task) {
         task = fillTaskMap(task)
 
-        if (!project.tasks.findByName(task.get('name').toString())){
+        if (!project.tasks.findByName(task.get('name').toString())) {
             project.tasks.create(task)
         } else {
             null
@@ -97,17 +101,87 @@ abstract class AbstractPluginBase implements Plugin<Project> {
             null
         }
     }
+    /**
+     * Checks to see if the specified extension exists.  If it does not, it creates it and returns it.
+     * if the extension already exists, it returns the existing one.
+     * @param name
+     * @param ext
+     * @return
+     */
+    protected <T> T addGetExtensionLocal(String name, Class<T> ext) {
+        def tst = project.extensions.findByName(name)
+        if (tst == null){
+            return project.extensions.create(name, ext, project)
+        } else {
+            return tst as T
+        }
+    }
+
 
     protected void addDependency(StandardTextValuesConfiguration confName, dependency) {
         project.dependencies.add(confName.value, dependency)
     }
 
+    /**
+     * Creates a taskA.dependsOn B relationship, but only if it can find both task A and task B
+     * @param aTask
+     * @param bTask
+     */
     protected void aDependsOnB(StandardTextValuesTasks aTask, StandardTextValuesTasks bTask) {
         def atmp = project.tasks.findByName(aTask.value)
         def btmp = project.tasks.findByName(bTask.value)
 
         if ((atmp != null) && (btmp != null)){
-            atmp.dependsOn(btmp)
+            atmp.dependsOn << btmp
+        }
+    }
+
+    /**
+     * Add vended build and test dependencies to projects that apply this plugin.
+     * Notice that virtualenv contains the latest versions of setuptools,
+     * pip, and wheel, vended in. Make sure to use versions we can actually
+     * use based on various restrictions. For example, pex may limit the
+     * highest version of setuptools used. Provide the dependencies in the
+     * best order they should be installed in setupRequires configuration.
+     */
+    def createDependenciesVenv(PythonExtension settings){
+        addDependency(BOOTSTRAP_REQS, settings.forcedVersions['virtualenv'])
+        addDependency(SETUP_REQS, settings.forcedVersions['pip'])
+        addDependency(SETUP_REQS, settings.forcedVersions['setuptools'])
+        addDependency(SETUP_REQS, settings.forcedVersions['setuptools-git'])
+
+        pinForcedVersions(settings)
+    }
+
+    def createDependenciesSphinx(PythonExtension settings){
+        addDependency(BUILD_REQS, settings.forcedVersions['Sphinx'])
+
+        pinForcedVersions(settings)
+    }
+
+    def createDependenciesPython(PythonExtension settings){
+        addDependency(SETUP_REQS, settings.forcedVersions['appdirs'])
+        addDependency(SETUP_REQS, settings.forcedVersions['packaging'])
+        addDependency(SETUP_REQS, settings.forcedVersions['wheel'])
+        addDependency(SETUP_REQS, settings.forcedVersions['pbr'])
+        addDependency(BUILD_REQS, settings.forcedVersions['flake8'])
+        addDependency(TEST, settings.forcedVersions['pytest'])
+        addDependency(TEST, settings.forcedVersions['pytest-cov'])
+        addDependency(TEST, settings.forcedVersions['pytest-xdist'])
+
+        pinForcedVersions(settings)
+    }
+
+    /**
+    * To prevent base dependencies, such as setuptools, from installing/reinstalling, we will
+    * pin their versions to values in the extension.forcedVersions map, which will contain known
+    * good versions that satisfy all the requirements.
+    */
+    def pinForcedVersions(PythonExtension settings) {
+        def dependencyResolveDetails = new PyGradleDependencyResolveDetails(settings.forcedVersions)
+        //noinspection GroovyAssignabilityCheck
+        project.configurations.each { configuration ->
+            configuration.resolutionStrategy.eachDependency(dependencyResolveDetails)
         }
     }
 }

@@ -22,24 +22,23 @@ import org.gradle.api.Project;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.linkedin.gradle.python.util.StandardTextValuesTasks.*;
+import static com.linkedin.gradle.python.util.values.PyGradleTask.*;
 
-public class PythonCliDistributionPlugin extends PythonBasePlugin {
+public class PythonCliDistributionPlugin extends AbstractPluginBase {
 
     @Override
     public void applyTo(Project project) {
-
         addPluginLocal(PythonPexDistributionPlugin.class);
 
         ExtensionUtils.maybeCreateCliExtension(project);
 
-        addTaskLocal(buildGENERATE_COMPLETIONSTask());
+        addTaskLocal(buildGenerateCompletionsTask());
 
         aDependsOnB(GENERATE_COMPLETIONS, INSTALL_PROJECT);
         aDependsOnB(BUILD_PEX, GENERATE_COMPLETIONS);
     }
 
-    private Map<String, Object> buildGENERATE_COMPLETIONSTask(){
+    private Map<String, Object> buildGenerateCompletionsTask() {
         Map<String, Object> myTask = new HashMap<>();
 
         myTask.put("name", GENERATE_COMPLETIONS);

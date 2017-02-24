@@ -21,8 +21,7 @@ import org.gradle.api.Project
 class PythonSphinxPlugin extends AbstractPluginBase {
 
     @Override
-    void apply(Project project) {
-        this.project = project
+    void applyTo(Project project) {
         addPluginLocal(PythonVenvPlugin)
         addPluginLocal(PythonSphinxBasePlugin)
     }

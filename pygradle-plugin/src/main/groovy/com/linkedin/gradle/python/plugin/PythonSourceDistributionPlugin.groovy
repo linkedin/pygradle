@@ -15,25 +15,24 @@
  */
 package com.linkedin.gradle.python.plugin
 
-
 import com.linkedin.gradle.python.tasks.SourceDistTask
-import com.linkedin.gradle.python.util.StandardTextValuesConfiguration
-import com.linkedin.gradle.python.util.StandardTextValuesTasks
+import com.linkedin.gradle.python.util.values.PyGradleConfiguration
 import org.gradle.api.Project
 
-import static com.linkedin.gradle.python.util.StandardTextValuesTasks.PACKAGE_SDIST
+import static com.linkedin.gradle.python.util.values.PyGradleTask.INSTALL_PROJECT
+import static com.linkedin.gradle.python.util.values.PyGradleTask.PACKAGE_SDIST
 
-class PythonSourceDistributionPlugin extends PythonBasePlugin {
+/**
+ * Create a Python source distribution.
+ */
+class PythonSourceDistributionPlugin extends AbstractPluginBase {
 
     @Override
     void applyTo(Project project) {
 
-        /**
-         * Create a Python source distribution.
-         */
-        def sdistPackageTask = project.tasks.create(PACKAGE_SDIST.value, SourceDistTask) {
-            dependsOn(project.tasks.getByName(StandardTextValuesTasks.INSTALL_PROJECT.value))
-        }
+        addPluginLocal(PythonPlugin)
+
+        def sdistPackageTask = addTaskLocal([name: PACKAGE_SDIST, type: SourceDistTask]) as SourceDistTask
 
         def sdistArtifactInfo = [
                 name: project.name,
@@ -43,7 +42,9 @@ class PythonSourceDistributionPlugin extends PythonBasePlugin {
                 builtBy: project.tasks.getByName(PACKAGE_SDIST.value),
         ]
 
-        project.artifacts.add(StandardTextValuesConfiguration.DEFAULT.value, sdistArtifactInfo)
+        project.artifacts.add(PyGradleConfiguration.DEFAULT.value, sdistArtifactInfo)
+
+        aDependsOnB(PACKAGE_SDIST, INSTALL_PROJECT)
     }
 
 }

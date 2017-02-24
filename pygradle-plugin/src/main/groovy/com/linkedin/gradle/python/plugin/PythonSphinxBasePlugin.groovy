@@ -15,20 +15,14 @@
  */
 package com.linkedin.gradle.python.plugin
 
-import com.linkedin.gradle.python.PythonExtension
 import com.linkedin.gradle.python.tasks.SphinxDocumentationTask
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.tasks.bundling.Compression
 import org.gradle.api.tasks.bundling.Tar
 
-import static com.linkedin.gradle.python.util.StandardTextValuesConfiguration.PYDOCS
-import static com.linkedin.gradle.python.util.StandardTextValuesTasks.BUILD_DOCS
-import static com.linkedin.gradle.python.util.StandardTextValuesTasks.BUILD_DOCS_HTML
-import static com.linkedin.gradle.python.util.StandardTextValuesTasks.BUILD_DOCS_JSON
-import static com.linkedin.gradle.python.util.StandardTextValuesTasks.INSTALL_PROJECT
-import static com.linkedin.gradle.python.util.StandardTextValuesTasks.PACKAGE_DOCS
-import static com.linkedin.gradle.python.util.StandardTextValuesTasks.PACKAGE_JSON_DOCS
+import static com.linkedin.gradle.python.util.values.PyGradleConfiguration.PYDOCS
+import static com.linkedin.gradle.python.util.values.PyGradleTask.*
 
 /**
  * This plugin encapsulates the documentation system.  This contains everything that is needed for that.
@@ -36,26 +30,24 @@ import static com.linkedin.gradle.python.util.StandardTextValuesTasks.PACKAGE_JS
 class PythonSphinxBasePlugin extends AbstractPluginBase {
 
     @Override
-    void apply(Project project) {
-        this.project = project
+    void applyTo(Project project) {
 
         createConfiguration(PYDOCS)
 
-        PythonExtension settings = addGetExtensionLocal(PYTHON_EXTENSION_NAME, PythonExtension)
         createDependenciesSphinx(settings)
 
         def sphinxHtml = addTaskLocal([name: BUILD_DOCS_HTML, type: SphinxDocumentationTask]) {
             type = SphinxDocumentationTask.DocType.HTML
         }
         sphinxHtml.onlyIf {
-            project.file(project.python.docsDir).exists()
+            project.file(settings.docsDir).exists()
         }
 
         def sphinxJson = addTaskLocal([name: BUILD_DOCS_JSON, type: SphinxDocumentationTask]) {
             type = SphinxDocumentationTask.DocType.JSON
         }
         sphinxJson.onlyIf {
-            project.file(project.python.docsDir).exists()
+            project.file(settings.docsDir).exists()
         }
 
         addTaskLocal([name: BUILD_DOCS])

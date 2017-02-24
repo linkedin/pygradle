@@ -1,21 +1,33 @@
 package com.linkedin.gradle.python.plugin
 
 import com.linkedin.gradle.python.PythonExtension
-import com.linkedin.gradle.python.util.StandardTextValuesConfiguration
-import com.linkedin.gradle.python.util.StandardTextValuesTasks
+import com.linkedin.gradle.python.util.values.PyGradleConfiguration
+import com.linkedin.gradle.python.util.values.PyGradleTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
 
-import static com.linkedin.gradle.python.util.StandardTextValuesConfiguration.*
+import static PyGradleConfiguration.*
 
 abstract class AbstractPluginBase implements Plugin<Project> {
 
     public static final String PYTHON_EXTENSION_NAME = 'python'
-    Project project
 
-    abstract void apply(Project project)
+    public Project project
+    public PythonExtension settings
+
+    @Override
+    void apply(Project target) {
+        this.project = target
+
+        project.plugins.apply('base')
+
+        settings = addGetExtensionLocal(PYTHON_EXTENSION_NAME, PythonExtension)
+        applyTo(target)
+    }
+
+    abstract void applyTo(Project project)
 
     /**
      * This adds the plugin to the local project only if it doesn't already exist
@@ -24,7 +36,7 @@ abstract class AbstractPluginBase implements Plugin<Project> {
      * @return
      */
     protected <T extends Plugin> T addPluginLocal(Class<T> plugin) {
-        if (!project.plugins.withType(plugin)){
+        if (!project.plugins.withType(plugin)) {
             project.plugins.apply(plugin)
         }
     }
@@ -60,27 +72,28 @@ abstract class AbstractPluginBase implements Plugin<Project> {
 
     private Map<String, ?> fillTaskMap(Map<String, ?> task) {
         def taskid = task.get('name')
-        if (taskid instanceof StandardTextValuesTasks){
+        if (taskid instanceof PyGradleTask) {
             task['group'] = taskid.group
             task['description'] = taskid.description
         }
         return task
     }
-    protected Task addTaskLocal(Map<String, ?> task) {
-        task = fillTaskMap(task)
 
-        if (!project.tasks.findByName(task.get('name').toString())) {
-            project.tasks.create(task)
+    protected Task addTaskLocal(Map<String, ?> task) {
+        def taskFilled = fillTaskMap(task)
+
+        if (!project.tasks.findByName(taskFilled.get('name').toString())) {
+            project.tasks.create(taskFilled)
         } else {
             null
         }
     }
 
     protected Task addTaskLocal(Map<String, ?> task, Closure configureClosure) {
-        task = fillTaskMap(task)
+        def taskFilled = fillTaskMap(task)
 
-        if (!project.tasks.findByName(task.get('name').toString())){
-            project.tasks.create(task).configure(configureClosure)
+        if (!project.tasks.findByName(taskFilled.get('name').toString())) {
+            project.tasks.create(taskFilled).configure(configureClosure)
         } else {
             null
         }
@@ -94,8 +107,8 @@ abstract class AbstractPluginBase implements Plugin<Project> {
 //        }
 //    }
 
-    protected Configuration createConfiguration(StandardTextValuesConfiguration confName) {
-        if (!project.configurations.findByName(confName.value)){
+    protected Configuration createConfiguration(PyGradleConfiguration confName) {
+        if (!project.configurations.findByName(confName.value)) {
             return project.configurations.create(confName.value)
         } else {
             null
@@ -110,7 +123,7 @@ abstract class AbstractPluginBase implements Plugin<Project> {
      */
     protected <T> T addGetExtensionLocal(String name, Class<T> ext) {
         def tst = project.extensions.findByName(name)
-        if (tst == null){
+        if (tst == null) {
             return project.extensions.create(name, ext, project)
         } else {
             return tst as T
@@ -118,7 +131,7 @@ abstract class AbstractPluginBase implements Plugin<Project> {
     }
 
 
-    protected void addDependency(StandardTextValuesConfiguration confName, dependency) {
+    protected void addDependency(PyGradleConfiguration confName, dependency) {
         project.dependencies.add(confName.value, dependency)
     }
 
@@ -127,11 +140,11 @@ abstract class AbstractPluginBase implements Plugin<Project> {
      * @param aTask
      * @param bTask
      */
-    protected void aDependsOnB(StandardTextValuesTasks aTask, StandardTextValuesTasks bTask) {
+    protected void aDependsOnB(PyGradleTask aTask, PyGradleTask bTask) {
         def atmp = project.tasks.findByName(aTask.value)
         def btmp = project.tasks.findByName(bTask.value)
 
-        if ((atmp != null) && (btmp != null)){
+        if ((atmp != null) && (btmp != null)) {
             atmp.dependsOn << btmp
         }
     }
@@ -144,7 +157,7 @@ abstract class AbstractPluginBase implements Plugin<Project> {
      * highest version of setuptools used. Provide the dependencies in the
      * best order they should be installed in setupRequires configuration.
      */
-    def createDependenciesVenv(PythonExtension settings){
+    def createDependenciesVenv(PythonExtension settings) {
         addDependency(BOOTSTRAP_REQS, settings.forcedVersions['virtualenv'])
         addDependency(SETUP_REQS, settings.forcedVersions['pip'])
         addDependency(SETUP_REQS, settings.forcedVersions['setuptools'])
@@ -153,13 +166,13 @@ abstract class AbstractPluginBase implements Plugin<Project> {
         pinForcedVersions(settings)
     }
 
-    def createDependenciesSphinx(PythonExtension settings){
+    def createDependenciesSphinx(PythonExtension settings) {
         addDependency(BUILD_REQS, settings.forcedVersions['Sphinx'])
 
         pinForcedVersions(settings)
     }
 
-    def createDependenciesPython(PythonExtension settings){
+    def createDependenciesPython(PythonExtension settings) {
         addDependency(SETUP_REQS, settings.forcedVersions['appdirs'])
         addDependency(SETUP_REQS, settings.forcedVersions['packaging'])
         addDependency(SETUP_REQS, settings.forcedVersions['wheel'])

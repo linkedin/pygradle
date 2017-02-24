@@ -15,31 +15,25 @@
  */
 package com.linkedin.gradle.python.plugin
 
-import com.linkedin.gradle.python.PythonExtension
 import com.linkedin.gradle.python.tasks.*
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.artifacts.repositories.IvyArtifactRepository
 import org.gradle.api.artifacts.repositories.IvyPatternRepositoryLayout
 
-import static com.linkedin.gradle.python.util.StandardTextValuesTasks.*
+import static com.linkedin.gradle.python.util.values.PyGradleTask.*
 
 @SuppressWarnings("AbcMetric")
-//TODO: Break apart method
 class PythonPlugin extends AbstractPluginBase {
 
     @Override
-    @SuppressWarnings(["MethodSize", "AbcMetric"])
-    //TODO: Break apart method
-    void apply(Project project) {
-        this.project = project
+    void applyTo(Project project) {
 
-        project.plugins.apply('base')
+
 
         addPluginLocal(PythonVenvPlugin)
         addPluginLocal(PythonSphinxBasePlugin)
 
-        PythonExtension settings = addGetExtensionLocal(PYTHON_EXTENSION_NAME, PythonExtension)
         createDependenciesPython(settings)
 
         /**

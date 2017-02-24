@@ -17,7 +17,7 @@ package com.linkedin.gradle.python.tasks;
 
 import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.util.ExtensionUtils;
-import com.linkedin.gradle.python.util.StandardTextValuesConfiguration;
+import com.linkedin.gradle.python.util.values.PyGradleConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.artifacts.Configuration;
@@ -62,7 +62,7 @@ public class PinRequirementsTask extends DefaultTask {
     public Configuration getPythonConfiguration() {
         return getProject()
             .getConfigurations()
-            .getByName(StandardTextValuesConfiguration.PYTHON.getValue());
+            .getByName(PyGradleConfiguration.PYTHON.getValue());
     }
 
     @OutputFile

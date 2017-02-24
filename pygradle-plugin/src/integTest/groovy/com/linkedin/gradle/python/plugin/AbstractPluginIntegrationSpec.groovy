@@ -1,7 +1,7 @@
 package com.linkedin.gradle.python.plugin
 
 import com.linkedin.gradle.python.plugin.testutils.DefaultProjectLayoutRule
-import com.linkedin.gradle.python.util.StandardTextValuesTasks
+import com.linkedin.gradle.python.util.values.PyGradleTask
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.Rule
@@ -33,23 +33,23 @@ class AbstractPluginIntegrationSpec extends Specification {
         new File(file.getAbsolutePath())
     }
 
-    BuildResult run(StandardTextValuesTasks task, List<String> cmdOption = []) {
+    BuildResult run(PyGradleTask task, List<String> cmdOption = []) {
         runJob(RunType.PASS, null, task, cmdOption)
     }
 
-    BuildResult run(String gradleVersion, StandardTextValuesTasks task, List<String> cmdOption = []) {
+    BuildResult run(String gradleVersion, PyGradleTask task, List<String> cmdOption = []) {
         runJob(RunType.PASS, gradleVersion, task, cmdOption)
     }
 
-    BuildResult fail(StandardTextValuesTasks task, List<String> cmdOption = []) {
+    BuildResult fail(PyGradleTask task, List<String> cmdOption = []) {
         runJob(RunType.FAIL, null, task, cmdOption)
     }
 
-    BuildResult fail(String gradleVersion, StandardTextValuesTasks task, List<String> cmdOption = []) {
+    BuildResult fail(String gradleVersion, PyGradleTask task, List<String> cmdOption = []) {
         runJob(RunType.FAIL, gradleVersion, task, cmdOption)
     }
 
-    BuildResult runJob(RunType r, String gradleVersion, StandardTextValuesTasks task, List<String> cmdOption = []) {
+    BuildResult runJob(RunType r, String gradleVersion, PyGradleTask task, List<String> cmdOption = []) {
         def writer = new StringWriter()
         GradleRunner runner = newRunner(task, writer, gradleVersion, cmdOption)
 
@@ -68,7 +68,7 @@ class AbstractPluginIntegrationSpec extends Specification {
         return result
     }
 
-    private GradleRunner newRunner(StandardTextValuesTasks task, StringWriter writer, String gradleVersion,
+    private GradleRunner newRunner(PyGradleTask task, StringWriter writer, String gradleVersion,
                                    List<String> cmdOption = []) {
         def gradleUserHome = temporaryFolder.newFolder('some-custom-user-home')
 

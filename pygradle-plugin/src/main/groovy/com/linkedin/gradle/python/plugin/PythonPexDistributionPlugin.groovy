@@ -19,34 +19,32 @@ import com.linkedin.gradle.python.extension.DeployableExtension
 import com.linkedin.gradle.python.tasks.BuildPexTask
 import com.linkedin.gradle.python.tasks.BuildWheelsTask
 import com.linkedin.gradle.python.util.ExtensionUtils
-import com.linkedin.gradle.python.util.StandardTextValuesConfiguration
+import com.linkedin.gradle.python.util.values.PyGradleConfiguration
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.tasks.bundling.Compression
 import org.gradle.api.tasks.bundling.Tar
 
-import static com.linkedin.gradle.python.util.StandardTextValuesTasks.*
+import static com.linkedin.gradle.python.util.values.PyGradleTask.*
 
-class PythonPexDistributionPlugin extends PythonBasePlugin {
+class PythonPexDistributionPlugin extends AbstractPluginBase {
 
     @Override
     void applyTo(Project project) {
-        this.project = project
 
-        project.plugins.apply(PythonPlugin)
+        addPluginLocal(PythonPlugin)
 
-        def extension = ExtensionUtils.getPythonExtension(project)
         ExtensionUtils.maybeCreatePexExtension(project)
         ExtensionUtils.maybeCreateWheelExtension(project)
         DeployableExtension deployableExtension = ExtensionUtils.maybeCreateDeployableExtension(project)
 
-
         project.afterEvaluate {
             if (settings.details.pythonVersion.pythonMajorMinor == '2.6') {
-                project.dependencies.add(StandardTextValuesConfiguration.BUILD_REQS.value, extension.forcedVersions['argparse'])
+                project.dependencies.add(PyGradleConfiguration.BUILD_REQS.value, settings.forcedVersions['argparse'])
             }
         }
-        project.dependencies.add(StandardTextValuesConfiguration.BUILD_REQS.value, extension.forcedVersions['pex'])
+
+        project.dependencies.add(PyGradleConfiguration.BUILD_REQS.value, settings.forcedVersions['pex'])
 
         /**
          * Build wheels.
@@ -66,7 +64,7 @@ class PythonPexDistributionPlugin extends PythonBasePlugin {
             }
         }])
 
-        project.artifacts.add(StandardTextValuesConfiguration.DEFAULT.value, packageDeployable)
+        project.artifacts.add(PyGradleConfiguration.DEFAULT.value, packageDeployable)
 
         // now that everything is defined, do the depends.
         aDependsOnB(BUILD_WHEELS, INSTALL_PROJECT)

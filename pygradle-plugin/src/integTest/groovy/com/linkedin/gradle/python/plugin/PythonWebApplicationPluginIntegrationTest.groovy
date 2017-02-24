@@ -48,6 +48,8 @@ class PythonWebApplicationPluginIntegrationTest extends Specification {
         |${PyGradleTestBuilder.createRepoClosure()}
         """.stripMargin().stripIndent()
 
+        //testProjectDir.saveFolder = true
+
         when:
         def result = GradleRunner.create()
                 .withProjectDir(testProjectDir.root)

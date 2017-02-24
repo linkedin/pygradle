@@ -1,3 +1,0 @@
-#!/bin/bash
-[ -z "\$BASEDIR" ] && BASEDIR=\$( cd "\$( dirname "\${BASH_SOURCE[0]}" )/.." && pwd )
-exec /usr/bin/env PEX_ROOT="\$BASEDIR/libexec" PEX_MODULE="${entryPoint}" \$BASEDIR/bin/${realPex} "\$@"

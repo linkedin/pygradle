@@ -18,7 +18,7 @@ package com.linkedin.gradle.python.plugin
 import com.linkedin.gradle.python.plugin.testutils.DefaultBlankProjectLayoutRule
 import com.linkedin.gradle.python.plugin.testutils.PyGradleTestBuilder
 import com.linkedin.gradle.python.util.OperatingSystem
-import com.linkedin.gradle.python.util.StandardTextValuesTasks
+import com.linkedin.gradle.python.util.values.PyGradleTask
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Rule
@@ -151,14 +151,14 @@ class PyGradleWithSlimProjectsTest extends Specification {
         when:
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withArguments(StandardTextValuesTasks.PYTEST.value, StandardTextValuesTasks.COVERAGE.value)
+            .withArguments(PyGradleTask.PYTEST.value, PyGradleTask.COVERAGE.value)
             .withPluginClasspath()
             .withDebug(true)
             .build()
         println result.output
 
         then: "make sure it passes initially first"
-        result.task(":${testProjectDir.PROJECT_NAME_DIR}:${StandardTextValuesTasks.PYTEST.value}").outcome == TaskOutcome.SKIPPED
-        result.task(":${testProjectDir.PROJECT_NAME_DIR}:${StandardTextValuesTasks.COVERAGE.value}").outcome == TaskOutcome.SKIPPED
+        result.task(":${testProjectDir.PROJECT_NAME_DIR}:${PyGradleTask.PYTEST.value}").outcome == TaskOutcome.SKIPPED
+        result.task(":${testProjectDir.PROJECT_NAME_DIR}:${PyGradleTask.COVERAGE.value}").outcome == TaskOutcome.SKIPPED
     }
 }

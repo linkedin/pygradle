@@ -16,7 +16,6 @@
 
 package com.linkedin.gradle.python.plugin
 
-import com.linkedin.gradle.python.PythonExtension
 import com.linkedin.gradle.python.tasks.AbstractPythonMainSourceDefaultTask
 import com.linkedin.gradle.python.tasks.AbstractPythonTestSourceDefaultTask
 import com.linkedin.gradle.python.tasks.CleanSaveVenvTask
@@ -27,26 +26,23 @@ import com.linkedin.gradle.python.util.FileSystemUtils
 import org.gradle.api.Project
 import org.gradle.api.Task
 
-import static com.linkedin.gradle.python.util.StandardTextValuesConfiguration.*
-import static com.linkedin.gradle.python.util.StandardTextValuesTasks.CLEAN_SAVE_VENV
-import static com.linkedin.gradle.python.util.StandardTextValuesTasks.INSTALL_BUILD_REQS
-import static com.linkedin.gradle.python.util.StandardTextValuesTasks.INSTALL_PROJECT
-import static com.linkedin.gradle.python.util.StandardTextValuesTasks.INSTALL_PYTHON_REQS
-import static com.linkedin.gradle.python.util.StandardTextValuesTasks.INSTALL_SETUP_REQS
-import static com.linkedin.gradle.python.util.StandardTextValuesTasks.INSTALL_TEST_REQS
-import static com.linkedin.gradle.python.util.StandardTextValuesTasks.PIN_REQUIREMENTS
-import static com.linkedin.gradle.python.util.StandardTextValuesTasks.SETUP_LINKS
-import static com.linkedin.gradle.python.util.StandardTextValuesTasks.VENV_CREATE
+import static com.linkedin.gradle.python.util.values.PyGradleConfiguration.*
+import static com.linkedin.gradle.python.util.values.PyGradleTask.CLEAN_SAVE_VENV
+import static com.linkedin.gradle.python.util.values.PyGradleTask.INSTALL_BUILD_REQS
+import static com.linkedin.gradle.python.util.values.PyGradleTask.INSTALL_PROJECT
+import static com.linkedin.gradle.python.util.values.PyGradleTask.INSTALL_PYTHON_REQS
+import static com.linkedin.gradle.python.util.values.PyGradleTask.INSTALL_SETUP_REQS
+import static com.linkedin.gradle.python.util.values.PyGradleTask.INSTALL_TEST_REQS
+import static com.linkedin.gradle.python.util.values.PyGradleTask.PIN_REQUIREMENTS
+import static com.linkedin.gradle.python.util.values.PyGradleTask.SETUP_LINKS
+import static com.linkedin.gradle.python.util.values.PyGradleTask.VENV_CREATE
 
 class PythonVenvPlugin extends AbstractPluginBase {
 
     @Override
-    void apply(Project project) {
-        this.project = project
+    void applyTo(Project project) {
 
         createConfigurations()
-
-        PythonExtension settings = addGetExtensionLocal(PYTHON_EXTENSION_NAME, PythonExtension)
 
         createDependenciesVenv(settings)
 

@@ -24,7 +24,7 @@ import org.gradle.api.tasks.Copy
 
 import java.nio.file.Paths
 
-import static com.linkedin.gradle.python.util.StandardTextValuesTasks.*
+import static com.linkedin.gradle.python.util.values.PyGradleTask.*
 
 /**
  * A Flyer plugin.
@@ -58,9 +58,7 @@ import static com.linkedin.gradle.python.util.StandardTextValuesTasks.*
 class PythonFlyerPlugin extends AbstractPluginBase {
 
     @Override
-    void apply(Project project) {
-        this.project = project
-
+    void applyTo(Project project) {
         addPluginLocal(PythonWebApplicationPlugin)
 
         /*

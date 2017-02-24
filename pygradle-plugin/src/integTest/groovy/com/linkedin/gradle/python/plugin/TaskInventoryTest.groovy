@@ -15,11 +15,11 @@
  */
 package com.linkedin.gradle.python.plugin
 
-import com.linkedin.gradle.python.util.StandardTextValuesTasks
+import com.linkedin.gradle.python.util.values.PyGradleTask
 import spock.lang.Shared
 import spock.lang.Unroll
 
-import static com.linkedin.gradle.python.util.StandardTextValuesTasks.*
+import static com.linkedin.gradle.python.util.values.PyGradleTask.*
 
 /**
  * This test class is designed to test scenarios where we are only using pygradle for documentation and
@@ -289,7 +289,7 @@ class TaskInventoryTest extends AbstractPluginIntegrationSpec {
     @Shared
     sdistTasks
 
-    public static final String TASKTREE = "tasktree"
+    static final String TASKTREE = "tasktree"
 
     def setup() {
 
@@ -421,7 +421,7 @@ class TaskInventoryTest extends AbstractPluginIntegrationSpec {
         returnText.replaceAll(/ {4}/, "4").trim()
     }
 
-    def "com.linkedin.python:#runTask"(StandardTextValuesTasks runTask, String runExpected) {
+    def "com.linkedin.python:#runTask"(PyGradleTask runTask, String runExpected) {
         given:
         buildFile << """
         | plugins {
@@ -440,7 +440,7 @@ class TaskInventoryTest extends AbstractPluginIntegrationSpec {
         runExpected << pygradleTasksMap.values()
     }
 
-    def "com.linkedin.python-pex:#runTask"(StandardTextValuesTasks runTask, String runExpected) {
+    def "com.linkedin.python-pex:#runTask"(PyGradleTask runTask, String runExpected) {
         given:
         buildFile << """
         | plugins {
@@ -459,7 +459,7 @@ class TaskInventoryTest extends AbstractPluginIntegrationSpec {
         runExpected << pexTasksMap.values()
     }
 
-    def "com.linkedin.python-cli:#runTask"(StandardTextValuesTasks runTask, String runExpected) {
+    def "com.linkedin.python-cli:#runTask"(PyGradleTask runTask, String runExpected) {
         given:
         buildFile << """
         | plugins {
@@ -478,7 +478,7 @@ class TaskInventoryTest extends AbstractPluginIntegrationSpec {
         runExpected << cliTasksMap.values()
     }
 
-    def "com.linkedin.python-web-app:#runTask"(StandardTextValuesTasks runTask, String runExpected) {
+    def "com.linkedin.python-web-app:#runTask"(PyGradleTask runTask, String runExpected) {
         given:
         buildFile << """
         | plugins {
@@ -497,7 +497,7 @@ class TaskInventoryTest extends AbstractPluginIntegrationSpec {
         runExpected << webTasksMap.values()
     }
 
-    def "com.linkedin.python-flyer:#runTask"(StandardTextValuesTasks runTask, String runExpected) {
+    def "com.linkedin.python-flyer:#runTask"(PyGradleTask runTask, String runExpected) {
         given:
         buildFile << """
         | plugins {
@@ -516,7 +516,7 @@ class TaskInventoryTest extends AbstractPluginIntegrationSpec {
         runExpected << flyerTasks.values()
     }
 
-    def "com.linkedin.python-sdist:#runTask"(StandardTextValuesTasks runTask, String runExpected) {
+    def "com.linkedin.python-sdist:#runTask"(PyGradleTask runTask, String runExpected) {
         given:
         buildFile << """
         | plugins {

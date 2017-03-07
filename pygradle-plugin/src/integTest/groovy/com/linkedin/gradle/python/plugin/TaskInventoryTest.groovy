@@ -15,6 +15,7 @@
  */
 package com.linkedin.gradle.python.plugin
 
+import com.linkedin.gradle.python.util.OperatingSystem
 import com.linkedin.gradle.python.util.values.PyGradleTask
 import spock.lang.Shared
 import spock.lang.Unroll
@@ -223,7 +224,8 @@ class TaskInventoryTest extends AbstractPluginIntegrationSpec {
     @Shared
     Map<PyGradleTask, String> sdistTasks
 
-    def pattern = ~/(?ms)(?<=------------------------------------------------------------\nRoot project\n------------------------------------------------------------\n\n)(.*?)(?=\n\nTo see task dependency tree for a specific task)/
+    def win_pattern = ~/(?ms)(?<=------------------------------------------------------------\r\nRoot project\r\n------------------------------------------------------------\r\n\r\n)(.*?)(?=\r\n\r\nTo see task dependency tree for a specific task)/
+    def nix_pattern = ~/(?ms)(?<=------------------------------------------------------------\nRoot project\n------------------------------------------------------------\n\n)(.*?)(?=\n\nTo see task dependency tree for a specific task)/
     static final String TASKTREE = "tasktree"
 
     @SuppressWarnings('MethodSize')
@@ -568,7 +570,13 @@ class TaskInventoryTest extends AbstractPluginIntegrationSpec {
     }
 
     def parseResponse(String responseText) {
-        def returnText = responseText.find(pattern)
+        def returnText
+        if (OperatingSystem.current().isWindows()) {
+            returnText = responseText.find(win_pattern)
+        } else {
+            returnText = responseText.find(nix_pattern)
+        }
+
         returnText = returnText.replaceAll(/ {5}/, "5")
         returnText.replaceAll(/ {4}/, "4").trim()
     }

@@ -39,7 +39,7 @@ task importRequiredDependencies(type: JavaExec) { task ->
                         'sphinx_rtd_theme:0.1=sphinx_rtd_theme:0.1.1', 'chardet:2.2=chardet:2.3.0',
                         'setuptools:0.6a2=setuptools:19.1.1', 'idna:2.0.0=idna:2.0'].join(",")
     def packagesToInclude = [
-        'appdirs:1.4.2',
+        'appdirs:1.4.3',
         'docutils:0.12',
         'flake8:2.4.0',
         'flake8:2.5.4',
@@ -90,5 +90,6 @@ publishing.publications.standardjava {
     }
 }
 
+assemble.dependsOn shadowJar
 artifactoryPublish.dependsOn shadowJar
 build.dependsOn shadowJar

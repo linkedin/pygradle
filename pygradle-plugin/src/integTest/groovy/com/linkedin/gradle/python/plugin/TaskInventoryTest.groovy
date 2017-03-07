@@ -226,6 +226,7 @@ class TaskInventoryTest extends AbstractPluginIntegrationSpec {
     def pattern = ~/(?ms)(?<=------------------------------------------------------------\nRoot project\n------------------------------------------------------------\n\n)(.*?)(?=\n\nTo see task dependency tree for a specific task)/
     static final String TASKTREE = "tasktree"
 
+    @SuppressWarnings('MethodSize')
     def setup() {
 
         pexTasksMap = pygradleTasksMap.clone() as Map<PyGradleTask, String>

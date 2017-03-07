@@ -14,7 +14,7 @@ class AbstractPluginIntegrationSpec extends Specification {
     List<File> pluginClasspath = []
 
     @Rule
-    final DefaultProjectLayoutRule temporaryFolder = new DefaultProjectLayoutRule()
+    DefaultProjectLayoutRule temporaryFolder = new DefaultProjectLayoutRule()
 
     File buildFile
 

@@ -224,8 +224,8 @@ class TaskInventoryTest extends AbstractPluginIntegrationSpec {
     @Shared
     Map<PyGradleTask, String> sdistTasks
 
-    def win_pattern = ~/(?ms)(?<=------------------------------------------------------------\r\nRoot project\r\n------------------------------------------------------------\r\n\r\n)(.*?)(?=\r\n\r\nTo see task dependency tree for a specific task)/
-    def nix_pattern = ~/(?ms)(?<=------------------------------------------------------------\nRoot project\n------------------------------------------------------------\n\n)(.*?)(?=\n\nTo see task dependency tree for a specific task)/
+    def winPattern = ~/(?ms)(?<=------------------------------------------------------------\r\nRoot project\r\n------------------------------------------------------------\r\n\r\n)(.*?)(?=\r\n\r\nTo see task dependency tree for a specific task)/
+    def nixPattern = ~/(?ms)(?<=------------------------------------------------------------\nRoot project\n------------------------------------------------------------\n\n)(.*?)(?=\n\nTo see task dependency tree for a specific task)/
     static final String TASKTREE = "tasktree"
 
     @SuppressWarnings('MethodSize')
@@ -572,9 +572,9 @@ class TaskInventoryTest extends AbstractPluginIntegrationSpec {
     def parseResponse(String responseText) {
         def returnText
         if (OperatingSystem.current().isWindows()) {
-            returnText = responseText.find(win_pattern)
+            returnText = responseText.find(winPattern)
         } else {
-            returnText = responseText.find(nix_pattern)
+            returnText = responseText.find(nixPattern)
         }
 
         returnText = returnText.replaceAll(/ {5}/, "5")

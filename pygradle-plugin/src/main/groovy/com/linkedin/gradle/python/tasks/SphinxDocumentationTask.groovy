@@ -16,7 +16,9 @@
 package com.linkedin.gradle.python.tasks
 
 import groovy.transform.CompileStatic
+import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.process.ExecResult
 
@@ -25,6 +27,11 @@ import org.gradle.process.ExecResult
  */
 @CompileStatic
 class SphinxDocumentationTask extends AbstractPythonMainSourceDefaultTask {
+
+    @InputFiles
+    FileCollection getDocFiles() {
+        return getProject().fileTree(getComponent().docsDir)
+    }
 
     @OutputDirectory
     File getDocDir() {

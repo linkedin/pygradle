@@ -15,6 +15,13 @@
  */
 package com.linkedin.gradle.python.tasks
 
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.StandardOpenOption
+
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
+
 import com.linkedin.gradle.python.extension.PythonDetails
 import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider
 import com.linkedin.gradle.python.tasks.execution.TeeOutputContainer
@@ -39,6 +46,10 @@ import org.gradle.util.VersionNumber
 class InstallVirtualEnvironmentTask extends DefaultTask implements FailureReasonProvider {
 
     private PythonDetails pythonDetails
+
+    @Input
+    @Optional
+    String distutilsCfg
 
     @InputFiles
     Configuration getPyGradleBootstrap() {
@@ -73,6 +84,7 @@ class InstallVirtualEnvironmentTask extends DefaultTask implements FailureReason
         }
 
         def version = findVirtualEnvDependencyVersion()
+        customize(packageDir, version)
         project.exec(new Action<ExecSpec>() {
             @Override
             void execute(ExecSpec execSpec) {
@@ -80,9 +92,11 @@ class InstallVirtualEnvironmentTask extends DefaultTask implements FailureReason
                 execSpec.commandLine(
                     pythonDetails.getSystemPythonInterpreter(),
                     project.file("${packageDir}/virtualenv-${version}/virtualenv.py"),
+                    '--never-download',
                     '--python', pythonDetails.getSystemPythonInterpreter(),
                     '--prompt', pythonDetails.virtualEnvPrompt,
-                    pythonDetails.getVirtualEnv())
+                    pythonDetails.getVirtualEnv()
+                )
             }
         })
         project.delete(packageDir)
@@ -125,6 +139,30 @@ class InstallVirtualEnvironmentTask extends DefaultTask implements FailureReason
         @Override
         public boolean isSatisfiedBy(Dependency element) {
             return "virtualenv" == element.getName()
+        }
+    }
+
+    private void customize(File packageDir, String version) {
+        if (distutilsCfg != null) {
+            String venvDir = Paths.get("${packageDir}", "virtualenv-${version}").toString()
+            Files.write(
+                Paths.get(venvDir, "virtualenv_embedded", "distutils.cfg"),
+                distutilsCfg.getBytes(),
+                StandardOpenOption.APPEND
+            )
+            ByteArrayOutputStream stream = new ByteArrayOutputStream()
+            project.exec(new Action<ExecSpec>() {
+                @Override
+                void execute(ExecSpec execSpec) {
+                    execSpec.commandLine(
+                        pythonDetails.getSystemPythonInterpreter(),
+                        project.file(Paths.get(venvDir, "bin", "rebuild-script.py").toString())
+                    )
+                    execSpec.standardOutput = stream
+                    execSpec.errorOutput = stream
+                }
+            })
+            logger.info("Customized distutils.cfg")
         }
     }
 }

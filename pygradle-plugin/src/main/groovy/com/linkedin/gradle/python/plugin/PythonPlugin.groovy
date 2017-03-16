@@ -79,8 +79,6 @@ class PythonPlugin implements Plugin<Project> {
          */
         project.dependencies.add(CONFIGURATION_BOOTSTRAP_REQS.value, settings.forcedVersions['virtualenv'])
 
-        project.dependencies.add(CONFIGURATION_SETUP_REQS.value, settings.forcedVersions['appdirs'])
-        project.dependencies.add(CONFIGURATION_SETUP_REQS.value, settings.forcedVersions['packaging'])
         project.dependencies.add(CONFIGURATION_SETUP_REQS.value, settings.forcedVersions['wheel'])
         project.dependencies.add(CONFIGURATION_SETUP_REQS.value, settings.forcedVersions['setuptools'])
         project.dependencies.add(CONFIGURATION_SETUP_REQS.value, settings.forcedVersions['pip'])

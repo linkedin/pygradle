@@ -20,7 +20,7 @@ import com.linkedin.gradle.python.util.values.PyGradleTask
 import spock.lang.Shared
 import spock.lang.Unroll
 
-import static com.linkedin.gradle.python.util.values.PyGradleTask.*
+import static PyGradleTask.*
 
 /**
  * This test class is designed to test scenarios where we are only using pygradle for documentation and
@@ -232,7 +232,7 @@ class TaskInventoryTest extends AbstractPluginIntegrationSpec {
     def setup() {
 
         pexTasksMap = pygradleTasksMap.clone() as Map<PyGradleTask, String>
-        pexTasksMap.put(BUILD_WHEELS,
+        pexTasksMap.put(com.linkedin.gradle.python.util.values.PyGradleTask.BUILD_WHEELS,
             """|:buildWheels
                 |\\--- :installProject
                 |5\\--- :installTestRequirements
@@ -242,7 +242,7 @@ class TaskInventoryTest extends AbstractPluginIntegrationSpec {
                 |55555\\--- :installLinks
                 |555555\\--- :createVirtualEnvironment
                 |5555555\\--- :pinRequirements""".stripMargin().stripIndent())
-        pexTasksMap.put(BUILD_PEX,
+        pexTasksMap.put(com.linkedin.gradle.python.util.values.PyGradleTask.BUILD_PEX,
             """|:buildPex
                 |\\--- :buildWheels
                 |5\\--- :installProject
@@ -253,7 +253,7 @@ class TaskInventoryTest extends AbstractPluginIntegrationSpec {
                 |555555\\--- :installLinks
                 |5555555\\--- :createVirtualEnvironment
                 |55555555\\--- :pinRequirements""".stripMargin().stripIndent())
-        pexTasksMap.put(PACKAGE_DEPLOYABLE,
+        pexTasksMap.put(com.linkedin.gradle.python.util.values.PyGradleTask.PACKAGE_DEPLOYABLE,
             """|:packageDeployable
                 |\\--- :buildPex
                 |5\\--- :buildWheels
@@ -268,7 +268,7 @@ class TaskInventoryTest extends AbstractPluginIntegrationSpec {
 
 
         cliTasksMap = pexTasksMap.clone() as Map<PyGradleTask, String>
-        cliTasksMap.put(GENERATE_COMPLETIONS,
+        cliTasksMap.put(com.linkedin.gradle.python.util.values.PyGradleTask.GENERATE_COMPLETIONS,
             """|:generateCompletions
                 |+--- :installBuildRequirements
                 ||4\\--- :installSetupRequirements
@@ -284,7 +284,7 @@ class TaskInventoryTest extends AbstractPluginIntegrationSpec {
                 |555555\\--- :createVirtualEnvironment
                 |5555555\\--- :pinRequirements""".stripMargin().stripIndent())
 
-        cliTasksMap.put(BUILD_PEX,
+        cliTasksMap.put(com.linkedin.gradle.python.util.values.PyGradleTask.BUILD_PEX,
             """|:buildPex
                 |+--- :buildWheels
                 ||4\\--- :installProject
@@ -310,7 +310,7 @@ class TaskInventoryTest extends AbstractPluginIntegrationSpec {
                 |5555555\\--- :createVirtualEnvironment
                 |55555555\\--- :pinRequirements""".stripMargin().stripIndent())
 
-        cliTasksMap[PACKAGE_DEPLOYABLE] =
+        cliTasksMap[com.linkedin.gradle.python.util.values.PyGradleTask.PACKAGE_DEPLOYABLE] =
             """|:packageDeployable
                 |\\--- :buildPex
                 |5+--- :buildWheels
@@ -338,7 +338,7 @@ class TaskInventoryTest extends AbstractPluginIntegrationSpec {
                 |555555555\\--- :pinRequirements""".stripMargin().stripIndent()
 
         webTasksMap = pexTasksMap.clone() as Map<PyGradleTask, String>
-        webTasksMap.put(BUILD_WEB_APPLICATION,
+        webTasksMap.put(com.linkedin.gradle.python.util.values.PyGradleTask.BUILD_WEB_APPLICATION,
             """|:buildWebApplication
                 |\\--- :buildPex
                 |5\\--- :buildWheels
@@ -350,7 +350,7 @@ class TaskInventoryTest extends AbstractPluginIntegrationSpec {
                 |5555555\\--- :installLinks
                 |55555555\\--- :createVirtualEnvironment
                 |555555555\\--- :pinRequirements""".stripMargin().stripIndent())
-        webTasksMap.put(PACKAGE_WEB_APPLICATION,
+        webTasksMap.put(com.linkedin.gradle.python.util.values.PyGradleTask.PACKAGE_WEB_APPLICATION,
             """|:packageWebApplication
                 |\\--- :buildWebApplication
                 |5\\--- :buildPex
@@ -550,7 +550,7 @@ class TaskInventoryTest extends AbstractPluginIntegrationSpec {
                 |5\\--- :pinRequirements""".stripMargin().stripIndent()]
 
         sdistTasks = pygradleTasksMap.clone() as Map<PyGradleTask, String>
-        sdistTasks.put(PACKAGE_SDIST,
+        sdistTasks.put(com.linkedin.gradle.python.util.values.PyGradleTask.PACKAGE_SDIST,
         """|:packageSdist
            |+--- :installBuildRequirements
            ||4\\--- :installSetupRequirements

@@ -188,8 +188,8 @@ abstract class AbstractPluginBase implements Plugin<Project> {
     }
 
     def createDependenciesPython(PythonExtension settings) {
-        addDependency(SETUP_REQS, settings.forcedVersions['appdirs'])
-        addDependency(SETUP_REQS, settings.forcedVersions['packaging'])
+//        addDependency(SETUP_REQS, settings.forcedVersions['appdirs'])
+//        addDependency(SETUP_REQS, settings.forcedVersions['packaging'])
         addDependency(SETUP_REQS, settings.forcedVersions['wheel'])
         addDependency(SETUP_REQS, settings.forcedVersions['pbr'])
         addDependency(BUILD_REQS, settings.forcedVersions['flake8'])

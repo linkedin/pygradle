@@ -65,13 +65,11 @@ class PythonExtension {
 
     /** A way to define forced versions of libraries */
     public Map<String, Map<String, String>> forcedVersions = [
-        'appdirs'       : ['group': 'pypi', 'name': 'appdirs',          'version': '1.4.0'],
         'argparse'      : ['group': 'pypi', 'name': 'argparse',         'version': '1.4.0'],
         'flake8'        : ['group': 'pypi', 'name': 'flake8',           'version': '2.5.4'],
-        'packaging'     : ['group': 'pypi', 'name': 'packaging',        'version': '16.8'],
         'pbr'           : ['group': 'pypi', 'name': 'pbr',              'version': '1.8.0'],
         'pex'           : ['group': 'pypi', 'name': 'pex',              'version': '1.1.4'],
-        'pip'           : ['group': 'pypi', 'name': 'pip',              'version': '9.0.1'],
+        'pip'           : ['group': 'pypi', 'name': 'pip',              'version': '7.1.2'],
         'pytest'        : ['group': 'pypi', 'name': 'pytest',           'version': '2.9.1'],
         'pytest-cov'    : ['group': 'pypi', 'name': 'pytest-cov',       'version': '2.2.1'],
         'pytest-xdist'  : ['group': 'pypi', 'name': 'pytest-xdist',     'version': '1.14'],

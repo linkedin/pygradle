@@ -1,5 +1,5 @@
 plugins {
-  id "com.linkedin.python-cli" version "0.3.24"
+  id "com.linkedin.python-cli" version "0.4.9"
 }
 
 version=1.0

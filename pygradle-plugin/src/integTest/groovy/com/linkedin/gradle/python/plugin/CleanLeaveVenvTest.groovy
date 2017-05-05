@@ -17,7 +17,7 @@ package com.linkedin.gradle.python.plugin
 
 import com.linkedin.gradle.python.plugin.testutils.DefaultBlankProjectLayoutRule
 import com.linkedin.gradle.python.plugin.testutils.PyGradleTestBuilder
-import com.linkedin.gradle.python.util.StandardTextValues
+import com.linkedin.gradle.python.util.values.PyGradleTask
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.Rule
 import spock.lang.Specification
@@ -48,7 +48,7 @@ class CleanLeaveVenvTest extends Specification {
         when:
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withArguments(StandardTextValues.TASK_CLEAN_SAVE_VENV.value)
+            .withArguments(PyGradleTask.CLEAN_SAVE_VENV.value)
             .withPluginClasspath()
             .withDebug(true)
             .build()

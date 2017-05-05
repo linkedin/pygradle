@@ -10,9 +10,23 @@ plugins {
 apply from: "$rootDir/gradle/publishing.gradle"
 apply from: "$rootDir/gradle/code-quality.gradle"
 
-configurations {
-    testCompile.exclude group: 'org.codehaus.groovy', module: 'groovy-all'
-    integTestCompile.exclude group: 'org.codehaus.groovy', module: 'groovy-all'
+ext {
+    groovyVer = GroovySystem.version
+    spockGroovyVer = GroovySystem.version.replaceAll(/\.\d+$/, '')
+}
+
+//configurations {
+//    testCompile.exclude group: 'org.codehaus.groovy', module: 'groovy-all'
+//    integTestCompile.exclude group: 'org.codehaus.groovy', module: 'groovy-all'
+//    integTest2Compile.exclude group: 'org.codehaus.groovy', module: 'groovy-all'
+//}
+
+configurations.all {
+    //noinspection GroovyAssignabilityCheck
+    resolutionStrategy {
+        force "org.codehaus.groovy:groovy:${groovyVer}"
+        force "org.codehaus.groovy:groovy-all:${groovyVer}"
+    }
 }
 
 sourceSets {
@@ -26,6 +40,17 @@ sourceSets {
         compileClasspath += sourceSets.main.output + configurations.testRuntime
         runtimeClasspath += output + compileClasspath
     }
+
+    integTest2 {
+        groovy {
+            srcDir file('src/integTest2/groovy')
+        }
+        resources {
+            srcDir file('src/integTest/resources')
+        }
+        compileClasspath += sourceSets.main.output + sourceSets.integTest.output + configurations.testRuntime
+        runtimeClasspath += output + compileClasspath + sourceSets.integTest2.output
+    }
 }
 
 repositories {
@@ -36,11 +61,15 @@ dependencies {
     compile localGroovy()
     compile 'commons-io:commons-io:2.2'
 
-    testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
+    testCompile "org.spockframework:spock-core:1.0-groovy-${spockGroovyVer}"
 
-    integTestCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
+    integTestCompile "org.spockframework:spock-core:1.0-groovy-${spockGroovyVer}"
     integTestCompile group: 'org.apache.commons', name: 'commons-exec', version: '1.3'
 
+    integTest2Compile "org.spockframework:spock-core:1.0-groovy-${spockGroovyVer}"
+    integTest2Compile group: 'org.apache.commons', name: 'commons-exec', version: '1.3'
+    integTest2Compile gradleTestKit()
+    integTest2Compile sourceSets.integTest.output
 }
 
 license {
@@ -62,17 +91,33 @@ task integTest(type: Test) {
     environment['TEST_REPO'] = rootProject.buildDir.toURI().toURL().toString() + '/ivy-repo'
 }
 
+task integTest2 (type: Test) {
+    dependsOn(':pivy-importer:importRequiredDependencies')
+    shouldRunAfter tasks.integTest
+    testClassesDir = sourceSets.integTest2.output.classesDir
+    classpath = sourceSets.integTest2.runtimeClasspath
+    reports.html.destination = file("$buildDir${File.separatorChar}reports${File.separatorChar}integration-test2")
+
+    environment['TEST_REPO'] = rootProject.buildDir.toURI().toURL().toString() + '/ivy-repo'
+}
+
 check.dependsOn integTest
+check.dependsOn integTest2
 
 gradlePlugin {
     pluginSourceSet project.sourceSets.main
-    testSourceSets project.sourceSets.integTest
+    testSourceSets project.sourceSets.integTest, project.sourceSets.integTest2
 
     //noinspection GroovyAssignabilityCheck
     plugins {
         pythonPlugin {
             id = 'com.linkedin.python'
             implementationClass = 'com.linkedin.gradle.python.plugin.PythonPlugin'
+        }
+
+        pythonSphinx {
+            id = 'com.linkedin.python-sphinx'
+            implementationClass = 'com.linkedin.gradle.python.plugin.PythonSphinxPlugin'
         }
 
         pythonCliPlugin {

@@ -1,0 +1,463 @@
+:tasks
+
+------------------------------------------------------------
+All tasks runnable from root project
+------------------------------------------------------------
+
+Build tasks
+-----------
+assemble - Assembles the outputs of this project.
+build - Assembles and tests this project. [assemble, check]
+clean - Deletes the build directory.
+cleanSaveVenv
+
+Build Setup tasks
+-----------------
+init - Initializes a new Gradle build. [incubating]
+wrapper - Generates Gradle wrapper files. [incubating]
+
+Documentation tasks
+-------------------
+buildDocsHtml - Generate Sphinx documentation in html format
+    createVirtualEnvironment
+    installBuildRequirements
+    installLinks
+    installProject
+    installPythonRequirements
+    installSetupRequirements
+    installTestRequirements
+    pinRequirements
+buildDocsJson - Generate Sphinx documentation in json format
+    createVirtualEnvironment
+    installBuildRequirements
+    installLinks
+    installProject
+    installPythonRequirements
+    installSetupRequirements
+    installTestRequirements
+    pinRequirements
+generateSetupPy - Writes the suggested setup.py out to disk. This will overwrite any existing setup.py
+
+Help tasks
+----------
+buildEnvironment - Displays all buildscript dependencies declared in root project 'testProject'.
+foo:buildEnvironment - Displays all buildscript dependencies declared in project ':foo'.
+components - Displays the components produced by root project 'testProject'. [incubating]
+foo:components - Displays the components produced by project ':foo'. [incubating]
+dependencies - Displays all dependencies declared in root project 'testProject'.
+foo:dependencies - Displays all dependencies declared in project ':foo'.
+dependencyInsight - Displays the insight into a specific dependency in root project 'testProject'.
+foo:dependencyInsight - Displays the insight into a specific dependency in project ':foo'.
+help - Displays a help message.
+foo:help - Displays a help message.
+model - Displays the configuration model of root project 'testProject'. [incubating]
+foo:model - Displays the configuration model of project ':foo'. [incubating]
+projects - Displays the sub-projects of root project 'testProject'.
+foo:projects - Displays the sub-projects of project ':foo'.
+properties - Displays the properties of root project 'testProject'.
+foo:properties - Displays the properties of project ':foo'.
+tasks - Displays the tasks runnable from root project 'testProject' (some of the displayed tasks may belong to subprojects).
+foo:tasks - Displays the tasks runnable from project ':foo'.
+
+Verification tasks
+------------------
+check - Runs all checks.
+    createVirtualEnvironment
+    flake8
+    installBuildRequirements
+    installLinks
+    installProject
+    installPythonRequirements
+    installSetupRequirements
+    installTestRequirements
+    pinRequirements
+    pytest
+
+Other tasks
+-----------
+coverage
+    createVirtualEnvironment
+    installBuildRequirements
+    installLinks
+    installProject
+    installPythonRequirements
+    installSetupRequirements
+    installTestRequirements
+    pinRequirements
+flake8Checkstyle
+    createVirtualEnvironment
+    installBuildRequirements
+    installLinks
+    installSetupRequirements
+    pinRequirements
+packageDocs [buildDocsHtml, buildDocsJson]
+    buildDocs
+packageJsonDocs [buildDocsHtml, buildDocsJson]
+    buildDocs
+
+Rules
+-----
+Pattern: clean<TaskName>: Cleans the output files of a task.
+Pattern: build<ConfigurationName>: Assembles the artifacts of a configuration.
+Pattern: upload<ConfigurationName>: Assembles and uploads the artifacts belonging to a configuration.
+
+BUILD SUCCESSFUL
+
+Total time: 2.624 secs
+
+:tasks
+
+------------------------------------------------------------
+All tasks runnable from root project
+------------------------------------------------------------
+
+Build tasks
+-----------
+assemble - Assembles the outputs of this project.
+    buildPex
+    buildWheels
+    createVirtualEnvironment
+    installBuildRequirements
+    installLinks
+    installProject
+    installPythonRequirements
+    installSetupRequirements
+    installTestRequirements
+    packageDeployable
+    pinRequirements
+build - Assembles and tests this project. [assemble, check]
+clean - Deletes the build directory.
+cleanSaveVenv
+
+Build Setup tasks
+-----------------
+init - Initializes a new Gradle build. [incubating]
+wrapper - Generates Gradle wrapper files. [incubating]
+
+Documentation tasks
+-------------------
+buildDocsHtml - Generate Sphinx documentation in html format
+    createVirtualEnvironment
+    installBuildRequirements
+    installLinks
+    installProject
+    installPythonRequirements
+    installSetupRequirements
+    installTestRequirements
+    pinRequirements
+buildDocsJson - Generate Sphinx documentation in json format
+    createVirtualEnvironment
+    installBuildRequirements
+    installLinks
+    installProject
+    installPythonRequirements
+    installSetupRequirements
+    installTestRequirements
+    pinRequirements
+generateSetupPy - Writes the suggested setup.py out to disk. This will overwrite any existing setup.py
+
+Help tasks
+----------
+buildEnvironment - Displays all buildscript dependencies declared in root project 'testProject'.
+foo:buildEnvironment - Displays all buildscript dependencies declared in project ':foo'.
+components - Displays the components produced by root project 'testProject'. [incubating]
+foo:components - Displays the components produced by project ':foo'. [incubating]
+dependencies - Displays all dependencies declared in root project 'testProject'.
+foo:dependencies - Displays all dependencies declared in project ':foo'.
+dependencyInsight - Displays the insight into a specific dependency in root project 'testProject'.
+foo:dependencyInsight - Displays the insight into a specific dependency in project ':foo'.
+help - Displays a help message.
+foo:help - Displays a help message.
+model - Displays the configuration model of root project 'testProject'. [incubating]
+foo:model - Displays the configuration model of project ':foo'. [incubating]
+projects - Displays the sub-projects of root project 'testProject'.
+foo:projects - Displays the sub-projects of project ':foo'.
+properties - Displays the properties of root project 'testProject'.
+foo:properties - Displays the properties of project ':foo'.
+tasks - Displays the tasks runnable from root project 'testProject' (some of the displayed tasks may belong to subprojects).
+foo:tasks - Displays the tasks runnable from project ':foo'.
+
+Verification tasks
+------------------
+check - Runs all checks.
+    createVirtualEnvironment
+    flake8
+    installBuildRequirements
+    installLinks
+    installProject
+    installPythonRequirements
+    installSetupRequirements
+    installTestRequirements
+    pinRequirements
+    pytest
+
+Other tasks
+-----------
+coverage
+    createVirtualEnvironment
+    installBuildRequirements
+    installLinks
+    installProject
+    installPythonRequirements
+    installSetupRequirements
+    installTestRequirements
+    pinRequirements
+flake8Checkstyle
+    createVirtualEnvironment
+    installBuildRequirements
+    installLinks
+    installSetupRequirements
+    pinRequirements
+packageDocs [buildDocsHtml, buildDocsJson]
+    buildDocs
+packageJsonDocs [buildDocsHtml, buildDocsJson]
+    buildDocs
+
+Rules
+-----
+Pattern: clean<TaskName>: Cleans the output files of a task.
+Pattern: build<ConfigurationName>: Assembles the artifacts of a configuration.
+Pattern: upload<ConfigurationName>: Assembles and uploads the artifacts belonging to a configuration.
+
+BUILD SUCCESSFUL
+
+Total time: 0.271 secs
+
+:tasks
+
+------------------------------------------------------------
+All tasks runnable from root project
+------------------------------------------------------------
+
+Build tasks
+-----------
+assemble - Assembles the outputs of this project.
+    buildPex
+    buildWheels
+    createVirtualEnvironment
+    generateCompletions
+    installBuildRequirements
+    installLinks
+    installProject
+    installPythonRequirements
+    installSetupRequirements
+    installTestRequirements
+    packageDeployable
+    pinRequirements
+build - Assembles and tests this project. [assemble, check]
+clean - Deletes the build directory.
+cleanSaveVenv
+
+Build Setup tasks
+-----------------
+init - Initializes a new Gradle build. [incubating]
+wrapper - Generates Gradle wrapper files. [incubating]
+
+Documentation tasks
+-------------------
+buildDocsHtml - Generate Sphinx documentation in html format
+    createVirtualEnvironment
+    installBuildRequirements
+    installLinks
+    installProject
+    installPythonRequirements
+    installSetupRequirements
+    installTestRequirements
+    pinRequirements
+buildDocsJson - Generate Sphinx documentation in json format
+    createVirtualEnvironment
+    installBuildRequirements
+    installLinks
+    installProject
+    installPythonRequirements
+    installSetupRequirements
+    installTestRequirements
+    pinRequirements
+generateSetupPy - Writes the suggested setup.py out to disk. This will overwrite any existing setup.py
+
+Help tasks
+----------
+buildEnvironment - Displays all buildscript dependencies declared in root project 'testProject'.
+foo:buildEnvironment - Displays all buildscript dependencies declared in project ':foo'.
+components - Displays the components produced by root project 'testProject'. [incubating]
+foo:components - Displays the components produced by project ':foo'. [incubating]
+dependencies - Displays all dependencies declared in root project 'testProject'.
+foo:dependencies - Displays all dependencies declared in project ':foo'.
+dependencyInsight - Displays the insight into a specific dependency in root project 'testProject'.
+foo:dependencyInsight - Displays the insight into a specific dependency in project ':foo'.
+help - Displays a help message.
+foo:help - Displays a help message.
+model - Displays the configuration model of root project 'testProject'. [incubating]
+foo:model - Displays the configuration model of project ':foo'. [incubating]
+projects - Displays the sub-projects of root project 'testProject'.
+foo:projects - Displays the sub-projects of project ':foo'.
+properties - Displays the properties of root project 'testProject'.
+foo:properties - Displays the properties of project ':foo'.
+tasks - Displays the tasks runnable from root project 'testProject' (some of the displayed tasks may belong to subprojects).
+foo:tasks - Displays the tasks runnable from project ':foo'.
+
+Verification tasks
+------------------
+check - Runs all checks.
+    createVirtualEnvironment
+    flake8
+    installBuildRequirements
+    installLinks
+    installProject
+    installPythonRequirements
+    installSetupRequirements
+    installTestRequirements
+    pinRequirements
+    pytest
+
+Other tasks
+-----------
+coverage
+    createVirtualEnvironment
+    installBuildRequirements
+    installLinks
+    installProject
+    installPythonRequirements
+    installSetupRequirements
+    installTestRequirements
+    pinRequirements
+flake8Checkstyle
+    createVirtualEnvironment
+    installBuildRequirements
+    installLinks
+    installSetupRequirements
+    pinRequirements
+packageDocs [buildDocsHtml, buildDocsJson]
+    buildDocs
+packageJsonDocs [buildDocsHtml, buildDocsJson]
+    buildDocs
+
+Rules
+-----
+Pattern: clean<TaskName>: Cleans the output files of a task.
+Pattern: build<ConfigurationName>: Assembles the artifacts of a configuration.
+Pattern: upload<ConfigurationName>: Assembles and uploads the artifacts belonging to a configuration.
+
+BUILD SUCCESSFUL
+
+Total time: 0.174 secs
+
+:tasks
+
+------------------------------------------------------------
+All tasks runnable from root project
+------------------------------------------------------------
+
+Build tasks
+-----------
+assemble - Assembles the outputs of this project.
+    buildPex
+    buildWebApplication - Build a web app, by default using gunicorn, but it's configurable.
+    buildWheels
+    createVirtualEnvironment
+    installBuildRequirements
+    installLinks
+    installProject
+    installPythonRequirements
+    installSetupRequirements
+    installTestRequirements
+    packageDeployable
+    packageWebApplication
+    pinRequirements
+build - Assembles and tests this project. [assemble, check]
+clean - Deletes the build directory.
+cleanSaveVenv
+
+Build Setup tasks
+-----------------
+init - Initializes a new Gradle build. [incubating]
+wrapper - Generates Gradle wrapper files. [incubating]
+
+Documentation tasks
+-------------------
+buildDocsHtml - Generate Sphinx documentation in html format
+    createVirtualEnvironment
+    installBuildRequirements
+    installLinks
+    installProject
+    installPythonRequirements
+    installSetupRequirements
+    installTestRequirements
+    pinRequirements
+buildDocsJson - Generate Sphinx documentation in json format
+    createVirtualEnvironment
+    installBuildRequirements
+    installLinks
+    installProject
+    installPythonRequirements
+    installSetupRequirements
+    installTestRequirements
+    pinRequirements
+generateSetupPy - Writes the suggested setup.py out to disk. This will overwrite any existing setup.py
+
+Help tasks
+----------
+buildEnvironment - Displays all buildscript dependencies declared in root project 'testProject'.
+foo:buildEnvironment - Displays all buildscript dependencies declared in project ':foo'.
+components - Displays the components produced by root project 'testProject'. [incubating]
+foo:components - Displays the components produced by project ':foo'. [incubating]
+dependencies - Displays all dependencies declared in root project 'testProject'.
+foo:dependencies - Displays all dependencies declared in project ':foo'.
+dependencyInsight - Displays the insight into a specific dependency in root project 'testProject'.
+foo:dependencyInsight - Displays the insight into a specific dependency in project ':foo'.
+help - Displays a help message.
+foo:help - Displays a help message.
+model - Displays the configuration model of root project 'testProject'. [incubating]
+foo:model - Displays the configuration model of project ':foo'. [incubating]
+projects - Displays the sub-projects of root project 'testProject'.
+foo:projects - Displays the sub-projects of project ':foo'.
+properties - Displays the properties of root project 'testProject'.
+foo:properties - Displays the properties of project ':foo'.
+tasks - Displays the tasks runnable from root project 'testProject' (some of the displayed tasks may belong to subprojects).
+foo:tasks - Displays the tasks runnable from project ':foo'.
+
+Verification tasks
+------------------
+check - Runs all checks.
+    createVirtualEnvironment
+    flake8
+    installBuildRequirements
+    installLinks
+    installProject
+    installPythonRequirements
+    installSetupRequirements
+    installTestRequirements
+    pinRequirements
+    pytest
+
+Other tasks
+-----------
+coverage
+    createVirtualEnvironment
+    installBuildRequirements
+    installLinks
+    installProject
+    installPythonRequirements
+    installSetupRequirements
+    installTestRequirements
+    pinRequirements
+flake8Checkstyle
+    createVirtualEnvironment
+    installBuildRequirements
+    installLinks
+    installSetupRequirements
+    pinRequirements
+packageDocs [buildDocsHtml, buildDocsJson]
+    buildDocs
+packageJsonDocs [buildDocsHtml, buildDocsJson]
+    buildDocs
+
+Rules
+-----
+Pattern: clean<TaskName>: Cleans the output files of a task.
+Pattern: build<ConfigurationName>: Assembles the artifacts of a configuration.
+Pattern: upload<ConfigurationName>: Assembles and uploads the artifacts belonging to a configuration.
+
+BUILD SUCCESSFUL
+
+Total time: 0.168 secs

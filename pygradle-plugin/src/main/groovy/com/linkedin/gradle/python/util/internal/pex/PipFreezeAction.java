@@ -18,7 +18,7 @@ package com.linkedin.gradle.python.util.internal.pex;
 import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.util.PackageInfo;
-import com.linkedin.gradle.python.util.StandardTextValues;
+import com.linkedin.gradle.python.util.values.PyGradleConfiguration;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.process.ExecSpec;
@@ -43,11 +43,11 @@ class PipFreezeAction {
         final PythonExtension settings = ExtensionUtils.getPythonExtension(project);
 
         // Setup requirements, build, and test dependencies
-        Set<String> developmentDependencies = configurationToSet(project, StandardTextValues.CONFIGURATION_SETUP_REQS.getValue());
-        developmentDependencies.addAll(configurationToSet(project, StandardTextValues.CONFIGURATION_BUILD_REQS.getValue()));
-        developmentDependencies.addAll(configurationToSet(project, StandardTextValues.CONFIGURATION_TEST.getValue()));
+        Set<String> developmentDependencies = configurationToSet(project, PyGradleConfiguration.SETUP_REQS.getValue());
+        developmentDependencies.addAll(configurationToSet(project, PyGradleConfiguration.BUILD_REQS.getValue()));
+        developmentDependencies.addAll(configurationToSet(project, PyGradleConfiguration.TEST.getValue()));
 
-        developmentDependencies.removeAll(configurationToSet(project, StandardTextValues.CONFIGURATION_PYTHON.getValue()));
+        developmentDependencies.removeAll(configurationToSet(project, PyGradleConfiguration.PYTHON.getValue()));
 
         if (Objects.equals(settings.getDetails().getPythonVersion().getPythonMajorMinor(), "2.6")
             && developmentDependencies.contains("argparse")) {

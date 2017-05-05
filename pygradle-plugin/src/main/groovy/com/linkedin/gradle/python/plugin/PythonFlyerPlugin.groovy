@@ -17,14 +17,14 @@ package com.linkedin.gradle.python.plugin
 
 import com.linkedin.gradle.python.util.ExtensionUtils
 import com.linkedin.gradle.python.util.FileSystemUtils
-import com.linkedin.gradle.python.util.StandardTextValues
 import groovy.transform.CompileStatic
-import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.Copy
 
 import java.nio.file.Paths
+
+import static com.linkedin.gradle.python.util.values.PyGradleTask.*
 
 /**
  * A Flyer plugin.
@@ -55,15 +55,11 @@ import java.nio.file.Paths
  * </pre>
  */
 @CompileStatic
-class PythonFlyerPlugin implements Plugin<Project> {
-
-    public final static String TASK_SETUP_RESOURCE_LINK = 'setupResourceLink'
-    public final static String TASK_PACKAGE_RESOURCE_FILES = 'packageResourceFiles'
+class PythonFlyerPlugin extends AbstractPluginBase {
 
     @Override
-    void apply(Project project) {
-
-        project.plugins.apply(PythonWebApplicationPlugin)
+    void applyTo(Project project) {
+        addPluginLocal(PythonWebApplicationPlugin)
 
         /*
          * This configuration is used to connect the Python project to the Ember project.
@@ -77,10 +73,8 @@ class PythonFlyerPlugin implements Plugin<Project> {
          * And for both local development and LID deployment, the resource folder will have the
          * same relative directory. This will also simplify the logic in python project.
          */
-        project.tasks.create(TASK_SETUP_RESOURCE_LINK) { Task task ->
-
+        addTaskLocal([name: SETUP_RESOURCE_LINK]) { Task task ->
             task.dependsOn resourceConf
-
             task.doLast {
                 if (!Paths.get(project.projectDir.getAbsolutePath(), "resource").toFile().exists()) {
                     println "Making the Symlink: ${project.projectDir}${File.separatorChar}resource --> ${resourceConf.singleFile}"
@@ -89,23 +83,19 @@ class PythonFlyerPlugin implements Plugin<Project> {
             }
         }
 
-        project.tasks.getByName(StandardTextValues.TASK_INSTALL_PROJECT.value).dependsOn(project.tasks.getByName(TASK_SETUP_RESOURCE_LINK))
-
-
         /*
          * In order to make the resource files accessible when deploying the project, we need to copy the
          * static files into the 'deployable' directory.
          */
-        project.tasks.create(name: TASK_PACKAGE_RESOURCE_FILES, type: Copy) { Copy copy ->
+        addTaskLocal([name: PACKAGE_RESOURCE_FILES, type: Copy]) { Copy copy ->
             def deployableExtension = ExtensionUtils.maybeCreateDeployableExtension(project)
-            copy.dependsOn(project.tasks['buildWebApplication'])
-
             copy.from resourceConf
             copy.into "${deployableExtension.deployableBuildDir}/resource"
         }
 
-
         // Make sure we've copied all the files before running the task: packageDeployable
-        project.tasks.getByName(PythonWebApplicationPlugin.TASK_PACKAGE_WEB_APPLICATION).dependsOn(project.tasks.getByName(TASK_PACKAGE_RESOURCE_FILES))
+        aDependsOnB(INSTALL_PROJECT, SETUP_RESOURCE_LINK)
+        aDependsOnB(PACKAGE_WEB_APPLICATION, PACKAGE_RESOURCE_FILES)
+        aDependsOnB(PACKAGE_RESOURCE_FILES, BUILD_WEB_APPLICATION)
     }
 }

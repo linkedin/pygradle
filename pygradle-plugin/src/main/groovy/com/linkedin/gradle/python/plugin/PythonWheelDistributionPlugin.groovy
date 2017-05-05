@@ -15,13 +15,12 @@
  */
 package com.linkedin.gradle.python.plugin
 
-import com.linkedin.gradle.python.util.StandardTextValues
+import com.linkedin.gradle.python.util.values.PyGradleConfiguration
 import org.gradle.api.Project
+import static com.linkedin.gradle.python.util.values.PyGradleTask.*
 
 
-class PythonWheelDistributionPlugin extends PythonBasePlugin {
-
-    public final static String TASK_PACKAGE_WHEEL = 'packageWheel'
+class PythonWheelDistributionPlugin extends AbstractPluginBase {
 
     @Override
     void applyTo(Project project) {
@@ -32,8 +31,7 @@ class PythonWheelDistributionPlugin extends PythonBasePlugin {
         /**
          * Create a Python wheel distribution.
          */
-        project.tasks.create(TASK_PACKAGE_WHEEL) {
-            dependsOn(project.tasks.getByName(StandardTextValues.TASK_INSTALL_PROJECT.value))
+        addTaskLocal([name: PACKAGE_WHEEL]) {
             outputs.file(wheelArtifact)
             doLast {
                 project.exec {
@@ -47,12 +45,13 @@ class PythonWheelDistributionPlugin extends PythonBasePlugin {
                 classifier: "py2-none-any",
                 type: 'whl',
                 file: wheelArtifact,
-                builtBy: project.tasks.getByName(TASK_PACKAGE_WHEEL),
+                builtBy: project.tasks.getByName(PACKAGE_WHEEL.value),
         ]
         if (!project.spec.version.contains('SNAPSHOT')) {
-          project.artifacts.add(StandardTextValues.CONFIGURATION_WHEEL.value, wheelArtifactInfo)
+          project.artifacts.add(PyGradleConfiguration.WHEEL.value, wheelArtifactInfo)
         }
 
+        aDependsOnB(PACKAGE_WHEEL, INSTALL_PROJECT)
     }
 
 }

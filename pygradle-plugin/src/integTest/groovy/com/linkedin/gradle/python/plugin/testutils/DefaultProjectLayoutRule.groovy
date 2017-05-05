@@ -23,6 +23,7 @@ import java.nio.file.Paths
 
 class DefaultProjectLayoutRule extends ExternalResource implements ProjectLayoutRule {
     TemporaryFolder tempFolder
+    boolean saveFolder = false
 
     public static final String PROJECT_NAME_DIR = "foo"
 
@@ -55,8 +56,10 @@ class DefaultProjectLayoutRule extends ExternalResource implements ProjectLayout
     @Override
     @SuppressWarnings("UnnecessaryOverridingMethod")
     void after() {
-        //It's useful to comment this out if you need to look at the test env
-        tempFolder.after()
+        //It's useful to set saveFolder to true if you are trying to debug something
+        if (!saveFolder) {
+            tempFolder.after()
+        }
     }
 
     @Override

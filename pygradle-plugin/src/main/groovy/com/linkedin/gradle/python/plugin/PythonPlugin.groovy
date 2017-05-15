@@ -79,11 +79,10 @@ class PythonPlugin implements Plugin<Project> {
          */
         project.dependencies.add(CONFIGURATION_BOOTSTRAP_REQS.value, settings.forcedVersions['virtualenv'])
 
-        project.dependencies.add(CONFIGURATION_SETUP_REQS.value, settings.forcedVersions['wheel'])
         project.dependencies.add(CONFIGURATION_SETUP_REQS.value, settings.forcedVersions['setuptools'])
+        project.dependencies.add(CONFIGURATION_SETUP_REQS.value, settings.forcedVersions['wheel'])
         project.dependencies.add(CONFIGURATION_SETUP_REQS.value, settings.forcedVersions['pip'])
         project.dependencies.add(CONFIGURATION_SETUP_REQS.value, settings.forcedVersions['setuptools-git'])
-        project.dependencies.add(CONFIGURATION_SETUP_REQS.value, settings.forcedVersions['pbr'])
 
         project.dependencies.add(CONFIGURATION_BUILD_REQS.value, settings.forcedVersions['flake8'])
         project.dependencies.add(CONFIGURATION_BUILD_REQS.value, settings.forcedVersions['Sphinx'])

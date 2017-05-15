@@ -15,17 +15,14 @@
  */
 package com.linkedin.gradle.python.tasks
 
-import com.linkedin.gradle.python.extension.PythonDetails
-import com.linkedin.gradle.python.plugin.PythonHelpers
-import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider
-import com.linkedin.gradle.python.util.ConsoleOutput
-import com.linkedin.gradle.python.util.ExtensionUtils
-import com.linkedin.gradle.python.util.OperatingSystem
-import com.linkedin.gradle.python.util.PackageInfo
+import java.nio.file.Path
+import java.nio.file.Paths
+
 import groovy.time.TimeCategory
 import groovy.transform.CompileStatic
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.FileCollection
 import org.gradle.api.specs.Spec
 import org.gradle.api.tasks.Input
@@ -35,8 +32,15 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecResult
 import org.gradle.process.ExecSpec
 
-import java.nio.file.Path
-import java.nio.file.Paths
+import com.linkedin.gradle.python.extension.PythonDetails
+import com.linkedin.gradle.python.plugin.PythonHelpers
+import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider
+import com.linkedin.gradle.python.util.ConsoleOutput
+import com.linkedin.gradle.python.util.DependencyOrder
+import com.linkedin.gradle.python.util.ExtensionUtils
+import com.linkedin.gradle.python.util.OperatingSystem
+import com.linkedin.gradle.python.util.PackageInfo
+
 
 /**
  * Execute pip install
@@ -83,6 +87,14 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider {
      * otherwise the original order.
      */
     Collection<File> getConfigurationFiles() {
+        if (sorted && (installFileCollection instanceof Configuration)) {
+            try {
+                return DependencyOrder.configurationPostOrderFiles((Configuration) installFileCollection)
+            } catch (Throwable e) {
+                // Log and fall back to old style installation order as before.
+                logger.lifecycle("***** WARNING: ${e.message} *****")
+            }
+        }
         return sorted ? installFileCollection.files.sort() : installFileCollection.files
     }
 

@@ -76,6 +76,8 @@ class PythonPluginIntegrationTest extends Specification {
         then: //Build will skip things that it should
         result.output.contains("BUILD SUCCESS")
         result.output.contains("[SKIPPING]")
+        !installOrderSorted(result.output, ':installSetupRequirements', ':installBuildRequirements')
+        !installOrderSorted(result.output, ':installBuildRequirements', ':installPythonRequirements')
     }
 
     def "can use external library"() {
@@ -108,7 +110,6 @@ class PythonPluginIntegrationTest extends Specification {
         println result.output
 
         then:
-
         !new File(testProjectDir.getRoot(), 'foo/build').exists()
         new File(testProjectDir.getRoot(), 'foo/build2').exists()
         result.output.contains("BUILD SUCCESS")
@@ -121,5 +122,30 @@ class PythonPluginIntegrationTest extends Specification {
         result.task(':foo:pytest').outcome == TaskOutcome.SUCCESS
         result.task(':foo:check').outcome == TaskOutcome.SUCCESS
         result.task(':foo:build').outcome == TaskOutcome.SUCCESS
+        !installOrderSorted(result.output, ':installSetupRequirements', ':installBuildRequirements')
+        !installOrderSorted(result.output, ':installBuildRequirements', ':installPythonRequirements')
+    }
+
+    def installOrderSorted(String output, String start, String end) {
+        def lines = output.split(/\n/)
+        def collected = []
+        def sorted = []
+        boolean startCollecting = false
+        for (String line : lines) {
+            if (line.contains(start)) {
+                startCollecting = true
+            }
+            if (startCollecting) {
+                if (line.contains(end)) {
+                    break
+                }
+                if (line.contains('[STARTING]') || line.contains('[SKIPPING]')) {
+                    collected.add(line)
+                    sorted.add(line)
+                }
+            }
+        }
+        sorted.sort()
+        return collected == sorted
     }
 }

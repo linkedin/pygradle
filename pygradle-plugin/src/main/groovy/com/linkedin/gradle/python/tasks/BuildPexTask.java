@@ -15,6 +15,19 @@
  */
 package com.linkedin.gradle.python.tasks;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.io.FileUtils;
+import org.gradle.api.Action;
+import org.gradle.api.DefaultTask;
+import org.gradle.api.Project;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Optional;
+import org.gradle.api.tasks.TaskAction;
+import org.gradle.process.ExecSpec;
+
 import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.extension.DeployableExtension;
 import com.linkedin.gradle.python.extension.PexExtension;
@@ -26,16 +39,7 @@ import com.linkedin.gradle.python.util.internal.pex.FatPexGenerator;
 import com.linkedin.gradle.python.util.internal.pex.ThinPexGenerator;
 import com.linkedin.gradle.python.util.pex.DefaultEntryPointTemplateProvider;
 import com.linkedin.gradle.python.util.pex.EntryPointTemplateProvider;
-import org.apache.commons.io.FileUtils;
-import org.gradle.api.Action;
-import org.gradle.api.DefaultTask;
-import org.gradle.api.Project;
-import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.Optional;
-import org.gradle.api.tasks.TaskAction;
-import org.gradle.process.ExecSpec;
 
-import java.util.Map;
 
 /**
  * This task builds pex files; both 'thin' and 'fat' based on the settings on {@link PexExtension}
@@ -52,12 +56,26 @@ import java.util.Map;
  * properties passed to it automatically. They are named <code>realPex</code>, gives the name of the pex to execute against
  * and <code>entryPoint</code> which is the name of the entry point. If you wish to provide your own template, with more
  * options they can be added to {@link BuildPexTask#additionalProperties} and they will be provided to the template engine.
+ *
+ * The pexOptions allow passing of additional options to the pex command, such as '--pre' to allow pre-release packages.
+ * This is useful because the default behavior changed in pex-1.2.0 without bumping of major version.
  */
 public class BuildPexTask extends DefaultTask implements FailureReasonProvider {
 
     private Map<String, String> additionalProperties;
     private EntryPointTemplateProvider templateProvider = new DefaultEntryPointTemplateProvider();
     private TeeOutputContainer container = new TeeOutputContainer(System.out, System.err);
+    private List<String> pexOptions = new ArrayList<>();
+
+    @Input
+    @Optional
+    public List<String> getPexOptions() {
+        return pexOptions;
+    }
+
+    public void setPexOptions(List<String> pexOptions) {
+        this.pexOptions = pexOptions;
+    }
 
     @TaskAction
     public void buildPex() throws Exception {
@@ -83,9 +101,9 @@ public class BuildPexTask extends DefaultTask implements FailureReasonProvider {
         deployableExtension.getDeployableBuildDir().mkdirs();
 
         if (pexExtension.isFatPex()) {
-            new FatPexGenerator(project).buildEntryPoints();
+            new FatPexGenerator(project, pexOptions).buildEntryPoints();
         } else {
-            new ThinPexGenerator(project, templateProvider, additionalProperties).buildEntryPoints();
+            new ThinPexGenerator(project, pexOptions, templateProvider, additionalProperties).buildEntryPoints();
         }
     }
 

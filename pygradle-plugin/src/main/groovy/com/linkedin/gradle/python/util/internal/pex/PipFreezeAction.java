@@ -15,14 +15,6 @@
  */
 package com.linkedin.gradle.python.util.internal.pex;
 
-import com.linkedin.gradle.python.PythonExtension;
-import com.linkedin.gradle.python.util.ExtensionUtils;
-import com.linkedin.gradle.python.util.PackageInfo;
-import com.linkedin.gradle.python.util.StandardTextValues;
-import org.gradle.api.Action;
-import org.gradle.api.Project;
-import org.gradle.process.ExecSpec;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.Collection;
@@ -30,6 +22,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+
+import org.gradle.api.Action;
+import org.gradle.api.Project;
+import org.gradle.process.ExecSpec;
+
+import com.linkedin.gradle.python.PythonExtension;
+import com.linkedin.gradle.python.util.ExtensionUtils;
+import com.linkedin.gradle.python.util.PackageInfo;
+import com.linkedin.gradle.python.util.StandardTextValues;
 
 class PipFreezeAction {
 
@@ -70,7 +71,16 @@ class PipFreezeAction {
             }
         });
 
-        return PipFreezeOutputParser.getDependencies(developmentDependencies, requirements);
+        List<String> dependencies = PipFreezeOutputParser.getDependencies(developmentDependencies, requirements);
+        /*
+         * Starting with pip-9.x the current project will be editable in freeze.
+         * We need to add it unconditionally if it gets skipped in the parser.
+         */
+        if (!dependencies.contains(project.getName())) {
+            dependencies.add(project.getName());
+        }
+
+        return dependencies;
     }
 
     private static Set<String> configurationToSet(Project project, String configurationName) {

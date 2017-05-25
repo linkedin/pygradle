@@ -34,11 +34,12 @@ class PipFreezeOutputParser {
         List<String> reqs = new ArrayList<>();
 
         // In regex world \n will also match the windows CR+LF
-        for (String it : requirements.split("\n")) {
-            String[] split = it.split("==");
-            String name = split[0];
+        for (String line : requirements.split("\n")) {
+            String[] parts = line.split("==");
+            String name = parts[0];
+            boolean editable = name.startsWith("-e ");
             // The tar name can have _ when package name has -, so check both.
-            if (!(ignoredDependencies.contains(name)
+            if (!(editable || ignoredDependencies.contains(name)
                 || ignoredDependencies.contains(name.replace("-", "_")))) {
                 reqs.add(name);
             }

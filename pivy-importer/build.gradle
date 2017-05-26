@@ -47,24 +47,24 @@ task importRequiredDependencies(type: JavaExec) { task ->
         'sphinx_rtd_theme:0.1=sphinx_rtd_theme:0.1.1',      // candidate for removal
     ].join(",")
     def packagesToInclude = [
-        'flake8:2.5.4',
-        'Flask:0.11.1',
+        'flake8:2.6.2',
+        'Flask:0.12.2',
         'pbr:1.8.0',
-        'pex:1.1.4',
-        'pip:7.1.2',
-        'pytest-cov:2.2.1',
-        'pytest-xdist:1.14',
-        'pytest:2.9.1',
-        'requests:2.10.0',
-        'setuptools-git:1.1',
-        'setuptools:19.1.1',
+        'pex:1.2.7',
+        'pip:9.0.1',
+        'pytest:3.0.3',
+        'pytest-cov:2.4.0',
+        'pytest-xdist:1.15.0',
+        'requests:2.18.1',
+        'setuptools:33.1.1',
+        'setuptools-git:1.2',
         'six:1.10.0',
         'Sphinx:1.4.1',
-        'virtualenv:15.0.1',
-        'wheel:0.26.0',
+        'virtualenv:15.1.0',
+        'wheel:0.29.0',
     ].join(" ")
     def forceDeps = [
-        'docutils:0.12',
+        'setuptools:33.1.1',
     ].join(',')
     args "--repo ${getIvyRepo().absolutePath} $packagesToInclude --replace $replacements --force $forceDeps".split(' ')
 

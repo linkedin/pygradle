@@ -93,13 +93,3 @@ PyGradle works on the following platforms.
 Additional compatibility notes are availabe [here](docs/compatibility.md).
 We're happy to review and merge pull requests that add support for additional
 platforms.
-
-# Known Potential Issues
-
-- Due to a bug in pip, when trying to install scipy may fail. A potential work
-around is to use a newer version of pip. A PR was merged into pip master that
-fixes the issue (https://github.com/pypa/pip/pull/3701), a version of pip with
-the fix in it has not been released yet. If this is an issue for your org, you
-could release a version of pip with this fix in it. For more details on the
-change and issues please review https://github.com/pypa/pip/pull/3701 and
-https://github.com/pypa/pip/pull/3079

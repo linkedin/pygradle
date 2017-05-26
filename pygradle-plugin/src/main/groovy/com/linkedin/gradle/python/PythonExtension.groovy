@@ -65,18 +65,19 @@ class PythonExtension {
 
     /** A way to define forced versions of libraries */
     public Map<String, Map<String, String>> forcedVersions = [
-        'argparse'      : ['group': 'pypi', 'name': 'argparse',         'version': '1.4.0'],
-        'flake8'        : ['group': 'pypi', 'name': 'flake8',           'version': '2.5.4'],
-        'pex'           : ['group': 'pypi', 'name': 'pex',              'version': '1.1.4'],
-        'pip'           : ['group': 'pypi', 'name': 'pip',              'version': '7.1.2'],
-        'pytest'        : ['group': 'pypi', 'name': 'pytest',           'version': '2.9.1'],
-        'pytest-cov'    : ['group': 'pypi', 'name': 'pytest-cov',       'version': '2.2.1'],
-        'pytest-xdist'  : ['group': 'pypi', 'name': 'pytest-xdist',     'version': '1.14'],
-        'setuptools'    : ['group': 'pypi', 'name': 'setuptools',       'version': '19.1.1'],
-        'setuptools-git': ['group': 'pypi', 'name': 'setuptools-git',   'version': '1.1'],
-        'Sphinx'        : ['group': 'pypi', 'name': 'Sphinx',           'version': '1.4.1'],
-        'virtualenv'    : ['group': 'pypi', 'name': 'virtualenv',       'version': '15.0.1'],
-        'wheel'         : ['group': 'pypi', 'name': 'wheel',            'version': '0.26.0'],
+        'argparse': ['group': 'pypi', 'name': 'argparse', 'version': '1.4.0'],
+        'flake8': ['group': 'pypi', 'name': 'flake8', 'version': '2.6.2'],
+        'pex': ['group': 'pypi', 'name': 'pex', 'version': '1.2.7'],
+        'pip': ['group': 'pypi', 'name': 'pip', 'version': '9.0.1'],
+        'pytest': ['group': 'pypi', 'name': 'pytest', 'version': '3.0.3'],
+        'pytest-cov': ['group': 'pypi', 'name': 'pytest-cov', 'version': '2.4.0'],
+        'pytest-xdist': ['group': 'pypi', 'name': 'pytest-xdist', 'version': '1.15.0'],
+        'setuptools': ['group': 'pypi', 'name': 'setuptools', 'version': '33.1.1'],
+        'setuptools-git': ['group': 'pypi', 'name': 'setuptools-git', 'version': '1.2'],
+        'six': ['group': 'pypi', 'name': 'six', 'version': '1.10.0'],
+        'Sphinx': ['group': 'pypi', 'name': 'Sphinx', 'version': '1.4.1'],
+        'virtualenv': ['group': 'pypi', 'name': 'virtualenv', 'version': '15.1.0'],
+        'wheel': ['group': 'pypi', 'name': 'wheel', 'version': '0.29.0'],
     ]
 
     /* Container of the details related to the venv/python instance */

@@ -48,7 +48,7 @@ public class ImporterCLI {
         CommandLineParser parser = new DefaultParser();
         CommandLine line = parser.parse(options, args);
 
-        if (line.hasOption("quite")) {
+        if (line.hasOption("quiet")) {
             Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
             root.setLevel(Level.WARN);
         }
@@ -68,7 +68,8 @@ public class ImporterCLI {
 
         Set<String> processedDependencies = new HashSet<>();
         for (String dependency : line.getArgList()) {
-            DependencyDownloader dependencyDownloader = new DependencyDownloader(dependency, repoPath, replacements);
+            DependencyDownloader dependencyDownloader = new DependencyDownloader(
+                    dependency, repoPath, replacements, line.hasOption("latest"), line.hasOption("pre"));
             dependencyDownloader.getProcessedDependencies().addAll(processedDependencies);
             dependencyDownloader.download();
             processedDependencies.addAll(dependencyDownloader.getProcessedDependencies());
@@ -105,8 +106,8 @@ public class ImporterCLI {
             .valueSeparator(',')
             .build();
 
-        Option quite = Option.builder()
-            .longOpt("quite")
+        Option quiet = Option.builder()
+            .longOpt("quiet")
             .numberOfArgs(0)
             .desc("Sets logging level to WARN")
             .build();
@@ -118,11 +119,26 @@ public class ImporterCLI {
             .valueSeparator(',')
             .build();
 
+        Option latest = Option.builder()
+            .longOpt("latest")
+            .numberOfArgs(0)
+            .desc("Gets latest versions of dependencies")
+            .build();
+
+        Option pre = Option.builder()
+            .longOpt("pre")
+            .numberOfArgs(0)
+            .desc("Allows pre-releases (alpha, beta, release candidates)")
+            .build();
+
         Options options = new Options();
         options.addOption(replacement);
         options.addOption(repo);
-        options.addOption(quite);
+        options.addOption(quiet);
         options.addOption(force);
+        options.addOption(latest);
+        options.addOption(pre);
+
         return options;
     }
 

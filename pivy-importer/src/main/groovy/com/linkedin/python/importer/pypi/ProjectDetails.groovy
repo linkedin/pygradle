@@ -22,7 +22,7 @@ class ProjectDetails {
     final Map<String, List<VersionEntry>> releases = [:]
     final String latest
 
-    public ProjectDetails(Map<String, Object> details) {
+    ProjectDetails(Map<String, Object> details) {
         name = details.info.name
         latest = details.info.version
 
@@ -36,10 +36,10 @@ class ProjectDetails {
             return releases[version]
         }
 
-        throw new RuntimeException("Unable to find $name@$version")
+        throw new RuntimeException("Unable to find ${name}@${version}")
     }
 
-    public String maybeFixVersion(String version) {
+    String maybeFixVersion(String version) {
         if (hasVersion(version)) {
             return version
         }
@@ -55,11 +55,48 @@ class ProjectDetails {
         throw new RuntimeException("Unable to find version $version for $name")
     }
 
-    public boolean hasVersion(String version) {
+    boolean hasVersion(String version) {
         return releases.containsKey(version)
     }
 
-    public String getLatestVersion() {
+    String getLatestVersion() {
         return latest
+    }
+
+    private List<String> getVersionInRange(VersionRange range, List<String> excluded, boolean allowPreReleases) {
+        String start = range.startVersion ?: '0'
+        String end = range.endVersion ?: '999999'
+        def sortedReleases = releases.keySet().sort { a, b -> VersionRange.compareVersions(a, b) }
+        def matchingRange = []
+
+        for (String release : sortedReleases) {
+            if (excluded.contains(release)) {
+                continue
+            }
+            if (!allowPreReleases && release ==~ /^.*\d(a|alpha|b|beta|rc)\d*$/) {
+                // skip alpha/beta/release candidate versions
+                continue
+            }
+            if (VersionRange.compareVersions(release, start) > 0 || (release == start && range.includeStart)) {
+                matchingRange.add(release)
+            }
+            if (VersionRange.compareVersions(release, end) > 0 || (release == end && !range.includeEnd)) {
+                break
+            }
+        }
+
+        if (matchingRange.isEmpty()) {
+            throw new RuntimeException("Unable to find ${name} in range ${range.startVersion}..${range.endVersion}")
+        }
+
+        return matchingRange
+    }
+
+    String getHighestVersionInRange(VersionRange range, List<String> excluded, boolean allowPreReleases) {
+        return getVersionInRange(range, excluded, allowPreReleases).last()
+    }
+
+    String getLowestVersionInRange(VersionRange range, List<String> excluded, boolean allowPreReleases) {
+        return getVersionInRange(range, excluded, allowPreReleases).first()
     }
 }

@@ -15,14 +15,16 @@
  */
 package com.linkedin.python.importer.distribution
 
-import com.linkedin.python.importer.deps.DependencySubstitution
-import com.linkedin.python.importer.pypi.PypiApiCache
+import java.util.zip.ZipFile
+
 import groovy.util.logging.Slf4j
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 
-import java.util.zip.ZipFile
+import com.linkedin.python.importer.deps.DependencySubstitution
+import com.linkedin.python.importer.pypi.PypiApiCache
+import com.linkedin.python.importer.pypi.VersionRange
 
 @Slf4j
 class SourceDistPackage {
@@ -30,14 +32,23 @@ class SourceDistPackage {
     private final File packageFile
     private final PypiApiCache pypiApiCache
     private final DependencySubstitution dependencySubstitution
+    private final boolean latestVersions
+    private final boolean allowPreReleases
 
-    public SourceDistPackage(File packageFile, PypiApiCache pypiApiCache, DependencySubstitution dependencySubstitution) {
+    SourceDistPackage(
+            File packageFile,
+            PypiApiCache pypiApiCache,
+            DependencySubstitution dependencySubstitution,
+            boolean latestVersions,
+            boolean allowPreReleases) {
         this.dependencySubstitution = dependencySubstitution
         this.pypiApiCache = pypiApiCache
         this.packageFile = packageFile
+        this.latestVersions = latestVersions
+        this.allowPreReleases = allowPreReleases
     }
 
-    public Map<String, List<String>> getDependencies() {
+    Map<String, List<String>> getDependencies() {
         return parseRequiresText(getRequiresTextFile())
     }
 
@@ -51,7 +62,7 @@ class SourceDistPackage {
             if (line.isEmpty()) {
                 return
             }
-            def configMatcher = line =~ '^\\[(.*?)\\]$'
+            def configMatcher = line =~ /^\[(.*?)]$/
             if (configMatcher.matches()) {
                 configuration = configMatcher.group(1).split(":")[0]
                 if (configuration.isEmpty()) {
@@ -64,20 +75,73 @@ class SourceDistPackage {
             } else {
 
                 if (line.contains('[')) {
-                    line = line.replaceAll('\\[.*?\\]', '')
+                    line = line.replaceAll(/\[.*?]/, '')
                 }
                 if (line.contains(' ')) {
                     line = line.replaceAll(' ', '')
                 }
 
-                def split = line.split('[=<>]=?')
-                log.debug("Split({}) {}", line, split)
+                List<String> conditions = line.split(',')
+                log.debug("Split({}) {}", line, conditions)
 
-                def projectDetails = pypiApiCache.getDetails(split[0])
-                def version = split.length == 1 ? projectDetails.getLatestVersion() : split[1].split(',')[0]
-                def name = projectDetails.getName()
+                String packageName = conditions[0].split(/!=|==|[><]=?/)[0]
+                VersionRange range = new VersionRange('', false, '', false)
+                List<String> excluded = []
+
+                for (String condition : conditions) {
+                    List<String> parts = condition.split(/!=|==|[><]=?/)
+                    log.debug("Split({}) {}", condition, parts)
+
+                    if (parts.size() > 1) {
+                        String v = parts[1]
+                        String operator = condition[parts[0].size()..-(parts[1].size() + 1)]
+
+                        switch (operator) {
+                            case '>=':
+                                range.includeStart = true
+                                /* FALL THROUGH */
+                            case '>':
+                                range.startVersion = v
+                                break
+                            case '<=':
+                                range.includeEnd = true
+                                /* FALL THROUGH */
+                            case '<':
+                                range.endVersion = v
+                                break
+                            case '!=':
+                                excluded.add(v)
+                                break
+                            case '==':
+                                range.includeStart = true
+                                range.startVersion = v
+                                range.includeEnd = true
+                                range.endVersion = v
+                                break
+                            default:
+                                throw new RuntimeException("Unrecognizable package version condition ${condition}")
+                        }
+                    }
+                }
+
+                def projectDetails = pypiApiCache.getDetails(packageName)
+                String name = projectDetails.getName()
+                String version
+                if (range.startVersion == '' && range.endVersion == '') {
+                    // No specific version requested. Get the latest stable.
+                    if (allowPreReleases) {
+                        version = projectDetails.getLatestVersion()
+                    } else {
+                        range.endVersion = projectDetails.getLatestVersion()
+                        version = projectDetails.getHighestVersionInRange(range, excluded, allowPreReleases)
+                    }
+                } else if (latestVersions) {
+                    version = projectDetails.getHighestVersionInRange(range, excluded, allowPreReleases)
+                } else {
+                    version = projectDetails.getLowestVersionInRange(range, excluded, allowPreReleases)
+                }
+
                 (name, version) = dependencySubstitution.maybeReplace(name + ':' + version).split(':')
-
                 version = projectDetails.maybeFixVersion(version)
                 dependencies[configuration] << name + ':' + version
             }

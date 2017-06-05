@@ -15,11 +15,12 @@
  */
 package com.linkedin.gradle.python.util
 
-import com.linkedin.gradle.python.PythonExtension
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.process.ExecResult
 import org.gradle.process.ExecSpec
+
+import com.linkedin.gradle.python.PythonExtension
 
 
 class PexFileUtil {
@@ -128,12 +129,22 @@ class PexFileUtil {
         List<String> reqs = []
 
         requirements.toString().split(System.getProperty("line.separator")).each {
-            def (String name, String version) = it.split('==')
+            List<String> parts = it.split('==')
+            String name = parts[0]
+            boolean editable = name.startsWith("-e ")
             // The tar name can have _ when package name has -, so check both.
-            if (!(developmentDependencies.contains(name)
+            if (!(editable || developmentDependencies.contains(name)
                 || developmentDependencies.contains(name.replace('-', '_')))) {
                 reqs.add(name)
             }
+        }
+
+        /*
+         * Starting with pip-9.x the current project will be editable in freeze.
+         * We need to add it unconditionally if it gets skipped above.
+         */
+        if (!reqs.contains(project.getName())) {
+            reqs.add(project.getName())
         }
 
         return reqs

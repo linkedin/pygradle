@@ -35,16 +35,20 @@ task importRequiredDependencies(type: JavaExec) { task ->
     classpath = sourceSets.main.runtimeClasspath
     main = 'com.linkedin.python.importer.ImporterCLI'
 
-    def replacements = ['alabaster:0.7=alabaster:0.7.1', 'pytz:0a=pytz:2016.4', 'Babel:0.8=Babel:1.0',
-                        'sphinx_rtd_theme:0.1=sphinx_rtd_theme:0.1.1', 'chardet:2.2=chardet:2.3.0',
-                        'setuptools:0.6a2=setuptools:19.1.1', 'idna:2.0.0=idna:2.0'].join(",")
+    def replacements = [
+        'alabaster:0.7=alabaster:0.7.1',                    // candidate for removal
+        'Babel:0.8=Babel:1.0',
+        'chardet:2.2=chardet:2.3.0',                        // candidate for removal
+        'idna:2.0.0=idna:2.0',                              // candidate for removal
+        'pytz:0a=pytz:2016.4',                              // candidate for removal
+        'pytz:2004b.2=pytz:2016.4',
+        'setuptools:0.6a2=setuptools:19.1.1',               // candidate for removal
+        'setuptools:0.6c1=setuptools:19.1.1',
+        'sphinx_rtd_theme:0.1=sphinx_rtd_theme:0.1.1',      // candidate for removal
+    ].join(",")
     def packagesToInclude = [
-        'appdirs:1.4.3',
-        'docutils:0.12',
-        'flake8:2.4.0',
         'flake8:2.5.4',
         'Flask:0.11.1',
-        'packaging:16.8',
         'pbr:1.8.0',
         'pex:1.1.4',
         'pip:7.1.2',
@@ -59,7 +63,9 @@ task importRequiredDependencies(type: JavaExec) { task ->
         'virtualenv:15.0.1',
         'wheel:0.26.0',
     ].join(" ")
-    def forceDeps = ['docutils:0.12'].join(',')
+    def forceDeps = [
+        'docutils:0.12',
+    ].join(',')
     args "--repo ${getIvyRepo().absolutePath} $packagesToInclude --replace $replacements --force $forceDeps".split(' ')
 
     outputs.dir(getIvyRepo())

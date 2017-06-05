@@ -20,6 +20,7 @@ import com.linkedin.gradle.python.extension.PythonDetails
 import com.linkedin.gradle.python.extension.WheelExtension
 import com.linkedin.gradle.python.plugin.PythonHelpers
 import com.linkedin.gradle.python.util.ConsoleOutput
+import com.linkedin.gradle.python.util.DependencyOrder
 import com.linkedin.gradle.python.util.ExtensionUtils
 import com.linkedin.gradle.python.util.PackageInfo
 import groovy.time.TimeCategory
@@ -43,7 +44,15 @@ class BuildWheelsTask extends DefaultTask {
 
     @TaskAction
     public void buildWheelsTask() {
-        buildWheels(project, project.configurations.python.files, getPythonDetails())
+        Collection<File> configurationFiles = null
+        try {
+            configurationFiles = DependencyOrder.configurationPostOrderFiles(project.configurations.python)
+        } catch (Throwable e) {
+            // Log and fall back to old style installation order as before.
+            logger.lifecycle("***** WARNING: ${e.message} *****")
+            configurationFiles = project.configurations.python.files.sort()
+        }
+        buildWheels(project, configurationFiles, getPythonDetails())
 
         /*
          * If pexDependencies are empty or its wheels are already
@@ -61,7 +70,7 @@ class BuildWheelsTask extends DefaultTask {
                 pexDependencies.add(file)
             }
         }
-        buildWheels(project, pexDependencies, getPythonDetails())
+        buildWheels(project, pexDependencies.sort(), getPythonDetails())
     }
 
     /**
@@ -108,7 +117,7 @@ class BuildWheelsTask extends DefaultTask {
         WheelExtension wheelExtension = ExtensionUtils.getPythonComponentExtension(project, WheelExtension)
         def pythonExtension = ExtensionUtils.getPythonExtension(project)
 
-        installables.sort().each { File installable ->
+        installables.each { File installable ->
 
             def packageInfo = PackageInfo.fromPath(installable.path)
             def shortHand = packageInfo.version ? "${packageInfo.name}-${packageInfo.version}" : packageInfo.name

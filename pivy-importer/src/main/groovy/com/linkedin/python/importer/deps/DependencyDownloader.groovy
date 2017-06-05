@@ -34,10 +34,15 @@ class DependencyDownloader {
     PypiApiCache cache = new PypiApiCache()
     File ivyRepoRoot
     DependencySubstitution dependencySubstitution
+    boolean latestVersions
+    boolean allowPreReleases
 
-    DependencyDownloader(String project, File ivyRepoRoot, DependencySubstitution dependencySubstitution) {
+    DependencyDownloader(String project, File ivyRepoRoot, DependencySubstitution dependencySubstitution,
+                         boolean latestVersions, boolean allowPreReleases) {
         this.dependencySubstitution = dependencySubstitution
         this.ivyRepoRoot = ivyRepoRoot
+        this.latestVersions = latestVersions
+        this.allowPreReleases = allowPreReleases
         dependencies.add(project)
     }
 
@@ -69,7 +74,8 @@ class DependencyDownloader {
         destDir.mkdirs()
 
         def artifact = downloadArtifact(destDir, sdistDetails.url)
-        def packageDependencies = new SourceDistPackage(artifact, cache, dependencySubstitution).dependencies
+        def packageDependencies = new SourceDistPackage(artifact, cache, dependencySubstitution,
+                                                        latestVersions, allowPreReleases).dependencies
 
         new IvyFileWriter(name, version, [sdistDetails], packageDependencies).writeIvyFile(destDir)
 

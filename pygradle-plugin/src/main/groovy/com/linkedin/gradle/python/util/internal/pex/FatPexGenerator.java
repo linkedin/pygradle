@@ -15,23 +15,27 @@
  */
 package com.linkedin.gradle.python.util.internal.pex;
 
-import com.linkedin.gradle.python.util.EntryPointHelpers;
-import com.linkedin.gradle.python.util.PexFileUtil;
+import java.util.List;
+
 import org.gradle.api.Project;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.process.ExecResult;
 
-import java.util.List;
+import com.linkedin.gradle.python.util.EntryPointHelpers;
+import com.linkedin.gradle.python.util.PexFileUtil;
+
 
 public class FatPexGenerator implements PexGenerator {
 
     private static final Logger logger = Logging.getLogger(FatPexGenerator.class);
 
     private final Project project;
+    private final List<String> pexOptions;
 
-    public FatPexGenerator(Project project) {
+    public FatPexGenerator(Project project, List<String> pexOptions) {
         this.project = project;
+        this.pexOptions = pexOptions;
     }
 
     @Override
@@ -44,7 +48,7 @@ public class FatPexGenerator implements PexGenerator {
             String name = PexFileUtil.createFatPexFilename(split[0].trim());
             String entry = split[1].trim();
 
-            PexExecSpecAction action = PexExecSpecAction.withEntryPoint(project, name, entry, dependencies);
+            PexExecSpecAction action = PexExecSpecAction.withEntryPoint(project, name, entry, pexOptions, dependencies);
             ExecResult exec = project.exec(action);
             new PexExecOutputParser(action, exec).validatePexBuildSuccessfully();
         }

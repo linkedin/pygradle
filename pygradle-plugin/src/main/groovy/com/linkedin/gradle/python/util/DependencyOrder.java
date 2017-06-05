@@ -102,6 +102,7 @@ public class DependencyOrder {
     public static Collection<File> configurationPostOrderFiles(Configuration configuration) {
         Map<ModuleVersionIdentifier, File> idToFileMap = new HashMap<>();
         Set<File> files = new LinkedHashSet<>();
+        Set<File> configurationFiles = configuration.getFiles();
 
         // Create an id:file mapping.
         Set<ResolvedArtifact> artifacts = configuration.getResolvedConfiguration().getResolvedArtifacts();
@@ -116,11 +117,36 @@ public class DependencyOrder {
             files.add(idToFileMap.get(d.getModuleVersion()));
         }
 
-        // Check that the new set is the same size as the configuration file collection.
-        if (files.size() != configuration.getFiles().size()) {
+        // Make sure the files set is a subset of configuration files.
+        if (!configurationFiles.containsAll(files)) {
             throw new GradleException("Could not find matching dependencies for all configuration files");
         }
 
+        /*
+         * Our rest.li generated packages will extend configuration and
+         * will not appear in the resolved results. We are going to add
+         * them at the end in the same order they were added to
+         * configuration files.
+         */
+        if (files.size() != configurationFiles.size()) {
+            files.addAll(difference(configurationFiles, files));
+        }
+
         return files;
+    }
+
+    /*
+     * Return a set difference between the larger and smaller sets.
+     */
+    private static Set<File> difference(Set<File> larger, Set<File> smaller) {
+        Set<File> diff = new LinkedHashSet<>();
+
+        for (File file : larger) {
+            if (!smaller.contains(file)) {
+                diff.add(file);
+            }
+        }
+
+        return diff;
     }
 }

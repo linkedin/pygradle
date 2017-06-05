@@ -217,8 +217,10 @@ class DependencyOrderTest extends Specification {
         files.toString() == expectedFiles.toString()
     }
 
-    def "configurationPostOrderFiles raises exception for non-matching size"() {
-        setup: "add unknown file to configuration"
+    def "configurationPostOrderFiles raises exception for non-matching sets"() {
+        setup: "add unknown file to configuration and remove a known one"
+        def saved = configurationFiles.last()
+        configurationFiles.remove(saved)
         File unknown = new File('fXXX')
         configurationFiles.add(unknown)
 
@@ -230,5 +232,22 @@ class DependencyOrderTest extends Specification {
 
         cleanup: "remove the unknown file"
         configurationFiles.remove(unknown)
+        configurationFiles.add(saved)
+    }
+
+    def "configurationPostOrderFiles handles configuration changes"() {
+        setup: "add rest.li file to configuration"
+        File restli = new File('rest.li')
+        configurationFiles.add(restli)
+
+        when: "called with non-matching files size configuration"
+        def files = DependencyOrder.configurationPostOrderFiles(configuration)
+
+        then: "files are in post-order and rest.li added"
+        // comparing string representations because sets would match even with a wrong order
+        files.toString() == expectedFiles.toString()[0..-2] + ', rest.li]'
+
+        cleanup: "remove the unknown file"
+        configurationFiles.remove(restli)
     }
 }

@@ -15,16 +15,16 @@
  */
 package com.linkedin.gradle.python.plugin
 
-import com.linkedin.gradle.python.extension.DeployableExtension
-import com.linkedin.gradle.python.extension.PexExtension
-import com.linkedin.gradle.python.extension.WheelExtension
-import com.linkedin.gradle.python.tasks.BuildWebAppTask
-import com.linkedin.gradle.python.util.ExtensionUtils
-import com.linkedin.gradle.python.util.StandardTextValues
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.tasks.bundling.Compression
 import org.gradle.api.tasks.bundling.Tar
+
+import com.linkedin.gradle.python.extension.DeployableExtension
+import com.linkedin.gradle.python.tasks.BuildWebAppTask
+import com.linkedin.gradle.python.util.ExtensionUtils
+import com.linkedin.gradle.python.util.StandardTextValues
+
 
 class PythonWebApplicationPlugin extends PythonBasePlugin {
 
@@ -40,8 +40,6 @@ class PythonWebApplicationPlugin extends PythonBasePlugin {
         project.plugins.apply(PythonPexDistributionPlugin)
 
         DeployableExtension deployableExtension = ExtensionUtils.maybeCreateDeployableExtension(project)
-        WheelExtension wheelExtension = ExtensionUtils.maybeCreateWheelExtension(project)
-        PexExtension pexExtension = ExtensionUtils.maybeCreatePexExtension(project)
 
         /**
          * Build a gunicorn pex file.
@@ -53,10 +51,6 @@ class PythonWebApplicationPlugin extends PythonBasePlugin {
         project.tasks.create(TASK_BUILD_WEB_APPLICATION, BuildWebAppTask) { task ->
             task.description = 'Build a web app, by default using gunicorn, but it\'s configurable.'
             task.dependsOn(TASK_BUILD_PEX)
-            task.deployableExtension = deployableExtension
-            task.wheelExtension = wheelExtension
-            task.pexExtension = pexExtension
-            task.pythonInterpreter = settings.details.systemPythonInterpreter.path
             task.executable = new File(deployableExtension.deployableBinDir, "gunicorn")
             task.entryPoint = GUNICORN_ENTRYPOINT
         }

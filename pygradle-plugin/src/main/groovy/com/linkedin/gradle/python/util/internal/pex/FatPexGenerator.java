@@ -48,9 +48,18 @@ public class FatPexGenerator implements PexGenerator {
             String name = PexFileUtil.createFatPexFilename(split[0].trim());
             String entry = split[1].trim();
 
-            PexExecSpecAction action = PexExecSpecAction.withEntryPoint(project, name, entry, pexOptions, dependencies);
-            ExecResult exec = project.exec(action);
-            new PexExecOutputParser(action, exec).validatePexBuildSuccessfully();
+            buildEntryPoint(name, entry, dependencies);
         }
+    }
+
+    public void buildEntryPoint(String name, String entry, List<String> pipFreezeDependencies) {
+        List<String> dependencies = pipFreezeDependencies;
+        // When called from outside buildEntryPoints above, this can be null
+        if (dependencies == null) {
+             dependencies = new PipFreezeAction(project).getDependencies();
+        }
+        PexExecSpecAction action = PexExecSpecAction.withEntryPoint(project, name, entry, pexOptions, dependencies);
+        ExecResult exec = project.exec(action);
+        new PexExecOutputParser(action, exec).validatePexBuildSuccessfully();
     }
 }

@@ -66,6 +66,9 @@ Detailed instructions:
 
 - `./gradlew build` (`./` refers to your local pygradle checkout, including in points below)
 - Open your pygradle project in IntelliJ
+    - Select **Use auto-import**, make sure the other 2 checkboxes are NOT checked
+    - Select **Use default gradle wrapper** from the 3 radio options
+    - Everything else default ("Gradle home" empty, project format .idea)
 - Go to menu `File` -> `Project Structure`
     - Select `Libraries` (left pane), click the `+` button (middle pane) to add a `Java` library, browse to `./gradle/wrapper`, click `Open`
         - Choose module `pygradle-plugin` when prompted

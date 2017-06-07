@@ -20,7 +20,7 @@ backward compatible with artifacts produced by vanilla
 stopping you from using PyGradle with one, two, or all of your Python projects
 right away!
 
-As a general philosophy, we strive enhance Python rather than replace it,
+As a general philosophy, we strive to enhance Python rather than replace it,
 thereby keeping open source Python development idiomatic and intuitive.
 
 # Usage

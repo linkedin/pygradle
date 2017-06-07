@@ -15,57 +15,47 @@
  */
 package com.linkedin.gradle.python.tasks;
 
-import com.linkedin.gradle.python.extension.DeployableExtension;
-import com.linkedin.gradle.python.extension.PexExtension;
-import com.linkedin.gradle.python.extension.WheelExtension;
-import com.linkedin.gradle.python.plugin.PythonWebApplicationPlugin;
-import com.linkedin.gradle.python.util.PexFileUtil;
-import com.linkedin.gradle.python.util.entrypoint.EntryPointWriter;
-import com.linkedin.gradle.python.util.internal.pex.ThinPexGenerator;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import org.apache.commons.io.IOUtils;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.Project;
 import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.InputDirectory;
-import org.gradle.api.tasks.OutputDirectory;
+import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
+import com.linkedin.gradle.python.extension.PexExtension;
+import com.linkedin.gradle.python.util.ExtensionUtils;
+import com.linkedin.gradle.python.util.PexFileUtil;
+import com.linkedin.gradle.python.util.entrypoint.EntryPointWriter;
+import com.linkedin.gradle.python.util.internal.pex.FatPexGenerator;
+import com.linkedin.gradle.python.util.internal.pex.ThinPexGenerator;
+
 
 public class BuildWebAppTask extends DefaultTask {
 
-    private DeployableExtension deployableExtension;
-    private WheelExtension wheelExtension;
-    private PexExtension pexExtension;
     private File executable;
     private String entryPoint;
-    private String pythonInterpreter;
+    private List<String> pexOptions = new ArrayList<>();
 
     @Input
-    public String getPythonInterpreter() {
-        return pythonInterpreter;
+    @Optional
+    public List<String> getPexOptions() {
+        return pexOptions;
     }
 
-    @InputDirectory
-    public File getPexCache() {
-        return pexExtension.getPexCache();
-    }
-
-    @InputDirectory
-    public File getWheelCache() {
-        return wheelExtension.getWheelCache();
+    public void setPexOptions(List<String> pexOptions) {
+        this.pexOptions = pexOptions;
     }
 
     @OutputFile
     public File getExecutable() {
         return executable;
-    }
-
-    @OutputDirectory
-    public File getBinDir() {
-        return deployableExtension.getDeployableBinDir();
     }
 
     @Input
@@ -75,31 +65,20 @@ public class BuildWebAppTask extends DefaultTask {
 
     @TaskAction
     public void buildWebapp() throws IOException, ClassNotFoundException {
+        Project project = getProject();
+        PexExtension pexExtension = ExtensionUtils.getPythonComponentExtension(project, PexExtension.class);
+
         if (pexExtension.isFatPex()) {
-            PexFileUtil.buildPexFile(getProject(), getPexCache(), getExecutable().getPath(), getWheelCache(), pythonInterpreter, entryPoint);
+            new FatPexGenerator(project, pexOptions).buildEntryPoint(
+                PexFileUtil.createFatPexFilename(executable.getName()), entryPoint, null);
         } else {
             HashMap<String, String> options = new HashMap<>();
-            options.put("entryPoint", PythonWebApplicationPlugin.GUNICORN_ENTRYPOINT);
-            options.put("realPex", PexFileUtil.createThinPexFilename(getProject().getName()));
-            String template = IOUtils.toString(ThinPexGenerator.class.getResourceAsStream("/templates/pex_non_cli_entrypoint.sh.template"));
-            new EntryPointWriter(getProject(), template).writeEntryPoint(new File(deployableExtension.getDeployableBinDir(), "gunicorn"), options);
+            options.put("entryPoint", entryPoint);
+            options.put("realPex", PexFileUtil.createThinPexFilename(project.getName()));
+            String template = IOUtils.toString(
+                ThinPexGenerator.class.getResourceAsStream("/templates/pex_non_cli_entrypoint.sh.template"));
+            new EntryPointWriter(project, template).writeEntryPoint(executable, options);
         }
-    }
-
-    public void setDeployableExtension(DeployableExtension deployableExtension) {
-        this.deployableExtension = deployableExtension;
-    }
-
-    public void setWheelExtension(WheelExtension wheelExtension) {
-        this.wheelExtension = wheelExtension;
-    }
-
-    public void setPexExtension(PexExtension pexExtension) {
-        this.pexExtension = pexExtension;
-    }
-
-    public void setPythonInterpreter(String pythonInterpreter) {
-        this.pythonInterpreter = pythonInterpreter;
     }
 
     public void setExecutable(File executable) {

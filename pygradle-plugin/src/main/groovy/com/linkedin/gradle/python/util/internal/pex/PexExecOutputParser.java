@@ -15,13 +15,14 @@
  */
 package com.linkedin.gradle.python.util.internal.pex;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.gradle.api.GradleException;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.process.ExecResult;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 class PexExecOutputParser {
 
@@ -47,10 +48,10 @@ class PexExecOutputParser {
         String packageName = "<see output above>";
 
         logger.lifecycle(outputFromPexCommand);
-        Pattern pattern = Pattern.compile("(?s).*Could not satisfy all requirements for ([\\w\\-]+):.*");
+        Pattern pattern = Pattern.compile("(?s).*Could not satisfy all requirements for ([\\w.-]+):.*");
         Matcher matcher = pattern.matcher(outputFromPexCommand);
         if (matcher.matches()) {
-            packageName = matcher.group(0);
+            packageName = matcher.group(1);
         }
 
         String lineSeperator = System.getProperty("line.separator");

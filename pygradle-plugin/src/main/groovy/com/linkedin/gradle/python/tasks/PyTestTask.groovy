@@ -28,10 +28,8 @@ class PyTestTask extends AbstractPythonTestSourceDefaultTask {
     private static final int NO_TESTS_COLLECTED_ERRNO = 5
     private static final String NO_TEST_WARNING = "***** WARNING: You did not write any tests! *****"
 
-    /** specific test file was given and only the tests in that file should be executed */
-    boolean specificFileGiven = false
-    /** extra args for subclasses, such as coverage */
-    List<String> extraArgs = []
+    // specific test file was given and only the tests in that file should be executed
+    private boolean specificFileGiven = false
 
     PyTestTask() {
         ignoreExitValue = true
@@ -39,13 +37,11 @@ class PyTestTask extends AbstractPythonTestSourceDefaultTask {
 
     @Override
     public void preExecution() {
-            args(pythonDetails.virtualEnvironment.findExecutable("py.test").absolutePath)
-            if (extraArgs != []) {
-                args(extraArgs)
-            }
-            if (!specificFileGiven) {
-                args(component.testDir)
-            }
+        // any arguments to pytest(-k, -s etc..) must go into subArgs to get appended after py.test
+        args(pythonDetails.virtualEnvironment.findExecutable("py.test").absolutePath)
+        if (!specificFileGiven) {
+            args(component.testDir)
+        }
     }
 
     @Override
@@ -65,17 +61,17 @@ class PyTestTask extends AbstractPythonTestSourceDefaultTask {
     @Option(option = "file", description = "Only run tests on the input file")
     public void filterFiles(String file) {
         specificFileGiven = true
-        args(file)
+        subArgs(file)
     }
 
     /**
-     * Only test one file
+     * Only run tests matching given substring expression
      *
-     * @param testName name of the tests to be executed
+     * @param testSubstringExpression name of the tests to be executed
      */
-    @Option(option = "test-name", description = "Only run tests matching description")
-    public void filterTestCase(String testName) {
-        args('-k', testName)
+    @Option(option = "test-substring", description = "Only run tests matching the given substring")
+    public void filterTestCase(String testSubStringExpression) {
+        subArgs('-k', testSubStringExpression)
     }
 
     /**
@@ -86,7 +82,17 @@ class PyTestTask extends AbstractPythonTestSourceDefaultTask {
     @Option(option = "enable-console", description = "Enables console output")
     public void enableConsole(boolean enabled) {
         if (enabled) {
-            args('-s')
+            subArgs('-s')
         }
+    }
+
+    /**
+     * Only run tests matching given mark expression
+     *
+     * @param markExpression
+     */
+    @Option(option = "mark-expression", description = "only run tests matching given mark expression")
+    public void filterMarker(String markExpression) {
+        subArgs('-m', markExpression)
     }
 }

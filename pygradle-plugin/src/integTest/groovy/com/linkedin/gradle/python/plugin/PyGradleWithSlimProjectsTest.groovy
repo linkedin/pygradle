@@ -133,7 +133,7 @@ class PyGradleWithSlimProjectsTest extends Specification {
 
         then: "make sure it passes initially first"
         result.task(":${testProjectDir.PROJECT_NAME_DIR}:buildDocsHtml").outcome == TaskOutcome.SUCCESS
-        result.output.contains("Running Sphinx v1.4.1")
+        result.output.contains("Running Sphinx v1.4.9")
         result.output.contains("building [html]: targets for 1 source files that are out of date")
         result.output.contains("copying static files")
         result.output.contains("dumping object inventory")

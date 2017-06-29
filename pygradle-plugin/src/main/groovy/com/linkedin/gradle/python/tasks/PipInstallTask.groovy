@@ -137,7 +137,7 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider {
         for (File installable : getConfigurationFiles()) {
             if (isReadyForInstall(installable)) {
                 def packageInfo = PackageInfo.fromPath(installable.getAbsolutePath())
-                def shortHand = packageInfo.version ? "${packageInfo.name}-${packageInfo.version}" : packageInfo.name
+                String shortHand = packageInfo.version ? "${packageInfo.name}-${packageInfo.version}" : packageInfo.name
 
                 if (packageExcludeFilter.isSatisfiedBy(packageInfo)) {
                     logger.lifecycle(PythonHelpers.createPrettyLine("Install ${shortHand}", "[EXCLUDED]"))
@@ -155,18 +155,23 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider {
                     mergedEnv.putAll(environment)
                 }
 
+                if (project.file(egg).exists() || project.file(dist).exists()) {
+                    logger.lifecycle(PythonHelpers.createPrettyLine("Install ${shortHand}", "[SKIPPING]"))
+                    continue
+                }
+
                 def commandLine = [pythonDetails.getVirtualEnvInterpreter(),
                                    pythonDetails.getVirtualEnvironment().getPip(),
                                    'install',
                                    '--disable-pip-version-check',
                                    '--no-deps']
                 commandLine.addAll(args)
-                commandLine.add(installable.getAbsolutePath())
 
-                if (project.file(egg).exists() || project.file(dist).exists()) {
-                    logger.lifecycle(PythonHelpers.createPrettyLine("Install ${shortHand}", "[SKIPPING]"))
-                    continue
+                if (shortHand.endsWith('-SNAPSHOT')) {
+                    // snapshot packages may have changed, so reinstall them every time
+                    commandLine.add('--ignore-installed')
                 }
+                commandLine.add(installable.getAbsolutePath())
 
                 logger.lifecycle(PythonHelpers.createPrettyLine("Install ${shortHand}", "[STARTING]"))
 

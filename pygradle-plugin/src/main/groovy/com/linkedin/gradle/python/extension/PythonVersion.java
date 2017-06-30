@@ -22,6 +22,8 @@ public class PythonVersion implements Serializable {
 
     private final String version;
 
+    public static String[] whitelistedPythonVersions = { "2.6", "2.7", "3.4", "3.5", "3.6" };
+
     public PythonVersion(String version) {
         this.version = version;
     }

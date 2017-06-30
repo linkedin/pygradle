@@ -22,6 +22,7 @@ import org.gradle.api.Project;
 import java.io.File;
 import java.io.Serializable;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.List;
 
 
@@ -35,6 +36,7 @@ public class PythonDetails implements Serializable {
     private File pythonInterpreter;
     private String virtualEnvPrompt;
     private PythonVersion pythonVersion;
+    private PythonDefaultVersions pythonDefaultVersions;
     private OperatingSystem operatingSystem = OperatingSystem.current();
 
     private List<File> searchPath;
@@ -50,6 +52,7 @@ public class PythonDetails implements Serializable {
         searchPath = operatingSystem.getPath();
         venvOverride = venvDir;
         this.virtualEnvironment = new VirtualEnvironment(this);
+        pythonDefaultVersions = new PythonDefaultVersions();
     }
 
     private void updateFromPythonInterpreter() {
@@ -114,16 +117,21 @@ public class PythonDetails implements Serializable {
         searchPath.add(file);
     }
 
-    public void setPythonVersion(String pythonVersion) {
-        if ("2".equals(pythonVersion)) {
-            pythonVersion = "2.6";
-        }
+    public void setPythonDefaultVersions(PythonDefaultVersions defaults) {
+        pythonDefaultVersions = defaults;
+    }
 
-        if ("3".equals(pythonVersion)) {
-            pythonVersion = "3.5";
-        }
+    public void setPythonDefaultVersions(String defaultPython2, String defaultPython3, Collection<String> allowedVersions) {
+        pythonDefaultVersions = new PythonDefaultVersions(defaultPython2, defaultPython3, allowedVersions);
+    }
 
-        pythonInterpreter = operatingSystem.findInPath(searchPath, operatingSystem.getExecutableName(String.format("python%s", pythonVersion)));
+    public PythonDefaultVersions getPythonDefaultVersions() {
+        return pythonDefaultVersions;
+    }
+
+    public void setPythonVersion(String version) {
+        version = pythonDefaultVersions.normalize(version);
+        pythonInterpreter = operatingSystem.findInPath(searchPath, operatingSystem.getExecutableName(String.format("python%s", version)));
         updateFromPythonInterpreter();
     }
 

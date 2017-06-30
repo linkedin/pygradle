@@ -17,11 +17,13 @@ package com.linkedin.gradle.python.extension;
 
 import com.linkedin.gradle.python.exception.MissingInterpreterException;
 import com.linkedin.gradle.python.util.OperatingSystem;
+import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 
 import java.io.File;
 import java.io.Serializable;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -121,6 +123,11 @@ public class PythonDetails implements Serializable {
 
         if ("3".equals(pythonVersion)) {
             pythonVersion = "3.5";
+        }
+
+        /* Ensure that it's okay to use this version (major/minor only) of Python. */
+        if (!Arrays.asList(PythonVersion.whitelistedPythonVersions).contains(getPythonVersion().getPythonMajorMinor())) {
+            throw new GradleException("Python version not whitelisted: " + pythonVersion);
         }
 
         pythonInterpreter = operatingSystem.findInPath(searchPath, operatingSystem.getExecutableName(String.format("python%s", pythonVersion)));

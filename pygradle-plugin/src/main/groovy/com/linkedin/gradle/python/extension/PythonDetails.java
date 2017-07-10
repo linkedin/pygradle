@@ -116,20 +116,28 @@ public class PythonDetails implements Serializable {
         searchPath.add(file);
     }
 
-    public void setPythonVersion(String pythonVersion) {
+    public String normalizePythonVersion(String pythonVersion) {
         if ("2".equals(pythonVersion)) {
-            pythonVersion = "2.6";
+            return PythonVersion.defaultPython2;
         }
 
         if ("3".equals(pythonVersion)) {
-            pythonVersion = "3.5";
+            return PythonVersion.defaultPython3;
         }
 
         /* Ensure that it's okay to use this version (major/minor only) of Python. */
-        if (!Arrays.asList(PythonVersion.whitelistedPythonVersions).contains(getPythonVersion().getPythonMajorMinor())) {
-            throw new GradleException("Python version not whitelisted: " + pythonVersion);
-        }
+        System.out.println("PV:" + pythonVersion
+                           + " WL:" + Arrays.asList(PythonVersion.whitelistedPythonVersions)
+                           + " M.N:" + new PythonVersion(pythonVersion).getPythonMajorMinor());
 
+        if (!Arrays.asList(PythonVersion.whitelistedPythonVersions).contains(new PythonVersion(pythonVersion).getPythonMajorMinor())) {
+            throw new GradleException("Python version not allowed: " + pythonVersion);
+        }
+        return pythonVersion;
+    }
+
+    public void setPythonVersion(String pythonVersion) {
+        pythonVersion = normalizePythonVersion(pythonVersion);
         pythonInterpreter = operatingSystem.findInPath(searchPath, operatingSystem.getExecutableName(String.format("python%s", pythonVersion)));
         updateFromPythonInterpreter();
     }

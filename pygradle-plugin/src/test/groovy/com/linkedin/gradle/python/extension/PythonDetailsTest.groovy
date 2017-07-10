@@ -15,16 +15,19 @@
  */
 package com.linkedin.gradle.python.extension
 
+import org.gradle.api.GradleException
 import org.gradle.testfixtures.ProjectBuilder
-import org.junit.Rule
-import spock.lang.Requires
 import spock.lang.Specification
 
 class PythonDetailsTest extends Specification {
 
-    @Rule
     def project = new ProjectBuilder().build()
     def details = new PythonDetails(project)
+    def savedWhitelistedPythonVersions = PythonVersion.whitelistedPythonVersions
+
+    def cleanup() {
+        PythonVersion.whitelistedPythonVersions = savedWhitelistedPythonVersions
+    }
 
     def 'test set to acceptable version'() {
         expect:
@@ -41,7 +44,7 @@ class PythonDetailsTest extends Specification {
 
     def 'test set to customized acceptable version'() {
         setup:
-        details.whitelistedPythonVersions = [ '2.7', '3.5', '3.6' ]
+        PythonVersion.whitelistedPythonVersions = [ '2.7', '3.5', '3.6' ]
 
         expect:
         details.setPythonVersion('3.5')
@@ -49,7 +52,7 @@ class PythonDetailsTest extends Specification {
 
     def 'test set to customized unacceptable version'() {
         setup:
-        details.whitelistedPythonVersions = [ '2.7', '3.5', '3.6' ]
+        PythonVersion.whitelistedPythonVersions = [ '2.7', '3.5', '3.6' ]
 
         when:
         details.setPythonVersion('2.6')

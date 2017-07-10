@@ -24,6 +24,11 @@ class PythonDetailsTest extends Specification {
 
     def project = new ProjectBuilder().build()
     def details = new PythonDetails(project)
+    def savedWhitelistedPythonVersions = PythonVersion.whitelistedPythonVersions
+
+    def cleanup() {
+        PythonVersion.whitelistedPythonVersions = savedWhitelistedPythonVersions
+    }
 
     /* Most of the work is done by the PythonDefaultVersions class, so see
        that class and tests.  We'd like to be able to completely test

@@ -16,14 +16,23 @@
 package com.linkedin.gradle.python.extension;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+
 
 public class PythonVersion implements Serializable {
 
     private final String version;
 
-    public static String[] whitelistedPythonVersions = { "2.6", "2.7", "3.4", "3.5", "3.6" };
     public static String defaultPython2 = "2.6";
     public static String defaultPython3 = "3.5";
+    public static Collection<String> whitelistedPythonVersions;
+
+    static {
+        whitelistedPythonVersions = new HashSet<>(Arrays.asList("2.6", "2.7", "3.4", "3.5", "3.6"));
+    }
+
 
     public PythonVersion(String version) {
         this.version = version;

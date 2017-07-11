@@ -1,4 +1,4 @@
-# Compatability
+# Compatibility
 
 ## Linux
 

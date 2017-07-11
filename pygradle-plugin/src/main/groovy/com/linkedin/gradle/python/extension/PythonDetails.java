@@ -125,10 +125,6 @@ public class PythonDetails implements Serializable {
         }
 
         /* Ensure that it's okay to use this version (major/minor only) of Python. */
-        System.out.println("PV:" + pythonVersion
-                           + " WL:" + PythonVersion.whitelistedPythonVersions
-                           + " M.N:" + new PythonVersion(pythonVersion).getPythonMajorMinor());
-
         if (!PythonVersion.whitelistedPythonVersions.contains(new PythonVersion(pythonVersion).getPythonMajorMinor())) {
             throw new GradleException("Python version not allowed: " + pythonVersion);
         }

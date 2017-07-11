@@ -23,7 +23,6 @@ import org.gradle.api.Project;
 import java.io.File;
 import java.io.Serializable;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -127,10 +126,10 @@ public class PythonDetails implements Serializable {
 
         /* Ensure that it's okay to use this version (major/minor only) of Python. */
         System.out.println("PV:" + pythonVersion
-                           + " WL:" + Arrays.asList(PythonVersion.whitelistedPythonVersions)
+                           + " WL:" + PythonVersion.whitelistedPythonVersions
                            + " M.N:" + new PythonVersion(pythonVersion).getPythonMajorMinor());
 
-        if (!Arrays.asList(PythonVersion.whitelistedPythonVersions).contains(new PythonVersion(pythonVersion).getPythonMajorMinor())) {
+        if (!PythonVersion.whitelistedPythonVersions.contains(new PythonVersion(pythonVersion).getPythonMajorMinor())) {
             throw new GradleException("Python version not allowed: " + pythonVersion);
         }
         return pythonVersion;

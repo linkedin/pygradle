@@ -18,6 +18,9 @@ package com.linkedin.gradle.python.extension
 import org.gradle.api.GradleException
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
+import spock.lang.Unroll
+
+
 
 class PythonDetailsTest extends Specification {
 
@@ -33,95 +36,91 @@ class PythonDetailsTest extends Specification {
         PythonVersion.defaultPython3 = originalDefaultPython3
     }
 
-    def 'test normalize to acceptable version 3.x'() {
+    @Unroll
+    def 'test acceptable #a normalizes to #b'() {
         expect:
-        details.normalizePythonVersion('3.5') == '3.5'
+        details.normalizePythonVersion(a) == b
+
+        where:
+        a     || b
+        '3.5' || '3.5'
+        '2.7' || '2.7'
+        '3'   || '3.5'
+        '2'   || '2.6'
     }
 
-    def 'test normalize to acceptable version 2.x'() {
-        expect:
-        details.normalizePythonVersion('2.7') == '2.7'
-    }
-
-    def 'test normalize to default version 3'() {
-        expect:
-        details.normalizePythonVersion('3') == '3.5'
-    }
-
-    def 'test normalize to default version 2'() {
-        expect:
-        details.normalizePythonVersion('2') == '2.6'
-    }
-
-    def 'test normalize to new default version 3'() {
-        setup:
-        PythonVersion.defaultPython3 = '3.6'
-
-        expect:
-        details.normalizePythonVersion('3') == '3.6'
-    }
-
-    def 'test normalize to new default version 2'() {
-        setup:
-        PythonVersion.defaultPython2 = '2.7'
-
-        expect:
-        details.normalizePythonVersion('2') == '2.7'
-    }
-
-    def 'test normalize to unacceptable version 2.x'() {
+    @Unroll
+    def 'test unacceptable #a'() {
         when:
-        details.normalizePythonVersion('2.5')
+        details.normalizePythonVersion(a)
 
         then:
         thrown(GradleException)
+
+        where:
+        a     | _
+        '2.5' | _
+        '3.2' | _
     }
 
-    def 'test normalize to unacceptable version 3.x'() {
-        when:
-        details.normalizePythonVersion('3.2')
-
-        then:
-        thrown(GradleException)
-    }
-
-    def 'test normalize to acceptable customized version'() {
+    @Unroll
+    def 'test acceptable #a normalizes to #b with defaults Py2: #c and Py3: #d'() {
         setup:
-        PythonVersion.whitelistedPythonVersions = [ '2.7', '3.5', '3.6' ]
+        PythonVersion.defaultPython2 = c
+        PythonVersion.defaultPython3 = d
 
         expect:
-        details.normalizePythonVersion('3.5') == '3.5'
+        details.normalizePythonVersion(a) == b
+
+        where:
+        a   | c     | d     || b
+        '3' | '2.7' | '3.6' || '3.6'
+        '2' | '2.7' | '3.6' || '2.7'
     }
 
-    def 'test normalize to unacceptable customized version'() {
+    @Unroll
+    def 'test acceptable #a normalizes to #b with whitelist #c'() {
         setup:
-        PythonVersion.whitelistedPythonVersions = [ '2.7', '3.5', '3.6' ]
+        PythonVersion.whitelistedPythonVersions = c
+
+        expect:
+        details.normalizePythonVersion(a) == b
+
+        where:
+        a     | c                            || b
+        '3.5' | ['2.7', '3.5', '3.6']        || '3.5'
+        '3.7' | ['2.7', '3.5', '3.6', '3.7'] || '3.7'
+    }
+
+    @Unroll
+    def 'test unacceptable #a with whitelist #b'() {
+        setup:
+        PythonVersion.whitelistedPythonVersions = b
 
         when:
-        details.normalizePythonVersion('2.6')
+        details.normalizePythonVersion(a)
 
         then:
         thrown(GradleException)
+
+        where:
+        a     | b
+        '2.6' | ['2.7', '3.5', '3.6']
+        '3.5' | ['2.7', '3.6']
     }
 
-    // Most of the work is done by normalizePythonVersion() so we just add
-    // these two additional tests to prove that setting the Python version
-    // runs through the expected normalization gauntlet.
+    /* Most of the work is done by normalizePythonVersion(), and
+       setPythonVersion() just calls the former to normalize and validate the
+       chosen Python version.  We'd like to be able to completely test
+       setPythonVersion() too, but that's currently impossible, since that
+       method searches for a Python interpreter on the file system matching
+       the selected version.  We can't guarantee that such a Python version
+       will exist so we can't test it without perhaps some mocking of
+       operatingSystem.findInPath() , which I haven't been able to come up
+       with yet.
 
-    // XXX This fails because it tries to find the Python 3.5 interpreter,
-    // which doesn't appear to exist in the test environment:
-    //
-    // com.linkedin.gradle.python.extension.PythonDetailsTest > test set to acceptable version FAILED
-    //     com.linkedin.gradle.python.exception.MissingInterpreterException: Unable to find or execute python
-    //         at com.linkedin.gradle.python.extension.PythonDetails.updateFromPythonInterpreter(PythonDetails.java:59)
-    //         at com.linkedin.gradle.python.extension.PythonDetails.setPythonVersion(PythonDetails.java:142)
-    //         at com.linkedin.gradle.python.extension.PythonDetailsTest.test set to acceptable version(PythonDetailsTest.groovy:113)
-
-    // def 'test set to acceptable version'() {
-    //     expect:
-    //     details.setPythonVersion('3.5')
-    // }
-
+       It does seem like this one can be tested though.
+     */
     def 'test set to unacceptable version'() {
         when:
         details.setPythonVersion('2.5')
@@ -130,4 +129,3 @@ class PythonDetailsTest extends Specification {
         thrown(GradleException)
     }
 }
-

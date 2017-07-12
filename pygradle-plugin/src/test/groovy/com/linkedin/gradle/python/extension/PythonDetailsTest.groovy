@@ -18,104 +18,19 @@ package com.linkedin.gradle.python.extension
 import org.gradle.api.GradleException
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
-import spock.lang.Unroll
-
 
 
 class PythonDetailsTest extends Specification {
 
     def project = new ProjectBuilder().build()
     def details = new PythonDetails(project)
-    def originalWhitelistedPythonVersions = PythonVersion.whitelistedPythonVersions
-    def originalDefaultPython2 = PythonVersion.defaultPython2
-    def originalDefaultPython3 = PythonVersion.defaultPython3
 
-    def cleanup() {
-        PythonVersion.whitelistedPythonVersions = originalWhitelistedPythonVersions
-        PythonVersion.defaultPython2 = originalDefaultPython2
-        PythonVersion.defaultPython3 = originalDefaultPython3
-    }
-
-    @Unroll
-    def 'test acceptable #a normalizes to #b'() {
-        expect:
-        details.normalizePythonVersion(a) == b
-
-        where:
-        a     || b
-        '3.5' || '3.5'
-        '2.7' || '2.7'
-        '3'   || '3.5'
-        '2'   || '2.6'
-    }
-
-    @Unroll
-    def 'test unacceptable #a'() {
-        when:
-        details.normalizePythonVersion(a)
-
-        then:
-        thrown(GradleException)
-
-        where:
-        a     | _
-        '2.5' | _
-        '3.2' | _
-    }
-
-    @Unroll
-    def 'test acceptable #a normalizes to #b with defaults Py2: #c and Py3: #d'() {
-        setup:
-        PythonVersion.defaultPython2 = c
-        PythonVersion.defaultPython3 = d
-
-        expect:
-        details.normalizePythonVersion(a) == b
-
-        where:
-        a   | c     | d     || b
-        '3' | '2.7' | '3.6' || '3.6'
-        '2' | '2.7' | '3.6' || '2.7'
-    }
-
-    @Unroll
-    def 'test acceptable #a normalizes to #b with whitelist #c'() {
-        setup:
-        PythonVersion.whitelistedPythonVersions = c
-
-        expect:
-        details.normalizePythonVersion(a) == b
-
-        where:
-        a     | c                            || b
-        '3.5' | ['2.7', '3.5', '3.6']        || '3.5'
-        '3.7' | ['2.7', '3.5', '3.6', '3.7'] || '3.7'
-    }
-
-    @Unroll
-    def 'test unacceptable #a with whitelist #b'() {
-        setup:
-        PythonVersion.whitelistedPythonVersions = b
-
-        when:
-        details.normalizePythonVersion(a)
-
-        then:
-        thrown(GradleException)
-
-        where:
-        a     | b
-        '2.6' | ['2.7', '3.5', '3.6']
-        '3.5' | ['2.7', '3.6']
-    }
-
-    /* Most of the work is done by normalizePythonVersion(), and
-       setPythonVersion() just calls the former to normalize and validate the
-       chosen Python version.  We'd like to be able to completely test
-       setPythonVersion() too, but that's currently impossible, since that
-       method searches for a Python interpreter on the file system matching
-       the selected version.  We can't guarantee that such a Python version
-       will exist so we can't test it without perhaps some mocking of
+    /* Most of the work is done by the PythonDefaults class, so see that class
+       and tests.  We'd like to be able to completely test
+       PythonDetails.setPythonVersion() too, but that's currently impossible,
+       since that method searches for a Python interpreter on the file system
+       matching the selected version.  We can't guarantee that such a Python
+       version will exist so we can't test it without perhaps some mocking of
        operatingSystem.findInPath() , which I haven't been able to come up
        with yet.
 

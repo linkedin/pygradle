@@ -23,11 +23,8 @@ import spock.lang.Unroll
 class PythonDefaultsTest extends Specification {
     @Unroll
     def 'test acceptable #a normalizes to #b'() {
-        setup:
-        def defaults = new PythonDefaults()
-
         expect:
-        defaults.normalize(a) == b
+        new PythonDefaults().normalize(a) == b
 
         where:
         a     || b
@@ -39,11 +36,8 @@ class PythonDefaultsTest extends Specification {
 
     @Unroll
     def 'test unacceptable #a'() {
-        setup:
-        def defaults = new PythonDefaults()
-
         when:
-        defaults.normalize(a)
+        new PythonDefaults().normalize(a)
 
         then:
         thrown(GradleException)
@@ -56,11 +50,8 @@ class PythonDefaultsTest extends Specification {
 
     @Unroll
     def 'test acceptable #a normalizes to #b with defaults Py2: #c and Py3: #d'() {
-        setup:
-        def defaults = new PythonDefaults(c, d)
-
         expect:
-        defaults.normalize(a) == b
+        new PythonDefaults(c, d).normalize(a) == b
 
         where:
         a   | c     | d     || b
@@ -70,11 +61,8 @@ class PythonDefaultsTest extends Specification {
 
     @Unroll
     def 'test acceptable #a normalizes to #b with whitelist #c'() {
-        setup:
-        def defaults = new PythonDefaults('2.6', '3.5', c)
-
         expect:
-        defaults.normalize(a) == b
+        new PythonDefaults('2.6', '3.5', c).normalize(a) == b
 
         where:
         a     | c                            || b
@@ -84,11 +72,8 @@ class PythonDefaultsTest extends Specification {
 
     @Unroll
     def 'test unacceptable #a with whitelist #b'() {
-        setup:
-        def defaults = new PythonDefaults('2.6', '3.5', b)
-
         when:
-        defaults.normalize(a)
+        new PythonDefaults('2.6', '3.5', b).normalize(a)
 
         then:
         thrown(GradleException)

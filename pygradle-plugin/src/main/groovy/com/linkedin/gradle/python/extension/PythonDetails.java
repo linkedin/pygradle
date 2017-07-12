@@ -17,7 +17,6 @@ package com.linkedin.gradle.python.extension;
 
 import com.linkedin.gradle.python.exception.MissingInterpreterException;
 import com.linkedin.gradle.python.util.OperatingSystem;
-import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 
 import java.io.File;
@@ -36,6 +35,7 @@ public class PythonDetails implements Serializable {
     private File pythonInterpreter;
     private String virtualEnvPrompt;
     private PythonVersion pythonVersion;
+    private PythonDefaults pythonDefaults;
     private OperatingSystem operatingSystem = OperatingSystem.current();
 
     private List<File> searchPath;
@@ -51,6 +51,7 @@ public class PythonDetails implements Serializable {
         searchPath = operatingSystem.getPath();
         venvOverride = venvDir;
         this.virtualEnvironment = new VirtualEnvironment(this);
+        pythonDefaults = new PythonDefaults();
     }
 
     private void updateFromPythonInterpreter() {
@@ -115,24 +116,16 @@ public class PythonDetails implements Serializable {
         searchPath.add(file);
     }
 
-    public String normalizePythonVersion(String pythonVersion) {
-        if ("2".equals(pythonVersion)) {
-            return PythonVersion.defaultPython2;
-        }
-
-        if ("3".equals(pythonVersion)) {
-            return PythonVersion.defaultPython3;
-        }
-
-        /* Ensure that it's okay to use this version (major/minor only) of Python. */
-        if (!PythonVersion.whitelistedPythonVersions.contains(new PythonVersion(pythonVersion).getPythonMajorMinor())) {
-            throw new GradleException("Python version not allowed: " + pythonVersion);
-        }
-        return pythonVersion;
+    public void setPythonDefaults(PythonDefaults defaults) {
+        pythonDefaults = defaults;
     }
 
-    public void setPythonVersion(String pythonVersion) {
-        pythonVersion = normalizePythonVersion(pythonVersion);
+    public PythonDefaults getPythonDefaults() {
+        return pythonDefaults;
+    }
+
+    public void setPythonVersion(String version) {
+        pythonVersion = new PythonVersion(pythonDefaults.normalize(version));
         pythonInterpreter = operatingSystem.findInPath(searchPath, operatingSystem.getExecutableName(String.format("python%s", pythonVersion)));
         updateFromPythonInterpreter();
     }

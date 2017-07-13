@@ -25,8 +25,8 @@ class PythonDetailsTest extends Specification {
     def project = new ProjectBuilder().build()
     def details = new PythonDetails(project)
 
-    /* Most of the work is done by the PythonDefaults class, so see that class
-       and tests.  We'd like to be able to completely test
+    /* Most of the work is done by the PythonDefaultVersions class, so see
+       that class and tests.  We'd like to be able to completely test
        PythonDetails.setPythonVersion() too, but that's currently impossible,
        since that method searches for a Python interpreter on the file system
        matching the selected version.  We can't guarantee that such a Python

@@ -21,22 +21,22 @@ import java.util.HashSet;
 import org.gradle.api.GradleException;
 
 
-public class PythonDefaults {
+public class PythonDefaultVersions {
     private final String defaultPython2Version;
     private final String defaultPython3Version;
     private final Collection<String> allowedVersions;
 
-    public PythonDefaults(String defaultPython2, String defaultPython3, Collection<String> allowedVersions) {
+    public PythonDefaultVersions(String defaultPython2, String defaultPython3, Collection<String> allowedVersions) {
         defaultPython2Version = defaultPython2;
         defaultPython3Version = defaultPython3;
         this.allowedVersions = allowedVersions;
     }
 
-    public PythonDefaults(String defaultPython2, String defaultPython3) {
+    public PythonDefaultVersions(String defaultPython2, String defaultPython3) {
         this(defaultPython2, defaultPython3, new HashSet<>(Arrays.asList("2.6", "2.7", "3.4", "3.5", "3.6")));
     }
 
-    public PythonDefaults() {
+    public PythonDefaultVersions() {
         this("2.6", "3.5");
     }
 

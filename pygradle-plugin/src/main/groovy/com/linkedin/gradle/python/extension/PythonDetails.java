@@ -35,7 +35,7 @@ public class PythonDetails implements Serializable {
     private File pythonInterpreter;
     private String virtualEnvPrompt;
     private PythonVersion pythonVersion;
-    private PythonDefaults pythonDefaults;
+    private PythonDefaultVersions pythonDefaultVersions;
     private OperatingSystem operatingSystem = OperatingSystem.current();
 
     private List<File> searchPath;
@@ -51,7 +51,7 @@ public class PythonDetails implements Serializable {
         searchPath = operatingSystem.getPath();
         venvOverride = venvDir;
         this.virtualEnvironment = new VirtualEnvironment(this);
-        pythonDefaults = new PythonDefaults();
+        pythonDefaultVersions = new PythonDefaultVersions();
     }
 
     private void updateFromPythonInterpreter() {
@@ -116,16 +116,16 @@ public class PythonDetails implements Serializable {
         searchPath.add(file);
     }
 
-    public void setPythonDefaults(PythonDefaults defaults) {
-        pythonDefaults = defaults;
+    public void setPythonDefaultVersions(PythonDefaultVersions defaults) {
+        pythonDefaultVersions = defaults;
     }
 
-    public PythonDefaults getPythonDefaults() {
-        return pythonDefaults;
+    public PythonDefaultVersions getPythonDefaultVersions() {
+        return pythonDefaultVersions;
     }
 
     public void setPythonVersion(String version) {
-        pythonVersion = new PythonVersion(pythonDefaults.normalize(version));
+        pythonVersion = new PythonVersion(pythonDefaultVersions.normalize(version));
         pythonInterpreter = operatingSystem.findInPath(searchPath, operatingSystem.getExecutableName(String.format("python%s", pythonVersion)));
         updateFromPythonInterpreter();
     }

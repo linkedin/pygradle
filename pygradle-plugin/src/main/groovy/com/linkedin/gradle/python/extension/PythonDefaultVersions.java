@@ -17,7 +17,7 @@ package com.linkedin.gradle.python.extension;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.TreeSet;
 import org.gradle.api.GradleException;
 
 
@@ -33,7 +33,7 @@ public class PythonDefaultVersions {
     }
 
     public PythonDefaultVersions(String defaultPython2, String defaultPython3) {
-        this(defaultPython2, defaultPython3, new HashSet<>(Arrays.asList("2.6", "2.7", "3.4", "3.5", "3.6")));
+        this(defaultPython2, defaultPython3, new TreeSet<>(Arrays.asList("2.6", "2.7", "3.4", "3.5", "3.6")));
     }
 
     public PythonDefaultVersions() {
@@ -48,7 +48,7 @@ public class PythonDefaultVersions {
             return defaultPython3Version;
         }
         if (!allowedVersions.contains(new PythonVersion(version).getPythonMajorMinor())) {
-            throw new GradleException("Python version not allowed: " + version);
+            throw new GradleException("Python " + version + " not allowed; choose from " + allowedVersions);
         }
         return version;
     }

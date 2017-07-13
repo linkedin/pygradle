@@ -15,8 +15,9 @@
  */
 package com.linkedin.gradle.python.extension;
 
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.TreeSet;
+import java.util.HashSet;
 import org.gradle.api.GradleException;
 
 
@@ -31,18 +32,12 @@ public class PythonDefaultVersions {
         this.allowedVersions = allowedVersions;
     }
 
-    public PythonDefaultVersions(Collection<String> allowedVersions) {
-        defaultPython2Version = "2.6";
-        defaultPython3Version = "3.5";
-        this.allowedVersions = allowedVersions;
-    }
-
     public PythonDefaultVersions(String defaultPython2, String defaultPython3) {
-        this(defaultPython2, defaultPython3, new TreeSet<String>());
+        this(defaultPython2, defaultPython3, new HashSet<>(Arrays.asList("2.6", "2.7", "3.4", "3.5", "3.6")));
     }
 
     public PythonDefaultVersions() {
-        this(new TreeSet<String>());
+        this("2.6", "3.5");
     }
 
     public String normalize(String version) {
@@ -52,15 +47,8 @@ public class PythonDefaultVersions {
         if (version.equals("3")) {
             return defaultPython3Version;
         }
-        if (allowedVersions.isEmpty()) {
-            // All versions are allowed.
-            return version;
-        }
         if (!allowedVersions.contains(new PythonVersion(version).getPythonMajorMinor())) {
-            throw new GradleException(
-                "Python " + version + " is not allowed; choose from " + allowedVersions
-                + "\nSee https://github.com/linkedin/pygradle/blob/master/docs/plugins/python.md"
-                + "#default-and-allowed-python-version");
+            throw new GradleException("Python version not allowed: " + version);
         }
         return version;
     }

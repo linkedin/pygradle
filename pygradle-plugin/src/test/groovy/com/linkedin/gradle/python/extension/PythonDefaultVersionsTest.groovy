@@ -22,32 +22,9 @@ import spock.lang.Unroll
 
 class PythonDefaultVersionsTest extends Specification {
     @Unroll
-    def 'accept any version #a by default normalized to #b'() {
-        expect:
-        new PythonDefaultVersions().normalize(a) == b
-
-        where:
-        a       || b
-        '1.5.2' || '1.5.2'
-        '2'     || '2.6'
-        '3'     || '3.5'
-    }
-
-    @Unroll
-    def 'explicit Python default versions #a #b normalize #c to #d'() {
-        expect:
-        new PythonDefaultVersions(a, b).normalize(c) == d
-
-        where:
-        a     | b     | c   || d
-        '2.8' | '3.0' | '2' || '2.8'
-        '2.8' | '3.0' | '3' || '3.0'
-    }
-
-    @Unroll
     def 'test acceptable #a normalizes to #b'() {
         expect:
-        new PythonDefaultVersions(['2.7', '3.5', '3.6']).normalize(a) == b
+        new PythonDefaultVersions().normalize(a) == b
 
         where:
         a     || b
@@ -60,13 +37,10 @@ class PythonDefaultVersionsTest extends Specification {
     @Unroll
     def 'test unacceptable #a'() {
         when:
-        new PythonDefaultVersions(['2.7', '3.5', '3.6']).normalize(a)
+        new PythonDefaultVersions().normalize(a)
 
         then:
-        def e = thrown(GradleException)
-        e.message == (
-            'Python ' + a + ' is not allowed; choose from [2.7, 3.5, 3.6]\n' +
-            'See https://github.com/linkedin/pygradle/blob/master/docs/plugins/python.md#default-and-allowed-python-version')
+        thrown(GradleException)
 
         where:
         a     | _
@@ -77,7 +51,7 @@ class PythonDefaultVersionsTest extends Specification {
     @Unroll
     def 'test acceptable #a normalizes to #b with defaults Py2: #c and Py3: #d'() {
         expect:
-        new PythonDefaultVersions(c, d, ['2.7', '3.5', '3.6']).normalize(a) == b
+        new PythonDefaultVersions(c, d).normalize(a) == b
 
         where:
         a   | c     | d     || b
@@ -102,10 +76,7 @@ class PythonDefaultVersionsTest extends Specification {
         new PythonDefaultVersions('2.6', '3.5', b).normalize(a)
 
         then:
-        def e = thrown(GradleException)
-        e.message == (
-            'Python ' + a + ' is not allowed; choose from ' + b +
-            '\nSee https://github.com/linkedin/pygradle/blob/master/docs/plugins/python.md#default-and-allowed-python-version')
+        thrown(GradleException)
 
         where:
         a     | b

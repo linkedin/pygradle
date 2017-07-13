@@ -15,29 +15,34 @@
  */
 package com.linkedin.gradle.python.extension;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.TreeSet;
 import org.gradle.api.GradleException;
 
 
-public class PythonDefaults {
+public class PythonDefaultVersions {
     private final String defaultPython2Version;
     private final String defaultPython3Version;
     private final Collection<String> allowedVersions;
 
-    public PythonDefaults(String defaultPython2, String defaultPython3, Collection<String> allowedVersions) {
+    public PythonDefaultVersions(String defaultPython2, String defaultPython3, Collection<String> allowedVersions) {
         defaultPython2Version = defaultPython2;
         defaultPython3Version = defaultPython3;
         this.allowedVersions = allowedVersions;
     }
 
-    public PythonDefaults(String defaultPython2, String defaultPython3) {
-        this(defaultPython2, defaultPython3, new HashSet<>(Arrays.asList("2.6", "2.7", "3.4", "3.5", "3.6")));
+    public PythonDefaultVersions(Collection<String> allowedVersions) {
+        defaultPython2Version = "2.6";
+        defaultPython3Version = "3.5";
+        this.allowedVersions = allowedVersions;
     }
 
-    public PythonDefaults() {
-        this("2.6", "3.5");
+    public PythonDefaultVersions(String defaultPython2, String defaultPython3) {
+        this(defaultPython2, defaultPython3, new TreeSet<String>());
+    }
+
+    public PythonDefaultVersions() {
+        this(new TreeSet<String>());
     }
 
     public String normalize(String version) {
@@ -47,8 +52,15 @@ public class PythonDefaults {
         if (version.equals("3")) {
             return defaultPython3Version;
         }
+        if (allowedVersions.isEmpty()) {
+            // All versions are allowed.
+            return version;
+        }
         if (!allowedVersions.contains(new PythonVersion(version).getPythonMajorMinor())) {
-            throw new GradleException("Python version not allowed: " + version);
+            throw new GradleException(
+                "Python " + version + " is not allowed; choose from " + allowedVersions
+                + "\nSee https://github.com/linkedin/pygradle/blob/master/docs/plugins/python.md"
+                + "#default-and-allowed-python-version");
         }
         return version;
     }

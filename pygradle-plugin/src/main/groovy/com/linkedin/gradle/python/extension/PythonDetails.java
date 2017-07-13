@@ -125,8 +125,8 @@ public class PythonDetails implements Serializable {
     }
 
     public void setPythonVersion(String version) {
-        pythonVersion = new PythonVersion(pythonDefaultVersions.normalize(version));
-        pythonInterpreter = operatingSystem.findInPath(searchPath, operatingSystem.getExecutableName(String.format("python%s", pythonVersion)));
+        version = pythonDefaultVersions.normalize(version);
+        pythonInterpreter = operatingSystem.findInPath(searchPath, operatingSystem.getExecutableName(String.format("python%s", version)));
         updateFromPythonInterpreter();
     }
 

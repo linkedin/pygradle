@@ -40,7 +40,8 @@ class PythonDefaultVersionsTest extends Specification {
         new PythonDefaultVersions().normalize(a)
 
         then:
-        thrown(GradleException)
+        def e = thrown(GradleException)
+        e.message == 'Python ' + a + ' not allowed; choose from [2.6, 2.7, 3.4, 3.5, 3.6]'
 
         where:
         a     | _
@@ -76,7 +77,8 @@ class PythonDefaultVersionsTest extends Specification {
         new PythonDefaultVersions('2.6', '3.5', b).normalize(a)
 
         then:
-        thrown(GradleException)
+        def e = thrown(GradleException)
+        e.message == 'Python ' + a + ' not allowed; choose from ' + b
 
         where:
         a     | b

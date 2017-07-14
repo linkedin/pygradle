@@ -41,7 +41,9 @@ class PythonDefaultVersionsTest extends Specification {
 
         then:
         def e = thrown(GradleException)
-        e.message == 'Python ' + a + ' not allowed; choose from [2.6, 2.7, 3.4, 3.5, 3.6]'
+        e.message == (
+            'Python ' + a + ' is not allowed; choose from [2.6, 2.7, 3.4, 3.5, 3.6]\n' +
+            'See https://github.com/linkedin/pygradle/blob/master/docs/plugins/python.md#default-and-allowed-python-version')
 
         where:
         a     | _
@@ -78,7 +80,9 @@ class PythonDefaultVersionsTest extends Specification {
 
         then:
         def e = thrown(GradleException)
-        e.message == 'Python ' + a + ' not allowed; choose from ' + b
+        e.message == (
+            'Python ' + a + ' is not allowed; choose from ' + b +
+            '\nSee https://github.com/linkedin/pygradle/blob/master/docs/plugins/python.md#default-and-allowed-python-version')
 
         where:
         a     | b

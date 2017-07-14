@@ -48,7 +48,10 @@ public class PythonDefaultVersions {
             return defaultPython3Version;
         }
         if (!allowedVersions.contains(new PythonVersion(version).getPythonMajorMinor())) {
-            throw new GradleException("Python " + version + " not allowed; choose from " + allowedVersions);
+            throw new GradleException(
+                "Python " + version + " is not allowed; choose from " + allowedVersions
+                + "\nSee https://github.com/linkedin/pygradle/blob/master/docs/plugins/python.md"
+                + "#default-and-allowed-python-version");
         }
         return version;
     }

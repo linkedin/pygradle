@@ -38,6 +38,7 @@ class PythonDetailsTest extends Specification {
      */
     def 'test set to unacceptable version'() {
         when:
+        details.setPythonDefaultVersions(new PythonDefaultVersions(['2.7', '3.5', '3.6']))
         details.setPythonVersion('2.5')
 
         then:

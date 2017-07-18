@@ -16,6 +16,7 @@
 package com.linkedin.gradle.python.extension;
 
 import java.util.Collection;
+import java.util.TreeSet;
 import org.gradle.api.GradleException;
 
 
@@ -37,11 +38,11 @@ public class PythonDefaultVersions {
     }
 
     public PythonDefaultVersions(String defaultPython2, String defaultPython3) {
-        this(defaultPython2, defaultPython3, null);
+        this(defaultPython2, defaultPython3, new TreeSet<String>());
     }
 
     public PythonDefaultVersions() {
-        this(null);
+        this(new TreeSet<String>());
     }
 
     public String normalize(String version) {
@@ -51,7 +52,7 @@ public class PythonDefaultVersions {
         if (version.equals("3")) {
             return defaultPython3Version;
         }
-        if (allowedVersions == null) {
+        if (allowedVersions.isEmpty()) {
             // All versions are allowed.
             return version;
         }

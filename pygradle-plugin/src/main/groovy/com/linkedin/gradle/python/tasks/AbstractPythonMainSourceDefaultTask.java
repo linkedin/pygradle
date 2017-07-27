@@ -49,6 +49,8 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask im
 
     FileTree sources;
     private List<String> arguments = new ArrayList<>();
+    // similar to additionalArguments, but not overridable by user's build script
+    private List<String> subArguments = new ArrayList<>();
     private PythonExtension component;
     private PythonDetails pythonDetails;
     private String output;
@@ -112,6 +114,14 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask im
         arguments.addAll(args);
     }
 
+    public void subArgs(String... args) {
+        subArguments.addAll(Arrays.asList(args));
+    }
+
+    public void subArgs(Collection<String> args) {
+        subArguments.addAll(args);
+    }
+
     @TaskAction
     public void executePythonProcess() {
         preExecution();
@@ -124,7 +134,11 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask im
                 execSpec.environment(getComponent().pythonEnvironment);
                 execSpec.environment(getComponent().pythonEnvironmentDistgradle);
                 execSpec.commandLine(getPythonDetails().getVirtualEnvInterpreter());
+                // arguments are passed to the python interpreter
                 execSpec.args(arguments);
+                // subArguments are arguments for previous arguments. eg: arguments to py.test like -k
+                execSpec.args(subArguments);
+                // additionalArguments are same as subArguments, but are expected from user's build script
                 execSpec.args(additionalArguments);
                 execSpec.setIgnoreExitValue(ignoreExitValue);
 

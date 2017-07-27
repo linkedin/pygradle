@@ -50,7 +50,8 @@ class PyCoverageTask extends PyTestTask {
      * Include coverage data
      */
     public void preExecution() {
-        extraArgs.addAll(
+        // using subArgs as these must be added after py.test
+        subArgs(
             '--cov',
             project.file(component.srcDir).getAbsolutePath(),
             '--cov-report=xml',

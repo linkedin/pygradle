@@ -15,6 +15,7 @@
  */
 package com.linkedin.gradle.python
 
+import com.linkedin.gradle.python.extension.PythonDefaultVersions
 import com.linkedin.gradle.python.extension.PythonDetails
 import com.linkedin.gradle.python.extension.VirtualEnvironment
 import com.linkedin.gradle.python.util.ConsoleOutput
@@ -135,6 +136,10 @@ class PythonExtension {
 
     public PythonDetails getDetails() {
         return details
+    }
+
+    public void setPythonVersions(String python2, String python3, Collection<String>allowedVersions) {
+        details.setPythonDefaultVersions(new PythonDefaultVersions(python2, python3, allowedVersions))
     }
 
     /**

@@ -22,6 +22,7 @@ import org.gradle.api.Project;
 import java.io.File;
 import java.io.Serializable;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.List;
 
 
@@ -120,8 +121,7 @@ public class PythonDetails implements Serializable {
         pythonDefaultVersions = defaults;
     }
 
-    public void setPythonDefaultVersions(String defaultPython2, String defaultPython3,
-                                         Collection<String>allowedVersions) {
+    public void setPythonDefaultVersions(String defaultPython2, String defaultPython3, Collection<String> allowedVersions) {
         pythonDefaultVersions = new PythonDefaultVersions(defaultPython2, defaultPython3, allowedVersions);
     }
 

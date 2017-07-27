@@ -15,7 +15,6 @@
  */
 package com.linkedin.gradle.python
 
-import com.linkedin.gradle.python.extension.PythonDefaultVersions
 import com.linkedin.gradle.python.extension.PythonDetails
 import com.linkedin.gradle.python.extension.VirtualEnvironment
 import com.linkedin.gradle.python.util.ConsoleOutput

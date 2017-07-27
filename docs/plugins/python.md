@@ -78,3 +78,12 @@ Python version that is not allowed, you will see an error messages such as:
 
 If you see this error message, you must adjust your `pythonVersion` setting to
 one of the allowed values.
+
+Consumers of this extension can change the default Python 2, Python 3, and
+allowed versions by making a call on the `PythonDetails` object, either the
+one returned by `PythonExtension.getDetails()` or on any `PythonDetails`
+instance you create, e.g. in Groovy:
+
+```groovy
+pythonDetails.setPythonDefaultVersions('2.7', '3.6', ['2.7', '3.5', '3.6'])
+```

@@ -138,10 +138,6 @@ class PythonExtension {
         return details
     }
 
-    public void setPythonVersions(String python2, String python3, Collection<String>allowedVersions) {
-        details.setPythonDefaultVersions(new PythonDefaultVersions(python2, python3, allowedVersions))
-    }
-
     /**
      * Configures the {@link PythonDetails} for the project.
      *

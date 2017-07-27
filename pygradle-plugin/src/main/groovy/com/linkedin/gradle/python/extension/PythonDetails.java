@@ -120,6 +120,11 @@ public class PythonDetails implements Serializable {
         pythonDefaultVersions = defaults;
     }
 
+    public void setPythonDefaultVersions(String defaultPython2, String defaultPython3,
+                                         Collection<String>allowedVersions) {
+        pythonDefaultVersions = new PythonDefaultVersions(defaultPython2, defaultPython3, allowedVersions);
+    }
+
     public PythonDefaultVersions getPythonDefaultVersions() {
         return pythonDefaultVersions;
     }

@@ -16,9 +16,10 @@
 package com.linkedin.gradle.python.util.internal.pex;
 
 import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import org.gradle.api.GradleException;
 
 class PipFreezeOutputParser {
 
@@ -26,22 +27,25 @@ class PipFreezeOutputParser {
         //private constructor for utility class
     }
 
-    static List<String> getDependencies(Collection<String> ignoredDependencies, ByteArrayOutputStream requirements) {
+    static Map<String, String> getDependencies(Collection<String> ignoredDependencies, ByteArrayOutputStream requirements) {
         return getDependencies(ignoredDependencies, requirements.toString());
     }
 
-    static List<String> getDependencies(Collection<String> ignoredDependencies, String requirements) {
-        List<String> reqs = new ArrayList<>();
+    static Map<String, String> getDependencies(Collection<String> ignoredDependencies, String requirements) {
+        Map<String, String> reqs = new HashMap<>();
 
         // In regex world \n will also match the windows CR+LF
         for (String line : requirements.split("\n")) {
-            String[] parts = line.split("==");
-            String name = parts[0];
-            boolean editable = name.startsWith("-e ");
-            // The tar name can have _ when package name has -, so check both.
-            if (!(editable || ignoredDependencies.contains(name)
-                || ignoredDependencies.contains(name.replace("-", "_")))) {
-                reqs.add(name);
+            if (!line.startsWith("-e ")) {  // ignore editable requirements
+                String[] parts = line.split("==");
+                if (parts.length != 2) {
+                    throw new GradleException("unsupported requirement format. expected: <requirement>==<version>. found: " + line);
+                }
+                String name = parts[0];
+                // The tar name can have _ when package name has -, so check both.
+                if (!(ignoredDependencies.contains(name) || ignoredDependencies.contains(name.replace("-", "_")))) {
+                    reqs.put(name, parts[1]);
+                }
             }
         }
 

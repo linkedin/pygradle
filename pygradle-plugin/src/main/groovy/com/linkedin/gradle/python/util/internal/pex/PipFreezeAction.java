@@ -19,7 +19,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -40,7 +40,7 @@ class PipFreezeAction {
         this.project = project;
     }
 
-    public List<String> getDependencies() {
+    public Map<String, String> getDependencies() {
         final PythonExtension settings = ExtensionUtils.getPythonExtension(project);
 
         // Setup requirements, build, and test dependencies
@@ -71,15 +71,9 @@ class PipFreezeAction {
             }
         });
 
-        List<String> dependencies = PipFreezeOutputParser.getDependencies(developmentDependencies, requirements);
-        /*
-         * Starting with pip-9.x the current project will be editable in freeze.
-         * We need to add it unconditionally if it gets skipped in the parser.
-         */
-        if (!dependencies.contains(project.getName())) {
-            dependencies.add(project.getName());
-        }
-
+        Map<String, String> dependencies = PipFreezeOutputParser.getDependencies(developmentDependencies, requirements);
+        // for snapshot builds, wheel gets built with _SNAPSHOT(where as it's -SNAPSHOT in gradle land), and the version becomes <semver>._SNAPSHOT
+        dependencies.put(project.getName(), project.getVersion().toString().replace("-SNAPSHOT", "_SNAPSHOT"));
         return dependencies;
     }
 

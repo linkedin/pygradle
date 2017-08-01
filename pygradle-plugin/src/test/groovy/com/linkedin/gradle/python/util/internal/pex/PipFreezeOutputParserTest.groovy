@@ -15,6 +15,7 @@
  */
 package com.linkedin.gradle.python.util.internal.pex
 
+import org.gradle.api.GradleException
 import spock.lang.Specification
 
 
@@ -31,6 +32,7 @@ class PipFreezeOutputParserTest extends Specification {
             |imagesize==0.7.1
             |Jinja2==2.3
             |mccabe==0.2.1
+            |-e git+http://repo/my_project.git#egg=SomeProject
             |pbr==1.8.0
             |pep8==1.5.7
             |pex==1.1.4
@@ -45,15 +47,30 @@ class PipFreezeOutputParserTest extends Specification {
             |six==1.10.0
             |snowballstemmer==1.1.0
             |Sphinx==1.4.1
-            |testProject===unspecified
+            |testProject==unspecified
             |wheel==0.26.0'''.stripMargin().stripIndent()
 
         expect:
-        PipFreezeOutputParser.getDependencies([
-            'pbr', 'Babel', 'pep8', 'py', 'setuptools', 'pytest-xdist', 'Jinja2', 'flake8', 'snowballstemmer',
-            'alabaster', 'sphinx_rtd_theme', 'Pygments', 'pytest-cov', 'pip', 'mccabe', 'docutils', 'coverage', 'pex',
-            'six', 'setuptools-git', 'pyflakes', 'pytest', 'wheel', 'imagesize', 'argparse', 'Sphinx', 'colorama',
-            'pytz'
-        ], freezeOutput) == ['testProject']
+        PipFreezeOutputParser.getDependencies(['pbr', 'Babel', 'pep8', 'py', 'setuptools', 'pytest-xdist', 'Jinja2', 'flake8', 'snowballstemmer',
+                                               'alabaster', 'sphinx_rtd_theme', 'Pygments', 'pytest-cov', 'pip', 'mccabe', 'docutils', 'coverage', 'pex',
+                                               'six', 'setuptools-git', 'pyflakes', 'pytest', 'wheel', 'imagesize', 'argparse', 'Sphinx', 'colorama',
+                                               'pytz'], freezeOutput) == ['testProject': 'unspecified']
+
+        PipFreezeOutputParser.getDependencies(['pbr', 'Babel', 'pep8', 'py', 'setuptools', 'pytest-xdist', 'Jinja2', 'flake8', 'snowballstemmer',
+                                               'alabaster', 'sphinx_rtd_theme', 'Pygments', 'pip', 'mccabe', 'docutils', 'coverage', 'pex',
+                                               'six', 'setuptools-git', 'pyflakes', 'pytest', 'wheel', 'imagesize', 'argparse', 'Sphinx', 'colorama',
+                                               'pytz'], freezeOutput) == ['testProject': 'unspecified', 'pytest-cov': '2.2.1']
+    }
+
+    def 'throws error on bad requirements format'() {
+        when:
+        def unsupportedFreezeOutput = '''\
+            |alabaster==0.7.1
+            |Babel>=1.3'''.stripMargin().stripIndent()
+        PipFreezeOutputParser.getDependencies([], unsupportedFreezeOutput)
+
+        then:
+        def e = thrown(GradleException)
+        e.message.startsWith("unsupported requirement format")
     }
 }

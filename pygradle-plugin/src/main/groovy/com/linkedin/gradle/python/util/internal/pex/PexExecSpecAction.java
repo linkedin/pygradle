@@ -18,9 +18,11 @@ package com.linkedin.gradle.python.util.internal.pex;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import java.util.Map;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.process.ExecSpec;
@@ -42,7 +44,7 @@ class PexExecSpecAction implements Action<ExecSpec> {
     private final File pexShebang;
     private final String entryPoint;
     private final List<String> pexOptions;
-    private final List<String> dependencies;
+    private final Map<String, String> dependencies;
     private final ByteArrayOutputStream outputStream;
 
     /**
@@ -56,7 +58,7 @@ class PexExecSpecAction implements Action<ExecSpec> {
      * @param dependencies The dependencies that are needed for this pex
      */
     private PexExecSpecAction(PythonExtension pythonExtension, File pexCache, File outputFile, File wheelCache,
-                              File pexShebang, String entryPoint, List<String> pexOptions, List<String> dependencies) {
+                              File pexShebang, String entryPoint, List<String> pexOptions, Map<String, String> dependencies) {
         this.pythonExtension = pythonExtension;
         this.pexCache = pexCache;
         this.outputFile = outputFile;
@@ -86,7 +88,7 @@ class PexExecSpecAction implements Action<ExecSpec> {
         }
 
         execSpec.args(pexOptions);
-        execSpec.args(dependencies);
+        execSpec.args(pexRequirements(dependencies));
 
         execSpec.setStandardOutput(outputStream);
         execSpec.setErrorOutput(outputStream);
@@ -107,7 +109,7 @@ class PexExecSpecAction implements Action<ExecSpec> {
      * @return an instance of PexExecSpecAction to build a pex
      */
     public static PexExecSpecAction withEntryPoint(
-            Project project, String pexName, String entryPoint, List<String> pexOptions, List<String> dependencies) {
+            Project project, String pexName, String entryPoint, List<String> pexOptions, Map<String, String> dependencies) {
         PythonExtension pythonExtension = ExtensionUtils.getPythonExtension(project);
         PexExtension pexExtension = ExtensionUtils.getPythonComponentExtension(project, PexExtension.class);
         WheelExtension wheelExtension = ExtensionUtils.getPythonComponentExtension(project, WheelExtension.class);
@@ -132,7 +134,7 @@ class PexExecSpecAction implements Action<ExecSpec> {
      * @return an instance of PexExecSpecAction to build a pex
      */
     public static PexExecSpecAction withOutEntryPoint(
-            Project project, String pexName, List<String> pexOptions, List<String> dependencies) {
+            Project project, String pexName, List<String> pexOptions, Map<String, String> dependencies) {
         PythonExtension pythonExtension = ExtensionUtils.getPythonExtension(project);
         PexExtension pexExtension = ExtensionUtils.getPythonComponentExtension(project, PexExtension.class);
         WheelExtension wheelExtension = ExtensionUtils.getPythonComponentExtension(project, WheelExtension.class);
@@ -146,5 +148,13 @@ class PexExecSpecAction implements Action<ExecSpec> {
             null,
             pexOptions,
             dependencies);
+    }
+
+    private List<String> pexRequirements(Map<String, String> dependencies) {
+        List<String> requirements = new ArrayList<>();
+        for (Map.Entry<String, String> entry : dependencies.entrySet()) {
+            requirements.add(entry.getKey() + "==" + entry.getValue());
+        }
+        return requirements;
     }
 }

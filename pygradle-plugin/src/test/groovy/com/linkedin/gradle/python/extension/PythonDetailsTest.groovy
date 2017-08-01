@@ -20,7 +20,6 @@ import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
 
-
 class PythonDetailsTest extends Specification {
 
     def project = new ProjectBuilder().build()

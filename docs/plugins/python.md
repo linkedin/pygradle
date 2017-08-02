@@ -62,28 +62,3 @@ PyGradle will automatically disable tasks if certain conditions are present.
 * coverage will skip if the configured `python.testDir` doesn't exist
 * flake8 will skip if both `python.testDir` and `python.srcDir` doesn't exist
 * both Sphinx Documentation tasks will skip if the configured `python.docsDir` doesn't exist
-
-## Default and allowed Python version
-This plugin enforces a set of default and allowed Python versions.  For
-example, you can specify `pythonVersion = '3'` and you will get whatever the
-default Python 3 version is.  Similarly `pythonVersion = '2'` gets you
-whatever the default Python 2 version is.
-
-This plugin also enforces a set of allowed Python versions.  If you choose a
-Python version that is not allowed, you will see an error messages such as:
-
-```
-> Python 3.2 not allowed; choose from [2.6, 2.7, 3.4, 3.5, 3.6]
-```
-
-If you see this error message, you must adjust your `pythonVersion` setting to
-one of the allowed values.
-
-Consumers of this extension can change the default Python 2, Python 3, and
-allowed versions by making a call on the `PythonDetails` object, either the
-one returned by `PythonExtension.getDetails()` or on any `PythonDetails`
-instance you create, e.g. in Groovy:
-
-```groovy
-pythonDetails.setPythonDefaultVersions('2.7', '3.6', ['2.7', '3.5', '3.6'])
-```

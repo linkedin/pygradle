@@ -34,7 +34,7 @@ In particular, you're going to have to:
 - Decide how you want to distribute a custom setuptools distribution class.
 - Author your build.gradle file.
 
-These decisions and tasks shouldn't take too long for you finish, but they are
+These decisions and tasks shouldn't take to long for you finish, but they are
 required. A deeper dive into what it takes to get started, how you can use our
 demonstrative Artifactory instance, and a few project examples is available in
 our detailed [getting started](docs/getting-started.md) guide.

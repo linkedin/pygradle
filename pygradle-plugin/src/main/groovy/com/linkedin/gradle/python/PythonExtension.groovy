@@ -62,6 +62,7 @@ class PythonExtension {
     /** Settings that can be put into the pip.conf file in the venv */
     public Map<String, Map<String, String>> pipConfig = [:]
 
+
     /** A way to define forced versions of libraries */
     public Map<String, Map<String, String>> forcedVersions = [
         'argparse': ['group': 'pypi', 'name': 'argparse', 'version': '1.4.0'],
@@ -160,3 +161,5 @@ class PythonExtension {
         this.pinnedFile = pinnedFile
     }
 }
+
+

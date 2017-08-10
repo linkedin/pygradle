@@ -106,4 +106,16 @@ class PythonPluginTest extends Specification {
         install.installFileCollection.getFiles().size() == 1
         install.installFileCollection.getFiles().first().getName() == projectDir.getName()
     }
+
+    def 'product dependencies are installed after test dependencies'() {
+        when:
+        def project = new ProjectBuilder().build()
+        project.plugins.apply(PythonPlugin)
+
+        then:
+        PipInstallTask installPythonReqs = (PipInstallTask) project.tasks.getByName(StandardTextValues.TASK_INSTALL_PYTHON_REQS.value)
+        PipInstallTask installTestReqs = (PipInstallTask) project.tasks.getByName(StandardTextValues.TASK_INSTALL_TEST_REQS.value)
+        installTestReqs.getDependsOn().contains(installPythonReqs) == false
+        assert installPythonReqs.getDependsOn().contains(installTestReqs)
+    }
 }

@@ -60,16 +60,6 @@ class PythonPlugin implements Plugin<Project> {
         project.configurations.create(CONFIGURATION_WHEEL.value)
 
         /*
-         * We must extend test configuration from the python configuration.
-         *
-         * 1. This prevents test dependencies overwriting python dependencies
-         *    if they resolve to a different version transitively.
-         * 2. Since tests do depend on all runtime dependencies, this is also
-         *    semantically correct.
-         */
-        project.configurations.test.extendsFrom(pythonConf)
-
-        /*
          * Add vended build and test dependencies to projects that apply this plugin.
          * Notice that virtualenv contains the latest versions of setuptools,
          * pip, and wheel, vended in. Make sure to use versions we can actually
@@ -165,26 +155,27 @@ class PythonPlugin implements Plugin<Project> {
         }
 
         /**
-         * Install the product's Python requirements.
-         *
-         * A products Python requirements are those listed in the product-spec.json in the external or product sections.
-         *
-         */
-        project.tasks.create(TASK_INSTALL_PYTHON_REQS.value, PipInstallTask) {
-            pythonDetails = settings.details
-            dependsOn project.tasks.getByName(TASK_INSTALL_BUILD_REQS.value)
-            installFileCollection = project.configurations.python
-        }
-
-        /**
          * Install the product's Python test requirements.
          *
          * A products test requirements are those that are listed in the ``test`` configuration and are only required for running tests.
          */
         project.tasks.create(TASK_INSTALL_TEST_REQS.value, PipInstallTask) {
             pythonDetails = settings.details
-            dependsOn project.tasks.getByName(TASK_INSTALL_PYTHON_REQS.value)
+            dependsOn project.tasks.getByName(TASK_INSTALL_BUILD_REQS.value)
             installFileCollection = project.configurations.test
+        }
+
+        /**
+         * Install the product's Python requirements.
+         *
+         * A products Python requirements are those listed in the python configuration.
+         *
+         */
+        project.tasks.create(TASK_INSTALL_PYTHON_REQS.value, PipInstallTask) {
+            pythonDetails = settings.details
+            // by running after test reqs we ensure, in case different versions of same req exist in both, that version from python reqs takes precedence.
+            dependsOn project.tasks.getByName(TASK_INSTALL_TEST_REQS.value)
+            installFileCollection = project.configurations.python
         }
 
         /**
@@ -194,7 +185,7 @@ class PythonPlugin implements Plugin<Project> {
          */
         project.tasks.create(TASK_INSTALL_PROJECT.value, PipInstallTask) {
             pythonDetails = settings.details
-            dependsOn project.tasks.getByName(TASK_INSTALL_TEST_REQS.value)
+            dependsOn project.tasks.getByName(TASK_INSTALL_PYTHON_REQS.value)
             installFileCollection = project.files(project.file(project.projectDir))
             args = ['--editable']
             environment = settings.pythonEnvironmentDistgradle

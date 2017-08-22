@@ -60,7 +60,7 @@ public class ThinPexGenerator implements PexGenerator {
         DeployableExtension deployableExtension = ExtensionUtils.getPythonComponentExtension(
                 extension, DeployableExtension.class);
 
-        List<String> dependencies = new PipFreezeAction(project).getDependencies();
+        Map<String, String> dependencies = new PipFreezeAction(project).getDependencies();
 
         PexExecSpecAction action = PexExecSpecAction.withOutEntryPoint(
                 project, project.getName(), pexOptions, dependencies);

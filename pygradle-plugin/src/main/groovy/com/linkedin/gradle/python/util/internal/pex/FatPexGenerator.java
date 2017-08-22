@@ -17,6 +17,7 @@ package com.linkedin.gradle.python.util.internal.pex;
 
 import java.util.List;
 
+import java.util.Map;
 import org.gradle.api.Project;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
@@ -40,7 +41,7 @@ public class FatPexGenerator implements PexGenerator {
 
     @Override
     public void buildEntryPoints() {
-        List<String> dependencies = new PipFreezeAction(project).getDependencies();
+        Map<String, String> dependencies = new PipFreezeAction(project).getDependencies();
 
         for (String it : EntryPointHelpers.collectEntryPoints(project)) {
             logger.lifecycle("Processing entry point: {}", it);
@@ -52,8 +53,8 @@ public class FatPexGenerator implements PexGenerator {
         }
     }
 
-    public void buildEntryPoint(String name, String entry, List<String> pipFreezeDependencies) {
-        List<String> dependencies = pipFreezeDependencies;
+    public void buildEntryPoint(String name, String entry, Map<String, String> pipFreezeDependencies) {
+        Map<String, String> dependencies = pipFreezeDependencies;
         // When called from outside buildEntryPoints above, this can be null
         if (dependencies == null) {
              dependencies = new PipFreezeAction(project).getDependencies();

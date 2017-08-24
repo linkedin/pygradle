@@ -39,12 +39,16 @@ class PipFreezeOutputParser {
             if (!line.startsWith("-e ")) {  // ignore editable requirements
                 String[] parts = line.split("==");
                 if (parts.length != 2) {
-                    throw new GradleException("unsupported requirement format. expected: <requirement>==<version>. found: " + line);
+                    throw new GradleException("Unsupported requirement format. expected: <requirement>==<version>. found: " + line);
                 }
                 String name = parts[0];
-                // The tar name can have _ when package name has -, so check both.
+                String version = parts[1];
+                /*
+                 * The tar name can have _ when package name has -, so check both.
+                 * The version will convert - into _ for wheel builds, so convert right here.
+                 */
                 if (!(ignoredDependencies.contains(name) || ignoredDependencies.contains(name.replace("-", "_")))) {
-                    reqs.put(name, parts[1]);
+                    reqs.put(name, version.replace("-", "_"));
                 }
             }
         }

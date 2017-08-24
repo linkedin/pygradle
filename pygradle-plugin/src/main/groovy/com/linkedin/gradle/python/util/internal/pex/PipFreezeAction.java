@@ -72,8 +72,8 @@ class PipFreezeAction {
         });
 
         Map<String, String> dependencies = PipFreezeOutputParser.getDependencies(developmentDependencies, requirements);
-        // for snapshot builds, wheel gets built with _SNAPSHOT(where as it's -SNAPSHOT in gradle land), and the version becomes <semver>._SNAPSHOT
-        dependencies.put(project.getName(), project.getVersion().toString().replace("-SNAPSHOT", "_SNAPSHOT"));
+        // The version will convert - into _ for wheel builds, so convert right here to handle -SNAPSHOT, -MPDEP, ...
+        dependencies.put(project.getName(), project.getVersion().toString().replace("-", "_"));
         return dependencies;
     }
 

@@ -32,12 +32,17 @@ import org.gradle.api.artifacts.component.ComponentIdentifier;
 import org.gradle.api.artifacts.result.DependencyResult;
 import org.gradle.api.artifacts.result.ResolvedComponentResult;
 import org.gradle.api.artifacts.result.ResolvedDependencyResult;
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
 
 
 /**
  * A container of static utilities for dependency order.
  */
 public class DependencyOrder {
+
+    private static final Logger logger = Logging.getLogger(DependencyOrder.class);
+
     private DependencyOrder() {
         // prevent instantiation of the utility class
     }
@@ -114,7 +119,11 @@ public class DependencyOrder {
 
         // Prepare an ordered set of files in post-order.
         for (ResolvedComponentResult d : configurationPostOrderDependencies(configuration)) {
-            files.add(idToFileMap.get(d.getModuleVersion()));
+            if (!idToFileMap.containsKey(d.getModuleVersion())) {
+                logger.warn("***** WARNING Missing resolved artifact for " + d);
+            } else {
+                files.add(idToFileMap.get(d.getModuleVersion()));
+            }
         }
 
         // Make sure the files set is a subset of configuration files.

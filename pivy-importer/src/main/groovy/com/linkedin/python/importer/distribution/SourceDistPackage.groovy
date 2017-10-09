@@ -151,7 +151,7 @@ class SourceDistPackage {
     }
 
     private String getRequiresTextFile() {
-        if (packageFile.absolutePath.contains('.tar.')) {
+        if (packageFile.absolutePath.contains('.tar.') || packageFile.absolutePath.endsWith('.tgz')) {
             return explodeTarForRequiresText()
         } else {
             return explodeZipForRequiresText()
@@ -166,7 +166,6 @@ class SourceDistPackage {
         }
         return ''
     }
-
 
     private String explodeTarForRequiresText() {
         TarArchiveInputStream tarIn = explodeArtifact()
@@ -191,7 +190,7 @@ class SourceDistPackage {
         BufferedInputStream inputStream = new BufferedInputStream(fin)
         InputStream compressorInputStream
 
-        if (packageFile.absolutePath.endsWith('.gz')) {
+        if (packageFile.absolutePath.endsWith('.gz') || packageFile.absolutePath.endsWith('.tgz')) {
             compressorInputStream = new GzipCompressorInputStream(inputStream)
         } else if (packageFile.absolutePath.endsWith('.bz2')) {
             compressorInputStream = new BZip2CompressorInputStream(inputStream)

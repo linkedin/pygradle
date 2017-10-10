@@ -42,6 +42,7 @@ task importRequiredDependencies(type: JavaExec) { task ->
         'idna:2.0.0=idna:2.0',                              // candidate for removal
         'pytz:0a=pytz:2016.4',                              // candidate for removal
         'pytz:2004b.2=pytz:2016.4',
+        'PyYAML:3.02=PyYAML:3.12',
         'setuptools:0.6a2=setuptools:19.1.1',               // candidate for removal
         'setuptools:0.6c1=setuptools:19.1.1',
         'sphinx_rtd_theme:0.1=sphinx_rtd_theme:0.1.1',      // candidate for removal

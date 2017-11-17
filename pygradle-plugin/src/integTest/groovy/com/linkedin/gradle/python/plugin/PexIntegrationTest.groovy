@@ -38,16 +38,16 @@ class PexIntegrationTest extends Specification {
         testProjectDir
         given:
         testProjectDir.buildFile << """\
-        |plugins {
-        |    id 'com.linkedin.python-pex'
-        |}
-        |
-        |python {
-        |  pex {
-        |    fatPex = false
-        |  }
-        |}
-        |${PyGradleTestBuilder.createRepoClosure()}
+        | plugins {
+        |     id 'com.linkedin.python-pex'
+        | }
+        | version = '1.0.0'
+        | python {
+        |   pex {
+        |     fatPex = false
+        |   }
+        | }
+        | ${PyGradleTestBuilder.createRepoClosure()}
         """.stripMargin().stripIndent()
 
         when:
@@ -94,16 +94,16 @@ class PexIntegrationTest extends Specification {
     def "can build fat pex"() {
         given:
         testProjectDir.buildFile << """\
-        |plugins {
-        |    id 'com.linkedin.python-pex'
-        |}
-        |version = "1.0.0"
-        |python {
-        |  pex {
-        |    fatPex = true
-        |  }
-        |}
-        |${PyGradleTestBuilder.createRepoClosure()}
+        | plugins {
+        |     id 'com.linkedin.python-pex'
+        | }
+        | version = '1.0.0'
+        | python {
+        |   pex {
+        |     fatPex = true
+        |   }
+        | }
+        | ${PyGradleTestBuilder.createRepoClosure()}
         """.stripMargin().stripIndent()
 
         when:

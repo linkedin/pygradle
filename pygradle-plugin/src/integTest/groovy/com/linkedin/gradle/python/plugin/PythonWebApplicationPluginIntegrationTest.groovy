@@ -69,7 +69,8 @@ class PythonWebApplicationPluginIntegrationTest extends Specification {
         result.task(':foo:pytest').outcome == TaskOutcome.SUCCESS
         result.task(':foo:check').outcome == TaskOutcome.SUCCESS
         result.task(':foo:build').outcome == TaskOutcome.SUCCESS
-        result.task(':foo:packageWebApplication').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:packageDeployable').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:packageWebApplication').outcome == TaskOutcome.SKIPPED
         Path deployablePath = testProjectDir.getRoot().toPath().resolve(Paths.get('foo', 'build', 'deployable', 'bin'))
 
         when: "we have a pex file"

@@ -89,8 +89,8 @@ class PythonFlyerPlugin implements Plugin<Project> {
             }
         }
 
-        project.tasks.getByName(StandardTextValues.TASK_INSTALL_PROJECT.value).dependsOn(project.tasks.getByName(TASK_SETUP_RESOURCE_LINK))
-
+        project.tasks.getByName(StandardTextValues.TASK_INSTALL_PROJECT.value)
+            .dependsOn(project.tasks.getByName(TASK_SETUP_RESOURCE_LINK))
 
         /*
          * In order to make the resource files accessible when deploying the project, we need to copy the
@@ -98,14 +98,14 @@ class PythonFlyerPlugin implements Plugin<Project> {
          */
         project.tasks.create(name: TASK_PACKAGE_RESOURCE_FILES, type: Copy) { Copy copy ->
             def deployableExtension = ExtensionUtils.maybeCreateDeployableExtension(project)
-            copy.dependsOn(project.tasks['buildWebApplication'])
+            copy.dependsOn(project.tasks.getByName(PythonWebApplicationPlugin.TASK_BUILD_WEB_APPLICATION))
 
             copy.from resourceConf
             copy.into "${deployableExtension.deployableBuildDir}/resource"
         }
 
-
         // Make sure we've copied all the files before running the task: packageDeployable
-        project.tasks.getByName(PythonWebApplicationPlugin.TASK_PACKAGE_WEB_APPLICATION).dependsOn(project.tasks.getByName(TASK_PACKAGE_RESOURCE_FILES))
+        project.tasks.getByName(PythonPexDistributionPlugin.TASK_PACKAGE_DEPLOYABLE)
+            .dependsOn(project.tasks.getByName(TASK_PACKAGE_RESOURCE_FILES))
     }
 }

@@ -15,15 +15,12 @@
  */
 package com.linkedin.gradle.python.plugin
 
-import org.gradle.api.Action
 import org.gradle.api.Project
-import org.gradle.api.tasks.bundling.Compression
-import org.gradle.api.tasks.bundling.Tar
+import org.gradle.api.Task
 
 import com.linkedin.gradle.python.extension.DeployableExtension
 import com.linkedin.gradle.python.tasks.BuildWebAppTask
 import com.linkedin.gradle.python.util.ExtensionUtils
-import com.linkedin.gradle.python.util.StandardTextValues
 
 
 class PythonWebApplicationPlugin extends PythonBasePlugin {
@@ -41,32 +38,33 @@ class PythonWebApplicationPlugin extends PythonBasePlugin {
 
         DeployableExtension deployableExtension = ExtensionUtils.maybeCreateDeployableExtension(project)
 
-        /**
+        /*
          * Build a gunicorn pex file.
          *
          * Our apollo controllers expect to be able to "shell out" to a gunicorn
          * binary on disk that is next to the control file. Make sure this is
-         * possible by exploding gunicorn as a pex file.
+         * possible by exposing gunicorn as a pex file.
          */
         project.tasks.create(TASK_BUILD_WEB_APPLICATION, BuildWebAppTask) { task ->
-            task.description = 'Build a web app, by default using gunicorn, but it\'s configurable.'
+            task.description = "Build a web app, by default using gunicorn, but it's configurable."
             task.dependsOn(TASK_BUILD_PEX)
             task.executable = new File(deployableExtension.deployableBinDir, "gunicorn")
             task.entryPoint = GUNICORN_ENTRYPOINT
         }
 
-        def packageDeployable = project.tasks.create(TASK_PACKAGE_WEB_APPLICATION, Tar, new Action<Tar>() {
-            @Override
-            void execute(Tar tar) {
-                tar.compression = Compression.GZIP
-                tar.baseName = project.name
-                tar.extension = 'tar.gz'
-                tar.from(deployableExtension.deployableBuildDir)
-            }
-        })
-        packageDeployable.dependsOn(project.tasks.getByName(TASK_BUILD_WEB_APPLICATION))
+        // Make packaging task wait on this task so that gunicorn is packed into the app.
+        project.tasks.getByName(PythonPexDistributionPlugin.TASK_PACKAGE_DEPLOYABLE)
+            .dependsOn(project.tasks.getByName(TASK_BUILD_WEB_APPLICATION))
 
-        project.artifacts.add(StandardTextValues.CONFIGURATION_DEFAULT.value, packageDeployable)
-
+        /*
+         * TODO: Remove this task once the backwards compatibility is not needed for it any more.
+         */
+        project.tasks.create(TASK_PACKAGE_WEB_APPLICATION) { Task task ->
+            task.description = "Backward compatibility place-holder task for packaging web app"
+            task.dependsOn(project.tasks.getByName(TASK_BUILD_WEB_APPLICATION))
+            task.enabled = false
+        }
+        project.tasks.getByName(PythonPexDistributionPlugin.TASK_PACKAGE_DEPLOYABLE)
+            .dependsOn(project.tasks.getByName(TASK_PACKAGE_WEB_APPLICATION))
     }
 }

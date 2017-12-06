@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.util.internal.pex;
+package com.linkedin.gradle.python.util.pip;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Collection;
@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.gradle.api.GradleException;
 
-class PipFreezeOutputParser {
+public class PipFreezeOutputParser {
 
     private PipFreezeOutputParser() {
         //private constructor for utility class

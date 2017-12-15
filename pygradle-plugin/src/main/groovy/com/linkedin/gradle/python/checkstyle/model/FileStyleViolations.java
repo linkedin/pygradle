@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-class FileStyleViolations {
+public class FileStyleViolations {
   private final String filename;
   private final List<StyleViolation> violations = new ArrayList<StyleViolation>();
 

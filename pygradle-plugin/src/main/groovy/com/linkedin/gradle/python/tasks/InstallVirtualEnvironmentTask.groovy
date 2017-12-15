@@ -15,13 +15,6 @@
  */
 package com.linkedin.gradle.python.tasks
 
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.nio.file.StandardOpenOption
-
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Optional
-
 import com.linkedin.gradle.python.extension.PythonDetails
 import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider
 import com.linkedin.gradle.python.tasks.execution.TeeOutputContainer
@@ -36,11 +29,13 @@ import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.ResolvedConfiguration
 import org.gradle.api.artifacts.ResolvedDependency
 import org.gradle.api.specs.Spec
-import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.OutputFile
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.*
 import org.gradle.process.ExecSpec
 import org.gradle.util.VersionNumber
+
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.StandardOpenOption
 
 @CompileStatic
 class InstallVirtualEnvironmentTask extends DefaultTask implements FailureReasonProvider {

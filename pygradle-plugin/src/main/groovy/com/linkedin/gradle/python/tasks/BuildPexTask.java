@@ -15,19 +15,6 @@
  */
 package com.linkedin.gradle.python.tasks;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.io.FileUtils;
-import org.gradle.api.Action;
-import org.gradle.api.DefaultTask;
-import org.gradle.api.Project;
-import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.Optional;
-import org.gradle.api.tasks.TaskAction;
-import org.gradle.process.ExecSpec;
-
 import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.extension.DeployableExtension;
 import com.linkedin.gradle.python.extension.PexExtension;
@@ -39,6 +26,18 @@ import com.linkedin.gradle.python.util.internal.pex.FatPexGenerator;
 import com.linkedin.gradle.python.util.internal.pex.ThinPexGenerator;
 import com.linkedin.gradle.python.util.pex.DefaultEntryPointTemplateProvider;
 import com.linkedin.gradle.python.util.pex.EntryPointTemplateProvider;
+import org.apache.commons.io.FileUtils;
+import org.gradle.api.Action;
+import org.gradle.api.DefaultTask;
+import org.gradle.api.Project;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Optional;
+import org.gradle.api.tasks.TaskAction;
+import org.gradle.process.ExecSpec;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 
 /**

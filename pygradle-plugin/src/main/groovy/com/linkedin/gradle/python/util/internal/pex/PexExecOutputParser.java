@@ -15,13 +15,13 @@
  */
 package com.linkedin.gradle.python.util.internal.pex;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.gradle.api.GradleException;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.process.ExecResult;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 class PexExecOutputParser {

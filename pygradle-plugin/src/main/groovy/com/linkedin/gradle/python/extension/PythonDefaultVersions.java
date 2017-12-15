@@ -15,9 +15,10 @@
  */
 package com.linkedin.gradle.python.extension;
 
+import org.gradle.api.GradleException;
+
 import java.util.Collection;
 import java.util.TreeSet;
-import org.gradle.api.GradleException;
 
 
 public class PythonDefaultVersions {

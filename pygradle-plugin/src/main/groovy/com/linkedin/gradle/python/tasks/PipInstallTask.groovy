@@ -15,9 +15,10 @@
  */
 package com.linkedin.gradle.python.tasks
 
-import java.nio.file.Path
-import java.nio.file.Paths
-
+import com.linkedin.gradle.python.extension.PythonDetails
+import com.linkedin.gradle.python.plugin.PythonHelpers
+import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider
+import com.linkedin.gradle.python.util.*
 import groovy.time.TimeCategory
 import groovy.transform.CompileStatic
 import org.gradle.api.DefaultTask
@@ -32,15 +33,8 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecResult
 import org.gradle.process.ExecSpec
 
-import com.linkedin.gradle.python.extension.PythonDetails
-import com.linkedin.gradle.python.plugin.PythonHelpers
-import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider
-import com.linkedin.gradle.python.util.ConsoleOutput
-import com.linkedin.gradle.python.util.DependencyOrder
-import com.linkedin.gradle.python.util.ExtensionUtils
-import com.linkedin.gradle.python.util.OperatingSystem
-import com.linkedin.gradle.python.util.PackageInfo
-
+import java.nio.file.Path
+import java.nio.file.Paths
 
 /**
  * Execute pip install

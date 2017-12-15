@@ -20,7 +20,7 @@ package com.linkedin.gradle.python.util
  * are being moved to this enum.  Its an Enum rather than an interface because according to CodeNarc, interfaces of nothing
  * but constants is now taboo.
  */
-enum StandardTextValues {
+public enum StandardTextValues {
     CONFIGURATION_BOOTSTRAP_REQS('pygradleBootstrap'),
     CONFIGURATION_SETUP_REQS('setupRequires'),
     CONFIGURATION_BUILD_REQS('build'),

@@ -18,6 +18,7 @@ package com.linkedin.gradle.python.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 
 public class FileSystemUtils {
@@ -49,6 +50,14 @@ public class FileSystemUtils {
             if (!Files.exists(destination.toPath())) {
                 Files.copy(target.toPath(), destination.toPath());
             }
+        }
+    }
+
+    public static void makeSymLinkUnchecked(File target, File destination) {
+        try {
+            makeSymLink(target, destination);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.util.internal.pex;
+package com.linkedin.gradle.python.util.pip;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -32,7 +32,7 @@ import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.util.PackageInfo;
 import com.linkedin.gradle.python.util.StandardTextValues;
 
-class PipFreezeAction {
+public class PipFreezeAction {
 
     private final Project project;
 

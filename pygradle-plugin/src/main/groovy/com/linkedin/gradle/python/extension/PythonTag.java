@@ -1,10 +1,9 @@
 package com.linkedin.gradle.python.extension;
 
-import com.linkedin.gradle.python.PythonExtension;
 import org.gradle.api.Project;
+import org.gradle.process.ExecResult;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,11 +19,11 @@ public class PythonTag implements Serializable {
     private static final PythonTag[] KNOWN_TAGS = new PythonTag[]{CPython, IronPython, PyPy, Jython};
 
     private final String prefix;
-    private final String implemenatation;
+    private final String implementation;
 
-    private PythonTag(String prefix, String implemenatation) {
+    private PythonTag(String prefix, String implementation) {
         this.prefix = prefix;
-        this.implemenatation = implemenatation;
+        this.implementation = implementation;
     }
 
     public String getPrefix() {
@@ -35,21 +34,26 @@ public class PythonTag implements Serializable {
         List<String> args = new ArrayList<>(Arrays.asList(pythonDetails.getVirtualEnvInterpreter().getAbsolutePath(), "-c"));
 
         if ("2".equals(pythonDetails.getPythonVersion().getPythonMajor())) {
-            args.add("import distutils; print(distutils.util.get_platform())");
+            args.add("import platform; print(platform.python_implementation())");
         } else {
             args.add("import sys; print(sys.implementation.name)");
         }
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
-        project.exec(exec -> {
+        ExecResult result = project.exec(exec -> {
             exec.commandLine(args);
             exec.setStandardOutput(stream);
+            exec.setIgnoreExitValue(true);
         });
+
+        if(result.getExitValue() != 0) { // pick something sane
+            return CPython;
+        }
 
         String pythonImplementation = stream.toString().trim();
         for (PythonTag knownTag : KNOWN_TAGS) {
-            if (knownTag.implemenatation.equalsIgnoreCase(pythonImplementation)) {
+            if (knownTag.implementation.equalsIgnoreCase(pythonImplementation)) {
                 return knownTag;
             }
         }
@@ -61,7 +65,7 @@ public class PythonTag implements Serializable {
     public String toString() {
         return "PythonTag{" +
             "prefix='" + prefix + '\'' +
-            ", implemenatation='" + implemenatation + '\'' +
+            ", implementation='" + implementation + '\'' +
             '}';
     }
 }

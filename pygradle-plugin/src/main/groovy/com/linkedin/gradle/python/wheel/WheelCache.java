@@ -31,8 +31,9 @@ public class WheelCache implements Serializable {
             return Optional.empty();
         }
 
-        File[] files = cacheDir.listFiles((dir, name) ->
-            name.startsWith(library.replace("-", "_") + "-" + version) && name.endsWith(".whl"));
+        String wheelPrefix = library.replace("-", "_") + "-" + version;
+        logger.debug("Searching for {} {} with prefix {}", library, version, wheelPrefix);
+        File[] files = cacheDir.listFiles((dir, name) -> name.startsWith(wheelPrefix) && name.endsWith(".whl"));
 
         if (files == null) {
             return Optional.empty();
@@ -44,14 +45,16 @@ public class WheelCache implements Serializable {
         pythonAbi.add(pythonTag.getPrefix() + pythonVersion.getPythonMajor());
         pythonAbi.add(pythonTag.getPrefix() + pythonVersion.getPythonMajor() + pythonVersion.getPythonMinor());
 
-        List<String> platformTag = Arrays.asList("any.whl", this.platformTag.getPlatform() + ".whl");
+        List<String> platformTagList = new ArrayList<>(Arrays.asList("any.whl", platformTag.getPlatform() + ".whl"));
 
-        logger.debug("Searching for {} {} with options: {}, {}", library, version, pythonAbi, platformTag);
+        logger.debug("Searching for {} {} with options: {}, {}", library, version, pythonAbi, platformTagList);
 
         List<File> collect = Arrays.stream(files)
             .filter(file -> pythonAbi.stream().anyMatch(it -> file.getName().contains(it)))
-            .filter(file -> platformTag.stream().anyMatch(it -> file.getName().endsWith(it)))
+            .filter(file -> platformTagList.stream().anyMatch(it -> file.getName().endsWith(it)))
             .collect(Collectors.toList());
+
+        logger.debug("Found artifacts: {}", collect);
 
         if (collect.isEmpty()) {
             return Optional.empty();

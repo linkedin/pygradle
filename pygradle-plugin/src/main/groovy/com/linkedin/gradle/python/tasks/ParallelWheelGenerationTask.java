@@ -5,26 +5,28 @@ import com.linkedin.gradle.python.extension.PlatformTag;
 import com.linkedin.gradle.python.extension.PythonDetails;
 import com.linkedin.gradle.python.extension.PythonTag;
 import com.linkedin.gradle.python.util.PackageInfo;
+import com.linkedin.gradle.python.util.internal.TaskTimer;
 import com.linkedin.gradle.python.wheel.WheelCache;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
 import org.gradle.api.tasks.*;
 import org.gradle.internal.logging.progress.ProgressLogger;
 import org.gradle.internal.logging.progress.ProgressLoggerFactory;
-import org.gradle.workers.WorkerExecutor;
+import org.gradle.process.ExecResult;
 
-import javax.inject.Inject;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ParallelWheelGenerationTask extends DefaultTask {
+
+    private static final Logger logger = Logging.getLogger(ParallelWheelGenerationTask.class);
 
     private FileCollection filesToConvert;
     private File cacheDir;
@@ -40,35 +42,25 @@ public class ParallelWheelGenerationTask extends DefaultTask {
         progressLogger.setDescription("Building wheels");
 
         PythonTag pythonTag = PythonTag.findTag(getProject(), getPythonDetails());
-        PlatformTag platformTag;
-        if ("2".equals(getPythonDetails().getPythonVersion().getPythonMajor())) {
-
-            platformTag = new PlatformTag("none");
-        } else {
-            platformTag = PlatformTag.makePlatformTag(getProject(), getPythonDetails().getVirtualEnvInterpreter());
-        }
+        PlatformTag platformTag = PlatformTag.makePlatformTag(getProject(), getPythonDetails());
 
         WheelCache wheelCache = new WheelCache(cacheDir, pythonTag, platformTag);
 
         progressLogger.started();
 
-        Map<String, Long> wheelBuildTiming = new HashMap<>();
+        TaskTimer taskTimer = new TaskTimer();
 
         Set<File> files = getFilesToConvert().getFiles();
         int totalSize = files.size();
         files.parallelStream().forEach(file -> {
             PackageInfo packageInfo = PackageInfo.fromPath(file.getPath());
-            long start = System.currentTimeMillis();
+            TaskTimer.TickingClock clock = taskTimer.start(packageInfo.getName() + "-" + packageInfo.getVersion());
             makeWheelFromSdist(progressLogger, totalSize, wheelCache, file);
-            long end = System.currentTimeMillis();
-
-            wheelBuildTiming.put(packageInfo.toString(), end - start);
+            clock.stop();
         });
-        StringBuilder sw = new StringBuilder();
-        wheelBuildTiming.forEach((key, value) -> sw.append(key).append(": ").append(value).append("\n"));
 
         try {
-            FileUtils.write(getBuildReport(), sw.toString());
+            FileUtils.write(getBuildReport(), taskTimer.buildReport());
         } catch (IOException ignore) {
         }
         progressLogger.completed();
@@ -88,7 +80,8 @@ public class ParallelWheelGenerationTask extends DefaultTask {
             return;
         }
 
-        getProject().exec(exec -> {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        ExecResult results = getProject().exec(exec -> {
             exec.commandLine(pythonDetails.getVirtualEnvInterpreter(),
                 pythonDetails.getVirtualEnvironment().getPip(),
                 "wheel",
@@ -96,17 +89,18 @@ public class ParallelWheelGenerationTask extends DefaultTask {
                 "--wheel-dir", cacheDir,
                 "--no-deps",
                 input.getAbsoluteFile().getAbsolutePath());
-            exec.setStandardOutput(new IgnoreOutputStream());
-            exec.setErrorOutput(new IgnoreOutputStream());
+            exec.setStandardOutput(stream);
+            exec.setErrorOutput(stream);
             exec.setIgnoreExitValue(true);
         });
-    }
 
-    private static class IgnoreOutputStream extends OutputStream {
-
-        @Override
-        public void write(int b) throws IOException {
-            //NOOP
+        if (results.getExitValue() != 0) {
+            logger.lifecycle("Unable to build wheel for {}-{}", packageInfo.getName(), packageInfo.getVersion());
+            File resultDir = new File(getProject().getBuildDir(), getName() + "-" + packageInfo.getName() + "-" + packageInfo.getVersion() + ".txt");
+            try {
+                FileUtils.write(resultDir, stream.toString());
+            } catch (IOException ignored) {
+            }
         }
     }
 

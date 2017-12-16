@@ -20,13 +20,12 @@ import com.linkedin.gradle.python.extension.PlatformTag
 import com.linkedin.gradle.python.extension.PythonDetails
 import com.linkedin.gradle.python.extension.PythonTag
 import com.linkedin.gradle.python.extension.WheelExtension
-import com.linkedin.gradle.python.plugin.PythonHelpers
 import com.linkedin.gradle.python.util.ConsoleOutput
 import com.linkedin.gradle.python.util.DependencyOrder
 import com.linkedin.gradle.python.util.ExtensionUtils
 import com.linkedin.gradle.python.util.PackageInfo
+import com.linkedin.gradle.python.util.internal.TaskTimer
 import com.linkedin.gradle.python.wheel.WheelCache
-import groovy.time.TimeCategory
 import org.apache.commons.io.FileUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
@@ -38,6 +37,8 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
+import org.gradle.internal.logging.progress.ProgressLogger
+import org.gradle.internal.logging.progress.ProgressLoggerFactory
 import org.gradle.process.ExecResult
 import org.gradle.process.ExecSpec
 
@@ -123,29 +124,37 @@ class BuildWheelsTask extends DefaultTask {
      */
     private void buildWheels(Project project, Collection<File> installables, PythonDetails pythonDetails) {
 
+        ProgressLoggerFactory progressLoggerFactory = getServices().get(ProgressLoggerFactory.class)
+        ProgressLogger progressLogger = progressLoggerFactory.newOperation(BuildWheelsTask.class)
+        progressLogger.setDescription("Building Wheels")
+        progressLogger.started()
+
         WheelExtension wheelExtension = ExtensionUtils.getPythonComponentExtension(project, WheelExtension)
         def pythonExtension = ExtensionUtils.getPythonExtension(project)
 
         PythonTag pythonTag = PythonTag.findTag(getProject(), getPythonDetails())
-        PlatformTag platformTag = PlatformTag.makePlatformTag(getProject(), getPythonDetails().getVirtualEnvInterpreter())
+        PlatformTag platformTag = PlatformTag.makePlatformTag(getProject(), getPythonDetails())
 
         WheelCache wheelCache = new WheelCache(wheelCacheDir, pythonTag, platformTag)
 
+        def taskTimer = new TaskTimer()
+
+        int counter = 0
         installables.each { File installable ->
 
             def packageInfo = PackageInfo.fromPath(installable.path)
             def shortHand = packageInfo.version ? "${packageInfo.name}-${packageInfo.version}" : packageInfo.name
-            def messageHead = 'Preparing wheel ' + shortHand
+
+            def clock = taskTimer.start(shortHand)
+            progressLogger.progress("Preparing wheel $shortHand (${++counter} of ${installables.size()})")
 
             def wheel = wheelCache.findWheel(packageInfo.name, packageInfo.version, pythonExtension.details.getPythonVersion())
             if (wheel.isPresent()) {
                 FileUtils.copyFile(wheel.get(), new File(wheelExtension.wheelCache, wheel.get().name))
-                logger.lifecycle(PythonHelpers.createPrettyLine(messageHead, "[BUILT]"))
                 return
             }
 
             if (packageExcludeFilter.isSatisfiedBy(packageInfo)) {
-                logger.lifecycle(PythonHelpers.createPrettyLine(messageHead, "[EXCLUDED]"))
                 return
             }
 
@@ -159,13 +168,9 @@ class BuildWheelsTask extends DefaultTask {
             def stream = new ByteArrayOutputStream()
 
             if (tree.files.size() >= 1) {
-                LOGGER.lifecycle(PythonHelpers.createPrettyLine(messageHead, "[SKIPPING]"))
                 return
             }
 
-            LOGGER.lifecycle(PythonHelpers.createPrettyLine(messageHead, "[STARTING]"))
-
-            def startTime = new Date()
             ExecResult installResult = project.exec { ExecSpec execSpec ->
                 execSpec.environment pythonExtension.pythonEnvironment
                 execSpec.commandLine(
@@ -181,8 +186,6 @@ class BuildWheelsTask extends DefaultTask {
                 execSpec.errorOutput = stream
                 execSpec.ignoreExitValue = true
             }
-            def endTime = new Date()
-            def duration = TimeCategory.minus(endTime, startTime)
 
             if (installResult.exitValue != 0) {
                 LOGGER.error(stream.toString().trim())
@@ -190,12 +193,15 @@ class BuildWheelsTask extends DefaultTask {
             } else {
                 if (pythonExtension.consoleOutput == ConsoleOutput.RAW) {
                     LOGGER.lifecycle(stream.toString().trim())
-                } else {
-                    String prefix = String.format(messageHead + " (%d:%02d.%03d s)", duration.minutes, duration.seconds % 60, duration.millis % 1000)
-                    LOGGER.lifecycle(PythonHelpers.createPrettyLine(prefix, "[FINISHED]"))
                 }
             }
+
+            clock.stop()
         }
+
+        progressLogger.completed()
+
+        new File(project.buildDir, getName() + "-task-runtime-report.txt").text = taskTimer.buildReport()
     }
 
     File getWheelCacheDir() {

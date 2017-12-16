@@ -15,14 +15,15 @@
  */
 package com.linkedin.gradle.python.tasks
 
+import com.linkedin.gradle.python.PythonExtension
 import com.linkedin.gradle.python.extension.PlatformTag
 import com.linkedin.gradle.python.extension.PythonDetails
 import com.linkedin.gradle.python.extension.PythonTag
 import com.linkedin.gradle.python.plugin.PythonHelpers
 import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider
 import com.linkedin.gradle.python.util.*
+import com.linkedin.gradle.python.util.internal.TaskTimer
 import com.linkedin.gradle.python.wheel.WheelCache
-import groovy.time.TimeCategory
 import groovy.transform.CompileStatic
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
@@ -33,6 +34,8 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
+import org.gradle.internal.logging.progress.ProgressLogger
+import org.gradle.internal.logging.progress.ProgressLoggerFactory
 import org.gradle.process.ExecResult
 import org.gradle.process.ExecSpec
 
@@ -135,92 +138,104 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider {
         def extension = ExtensionUtils.getPythonExtension(project)
         def sitePackages = findSitePackages()
 
+        ProgressLoggerFactory progressLoggerFactory = getServices().get(ProgressLoggerFactory.class)
+        ProgressLogger progressLogger = progressLoggerFactory.newOperation(PipInstallTask.class)
+        progressLogger.setDescription("Installing Libraries")
+
         PythonTag pythonTag = PythonTag.findTag(getProject(), getPythonDetails())
-        PlatformTag platformTag = PlatformTag.makePlatformTag(getProject(), getPythonDetails().getVirtualEnvInterpreter())
+        PlatformTag platformTag = PlatformTag.makePlatformTag(getProject(), getPythonDetails())
         def cache = new WheelCache(wheelCache, pythonTag, platformTag)
 
-        for (File installable : getConfigurationFiles()) {
+        progressLogger.started()
+        TaskTimer taskTimer = new TaskTimer()
+
+        int counter = 0
+        def installableFiles = getConfigurationFiles()
+        for (File installable : installableFiles) {
             if (isReadyForInstall(installable)) {
                 def packageInfo = PackageInfo.fromPath(installable.getAbsolutePath())
                 String shortHand = packageInfo.version ? "${packageInfo.name}-${packageInfo.version}" : packageInfo.name
 
-                if (packageExcludeFilter.isSatisfiedBy(packageInfo)) {
-                    logger.lifecycle(PythonHelpers.createPrettyLine("Install ${shortHand}", "[EXCLUDED]"))
-                    continue
-                }
+                def timer = taskTimer.start(shortHand)
+                progressLogger.progress("Installing $shortHand (${++counter} of ${installableFiles.size()})")
+                doInstall(shortHand, packageInfo, sitePackages, pyVersion, extension, cache, installable)
+                timer.stop()
+            }
+        }
 
-                String sanitizedName = packageInfo.name.replace('-', '_')
+        progressLogger.completed()
 
-                // See: https://www.python.org/dev/peps/pep-0376/
-                File egg = sitePackages.resolve("${sanitizedName}-${packageInfo.version}-py${pyVersion}.egg-info").toFile()
-                File dist = sitePackages.resolve("${sanitizedName}-${packageInfo.version}.dist-info").toFile()
+        new File(project.buildDir, getName() + "-task-runtime-report.txt").text = taskTimer.buildReport()
+    }
 
-                def mergedEnv = new HashMap(extension.pythonEnvironment)
-                if (environment != null) {
-                    mergedEnv.putAll(environment)
-                }
+    private void doInstall(String shortHand, PackageInfo packageInfo, Path sitePackages,
+                           String pyVersion, PythonExtension extension,
+                           WheelCache cache, File installable) {
+        if (packageExcludeFilter.isSatisfiedBy(packageInfo)) {
+            return
+        }
 
-                if (project.file(egg).exists() || project.file(dist).exists()) {
-                    logger.lifecycle(PythonHelpers.createPrettyLine("Install ${shortHand}", "[SKIPPING]"))
-                    continue
-                }
+        String sanitizedName = packageInfo.name.replace('-', '_')
 
-                def commandLine = [pythonDetails.getVirtualEnvInterpreter(),
-                                   pythonDetails.getVirtualEnvironment().getPip(),
-                                   'install',
-                                   '--disable-pip-version-check',
-                                   '--no-deps']
-                commandLine.addAll(args)
+        // See: https://www.python.org/dev/peps/pep-0376/
+        File egg = sitePackages.resolve("${sanitizedName}-${packageInfo.version}-py${pyVersion}.egg-info").toFile()
+        File dist = sitePackages.resolve("${sanitizedName}-${packageInfo.version}.dist-info").toFile()
 
-                if (shortHand.endsWith('-SNAPSHOT')) {
-                    // snapshot packages may have changed, so reinstall them every time
-                    commandLine.add('--ignore-installed')
-                }
+        def mergedEnv = new HashMap(extension.pythonEnvironment)
+        if (environment != null) {
+            mergedEnv.putAll(environment)
+        }
+
+        if (project.file(egg).exists() || project.file(dist).exists()) {
+            return
+        }
+
+        def commandLine = [pythonDetails.getVirtualEnvInterpreter(),
+                           pythonDetails.getVirtualEnvironment().getPip(),
+                           'install',
+                           '--disable-pip-version-check',
+                           '--no-deps']
+        commandLine.addAll(args)
+
+        if (shortHand.endsWith('-SNAPSHOT')) {
+            // snapshot packages may have changed, so reinstall them every time
+            commandLine.add('--ignore-installed')
+        }
 
 
-                def cachedWheel = cache.findWheel(packageInfo.name, packageInfo.version, pythonDetails.getPythonVersion())
-                if (cachedWheel.isPresent()) {
-                    commandLine.add(cachedWheel.get().getAbsolutePath())
-                } else {
-                    commandLine.add(installable.getAbsolutePath())
-                }
+        def cachedWheel = cache.findWheel(packageInfo.name, packageInfo.version, pythonDetails.getPythonVersion())
+        if (cachedWheel.isPresent()) {
+            commandLine.add(cachedWheel.get().getAbsolutePath())
+        } else {
+            commandLine.add(installable.getAbsolutePath())
+        }
 
-                logger.lifecycle(PythonHelpers.createPrettyLine("Install ${shortHand}", "[STARTING]"))
+        def stream = new ByteArrayOutputStream()
+        ExecResult installResult = project.exec { ExecSpec execSpec ->
+            execSpec.environment mergedEnv
+            execSpec.commandLine(commandLine)
+            execSpec.standardOutput = stream
+            execSpec.errorOutput = stream
+            execSpec.ignoreExitValue = true
+        }
 
-                def startTime = new Date()
-                def stream = new ByteArrayOutputStream()
-                ExecResult installResult = project.exec { ExecSpec execSpec ->
-                    execSpec.environment mergedEnv
-                    execSpec.commandLine(commandLine)
-                    execSpec.standardOutput = stream
-                    execSpec.errorOutput = stream
-                    execSpec.ignoreExitValue = true
-                }
-                def endTime = new Date()
-                def duration = TimeCategory.minus(endTime, startTime)
+        def message = stream.toString().trim()
+        if (installResult.exitValue != 0) {
+            /*
+             * TODO: maintain a list of packages that failed to install, and report a failure
+             * report at the end. We can leverage our domain expertise here to provide very
+             * meaningful errors. E.g., we see lxml failed to install, do you have libxml2
+             * installed? E.g., we see pyOpenSSL>0.15 failed to install, do you have libffi
+             * installed?
+             */
+            logger.lifecycle(message)
+            lastInstallMessage = message
 
-                def message = stream.toString().trim()
-                if (installResult.exitValue != 0) {
-                    /*
-                     * TODO: maintain a list of packages that failed to install, and report a failure
-                     * report at the end. We can leverage our domain expertise here to provide very
-                     * meaningful errors. E.g., we see lxml failed to install, do you have libxml2
-                     * installed? E.g., we see pyOpenSSL>0.15 failed to install, do you have libffi
-                     * installed?
-                     */
-                    logger.lifecycle(message)
-                    lastInstallMessage = message
-
-                    throw new PipInstallException(
-                        "Failed to install ${shortHand}. Please see above output for reason, or re-run your build using ``gradle -i build`` for additional logging.")
-                } else {
-                    if (extension.consoleOutput == ConsoleOutput.RAW) {
-                        logger.lifecycle(message)
-                    } else {
-                        String prefix = String.format("Install (%d:%02d.%03d s)", duration.minutes, duration.seconds % 60, duration.millis % 1000)
-                        logger.lifecycle(PythonHelpers.createPrettyLine(prefix, "[FINISHED]"))
-                    }
-                }
+            throw new PipInstallException(
+                "Failed to install ${shortHand}. Please see above output for reason, or re-run your build using ``gradle -i build`` for additional logging.")
+        } else {
+            if (extension.consoleOutput == ConsoleOutput.RAW) {
+                logger.lifecycle(message)
             }
         }
     }

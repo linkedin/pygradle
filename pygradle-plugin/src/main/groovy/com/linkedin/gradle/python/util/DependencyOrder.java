@@ -49,7 +49,7 @@ public class DependencyOrder {
 
     /**
      * Traverses the dependency tree post-order and collects dependencies.
-     * <p>
+     *
      * The recursive post-order traversal returns the root of the (sub)tree.
      * This allows the post-order adding into the set of dependencies as we
      * return from the recursive calls. The set of seen dependencies ensures

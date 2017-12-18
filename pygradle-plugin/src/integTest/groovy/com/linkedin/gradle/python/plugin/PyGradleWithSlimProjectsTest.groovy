@@ -85,7 +85,6 @@ class PyGradleWithSlimProjectsTest extends Specification {
 
         // "Build will skip things that it should"
         result.task(":${testProjectDir.PROJECT_NAME_DIR}:flake8").outcome == TaskOutcome.SKIPPED
-        result.output.contains("[SKIPPING]")
 
         // "coverage should be skipped because lack of tests should disable it"
         result.task(":${testProjectDir.PROJECT_NAME_DIR}:coverage").outcome == TaskOutcome.SKIPPED

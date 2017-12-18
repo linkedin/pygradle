@@ -13,24 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.plugin;
+package com.linkedin.gradle.python.util;
 
-import com.linkedin.gradle.python.PythonExtension;
-import org.gradle.api.Plugin;
-import org.gradle.api.Project;
+import java.io.OutputStream;
 
-public abstract class PythonBasePlugin implements Plugin<Project> {
-
-    public PythonExtension settings;
-    public Project project;
-
+public class NoopOutputStream extends OutputStream {
     @Override
-    public void apply(Project target) {
-        this.project = target;
-        target.getPlugins().apply(PythonPlugin.class);
-        settings = project.getExtensions().getByType(PythonExtension.class);
-        applyTo(target);
+    public void write(int b) {
+        // noop
     }
-
-    public abstract void applyTo(Project project);
 }

@@ -26,6 +26,7 @@ class PythonPluginIntegrationTest extends Specification {
 
     @Rule
     final DefaultProjectLayoutRule testProjectDir = new DefaultProjectLayoutRule()
+
     def "can build library"() {
         given:
         testProjectDir.buildFile << """
@@ -38,11 +39,11 @@ class PythonPluginIntegrationTest extends Specification {
 
         when:
         def result = GradleRunner.create()
-                .withProjectDir(testProjectDir.root)
-                .withArguments('build', 'coverage', '-s')
-                .withPluginClasspath()
-                .withDebug(true)
-                .build()
+            .withProjectDir(testProjectDir.root)
+            .withArguments('build', 'coverage', '-s', '-i')
+            .withPluginClasspath()
+            .withDebug(true)
+            .build()
         println result.output
 
         then:
@@ -64,10 +65,12 @@ class PythonPluginIntegrationTest extends Specification {
         result.task(':foo:build').outcome == TaskOutcome.SUCCESS
         result.task(':foo:coverage').outcome == TaskOutcome.SUCCESS
 
+
         when:
+        println "========================"
         result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withArguments('build', 'coverage')
+            .withArguments('build', 'coverage', '-i')
             .withPluginClasspath()
             .withDebug(true)
             .build()
@@ -75,9 +78,9 @@ class PythonPluginIntegrationTest extends Specification {
 
         then: //Build will skip things that it should
         result.output.contains("BUILD SUCCESS")
-        result.output.contains("[SKIPPING]")
-        !installOrderSorted(result.output, ':installSetupRequirements', ':installBuildRequirements')
-        !installOrderSorted(result.output, ':installBuildRequirements', ':installPythonRequirements')
+        result.task(':foo:coverage').outcome == TaskOutcome.UP_TO_DATE
+        !installOrderSorted(result.output, ':foo:installSetupRequirements', ':foo:installBuildRequirements')
+        !installOrderSorted(result.output, ':foo:installBuildRequirements', ':foo:installPythonRequirements')
     }
 
     def "can use external library"() {
@@ -103,7 +106,7 @@ class PythonPluginIntegrationTest extends Specification {
         when:
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withArguments('build')
+            .withArguments('build', '-i')
             .withPluginClasspath()
             .withDebug(true)
             .build()
@@ -122,27 +125,20 @@ class PythonPluginIntegrationTest extends Specification {
         result.task(':foo:pytest').outcome == TaskOutcome.SUCCESS
         result.task(':foo:check').outcome == TaskOutcome.SUCCESS
         result.task(':foo:build').outcome == TaskOutcome.SUCCESS
-        !installOrderSorted(result.output, ':installSetupRequirements', ':installBuildRequirements')
-        !installOrderSorted(result.output, ':installBuildRequirements', ':installPythonRequirements')
+        !installOrderSorted(result.output, ':foo:installSetupRequirements', ':foo:installBuildRequirements')
+        !installOrderSorted(result.output, ':foo:installBuildRequirements', ':foo:installPythonRequirements')
     }
 
     def installOrderSorted(String output, String start, String end) {
-        def lines = output.split(/\n/)
+        def beginning = output.indexOf(start)
+        def ending = output.lastIndexOf(end)
+        def lines = output.substring(beginning, ending).readLines()
         def collected = []
         def sorted = []
-        boolean startCollecting = false
         for (String line : lines) {
-            if (line.contains(start)) {
-                startCollecting = true
-            }
-            if (startCollecting) {
-                if (line.contains(end)) {
-                    break
-                }
-                if (line.contains('[STARTING]') || line.contains('[SKIPPING]')) {
-                    collected.add(line)
-                    sorted.add(line)
-                }
+            if (line.contains("Installing ")) {
+                collected.add(line)
+                sorted.add(line)
             }
         }
         sorted.sort()

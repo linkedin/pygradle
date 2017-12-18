@@ -28,10 +28,7 @@ public class FileSystemUtils {
     }
 
     /**
-     * Make a link
-     * <p>
      * Make a link using the system's ``ln`` command.
-     * <p>
      *
      * @param target      The target directory that the link points to.
      * @param destination The destination directory or the name of the link.

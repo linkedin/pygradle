@@ -1,6 +1,22 @@
-plugins {
-  id "com.linkedin.python-sdist" version "0.4.9"
+buildscript {
+    repositories {
+        mavenCentral()
+      ivy {
+        url "${System.getProperty("user.home")}/local-repo"
+        layout('pattern') {
+          ivy "[organisation]/[module]/[revision]/[module]-[revision].ivy"
+          artifact "[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
+          m2compatible true
+        }
+      }
+    }
+    dependencies{
+      classpath 'com.linkedin.pygradle:pygradle-plugin:0.7.1-SNAPSHOT'
 }
+}
+
+apply plugin: "com.linkedin.python-sdist"
+apply plugin: com.linkedin.gradle.python.plugin.WheelFirstPlugin
 
 dependencies {
     python 'pypi:requests:2.9.1'

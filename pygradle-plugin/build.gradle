@@ -55,9 +55,9 @@ licenseReport {
 task integTest(type: Test) {
     dependsOn(':pivy-importer:importRequiredDependencies')
     shouldRunAfter tasks.test
-    testClassesDir = sourceSets.integTest.output.classesDir
+    setTestClassesDirs sourceSets.integTest.output.classesDirs
     classpath = sourceSets.integTest.runtimeClasspath
-    reports.html.destination = file("$buildDir${File.separatorChar}reports${File.separatorChar}integration-test")
+    reports.html.destination file("$buildDir${File.separatorChar}reports${File.separatorChar}integration-test")
 
     environment['TEST_REPO'] = rootProject.buildDir.toURI().toURL().toString() + '/ivy-repo'
 }

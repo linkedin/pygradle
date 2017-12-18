@@ -17,8 +17,6 @@ package com.linkedin.gradle.python.util.pip;
 
 import org.gradle.api.GradleException;
 
-import org.gradle.api.GradleException;
-
 import java.io.ByteArrayOutputStream;
 import java.util.Collection;
 import java.util.HashMap;

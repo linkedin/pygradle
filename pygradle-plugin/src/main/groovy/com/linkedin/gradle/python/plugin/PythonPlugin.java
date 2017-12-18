@@ -1,3 +1,18 @@
+/*
+ * Copyright 2016 LinkedIn Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.linkedin.gradle.python.plugin;
 
 import com.linkedin.gradle.python.PythonExtension;
@@ -5,6 +20,7 @@ import com.linkedin.gradle.python.plugin.internal.DocumentationPlugin;
 import com.linkedin.gradle.python.plugin.internal.InstallDependenciesPlugin;
 import com.linkedin.gradle.python.plugin.internal.ValidationPlugin;
 import com.linkedin.gradle.python.tasks.CleanSaveVenvTask;
+import com.linkedin.gradle.python.tasks.GenerateSetupPyTask;
 import com.linkedin.gradle.python.tasks.InstallVirtualEnvironmentTask;
 import com.linkedin.gradle.python.tasks.PinRequirementsTask;
 import com.linkedin.gradle.python.util.FileSystemUtils;
@@ -27,9 +43,12 @@ import static com.linkedin.gradle.python.util.StandardTextValues.CONFIGURATION_W
 import static com.linkedin.gradle.python.util.StandardTextValues.TASK_CLEAN_SAVE_VENV;
 import static com.linkedin.gradle.python.util.StandardTextValues.TASK_PIN_REQUIREMENTS;
 import static com.linkedin.gradle.python.util.StandardTextValues.TASK_SETUP_LINKS;
+import static com.linkedin.gradle.python.util.StandardTextValues.TASK_SETUP_PY_WRITER;
 import static com.linkedin.gradle.python.util.StandardTextValues.TASK_VENV_CREATE;
 
 public class PythonPlugin implements Plugin<Project> {
+
+    @Override
     public void apply(final Project project) {
 
         final PythonExtension settings = project.getExtensions().create("python", PythonExtension.class, project);
@@ -45,7 +64,6 @@ public class PythonPlugin implements Plugin<Project> {
          * good versions that satisfy all the requirements.
          */
         final PyGradleDependencyResolveDetails dependencyResolveDetails = new PyGradleDependencyResolveDetails(settings.forcedVersions);
-        //noinspection GroovyAssignabilityCheck
         project.getConfigurations()
             .forEach(configuration -> configuration.getResolutionStrategy().eachDependency(dependencyResolveDetails));
 
@@ -80,11 +98,13 @@ public class PythonPlugin implements Plugin<Project> {
         });
 
         /*
-         * task that cleans the project but leaves the venv in tact.  Helpful for projects on windows that
+         * task that cleans the project but leaves the venv intact.  Helpful for projects on windows that
          * take a very long time to build the venv.
          */
-        project.getTasks().create(TASK_CLEAN_SAVE_VENV.name(), CleanSaveVenvTask.class,
+        project.getTasks().create(TASK_CLEAN_SAVE_VENV.getValue(), CleanSaveVenvTask.class,
             task -> task.setGroup(BasePlugin.BUILD_GROUP));
+
+        project.getTasks().create(TASK_SETUP_PY_WRITER.getValue(), GenerateSetupPyTask.class);
 
         project.getPlugins().apply(InstallDependenciesPlugin.class);
         project.getPlugins().apply(ValidationPlugin.class);
@@ -111,7 +131,7 @@ public class PythonPlugin implements Plugin<Project> {
         project.getConfigurations().create(CONFIGURATION_WHEEL.getValue());
     }
 
-    /**
+    /*
      * Add vended build and test dependencies to projects that apply this plugin.
      * Notice that virtualenv contains the latest versions of setuptools,
      * pip, and wheel, vended in. Make sure to use versions we can actually

@@ -43,7 +43,6 @@ coolproject/mod.py:1204:1: C901 'selftest' is too complex (14)'''
 
     when:
     def generatedXml = new CheckStyleXmlReporter(container).generateXml()
-    println generatedXml
     def xml = new XmlSlurper(false, false).parseText(generatedXml)
 
     then:

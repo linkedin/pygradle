@@ -1,3 +1,18 @@
+/*
+ * Copyright 2016 LinkedIn Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.linkedin.gradle.python.plugin;
 
 import com.linkedin.gradle.python.PythonExtension;
@@ -25,7 +40,7 @@ public class PythonPexDistributionPlugin extends PythonBasePlugin {
         ExtensionUtils.maybeCreateWheelExtension(project);
         final DeployableExtension deployableExtension = ExtensionUtils.maybeCreateDeployableExtension(project);
 
-        project.afterEvaluate(pjt -> {
+        project.afterEvaluate(ignored -> {
             if (settings.getDetails().getPythonVersion().getPythonMajorMinor().equals("2.6")) {
                 project.getDependencies().add(StandardTextValues.CONFIGURATION_BUILD_REQS.getValue(),
                     extension.forcedVersions.get("argparse"));

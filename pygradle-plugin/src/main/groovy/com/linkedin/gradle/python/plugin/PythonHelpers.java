@@ -1,27 +1,40 @@
+/*
+ * Copyright 2016 LinkedIn Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.linkedin.gradle.python.plugin;
 
 import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.util.ColorHelper;
 import com.linkedin.gradle.python.util.ConsoleOutput;
-import org.codehaus.groovy.runtime.StringGroovyMethods;
 import org.gradle.api.Project;
 
 public class PythonHelpers {
+
+    public static final int LINE_WIDTH = 80;
 
     private PythonHelpers() {
         //NOOP
     }
 
-    public static final int LINE_WIDTH = 80;
-
     /**
      * Detect if we're connected to a TTY and support color.
-     * <p>
      *
      * @param project The project to use to invoke the command.
      * @return true if we're connected to a TTY and support color.
      */
-    protected static boolean isTty(Project project) {
+    public static boolean isTty(Project project) {
         return project.getGradle().getStartParameter().getConsoleOutput() != null;
     }
 
@@ -30,7 +43,6 @@ public class PythonHelpers {
      * <p>
      * If not connected to a TTY that supports color, then an ASCII success
      * message will be returned.
-     * <p>
      *
      * @param project The project running this method.
      * @return A string indicating success!
@@ -40,19 +52,19 @@ public class PythonHelpers {
         StringBuilder successFlair = new StringBuilder();
 
         if (!settings.consoleOutput.equals(ConsoleOutput.RAW)) {
-            StringGroovyMethods.leftShift(successFlair, ColorHelper.ANSI_GREEN);
+            successFlair.append(ColorHelper.ANSI_GREEN);
         }
 
 
         if (isTty(project)) {
-            StringGroovyMethods.leftShift(successFlair, "\u2713");
+            successFlair.append("\u2713");
         } else {
-            StringGroovyMethods.leftShift(successFlair, " [GOOD]");
+            successFlair.append("[GOOD]");
         }
 
 
         if (!settings.consoleOutput.equals(ConsoleOutput.RAW)) {
-            StringGroovyMethods.leftShift(successFlair, ColorHelper.ANSI_RESET);
+            successFlair.append(ColorHelper.ANSI_RESET);
         }
 
 

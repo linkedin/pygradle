@@ -68,8 +68,8 @@ public class PythonVersion implements Serializable {
 
     @Override
     public String toString() {
-        return "PythonVersion{" +
-            "version='" + version + '\'' +
-            '}';
+        return "PythonVersion{"
+            + "version='" + version + '\''
+            + '}';
     }
 }

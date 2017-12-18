@@ -16,10 +16,6 @@
 package com.linkedin.gradle.python.coverage
 
 import groovy.xml.MarkupBuilder
-import org.w3c.dom.Document
-import org.w3c.dom.Element
-
-import javax.xml.parsers.DocumentBuilderFactory
 
 class CoverageXmlReporter {
     private final String coverageInfo
@@ -35,16 +31,6 @@ class CoverageXmlReporter {
         def missedStatements = coverage['missed_statements']
         def coveredStatements = coverage['total_statements'] - coverage['missed_statements']
 
-        DocumentBuilderFactory icFactory = DocumentBuilderFactory.newInstance();
-
-        try {
-            Document document = icFactory.newDocumentBuilder().newDocument();
-
-            Element rootNode = document.createElement("coverage");
-            document.createElement()
-        } catch (Exception e) {
-            throw new RuntimeException(e)
-        }
         xmlMarkup.report(name: "coverage") {
             "package"(name: "coverage") {
                 "class"(name: "coverage/coverage") {

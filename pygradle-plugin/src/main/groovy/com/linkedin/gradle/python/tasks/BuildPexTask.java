@@ -27,14 +27,15 @@ import com.linkedin.gradle.python.util.internal.pex.ThinPexGenerator;
 import com.linkedin.gradle.python.util.pex.DefaultEntryPointTemplateProvider;
 import com.linkedin.gradle.python.util.pex.EntryPointTemplateProvider;
 import org.apache.commons.io.FileUtils;
-import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.process.ExecResult;
 import org.gradle.process.ExecSpec;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -90,12 +91,16 @@ public class BuildPexTask extends DefaultTask implements FailureReasonProvider {
             pexExtension.getPexCache().mkdirs();
         }
 
-        project.exec(new Action<ExecSpec>() {
-            @Override
-            public void execute(ExecSpec execSpec) {
-                configureExecution(pythonExtension, execSpec);
-            }
-        });
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        ExecResult exec = project.exec(execSpec -> configureExecution(pythonExtension, execSpec, outputStream));
+
+        if (getLogger().isInfoEnabled()) {
+            getLogger().info(outputStream.toString());
+        } else if (exec.getExitValue() != 0) {
+            getLogger().lifecycle(outputStream.toString());
+        }
+
+        exec.assertNormalExitValue();
 
         deployableExtension.getDeployableBuildDir().mkdirs();
 
@@ -106,7 +111,7 @@ public class BuildPexTask extends DefaultTask implements FailureReasonProvider {
         }
     }
 
-    private void configureExecution(PythonExtension pythonExtension, ExecSpec spec) {
+    private void configureExecution(PythonExtension pythonExtension, ExecSpec spec, ByteArrayOutputStream outputStream) {
         container.setOutputs(spec);
         WheelExtension wheelExtension = ExtensionUtils.maybeCreateWheelExtension(getProject());
 
@@ -120,6 +125,9 @@ public class BuildPexTask extends DefaultTask implements FailureReasonProvider {
             wheelExtension.getWheelCache().getAbsolutePath(),
             "--no-deps",
             ".");
+        spec.setErrorOutput(outputStream);
+        spec.setStandardOutput(outputStream);
+        spec.setIgnoreExitValue(true);
     }
 
     @Input

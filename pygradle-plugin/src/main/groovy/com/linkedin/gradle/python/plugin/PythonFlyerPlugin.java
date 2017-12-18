@@ -1,3 +1,18 @@
+/*
+ * Copyright 2016 LinkedIn Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.linkedin.gradle.python.plugin;
 
 import com.linkedin.gradle.python.extension.DeployableExtension;
@@ -14,21 +29,21 @@ import java.nio.file.Paths;
 
 /**
  * A Flyer plugin.
- * <p>
+ *
  * A Flyer project is a deployable project that consumes the resources
  * from an Ember subproject.
- * <p>
+ *
  * On top of li-python-deployable, this plugin will setup the dependencies
  * on the resource files from the Ember subproject. To make it easier to
  * access the resources, we will create a link under the Python project, that
  * connects to the resources folder under the Ember project. Since it's a link,
  * developers don't have to rebuild the Python project each time they modify
  * the Ember code.
- * <p>
+ *
  * For the deployment, the plugin will copy the resources into the 'deployable'
  * folder under the path 'build/<project name>/' that LID could find all the
  * resources there.
- * <p>
+ *
  * <pre>
  * <code>
  * apply plugin: 'python-flyer'
@@ -85,7 +100,7 @@ public class PythonFlyerPlugin implements Plugin<Project> {
             copy.dependsOn(project.getTasks().getByName(PythonWebApplicationPlugin.TASK_BUILD_WEB_APPLICATION));
 
             copy.from(resourceConf);
-            copy.into(String.valueOf(deployableExtension.getDeployableBuildDir()) + "/resource");
+            copy.into(deployableExtension.getDeployableBuildDir().toPath().resolve("resource"));
         });
         // Make sure we've copied all the files before running the task: packageDeployable
         project.getTasks().getByName(PythonPexDistributionPlugin.TASK_PACKAGE_DEPLOYABLE)

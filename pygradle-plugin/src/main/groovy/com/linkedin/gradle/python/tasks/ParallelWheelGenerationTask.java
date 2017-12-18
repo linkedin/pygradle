@@ -1,3 +1,18 @@
+/*
+ * Copyright 2016 LinkedIn Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.linkedin.gradle.python.tasks;
 
 import com.linkedin.gradle.python.PythonExtension;
@@ -12,7 +27,11 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
-import org.gradle.api.tasks.*;
+import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.Internal;
+import org.gradle.api.tasks.OutputDirectory;
+import org.gradle.api.tasks.OutputFile;
+import org.gradle.api.tasks.TaskAction;
 import org.gradle.internal.logging.progress.ProgressLogger;
 import org.gradle.internal.logging.progress.ProgressLoggerFactory;
 import org.gradle.process.ExecResult;
@@ -62,6 +81,7 @@ public class ParallelWheelGenerationTask extends DefaultTask {
         try {
             FileUtils.write(getBuildReport(), taskTimer.buildReport());
         } catch (IOException ignore) {
+            // Don't fail if there is are issues writing the timing report.
         }
         progressLogger.completed();
     }
@@ -95,11 +115,12 @@ public class ParallelWheelGenerationTask extends DefaultTask {
         });
 
         if (results.getExitValue() != 0) {
-            logger.lifecycle("Unable to build wheel for {}-{}", packageInfo.getName(), packageInfo.getVersion());
+            logger.info("Unable to build wheel for {}-{}", packageInfo.getName(), packageInfo.getVersion());
             File resultDir = new File(getProject().getBuildDir(), getName() + "-" + packageInfo.getName() + "-" + packageInfo.getVersion() + ".txt");
             try {
                 FileUtils.write(resultDir, stream.toString());
             } catch (IOException ignored) {
+                // Don't fail if there is are issues writing the wheel report.
             }
         }
     }

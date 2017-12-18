@@ -74,8 +74,8 @@ We support PyGradle on the following software versions.
 
 | Software | Version |
 |----------|---------|
-| Java     | 7.0     |
-| Gradle   | 3.0     |
+| Java     | 8.0     |
+| Gradle   | 4.0     |
 
 We're happy to review and merge pull requests that add additional support to
 future versions of software.

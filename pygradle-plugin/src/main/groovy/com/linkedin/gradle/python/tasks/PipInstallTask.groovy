@@ -21,7 +21,11 @@ import com.linkedin.gradle.python.extension.PythonDetails
 import com.linkedin.gradle.python.extension.PythonTag
 import com.linkedin.gradle.python.plugin.PythonHelpers
 import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider
-import com.linkedin.gradle.python.util.*
+import com.linkedin.gradle.python.util.ConsoleOutput
+import com.linkedin.gradle.python.util.DependencyOrder
+import com.linkedin.gradle.python.util.ExtensionUtils
+import com.linkedin.gradle.python.util.OperatingSystem
+import com.linkedin.gradle.python.util.PackageInfo
 import com.linkedin.gradle.python.util.internal.TaskTimer
 import com.linkedin.gradle.python.wheel.WheelCache
 import groovy.transform.CompileStatic
@@ -138,8 +142,8 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider {
         def extension = ExtensionUtils.getPythonExtension(project)
         def sitePackages = findSitePackages()
 
-        ProgressLoggerFactory progressLoggerFactory = getServices().get(ProgressLoggerFactory.class)
-        ProgressLogger progressLogger = progressLoggerFactory.newOperation(PipInstallTask.class)
+        ProgressLoggerFactory progressLoggerFactory = getServices().get(ProgressLoggerFactory)
+        ProgressLogger progressLogger = progressLoggerFactory.newOperation(PipInstallTask)
         progressLogger.setDescription("Installing Libraries")
 
         PythonTag pythonTag = PythonTag.findTag(getProject(), getPythonDetails())
@@ -157,6 +161,7 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider {
                 String shortHand = packageInfo.version ? "${packageInfo.name}-${packageInfo.version}" : packageInfo.name
 
                 def timer = taskTimer.start(shortHand)
+                logger.info("Installing {}", shortHand)
                 progressLogger.progress("Installing $shortHand (${++counter} of ${installableFiles.size()})")
                 doInstall(shortHand, packageInfo, sitePackages, pyVersion, extension, cache, installable)
                 timer.stop()
@@ -168,11 +173,16 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider {
         new File(project.buildDir, getName() + "-task-runtime-report.txt").text = taskTimer.buildReport()
     }
 
+    @SuppressWarnings("ParameterCount")
     private void doInstall(String shortHand, PackageInfo packageInfo, Path sitePackages,
                            String pyVersion, PythonExtension extension,
                            WheelCache cache, File installable) {
         if (packageExcludeFilter.isSatisfiedBy(packageInfo)) {
             return
+        }
+
+        if (extension.consoleOutput == ConsoleOutput.RAW) {
+            logger.lifecycle("Installing {}", shortHand)
         }
 
         String sanitizedName = packageInfo.name.replace('-', '_')

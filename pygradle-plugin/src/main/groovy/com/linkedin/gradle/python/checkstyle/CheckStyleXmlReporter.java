@@ -15,7 +15,6 @@
  */
 package com.linkedin.gradle.python.checkstyle;
 
-
 import com.linkedin.gradle.python.checkstyle.model.FileStyleViolationsContainer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -60,15 +59,21 @@ class CheckStyleXmlReporter {
             Transformer transformer = TransformerFactory.newInstance().newTransformer();
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             DOMSource source = new DOMSource(document);
-            StringWriter sw = new StringWriter();
-            StreamResult console = new StreamResult(sw);
+            StringWriter stringWriter = new StringWriter();
+            StreamResult console = new StreamResult(stringWriter);
             transformer.transform(source, console);
 
 
-            sw.close();
-            return sw.toString();
+            stringWriter.close();
+            return stringWriter.toString();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new CheckstyleException(e);
+        }
+    }
+
+    private static class CheckstyleException extends RuntimeException {
+        CheckstyleException(Throwable t) {
+            super(t);
         }
     }
 }

@@ -124,8 +124,8 @@ class BuildWheelsTask extends DefaultTask {
      */
     private void buildWheels(Project project, Collection<File> installables, PythonDetails pythonDetails) {
 
-        ProgressLoggerFactory progressLoggerFactory = getServices().get(ProgressLoggerFactory.class)
-        ProgressLogger progressLogger = progressLoggerFactory.newOperation(BuildWheelsTask.class)
+        ProgressLoggerFactory progressLoggerFactory = getServices().get(ProgressLoggerFactory)
+        ProgressLogger progressLogger = progressLoggerFactory.newOperation(BuildWheelsTask)
         progressLogger.setDescription("Building Wheels")
         progressLogger.started()
 
@@ -140,21 +140,26 @@ class BuildWheelsTask extends DefaultTask {
         def taskTimer = new TaskTimer()
 
         int counter = 0
+        def numberOfInstallables = installables.size()
         installables.each { File installable ->
 
             def packageInfo = PackageInfo.fromPath(installable.path)
             def shortHand = packageInfo.version ? "${packageInfo.name}-${packageInfo.version}" : packageInfo.name
 
             def clock = taskTimer.start(shortHand)
-            progressLogger.progress("Preparing wheel $shortHand (${++counter} of ${installables.size()})")
+            progressLogger.progress("Preparing wheel $shortHand (${++counter} of $numberOfInstallables)")
+
+            if (pythonExtension.consoleOutput == ConsoleOutput.RAW) {
+                LOGGER.lifecycle("Installing {}", shortHand)
+            }
+
+            if (packageExcludeFilter.isSatisfiedBy(packageInfo)) {
+                return
+            }
 
             def wheel = wheelCache.findWheel(packageInfo.name, packageInfo.version, pythonExtension.details.getPythonVersion())
             if (wheel.isPresent()) {
                 FileUtils.copyFile(wheel.get(), new File(wheelExtension.wheelCache, wheel.get().name))
-                return
-            }
-
-            if (packageExcludeFilter.isSatisfiedBy(packageInfo)) {
                 return
             }
 

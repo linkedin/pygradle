@@ -47,19 +47,19 @@ class PipFreezeOutputParserTest extends Specification {
             |snowballstemmer==1.1.0
             |Sphinx==1.4.1
             |testProject==unspecified
-            |MP==1.2.3-MPDEP
+            |MP==1.2.3-TESTSUFFIX
             |wheel==0.26.0'''.stripMargin().stripIndent()
 
         expect:
         PipFreezeOutputParser.getDependencies(['pbr', 'Babel', 'pep8', 'py', 'setuptools', 'pytest-xdist', 'Jinja2', 'flake8', 'snowballstemmer',
                                                'alabaster', 'sphinx_rtd_theme', 'Pygments', 'pytest-cov', 'pip', 'mccabe', 'docutils', 'coverage', 'pex',
                                                'six', 'setuptools-git', 'pyflakes', 'pytest', 'wheel', 'imagesize', 'argparse', 'Sphinx', 'colorama',
-                                               'pytz'], freezeOutput) == ['testProject': 'unspecified', 'MP': '1.2.3_MPDEP']
+                                               'pytz'], freezeOutput) == ['testProject': 'unspecified', 'MP': '1.2.3-TESTSUFFIX']
 
         PipFreezeOutputParser.getDependencies(['pbr', 'Babel', 'pep8', 'py', 'setuptools', 'pytest-xdist', 'Jinja2', 'flake8', 'snowballstemmer',
                                                'alabaster', 'sphinx_rtd_theme', 'Pygments', 'pip', 'mccabe', 'docutils', 'coverage', 'pex',
                                                'six', 'setuptools-git', 'pyflakes', 'pytest', 'wheel', 'imagesize', 'argparse', 'Sphinx', 'colorama',
-                                               'pytz'], freezeOutput) == ['testProject': 'unspecified', 'MP': '1.2.3_MPDEP', 'pytest-cov': '2.2.1']
+                                               'pytz'], freezeOutput) == ['testProject': 'unspecified', 'MP': '1.2.3-TESTSUFFIX', 'pytest-cov': '2.2.1']
     }
 
     def 'throws error on bad requirements format'() {

@@ -15,10 +15,8 @@
  */
 package com.linkedin.gradle.python.tasks;
 
-import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.extension.DeployableExtension;
 import com.linkedin.gradle.python.extension.PexExtension;
-import com.linkedin.gradle.python.extension.WheelExtension;
 import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider;
 import com.linkedin.gradle.python.tasks.execution.TeeOutputContainer;
 import com.linkedin.gradle.python.util.ExtensionUtils;
@@ -32,10 +30,7 @@ import org.gradle.api.Project;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.process.ExecResult;
-import org.gradle.process.ExecSpec;
 
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -81,7 +76,6 @@ public class BuildPexTask extends DefaultTask implements FailureReasonProvider {
     public void buildPex() throws Exception {
         Project project = getProject();
 
-        final PythonExtension pythonExtension = ExtensionUtils.getPythonExtension(project);
         DeployableExtension deployableExtension = ExtensionUtils.getPythonComponentExtension(project, DeployableExtension.class);
         PexExtension pexExtension = ExtensionUtils.getPythonComponentExtension(project, PexExtension.class);
 
@@ -91,17 +85,6 @@ public class BuildPexTask extends DefaultTask implements FailureReasonProvider {
             pexExtension.getPexCache().mkdirs();
         }
 
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        ExecResult exec = project.exec(execSpec -> configureExecution(pythonExtension, execSpec, outputStream));
-
-        if (getLogger().isInfoEnabled()) {
-            getLogger().info(outputStream.toString());
-        } else if (exec.getExitValue() != 0) {
-            getLogger().lifecycle(outputStream.toString());
-        }
-
-        exec.assertNormalExitValue();
-
         deployableExtension.getDeployableBuildDir().mkdirs();
 
         if (pexExtension.isFatPex()) {
@@ -109,25 +92,6 @@ public class BuildPexTask extends DefaultTask implements FailureReasonProvider {
         } else {
             new ThinPexGenerator(project, pexOptions, templateProvider, additionalProperties).buildEntryPoints();
         }
-    }
-
-    private void configureExecution(PythonExtension pythonExtension, ExecSpec spec, ByteArrayOutputStream outputStream) {
-        container.setOutputs(spec);
-        WheelExtension wheelExtension = ExtensionUtils.maybeCreateWheelExtension(getProject());
-
-        spec.environment(pythonExtension.pythonEnvironment);
-        spec.environment(pythonExtension.pythonEnvironmentDistgradle);
-        spec.commandLine(pythonExtension.getDetails().getVirtualEnvInterpreter());
-        spec.args(pythonExtension.getDetails().getVirtualEnvironment().getPip(),
-            "wheel",
-            "--disable-pip-version-check",
-            "--wheel-dir",
-            wheelExtension.getWheelCache().getAbsolutePath(),
-            "--no-deps",
-            ".");
-        spec.setErrorOutput(outputStream);
-        spec.setStandardOutput(outputStream);
-        spec.setIgnoreExitValue(true);
     }
 
     @Input

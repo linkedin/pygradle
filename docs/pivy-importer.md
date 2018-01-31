@@ -9,8 +9,8 @@ several features that you may find useful in dealing with pypi projects.
 
 We publish the importer into bintray. You can find all the copies at https://bintray.com/linkedin/maven/pivy-importer.
 
-At the time of writing this doc, the current version is 0.3.16, so the jar you would want to download is
-https://dl.bintray.com/linkedin/maven/com/linkedin/pygradle/pivy-importer/0.3.16/pivy-importer-0.3.16-all.jar .
+At the time of writing this doc, the current version is 0.6.17, so the jar you would want to download is
+https://dl.bintray.com/linkedin/maven/com/linkedin/pygradle/pivy-importer/0.6.17/pivy-importer-0.6.17-all.jar .
 This artifact has all dependencies bundled together to make a nice CLI. 
 
 ### Building it Locally
@@ -25,6 +25,15 @@ It follows the naming convention `pivy-importer-<VERSION>-all.jar`.
 `java -jar pivy-importer-VERSION-all.jar --repo /path/to/destination virtualenv:15.0.1 pip:7.1.2 --replace alabaster:0.7=alabaster:0.7.1,pytz:0a=pytz:2016.4,Babel:0.8=Babel:1.0,sphinx_rtd_theme:0.1=sphinx_rtd_theme:0.1.1`
 
 For a complete usage example please review the build.gradle file for the pivy-importer project.
+
+#### Arguments
+* --repo - location of the ivy repo : `--repo /path/to/destination`
+* --replace - replacement of defined transitive dependency : `--replace alabaster:0.7=alabaster:0.7.1,pytz:0a=pytz:2016.4`
+* --quiet - sets logging level to WARN : `--quiet`
+* --force - same as replace but with higher priority : `--force alabaster:0.7`
+* --latest - gets latest versions of dependencies : `--latest`
+* --pre - allows pre-releases (alpha, beta, release candidates) : `--pre`
+* --lenient - allows to continue processing in case of missing dependency with logging it : `--lenient`
 
 ## Replacement
 
@@ -57,28 +66,28 @@ repositories {
 If you run:
 
 ```
-wget https://dl.bintray.com/linkedin/maven/com/linkedin/pygradle/pivy-importer/0.3.16/pivy-importer-0.3.16-all.jar
+wget https://dl.bintray.com/linkedin/maven/com/linkedin/pygradle/pivy-importer/0.6.17/pivy-importer-0.6.17-all.jar
 mkdir repo
-java -jar pivy-importer-0.3.16-all.jar --repo repo virtualenv:15.0.1 pip:7.1.2 --replace alabaster:0.7=alabaster:0.7.1,pytz:0a=pytz:2016.4,Babel:0.8=Babel:1.0,sphinx_rtd_theme:0.1=sphinx_rtd_theme:0.1.1
+java -jar pivy-importer-0.6.17-all.jar --repo repo virtualenv:15.0.1 pip:7.1.2 --replace alabaster:0.7=alabaster:0.7.1,pytz:0a=pytz:2016.4,Babel:0.8=Babel:1.0,sphinx_rtd_theme:0.1=sphinx_rtd_theme:0.1.1
 ```
 
 You should see something like:
 ```
---2016-09-09 08:44:21--  https://dl.bintray.com/linkedin/maven/com/linkedin/pygradle/pivy-importer/0.3.16/pivy-importer-0.3.16-all.jar
+--2016-09-09 08:44:21--  https://dl.bintray.com/linkedin/maven/com/linkedin/pygradle/pivy-importer/0.6.17/pivy-importer-0.6.17-all.jar
 Resolving dl.bintray.com... 75.126.118.188, 108.168.243.150
 Connecting to dl.bintray.com|75.126.118.188|:443... connected.
 HTTP request sent, awaiting response... 302
-Location: https://akamai.bintray.com/97/976b1f4893fddf7404cfd758b3c4f4a8824b0cc73ba3d6c224d434eac92a064b?__gda__=exp=1473436581~hmac=40097ee25e4c89d511edbc85b88876932cae126a046f57b9ca8fe1a86525d649&response-content-disposition=attachment%3Bfilename%3D%22pivy-importer-0.3.16-all.jar%22&response-content-type=application%2Foctet-stream&requestInfo=U2FsdGVkX1_pGSnRSogFWs1rzKkDVqglZy09ajLVG-4bOSodkYsBy9CQcsdzILMmmImVodQXE68y9OX4hg9qdtVHjEc3YfrrpKbPC4Fr-vLhH7woFp_JiRj0HXU_igQQ1p78B8BimxuW01cGd8V6eTvRWL7srKgo3T4LDbSak4U [following]
---2016-09-09 08:44:21--  https://akamai.bintray.com/97/976b1f4893fddf7404cfd758b3c4f4a8824b0cc73ba3d6c224d434eac92a064b?__gda__=exp=1473436581~hmac=40097ee25e4c89d511edbc85b88876932cae126a046f57b9ca8fe1a86525d649&response-content-disposition=attachment%3Bfilename%3D%22pivy-importer-0.3.16-all.jar%22&response-content-type=application%2Foctet-stream&requestInfo=U2FsdGVkX1_pGSnRSogFWs1rzKkDVqglZy09ajLVG-4bOSodkYsBy9CQcsdzILMmmImVodQXE68y9OX4hg9qdtVHjEc3YfrrpKbPC4Fr-vLhH7woFp_JiRj0HXU_igQQ1p78B8BimxuW01cGd8V6eTvRWL7srKgo3T4LDbSak4U
+Location: https://akamai.bintray.com/97/976b1f4893fddf7404cfd758b3c4f4a8824b0cc73ba3d6c224d434eac92a064b?__gda__=exp=1473436581~hmac=40097ee25e4c89d511edbc85b88876932cae126a046f57b9ca8fe1a86525d649&response-content-disposition=attachment%3Bfilename%3D%22pivy-importer-0.6.17-all.jar%22&response-content-type=application%2Foctet-stream&requestInfo=U2FsdGVkX1_pGSnRSogFWs1rzKkDVqglZy09ajLVG-4bOSodkYsBy9CQcsdzILMmmImVodQXE68y9OX4hg9qdtVHjEc3YfrrpKbPC4Fr-vLhH7woFp_JiRj0HXU_igQQ1p78B8BimxuW01cGd8V6eTvRWL7srKgo3T4LDbSak4U [following]
+--2016-09-09 08:44:21--  https://akamai.bintray.com/97/976b1f4893fddf7404cfd758b3c4f4a8824b0cc73ba3d6c224d434eac92a064b?__gda__=exp=1473436581~hmac=40097ee25e4c89d511edbc85b88876932cae126a046f57b9ca8fe1a86525d649&response-content-disposition=attachment%3Bfilename%3D%22pivy-importer-0.6.17-all.jar%22&response-content-type=application%2Foctet-stream&requestInfo=U2FsdGVkX1_pGSnRSogFWs1rzKkDVqglZy09ajLVG-4bOSodkYsBy9CQcsdzILMmmImVodQXE68y9OX4hg9qdtVHjEc3YfrrpKbPC4Fr-vLhH7woFp_JiRj0HXU_igQQ1p78B8BimxuW01cGd8V6eTvRWL7srKgo3T4LDbSak4U
 Resolving akamai.bintray.com... 23.38.227.203
 Connecting to akamai.bintray.com|23.38.227.203|:443... connected.
 HTTP request sent, awaiting response... 200 OK
 Length: 9916558 (9.5M) [application/octet-stream]
-Saving to: 'pivy-importer-0.3.16-all.jar'
+Saving to: 'pivy-importer-0.6.17-all.jar'
 
-pivy-importer-0.3.16-all.jar                                                               100%[========================================================================================================================================================================================================================================>]   9.46M  14.6MB/s    in 0.6s
+pivy-importer-0.6.17-all.jar                                                               100%[========================================================================================================================================================================================================================================>]   9.46M  14.6MB/s    in 0.6s
 
-2016-09-09 08:44:23 (14.6 MB/s) - 'pivy-importer-0.3.16-all.jar' saved [9916558/9916558]
+2016-09-09 08:44:23 (14.6 MB/s) - 'pivy-importer-0.6.17-all.jar' saved [9916558/9916558]
 
 alabaster:0.7=alabaster:0.7.1
 pytz:0a=pytz:2016.4

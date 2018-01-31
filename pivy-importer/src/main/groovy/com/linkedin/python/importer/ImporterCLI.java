@@ -69,7 +69,8 @@ public class ImporterCLI {
         Set<String> processedDependencies = new HashSet<>();
         for (String dependency : line.getArgList()) {
             DependencyDownloader dependencyDownloader = new DependencyDownloader(
-                    dependency, repoPath, replacements, line.hasOption("latest"), line.hasOption("pre"));
+                    dependency, repoPath, replacements, line.hasOption("latest"), line.hasOption("pre"),
+                    line.hasOption("lenient"));
             dependencyDownloader.getProcessedDependencies().addAll(processedDependencies);
             dependencyDownloader.download();
             processedDependencies.addAll(dependencyDownloader.getProcessedDependencies());
@@ -131,6 +132,12 @@ public class ImporterCLI {
             .desc("Allows pre-releases (alpha, beta, release candidates)")
             .build();
 
+        Option lenient = Option.builder()
+            .longOpt("lenient")
+            .numberOfArgs(0)
+            .desc("Allows to import all available dependencies with logging missed")
+            .build();
+
         Options options = new Options();
         options.addOption(replacement);
         options.addOption(repo);
@@ -138,6 +145,7 @@ public class ImporterCLI {
         options.addOption(force);
         options.addOption(latest);
         options.addOption(pre);
+        options.addOption(lenient);
 
         return options;
     }

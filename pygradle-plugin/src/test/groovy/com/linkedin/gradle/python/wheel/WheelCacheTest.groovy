@@ -74,9 +74,9 @@ class WheelCacheTest extends Specification {
         'cp3-none-any'                  | PYTHON_33     | C_PYTHON  | LINUX_TAG   | true
         'py33-none-any'                 | PYTHON_33     | C_PYTHON  | LINUX_TAG   | true
         'py3-none-any'                  | PYTHON_33     | C_PYTHON  | LINUX_TAG   | true
-        'py32-none-any'                 | PYTHON_33     | C_PYTHON  | LINUX_TAG   | true
-        'py31-none-any'                 | PYTHON_33     | C_PYTHON  | LINUX_TAG   | true
-        'py30-none-any'                 | PYTHON_33     | C_PYTHON  | LINUX_TAG   | true
+        'py32-none-any'                 | PYTHON_33     | C_PYTHON  | LINUX_TAG   | false
+        'py31-none-any'                 | PYTHON_33     | C_PYTHON  | LINUX_TAG   | false
+        'py30-none-any'                 | PYTHON_33     | C_PYTHON  | LINUX_TAG   | false
         'cp27-none-any'                 | PYTHON_33     | C_PYTHON  | LINUX_TAG   | false
         'cp2-none-any'                  | PYTHON_33     | C_PYTHON  | LINUX_TAG   | false
         'py27-none-any'                 | PYTHON_33     | C_PYTHON  | LINUX_TAG   | false
@@ -111,10 +111,10 @@ class WheelCacheTest extends Specification {
         'cp2-none-any'                  | PYTHON_27     | C_PYTHON  | LINUX_TAG   | true
         'py27-none-any'                 | PYTHON_27     | C_PYTHON  | LINUX_TAG   | true
         'py2-none-any'                  | PYTHON_27     | C_PYTHON  | LINUX_TAG   | true
-        'py22-none-any'                 | PYTHON_27     | C_PYTHON  | LINUX_TAG   | true
-        'py21-none-any'                 | PYTHON_27     | C_PYTHON  | LINUX_TAG   | true
-        'py20-none-any'                 | PYTHON_27     | C_PYTHON  | LINUX_TAG   | true
-
+        'py22-none-any'                 | PYTHON_27     | C_PYTHON  | LINUX_TAG   | false
+        'py21-none-any'                 | PYTHON_27     | C_PYTHON  | LINUX_TAG   | false
+        'py20-none-any'                 | PYTHON_27     | C_PYTHON  | LINUX_TAG   | false
+        'cp36-cp36m-linux_x86_64'       | PYTHON_35     | C_PYTHON  | LINUX_TAG   | false
     }
 
     static PythonVersion version(String version) {

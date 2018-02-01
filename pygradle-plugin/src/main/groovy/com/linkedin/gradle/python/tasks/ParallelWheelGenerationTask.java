@@ -50,7 +50,6 @@ public class ParallelWheelGenerationTask extends DefaultTask {
     private FileCollection filesToConvert;
     private File cacheDir;
     private PythonExtension extension;
-    private PythonDetails pythonDetails;
     private AtomicInteger counter = new AtomicInteger();
 
     @TaskAction
@@ -94,7 +93,7 @@ public class ParallelWheelGenerationTask extends DefaultTask {
 
         PackageInfo packageInfo = PackageInfo.fromPath(input.getPath());
         progressLogger.progress(String.format("Building wheel %s %d of %d", packageInfo.getName(), counter.incrementAndGet(), totalSize));
-        Optional<File> cachedWheel = wheelCache.findWheel(packageInfo.getName(), packageInfo.getVersion(), pythonDetails.getPythonVersion());
+        Optional<File> cachedWheel = wheelCache.findWheel(packageInfo.getName(), packageInfo.getVersion(), getPythonDetails().getPythonVersion());
 
         if (cachedWheel.isPresent()) {
             return;
@@ -102,8 +101,8 @@ public class ParallelWheelGenerationTask extends DefaultTask {
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         ExecResult results = getProject().exec(exec -> {
-            exec.commandLine(pythonDetails.getVirtualEnvInterpreter(),
-                pythonDetails.getVirtualEnvironment().getPip(),
+            exec.commandLine(getPythonDetails().getVirtualEnvInterpreter(),
+                getPythonDetails().getVirtualEnvironment().getPip(),
                 "wheel",
                 "--disable-pip-version-check",
                 "--wheel-dir", cacheDir,
@@ -135,10 +134,7 @@ public class ParallelWheelGenerationTask extends DefaultTask {
 
     @Internal
     public PythonDetails getPythonDetails() {
-        if (null == pythonDetails) {
-            pythonDetails = getExtension().getDetails();
-        }
-        return pythonDetails;
+        return getExtension().getDetails();
     }
 
     @OutputFile

@@ -53,10 +53,9 @@ import com.linkedin.gradle.python.util.pex.EntryPointTemplateProvider;
  * allowing the task to customize the entry point.
  *
  * The template that is provided will be rendered using a {@link groovy.text.SimpleTemplateEngine}, and will have two
- * properties passed to it automatically. They are named <code>realPex</code>, gives the name of the pex to execute against,
- * <code>cliName</code>, which is the name of your script (the left-hand-side in setup.py), and <code>entryPoint</code> which
- * is the name of the entry point. If you wish to provide your own template, with more options they can be added to
- * {@link BuildPexTask#additionalProperties} and they will be provided to the template engine.
+ * properties passed to it automatically. They are named <code>realPex</code>, gives the name of the pex to execute against
+ * and <code>entryPoint</code> which is the name of the entry point. If you wish to provide your own template, with more
+ * options they can be added to {@link BuildPexTask#additionalProperties} and they will be provided to the template engine.
  *
  * The pexOptions allow passing of additional options to the pex command, such as '--pre' to allow pre-release packages.
  * This is useful because the default behavior changed in pex-1.2.0 without bumping of major version.

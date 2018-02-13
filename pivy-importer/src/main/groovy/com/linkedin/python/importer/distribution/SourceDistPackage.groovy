@@ -81,8 +81,18 @@ class SourceDistPackage {
                     line = line.replaceAll(' ', '')
                 }
 
-                List<String> conditions = line.split(',')
-                log.debug("Split({}) {}", line, conditions)
+                /*
+                 * Newer versions of setuptools allow use of markers in
+                 * install_requires. Previously they were allowed only
+                 * in extras_require and appeared only in separate config
+                 * section in the metadata. We need to parse for markers
+                 * in the default section now too.
+                 */
+                List<String> lineWithMarker = line.split(';')
+                log.debug("Split({}) {}", line, lineWithMarker)
+
+                List<String> conditions = lineWithMarker[0].split(',')
+                log.debug("Split({}) {}", lineWithMarker[0], conditions)
 
                 String packageName = conditions[0].split(/!=|==|[><]=?/)[0]
                 VersionRange range = new VersionRange('', false, '', false)

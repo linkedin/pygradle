@@ -59,7 +59,7 @@ public class PythonDetails implements Serializable {
         if (pythonInterpreter == null || !pythonInterpreter.exists()) {
             throw new MissingInterpreterException("Unable to find or execute python");
         }
-        pythonVersion = new PythonVersion(PythonVersionParser.parsePythonVersion(project, pythonInterpreter));
+        pythonVersion = PythonVersionParser.parsePythonVersion(project, pythonInterpreter);
     }
 
     public String getVirtualEnvPrompt() {

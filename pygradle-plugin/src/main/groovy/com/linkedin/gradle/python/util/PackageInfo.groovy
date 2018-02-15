@@ -81,4 +81,10 @@ class PackageInfo {
             throw new GradleException("Cannot calculate Python package name and version from ${packageName} using regular expression /${nameVersionRegex}/.")
         }
     }
+
+
+    @Override
+    public String toString() {
+        return name + "-" + version
+    }
 }

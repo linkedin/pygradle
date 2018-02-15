@@ -15,10 +15,13 @@
  */
 package com.linkedin.gradle.python.tasks
 
+import com.linkedin.gradle.python.extension.PlatformTag
 import com.linkedin.gradle.python.extension.PythonDetails
+import com.linkedin.gradle.python.extension.PythonTag
 import com.linkedin.gradle.python.plugin.PythonHelpers
 import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider
 import com.linkedin.gradle.python.util.*
+import com.linkedin.gradle.python.wheel.WheelCache
 import groovy.time.TimeCategory
 import groovy.transform.CompileStatic
 import org.gradle.api.DefaultTask
@@ -43,6 +46,10 @@ import java.nio.file.Paths
  */
 @CompileStatic
 class PipInstallTask extends DefaultTask implements FailureReasonProvider {
+
+    @Input
+    @Optional
+    File wheelCache
 
     @Input
     PythonDetails pythonDetails
@@ -128,6 +135,10 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider {
         def extension = ExtensionUtils.getPythonExtension(project)
         def sitePackages = findSitePackages()
 
+        PythonTag pythonTag = PythonTag.findTag(getProject(), getPythonDetails())
+        PlatformTag platformTag = PlatformTag.makePlatformTag(getProject(), getPythonDetails().getVirtualEnvInterpreter())
+        def cache = new WheelCache(wheelCache, pythonTag, platformTag)
+
         for (File installable : getConfigurationFiles()) {
             if (isReadyForInstall(installable)) {
                 def packageInfo = PackageInfo.fromPath(installable.getAbsolutePath())
@@ -165,7 +176,14 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider {
                     // snapshot packages may have changed, so reinstall them every time
                     commandLine.add('--ignore-installed')
                 }
-                commandLine.add(installable.getAbsolutePath())
+
+
+                def cachedWheel = cache.findWheel(packageInfo.name, packageInfo.version, pythonDetails.getPythonVersion())
+                if (cachedWheel.isPresent()) {
+                    commandLine.add(cachedWheel.get().getAbsolutePath())
+                } else {
+                    commandLine.add(installable.getAbsolutePath())
+                }
 
                 logger.lifecycle(PythonHelpers.createPrettyLine("Install ${shortHand}", "[STARTING]"))
 

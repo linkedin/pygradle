@@ -16,14 +16,18 @@
 package com.linkedin.gradle.python.tasks
 
 import com.linkedin.gradle.python.PythonExtension
+import com.linkedin.gradle.python.extension.PlatformTag
 import com.linkedin.gradle.python.extension.PythonDetails
+import com.linkedin.gradle.python.extension.PythonTag
 import com.linkedin.gradle.python.extension.WheelExtension
 import com.linkedin.gradle.python.plugin.PythonHelpers
 import com.linkedin.gradle.python.util.ConsoleOutput
 import com.linkedin.gradle.python.util.DependencyOrder
 import com.linkedin.gradle.python.util.ExtensionUtils
 import com.linkedin.gradle.python.util.PackageInfo
+import com.linkedin.gradle.python.wheel.WheelCache
 import groovy.time.TimeCategory
+import org.apache.commons.io.FileUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -31,6 +35,8 @@ import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.specs.Spec
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecResult
 import org.gradle.process.ExecSpec
@@ -39,6 +45,9 @@ class BuildWheelsTask extends DefaultTask {
 
     private static final Logger LOGGER = Logging.getLogger(BuildWheelsTask)
 
+    @Optional
+    @InputDirectory
+    private File wheelCacheDir
     private PythonExtension pythonExtension
     private PythonDetails details
 
@@ -117,11 +126,23 @@ class BuildWheelsTask extends DefaultTask {
         WheelExtension wheelExtension = ExtensionUtils.getPythonComponentExtension(project, WheelExtension)
         def pythonExtension = ExtensionUtils.getPythonExtension(project)
 
+        PythonTag pythonTag = PythonTag.findTag(getProject(), getPythonDetails())
+        PlatformTag platformTag = PlatformTag.makePlatformTag(getProject(), getPythonDetails().getVirtualEnvInterpreter())
+
+        WheelCache wheelCache = new WheelCache(wheelCacheDir, pythonTag, platformTag)
+
         installables.each { File installable ->
 
             def packageInfo = PackageInfo.fromPath(installable.path)
             def shortHand = packageInfo.version ? "${packageInfo.name}-${packageInfo.version}" : packageInfo.name
             def messageHead = 'Preparing wheel ' + shortHand
+
+            def wheel = wheelCache.findWheel(packageInfo.name, packageInfo.version, pythonExtension.details.getPythonVersion())
+            if (wheel.isPresent()) {
+                FileUtils.copyFile(wheel.get(), new File(wheelExtension.wheelCache, wheel.get().name))
+                logger.lifecycle(PythonHelpers.createPrettyLine(messageHead, "[BUILT]"))
+                return
+            }
 
             if (packageExcludeFilter.isSatisfiedBy(packageInfo)) {
                 logger.lifecycle(PythonHelpers.createPrettyLine(messageHead, "[EXCLUDED]"))
@@ -175,6 +196,13 @@ class BuildWheelsTask extends DefaultTask {
                 }
             }
         }
+    }
 
+    File getWheelCacheDir() {
+        return wheelCacheDir
+    }
+
+    void setWheelCacheDir(File wheelCacheDir) {
+        this.wheelCacheDir = wheelCacheDir
     }
 }

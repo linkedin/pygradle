@@ -65,4 +65,11 @@ public class PythonVersion implements Serializable {
     public String getPythonPatch() {
         return getVersionPart(2);
     }
+
+    @Override
+    public String toString() {
+        return "PythonVersion{" +
+            "version='" + version + '\'' +
+            '}';
+    }
 }

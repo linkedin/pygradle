@@ -14,7 +14,7 @@ public class PythonVersionParser {
         //NOOP
     }
 
-    public static String parsePythonVersion(final Project project, final File pythonInterpreter) {
+    public static PythonVersion parsePythonVersion(final Project project, final File pythonInterpreter) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         ExecResult execResult = project.exec(execSpec -> {
@@ -30,6 +30,7 @@ public class PythonVersionParser {
             throw new GradleException(output);
         }
 
-        return output.split(" ")[1];
+        String versionString = output.split(" ")[1];
+        return new PythonVersion(versionString);
     }
 }

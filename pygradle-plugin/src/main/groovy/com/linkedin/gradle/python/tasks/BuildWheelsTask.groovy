@@ -16,15 +16,15 @@
 package com.linkedin.gradle.python.tasks
 
 import com.linkedin.gradle.python.PythonExtension
-import com.linkedin.gradle.python.extension.PlatformTag
 import com.linkedin.gradle.python.extension.PythonDetails
-import com.linkedin.gradle.python.extension.PythonTag
 import com.linkedin.gradle.python.extension.WheelExtension
 import com.linkedin.gradle.python.util.ConsoleOutput
 import com.linkedin.gradle.python.util.DependencyOrder
 import com.linkedin.gradle.python.util.ExtensionUtils
 import com.linkedin.gradle.python.util.PackageInfo
 import com.linkedin.gradle.python.util.internal.TaskTimer
+import com.linkedin.gradle.python.wheel.EmptyWheelCache
+import com.linkedin.gradle.python.wheel.SupportsWheelCache
 import com.linkedin.gradle.python.wheel.WheelCache
 import org.apache.commons.io.FileUtils
 import org.gradle.api.DefaultTask
@@ -42,9 +42,12 @@ import org.gradle.internal.logging.progress.ProgressLoggerFactory
 import org.gradle.process.ExecResult
 import org.gradle.process.ExecSpec
 
-class BuildWheelsTask extends DefaultTask {
+class BuildWheelsTask extends DefaultTask implements SupportsWheelCache {
 
     private static final Logger LOGGER = Logging.getLogger(BuildWheelsTask)
+
+    @Input
+    WheelCache wheelCache = new EmptyWheelCache()
 
     @Optional
     @InputDirectory
@@ -59,7 +62,7 @@ class BuildWheelsTask extends DefaultTask {
             configurationFiles = DependencyOrder.configurationPostOrderFiles(project.configurations.python)
         } catch (Throwable e) {
             // Log and fall back to old style installation order as before.
-            logger.lifecycle("***** WARNING: ${e.message} *****")
+            logger.lifecycle("***** WARNING: ${ e.message } *****")
             configurationFiles = project.configurations.python.files.sort()
         }
         buildWheels(project, configurationFiles, getPythonDetails())
@@ -132,11 +135,6 @@ class BuildWheelsTask extends DefaultTask {
         WheelExtension wheelExtension = ExtensionUtils.getPythonComponentExtension(project, WheelExtension)
         def pythonExtension = ExtensionUtils.getPythonExtension(project)
 
-        PythonTag pythonTag = PythonTag.findTag(getProject(), getPythonDetails())
-        PlatformTag platformTag = PlatformTag.makePlatformTag(getProject(), getPythonDetails())
-
-        WheelCache wheelCache = new WheelCache(wheelCacheDir, pythonTag, platformTag)
-
         def taskTimer = new TaskTimer()
 
         int counter = 0
@@ -144,10 +142,10 @@ class BuildWheelsTask extends DefaultTask {
         installables.each { File installable ->
 
             def packageInfo = PackageInfo.fromPath(installable.path)
-            def shortHand = packageInfo.version ? "${packageInfo.name}-${packageInfo.version}" : packageInfo.name
+            def shortHand = packageInfo.version ? "${ packageInfo.name }-${ packageInfo.version }" : packageInfo.name
 
             def clock = taskTimer.start(shortHand)
-            progressLogger.progress("Preparing wheel $shortHand (${++counter} of $numberOfInstallables)")
+            progressLogger.progress("Preparing wheel $shortHand (${ ++counter } of $numberOfInstallables)")
 
             if (pythonExtension.consoleOutput == ConsoleOutput.RAW) {
                 LOGGER.lifecycle("Installing {}", shortHand)
@@ -157,7 +155,7 @@ class BuildWheelsTask extends DefaultTask {
                 return
             }
 
-            def wheel = wheelCache.findWheel(packageInfo.name, packageInfo.version, pythonExtension.details.getPythonVersion())
+            def wheel = wheelCache.findWheel(packageInfo.name, packageInfo.version, pythonExtension.details)
             if (wheel.isPresent()) {
                 FileUtils.copyFile(wheel.get(), new File(wheelExtension.wheelCache, wheel.get().name))
                 return
@@ -168,7 +166,7 @@ class BuildWheelsTask extends DefaultTask {
             // always build these locally.
             def tree = project.fileTree(
                 dir: wheelExtension.wheelCache,
-                include: "**/${packageInfo.name.replace('-', '_')}-${packageInfo.version}-*.whl")
+                include: "**/${ packageInfo.name.replace('-', '_') }-${ packageInfo.version }-*.whl")
 
             def stream = new ByteArrayOutputStream()
 
@@ -194,7 +192,7 @@ class BuildWheelsTask extends DefaultTask {
 
             if (installResult.exitValue != 0) {
                 LOGGER.error(stream.toString().trim())
-                throw new GradleException("Failed to build wheel for ${shortHand}. Please see above output for reason, or re-run your build using ``--info`` for additional logging.")
+                throw new GradleException("Failed to build wheel for ${ shortHand }. Please see above output for reason, or re-run your build using ``--info`` for additional logging.")
             } else {
                 if (pythonExtension.consoleOutput == ConsoleOutput.RAW) {
                     LOGGER.lifecycle(stream.toString().trim())
@@ -207,10 +205,6 @@ class BuildWheelsTask extends DefaultTask {
         progressLogger.completed()
 
         new File(project.buildDir, getName() + "-task-runtime-report.txt").text = taskTimer.buildReport()
-    }
-
-    File getWheelCacheDir() {
-        return wheelCacheDir
     }
 
     void setWheelCacheDir(File wheelCacheDir) {

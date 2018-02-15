@@ -16,9 +16,7 @@
 package com.linkedin.gradle.python.tasks;
 
 import com.linkedin.gradle.python.PythonExtension;
-import com.linkedin.gradle.python.extension.PlatformTag;
 import com.linkedin.gradle.python.extension.PythonDetails;
-import com.linkedin.gradle.python.extension.PythonTag;
 import com.linkedin.gradle.python.util.PackageInfo;
 import com.linkedin.gradle.python.util.internal.TaskTimer;
 import com.linkedin.gradle.python.wheel.WheelCache;
@@ -27,6 +25,7 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
+import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.OutputDirectory;
@@ -47,6 +46,9 @@ public class ParallelWheelGenerationTask extends DefaultTask {
 
     private static final Logger logger = Logging.getLogger(ParallelWheelGenerationTask.class);
 
+    @Input
+    private WheelCache wheelCache;
+
     private FileCollection filesToConvert;
     private File cacheDir;
     private PythonExtension extension;
@@ -59,11 +61,6 @@ public class ParallelWheelGenerationTask extends DefaultTask {
         ProgressLogger progressLogger = progressLoggerFactory.newOperation(ParallelWheelGenerationTask.class);
         progressLogger.setDescription("Building wheels");
 
-        PythonTag pythonTag = PythonTag.findTag(getProject(), getPythonDetails());
-        PlatformTag platformTag = PlatformTag.makePlatformTag(getProject(), getPythonDetails());
-
-        WheelCache wheelCache = new WheelCache(cacheDir, pythonTag, platformTag);
-
         progressLogger.started();
 
         TaskTimer taskTimer = new TaskTimer();
@@ -73,7 +70,7 @@ public class ParallelWheelGenerationTask extends DefaultTask {
         files.parallelStream().forEach(file -> {
             PackageInfo packageInfo = PackageInfo.fromPath(file.getPath());
             TaskTimer.TickingClock clock = taskTimer.start(packageInfo.getName() + "-" + packageInfo.getVersion());
-            makeWheelFromSdist(progressLogger, totalSize, wheelCache, file);
+            makeWheelFromSdist(progressLogger, totalSize, file);
             clock.stop();
         });
 
@@ -85,7 +82,7 @@ public class ParallelWheelGenerationTask extends DefaultTask {
         progressLogger.completed();
     }
 
-    private void makeWheelFromSdist(ProgressLogger progressLogger, int totalSize, WheelCache wheelCache, File input) {
+    private void makeWheelFromSdist(ProgressLogger progressLogger, int totalSize, File input) {
 
         if (input.getName().endsWith(".whl")) {
             return;
@@ -93,7 +90,10 @@ public class ParallelWheelGenerationTask extends DefaultTask {
 
         PackageInfo packageInfo = PackageInfo.fromPath(input.getPath());
         progressLogger.progress(String.format("Building wheel %s %d of %d", packageInfo.getName(), counter.incrementAndGet(), totalSize));
-        Optional<File> cachedWheel = wheelCache.findWheel(packageInfo.getName(), packageInfo.getVersion(), getPythonDetails().getPythonVersion());
+        Optional<File> cachedWheel = wheelCache.findWheel(
+            packageInfo.getName(),
+            packageInfo.getVersion(),
+            getPythonDetails());
 
         if (cachedWheel.isPresent()) {
             return;
@@ -160,5 +160,11 @@ public class ParallelWheelGenerationTask extends DefaultTask {
         this.filesToConvert = filesToConvert;
     }
 
+    public WheelCache getWheelCache() {
+        return wheelCache;
+    }
 
+    public void setWheelCache(WheelCache wheelCache) {
+        this.wheelCache = wheelCache;
+    }
 }

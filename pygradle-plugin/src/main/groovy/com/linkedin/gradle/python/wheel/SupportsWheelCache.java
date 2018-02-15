@@ -15,12 +15,10 @@
  */
 package com.linkedin.gradle.python.wheel;
 
-import com.linkedin.gradle.python.extension.PythonDetails;
+import org.gradle.api.Task;
 
-import java.io.File;
-import java.io.Serializable;
-import java.util.Optional;
+public interface SupportsWheelCache extends Task {
+    void setWheelCache(WheelCache wheelCache);
 
-public interface WheelCache extends Serializable {
-    Optional<File> findWheel(String library, String version, PythonDetails pythonDetails);
+    WheelCache getWheelCache();
 }

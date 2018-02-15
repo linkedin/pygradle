@@ -16,9 +16,7 @@
 package com.linkedin.gradle.python.tasks
 
 import com.linkedin.gradle.python.PythonExtension
-import com.linkedin.gradle.python.extension.PlatformTag
 import com.linkedin.gradle.python.extension.PythonDetails
-import com.linkedin.gradle.python.extension.PythonTag
 import com.linkedin.gradle.python.plugin.PythonHelpers
 import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider
 import com.linkedin.gradle.python.util.ConsoleOutput
@@ -27,6 +25,8 @@ import com.linkedin.gradle.python.util.ExtensionUtils
 import com.linkedin.gradle.python.util.OperatingSystem
 import com.linkedin.gradle.python.util.PackageInfo
 import com.linkedin.gradle.python.util.internal.TaskTimer
+import com.linkedin.gradle.python.wheel.EmptyWheelCache
+import com.linkedin.gradle.python.wheel.SupportsWheelCache
 import com.linkedin.gradle.python.wheel.WheelCache
 import groovy.transform.CompileStatic
 import org.gradle.api.DefaultTask
@@ -52,11 +52,10 @@ import java.nio.file.Paths
  * TODO: Add an output to make execution faster
  */
 @CompileStatic
-class PipInstallTask extends DefaultTask implements FailureReasonProvider {
+class PipInstallTask extends DefaultTask implements FailureReasonProvider, SupportsWheelCache {
 
     @Input
-    @Optional
-    File wheelCache
+    WheelCache wheelCache = new EmptyWheelCache()
 
     @Input
     PythonDetails pythonDetails
@@ -100,7 +99,7 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider {
                 return DependencyOrder.configurationPostOrderFiles((Configuration) installFileCollection)
             } catch (Throwable e) {
                 // Log and fall back to old style installation order as before.
-                logger.lifecycle("***** WARNING: ${e.message} *****")
+                logger.lifecycle("***** WARNING: ${ e.message } *****")
             }
         }
         return sorted ? installFileCollection.files.sort() : installFileCollection.files
@@ -121,8 +120,8 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider {
              */
             def setupPyFile = new File(installable.absolutePath, "setup.py")
             if (!setupPyFile.exists()) {
-                logger.lifecycle(PythonHelpers.createPrettyLine("Install ${project.name}", "[ABORTED]"))
-                project.logger.warn("setup.py missing, skipping venv install for product ${project.name}.  Run 'gradle generateSetupPy' to generate a generic file")
+                logger.lifecycle(PythonHelpers.createPrettyLine("Install ${ project.name }", "[ABORTED]"))
+                project.logger.warn("setup.py missing, skipping venv install for product ${ project.name }.  Run 'gradle generateSetupPy' to generate a generic file")
                 return false
             }
         }
@@ -146,10 +145,6 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider {
         ProgressLogger progressLogger = progressLoggerFactory.newOperation(PipInstallTask)
         progressLogger.setDescription("Installing Libraries")
 
-        PythonTag pythonTag = PythonTag.findTag(getProject(), getPythonDetails())
-        PlatformTag platformTag = PlatformTag.makePlatformTag(getProject(), getPythonDetails())
-        def cache = new WheelCache(wheelCache, pythonTag, platformTag)
-
         progressLogger.started()
         TaskTimer taskTimer = new TaskTimer()
 
@@ -158,12 +153,12 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider {
         for (File installable : installableFiles) {
             if (isReadyForInstall(installable)) {
                 def packageInfo = PackageInfo.fromPath(installable.getAbsolutePath())
-                String shortHand = packageInfo.version ? "${packageInfo.name}-${packageInfo.version}" : packageInfo.name
+                String shortHand = packageInfo.version ? "${ packageInfo.name }-${ packageInfo.version }" : packageInfo.name
 
                 def timer = taskTimer.start(shortHand)
                 logger.info("Installing {}", shortHand)
-                progressLogger.progress("Installing $shortHand (${++counter} of ${installableFiles.size()})")
-                doInstall(shortHand, packageInfo, sitePackages, pyVersion, extension, cache, installable)
+                progressLogger.progress("Installing $shortHand (${ ++counter } of ${ installableFiles.size() })")
+                doInstall(shortHand, packageInfo, sitePackages, pyVersion, extension, installable)
                 timer.stop()
             }
         }
@@ -175,8 +170,7 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider {
 
     @SuppressWarnings("ParameterCount")
     private void doInstall(String shortHand, PackageInfo packageInfo, Path sitePackages,
-                           String pyVersion, PythonExtension extension,
-                           WheelCache cache, File installable) {
+                           String pyVersion, PythonExtension extension, File installable) {
         if (packageExcludeFilter.isSatisfiedBy(packageInfo)) {
             return
         }
@@ -188,8 +182,8 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider {
         String sanitizedName = packageInfo.name.replace('-', '_')
 
         // See: https://www.python.org/dev/peps/pep-0376/
-        File egg = sitePackages.resolve("${sanitizedName}-${packageInfo.version}-py${pyVersion}.egg-info").toFile()
-        File dist = sitePackages.resolve("${sanitizedName}-${packageInfo.version}.dist-info").toFile()
+        File egg = sitePackages.resolve("${ sanitizedName }-${ packageInfo.version }-py${ pyVersion }.egg-info").toFile()
+        File dist = sitePackages.resolve("${ sanitizedName }-${ packageInfo.version }.dist-info").toFile()
 
         def mergedEnv = new HashMap(extension.pythonEnvironment)
         if (environment != null) {
@@ -213,7 +207,7 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider {
         }
 
 
-        def cachedWheel = cache.findWheel(packageInfo.name, packageInfo.version, pythonDetails.getPythonVersion())
+        def cachedWheel = wheelCache.findWheel(packageInfo.name, packageInfo.version, pythonDetails)
         if (cachedWheel.isPresent()) {
             commandLine.add(cachedWheel.get().getAbsolutePath())
         } else {
@@ -242,7 +236,7 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider {
             lastInstallMessage = message
 
             throw new PipInstallException(
-                "Failed to install ${shortHand}. Please see above output for reason, or re-run your build using ``gradle -i build`` for additional logging.")
+                "Failed to install ${ shortHand }. Please see above output for reason, or re-run your build using ``gradle -i build`` for additional logging.")
         } else {
             if (extension.consoleOutput == ConsoleOutput.RAW) {
                 logger.lifecycle(message)
@@ -259,7 +253,7 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider {
     private Path findSitePackages() {
         def pyVersion = pythonDetails.getPythonVersion().pythonMajorMinor
         if (OperatingSystem.current().isUnix()) {
-            return pythonDetails.virtualEnv.toPath().resolve(Paths.get("lib", "python${pyVersion}", "site-packages"))
+            return pythonDetails.virtualEnv.toPath().resolve(Paths.get("lib", "python${ pyVersion }", "site-packages"))
         } else {
             return pythonDetails.virtualEnv.toPath().resolve(Paths.get("Lib", "site-packages"))
         }

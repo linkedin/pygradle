@@ -18,9 +18,11 @@ package com.linkedin.gradle.python.wheel;
 import com.linkedin.gradle.python.extension.PythonDetails;
 
 import java.io.File;
-import java.io.Serializable;
 import java.util.Optional;
 
-public interface WheelCache extends Serializable {
-    Optional<File> findWheel(String library, String version, PythonDetails pythonDetails);
+public class EmptyWheelCache implements WheelCache {
+    @Override
+    public Optional<File> findWheel(String library, String version, PythonDetails pythonDetails) {
+        return Optional.empty();
+    }
 }

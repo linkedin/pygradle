@@ -27,18 +27,18 @@ public class Flake8Task extends AbstractPythonMainSourceDefaultTask {
          the task isn't actually run.
           */
         List<String> sArgs = [pythonDetails.virtualEnvironment.findExecutable("flake8").absolutePath,
-                     "--config", component.setupCfg]
+                              "--config", component.setupCfg]
 
         def paths = []
         if (project.file(component.srcDir).exists()) {
-            project.logger.info("Flake8: adding ${component.srcDir}")
+            project.logger.info("Flake8: adding ${ component.srcDir }")
             paths.add(component.srcDir)
         } else {
             project.logger.info("Flake8: srcDir doesn't exist")
         }
 
         if (project.file(component.testDir).exists()) {
-            project.logger.info("Flake8: adding ${component.testDir}")
+            project.logger.info("Flake8: adding ${ component.testDir }")
             paths.add(component.testDir)
         } else {
             project.logger.info("Flake8: testDir doesn't exist")

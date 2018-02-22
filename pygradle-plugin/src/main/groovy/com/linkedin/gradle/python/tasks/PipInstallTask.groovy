@@ -19,7 +19,6 @@ import com.linkedin.gradle.python.PythonExtension
 import com.linkedin.gradle.python.extension.PythonDetails
 import com.linkedin.gradle.python.plugin.PythonHelpers
 import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider
-import com.linkedin.gradle.python.util.ConsoleOutput
 import com.linkedin.gradle.python.util.DependencyOrder
 import com.linkedin.gradle.python.util.ExtensionUtils
 import com.linkedin.gradle.python.util.OperatingSystem
@@ -172,10 +171,13 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider, Suppo
     private void doInstall(String shortHand, PackageInfo packageInfo, Path sitePackages,
                            String pyVersion, PythonExtension extension, File installable) {
         if (packageExcludeFilter.isSatisfiedBy(packageInfo)) {
+            if (PythonHelpers.isPlainOrVerbose(project)) {
+                logger.lifecycle("Skipping {}", shortHand)
+            }
             return
         }
 
-        if (extension.consoleOutput == ConsoleOutput.RAW) {
+        if (PythonHelpers.isPlainOrVerbose(project)) {
             logger.lifecycle("Installing {}", shortHand)
         }
 
@@ -238,7 +240,7 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider, Suppo
             throw new PipInstallException(
                 "Failed to install ${ shortHand }. Please see above output for reason, or re-run your build using ``gradle -i build`` for additional logging.")
         } else {
-            if (extension.consoleOutput == ConsoleOutput.RAW) {
+            if (PythonHelpers.isPlainOrVerbose(project)) {
                 logger.lifecycle(message)
             }
         }

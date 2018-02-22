@@ -19,6 +19,7 @@ public interface PexGenerator {
 
     /**
      * When called will generate entry point files for a pex.
+     *
      * @throws Exception when failing to build entry point
      */
     void buildEntryPoints() throws Exception;

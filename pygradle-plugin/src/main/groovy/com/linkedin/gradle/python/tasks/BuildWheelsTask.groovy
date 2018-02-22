@@ -18,7 +18,7 @@ package com.linkedin.gradle.python.tasks
 import com.linkedin.gradle.python.PythonExtension
 import com.linkedin.gradle.python.extension.PythonDetails
 import com.linkedin.gradle.python.extension.WheelExtension
-import com.linkedin.gradle.python.util.ConsoleOutput
+import com.linkedin.gradle.python.plugin.PythonHelpers
 import com.linkedin.gradle.python.util.DependencyOrder
 import com.linkedin.gradle.python.util.ExtensionUtils
 import com.linkedin.gradle.python.util.PackageInfo
@@ -147,7 +147,7 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache {
             def clock = taskTimer.start(shortHand)
             progressLogger.progress("Preparing wheel $shortHand (${ ++counter } of $numberOfInstallables)")
 
-            if (pythonExtension.consoleOutput == ConsoleOutput.RAW) {
+            if (PythonHelpers.isPlainOrVerbose(project)) {
                 LOGGER.lifecycle("Installing {}", shortHand)
             }
 
@@ -194,7 +194,7 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache {
                 LOGGER.error(stream.toString().trim())
                 throw new GradleException("Failed to build wheel for ${ shortHand }. Please see above output for reason, or re-run your build using ``--info`` for additional logging.")
             } else {
-                if (pythonExtension.consoleOutput == ConsoleOutput.RAW) {
+                if (PythonHelpers.isPlainOrVerbose(project)) {
                     LOGGER.lifecycle(stream.toString().trim())
                 }
             }

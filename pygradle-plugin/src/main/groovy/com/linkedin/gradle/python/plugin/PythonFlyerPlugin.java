@@ -29,21 +29,21 @@ import java.nio.file.Paths;
 
 /**
  * A Flyer plugin.
- *
+ * <p>
  * A Flyer project is a deployable project that consumes the resources
  * from an Ember subproject.
- *
+ * <p>
  * On top of li-python-deployable, this plugin will setup the dependencies
  * on the resource files from the Ember subproject. To make it easier to
  * access the resources, we will create a link under the Python project, that
  * connects to the resources folder under the Ember project. Since it's a link,
  * developers don't have to rebuild the Python project each time they modify
  * the Ember code.
- *
+ * <p>
  * For the deployment, the plugin will copy the resources into the 'deployable'
- * folder under the path 'build/<project name>/' that LID could find all the
+ * folder under the path {@code 'build/<project name>/'} that LID could find all the
  * resources there.
- *
+ * <p>
  * <pre>
  * <code>
  * apply plugin: 'python-flyer'

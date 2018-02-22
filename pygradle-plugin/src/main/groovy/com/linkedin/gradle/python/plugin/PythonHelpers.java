@@ -15,10 +15,8 @@
  */
 package com.linkedin.gradle.python.plugin;
 
-import com.linkedin.gradle.python.PythonExtension;
-import com.linkedin.gradle.python.util.ColorHelper;
-import com.linkedin.gradle.python.util.ConsoleOutput;
 import org.gradle.api.Project;
+import org.gradle.api.logging.configuration.ConsoleOutput;
 
 public class PythonHelpers {
 
@@ -28,47 +26,9 @@ public class PythonHelpers {
         //NOOP
     }
 
-    /**
-     * Detect if we're connected to a TTY and support color.
-     *
-     * @param project The project to use to invoke the command.
-     * @return true if we're connected to a TTY and support color.
-     */
-    public static boolean isTty(Project project) {
-        return project.getGradle().getStartParameter().getConsoleOutput() != null;
-    }
-
-    /**
-     * Return a string that indicates success!
-     * <p>
-     * If not connected to a TTY that supports color, then an ASCII success
-     * message will be returned.
-     *
-     * @param project The project running this method.
-     * @return A string indicating success!
-     */
-    public static String successFlair(Project project, PythonExtension settings) {
-
-        StringBuilder successFlair = new StringBuilder();
-
-        if (!settings.consoleOutput.equals(ConsoleOutput.RAW)) {
-            successFlair.append(ColorHelper.ANSI_GREEN);
-        }
-
-
-        if (isTty(project)) {
-            successFlair.append("\u2713");
-        } else {
-            successFlair.append("[GOOD]");
-        }
-
-
-        if (!settings.consoleOutput.equals(ConsoleOutput.RAW)) {
-            successFlair.append(ColorHelper.ANSI_RESET);
-        }
-
-
-        return successFlair.toString();
+    public static boolean isPlainOrVerbose(Project project) {
+        ConsoleOutput consoleOutput = project.getGradle().getStartParameter().getConsoleOutput();
+        return consoleOutput == ConsoleOutput.Plain || consoleOutput == ConsoleOutput.Verbose;
     }
 
     public static String createPrettyLine(String prefix, String postfix) {

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2016 LinkedIn Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -47,13 +47,13 @@ public class SupportedWheelFormats implements Serializable {
 
     private static boolean contains(AbiTriple triple, String[] pythonTags, String[] abiTags, String[] platformTags) {
         return contains(triple.getPythonTag(), pythonTags)
-          && contains(triple.getAbiTag(), abiTags)
-          && contains(triple.getPlatformTag(), platformTags);
+            && contains(triple.getAbiTag(), abiTags)
+            && contains(triple.getPlatformTag(), platformTags);
     }
 
-    private static boolean contains(String neadle, String[] haystack) {
+    private static boolean contains(String needle, String[] haystack) {
         for (String s : haystack) {
-            if (Objects.equals(neadle, s)) {
+            if (Objects.equals(needle, s)) {
                 return true;
             }
         }

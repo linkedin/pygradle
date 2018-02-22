@@ -91,7 +91,7 @@ class InstallVirtualEnvironmentTask extends DefaultTask implements FailureReason
                 container.setOutputs(execSpec)
                 execSpec.commandLine(
                     pythonDetails.getSystemPythonInterpreter(),
-                    project.file("${packageDir}/virtualenv-${version}/virtualenv.py"),
+                    project.file("${ packageDir }/virtualenv-${ version }/virtualenv.py"),
                     '--never-download',
                     '--python', pythonDetails.getSystemPythonInterpreter(),
                     '--prompt', pythonDetails.virtualEnvPrompt,
@@ -156,7 +156,7 @@ class InstallVirtualEnvironmentTask extends DefaultTask implements FailureReason
 
     private void customize(File packageDir, String version) {
         if (distutilsCfg != null) {
-            String venvDir = Paths.get("${packageDir}", "virtualenv-${version}").toString()
+            String venvDir = Paths.get("${ packageDir }", "virtualenv-${ version }").toString()
             Files.write(
                 Paths.get(venvDir, "virtualenv_embedded", "distutils.cfg"),
                 distutilsCfg.getBytes(),

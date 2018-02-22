@@ -69,7 +69,7 @@ class PackageInfo {
         }
 
         if (packagePath == packageName) {
-            throw new GradleException("Cannot calculate Python package extension from ${packagePath} using regular expression /${extensionRegex}/.")
+            throw new GradleException("Cannot calculate Python package extension from ${ packagePath } using regular expression /${ extensionRegex }/.")
         }
 
         Matcher matcher = packageName =~ nameVersionRegex
@@ -78,7 +78,7 @@ class PackageInfo {
             def version = matcher.group('version')
             return new PackageInfo(name, version)
         } else {
-            throw new GradleException("Cannot calculate Python package name and version from ${packageName} using regular expression /${nameVersionRegex}/.")
+            throw new GradleException("Cannot calculate Python package name and version from ${ packageName } using regular expression /${ nameVersionRegex }/.")
         }
     }
 

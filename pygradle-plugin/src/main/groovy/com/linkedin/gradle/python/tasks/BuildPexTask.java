@@ -43,20 +43,20 @@ import java.util.Map;
 
 /**
  * This task builds pex files; both 'thin' and 'fat' based on the settings on {@link PexExtension}
- *
+ * <p>
  * If in 'fat' pex mode, each entry point will generate it's own pex.
- *
+ * <p>
  * If in 'thin' pex mode, one pex will be created and a script for each entry point will be rendered. This helps save
  * on disk space when one pex contains multiple entry points.
- *
+ * <p>
  * The entry points scripts are customizable, so there is a property {@link BuildPexTask#templateProvider} that can be set
  * allowing the task to customize the entry point.
- *
+ * <p>
  * The template that is provided will be rendered using a {@link groovy.text.SimpleTemplateEngine}, and will have two
  * properties passed to it automatically. They are named <code>realPex</code>, gives the name of the pex to execute against
  * and <code>entryPoint</code> which is the name of the entry point. If you wish to provide your own template, with more
  * options they can be added to {@link BuildPexTask#additionalProperties} and they will be provided to the template engine.
- *
+ * <p>
  * The pexOptions allow passing of additional options to the pex command, such as '--pre' to allow pre-release packages.
  * This is useful because the default behavior changed in pex-1.2.0 without bumping of major version.
  */

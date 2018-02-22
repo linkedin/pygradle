@@ -49,22 +49,22 @@ public class DependencyOrder {
 
     /**
      * Traverses the dependency tree post-order and collects dependencies.
-     *
+     * <p>
      * The recursive post-order traversal returns the root of the (sub)tree.
      * This allows the post-order adding into the set of dependencies as we
      * return from the recursive calls. The set of seen dependencies ensures
      * ensures that the cycles in Ivy metadata do not cause cycles in our
      * recursive calls.
      *
-     * @param root the root of the dependency (sub)tree
-     * @param seen the input set of already seen dependencies
+     * @param root         the root of the dependency (sub)tree
+     * @param seen         the input set of already seen dependencies
      * @param dependencies the output set of dependencies in post-order
      * @return the root itself
      */
     public static ResolvedComponentResult postOrderDependencies(
-            ResolvedComponentResult root,
-            Set<ComponentIdentifier> seen,
-            Set<ResolvedComponentResult> dependencies) {
+        ResolvedComponentResult root,
+        Set<ComponentIdentifier> seen,
+        Set<ResolvedComponentResult> dependencies) {
         for (DependencyResult d : root.getDependencies()) {
             if (!(d instanceof ResolvedDependencyResult)) {
                 throw new GradleException("Unresolved dependency found for " + d.toString());

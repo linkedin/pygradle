@@ -27,8 +27,8 @@ public class PythonHelpers {
     }
 
     public static boolean isPlainOrVerbose(Project project) {
-        ConsoleOutput consoleOutput = project.getGradle().getStartParameter().getConsoleOutput();
-        return consoleOutput == ConsoleOutput.Plain || consoleOutput == ConsoleOutput.Verbose;
+        return project.getLogger().isInfoEnabled() || System.getenv("TERM") == null
+            || project.getGradle().getStartParameter().getConsoleOutput() == ConsoleOutput.Plain;
     }
 
     public static String createPrettyLine(String prefix, String postfix) {

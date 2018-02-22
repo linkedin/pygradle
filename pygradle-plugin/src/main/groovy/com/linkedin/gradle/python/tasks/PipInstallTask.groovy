@@ -234,15 +234,14 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider, Suppo
              * installed? E.g., we see pyOpenSSL>0.15 failed to install, do you have libffi
              * installed?
              */
-            logger.lifecycle(message)
+            logger.error("Error installing package using `{}`", commandLine)
+            logger.error(message)
             lastInstallMessage = message
 
             throw new PipInstallException(
                 "Failed to install ${ shortHand }. Please see above output for reason, or re-run your build using ``gradle -i build`` for additional logging.")
         } else {
-            if (PythonHelpers.isPlainOrVerbose(project)) {
-                logger.lifecycle(message)
-            }
+            logger.info(message)
         }
     }
 

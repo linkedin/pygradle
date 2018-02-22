@@ -34,8 +34,6 @@ import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.specs.Spec
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputDirectory
-import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.internal.logging.progress.ProgressLogger
 import org.gradle.internal.logging.progress.ProgressLoggerFactory
@@ -49,9 +47,6 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache {
     @Input
     WheelCache wheelCache = new EmptyWheelCache()
 
-    @Optional
-    @InputDirectory
-    private File wheelCacheDir
     private PythonExtension pythonExtension
     private PythonDetails details
 
@@ -174,29 +169,28 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache {
                 return
             }
 
+            def commandLine = [pythonDetails.getVirtualEnvInterpreter(),
+                           pythonDetails.getVirtualEnvironment().getPip(),
+                           'wheel',
+                           '--disable-pip-version-check',
+                           '--wheel-dir', wheelExtension.wheelCache,
+                           '--no-deps',
+                           installable]
+
             ExecResult installResult = project.exec { ExecSpec execSpec ->
                 execSpec.environment pythonExtension.pythonEnvironment
-                execSpec.commandLine(
-                    [pythonDetails.getVirtualEnvInterpreter(),
-                     pythonDetails.getVirtualEnvironment().getPip(),
-                     'wheel',
-                     '--disable-pip-version-check',
-                     '--wheel-dir', wheelExtension.wheelCache,
-                     '--no-deps',
-                     installable
-                    ])
+                execSpec.commandLine(commandLine)
                 execSpec.standardOutput = stream
                 execSpec.errorOutput = stream
                 execSpec.ignoreExitValue = true
             }
 
             if (installResult.exitValue != 0) {
+                LOGGER.error("Error installing package using `{}`", commandLine)
                 LOGGER.error(stream.toString().trim())
                 throw new GradleException("Failed to build wheel for ${ shortHand }. Please see above output for reason, or re-run your build using ``--info`` for additional logging.")
             } else {
-                if (PythonHelpers.isPlainOrVerbose(project)) {
-                    LOGGER.lifecycle(stream.toString().trim())
-                }
+                LOGGER.info(stream.toString().trim())
             }
 
             clock.stop()
@@ -205,9 +199,5 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache {
         progressLogger.completed()
 
         new File(project.buildDir, getName() + "-task-runtime-report.txt").text = taskTimer.buildReport()
-    }
-
-    void setWheelCacheDir(File wheelCacheDir) {
-        this.wheelCacheDir = wheelCacheDir
     }
 }

@@ -18,14 +18,14 @@ package com.linkedin.gradle.python.wheel;
 import java.io.File;
 import java.io.Serializable;
 
-public class AbiTriple implements Serializable {
+public class AbiDetails implements Serializable {
 
     private final File pythonExecutable;
     private final String pythonTag;
     private final String abiTag;
     private final String platformTag;
 
-    public AbiTriple(File pythonExecutable, String pythonTag, String abiTag, String platformTag) {
+    public AbiDetails(File pythonExecutable, String pythonTag, String abiTag, String platformTag) {
         this.pythonExecutable = pythonExecutable;
         this.pythonTag = pythonTag;
         this.abiTag = abiTag;
@@ -50,7 +50,7 @@ public class AbiTriple implements Serializable {
 
     @Override
     public String toString() {
-        return "AbiTriple{"
+        return "AbiDetails{"
             + "pythonExec='" + pythonExecutable.toString() + '\''
             + ", pythonTag='" + pythonTag + '\''
             + ", abiTag='" + abiTag + '\''

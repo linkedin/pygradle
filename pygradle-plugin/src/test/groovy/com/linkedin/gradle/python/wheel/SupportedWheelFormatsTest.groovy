@@ -27,8 +27,8 @@ class SupportedWheelFormatsTest extends Specification {
     def 'will explode the compact keys'() {
         def pythonExe = temporaryFolder.newFile('python')
         def formats = new SupportedWheelFormats()
-        formats.addSupportedAbi(new AbiTriple(pythonExe, 'py2', 'none', 'any'))
-        formats.addSupportedAbi(new AbiTriple(pythonExe, 'py3', 'cp27mu', 'any'))
+        formats.addSupportedAbi(new AbiDetails(pythonExe, 'py2', 'none', 'any'))
+        formats.addSupportedAbi(new AbiDetails(pythonExe, 'py3', 'cp27mu', 'any'))
 
         expect:
         formats.matchesSupportedVersion(pythonExe, 'py2.py3', 'none', 'any')
@@ -40,8 +40,8 @@ class SupportedWheelFormatsTest extends Specification {
         def python1Exe = temporaryFolder.newFile('python1')
         def python2Exe = temporaryFolder.newFile('python2')
         def formats = new SupportedWheelFormats()
-        formats.addSupportedAbi(new AbiTriple(python1Exe, 'py2', 'none', 'any'))
-        formats.addSupportedAbi(new AbiTriple(python2Exe, 'py3', 'cp27mu', 'any'))
+        formats.addSupportedAbi(new AbiDetails(python1Exe, 'py2', 'none', 'any'))
+        formats.addSupportedAbi(new AbiDetails(python2Exe, 'py3', 'cp27mu', 'any'))
 
         expect:
         formats.matchesSupportedVersion(python1Exe, 'py2.py3', 'none', 'any')

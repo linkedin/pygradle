@@ -55,14 +55,24 @@ public class CachedBackedWheelCache implements WheelCache, Serializable {
      */
     @Override
     public Optional<File> findWheel(String library, String version, PythonDetails pythonDetails) {
-        File pythonExecutable = pythonDetails.getVirtualEnvInterpreter();
+        return findWheel(library, version, pythonDetails.getVirtualEnvInterpreter());
+    }
 
+    /**
+     * Find's a wheel in the wheel cache.
+     *
+     * @param library          name of the library
+     * @param version          version of the library
+     * @param pythonExecutable Python Executable
+     * @return A wheel that could be used in it's place. If not found, {@code Optional.empty()}
+     */
+    public Optional<File> findWheel(String library, String version, File pythonExecutable) {
         if (cacheDir == null) {
             return Optional.empty();
         }
 
         String wheelPrefix = library.replace("-", "_") + "-" + version;
-        logger.debug("Searching for {} {} with prefix {}", library, version, wheelPrefix);
+        logger.info("Searching for {} {} with prefix {}", library, version, wheelPrefix);
         File[] files = cacheDir.listFiles((dir, name) -> name.startsWith(wheelPrefix) && name.endsWith(".whl"));
 
         if (files == null) {
@@ -74,13 +84,13 @@ public class CachedBackedWheelCache implements WheelCache, Serializable {
             .map(Optional::get)
             .collect(Collectors.toList());
 
-        logger.debug("Wheels for version of library: {}", wheelDetails);
+        logger.info("Wheels for version of library: {}", wheelDetails);
 
         Optional<PythonWheelDetails> foundWheel = wheelDetails.stream()
             .filter(it -> wheelMatches(pythonExecutable, it))
             .findFirst();
 
-        logger.debug("Found artifacts: {}", foundWheel);
+        logger.info("Found artifacts: {}", foundWheel);
 
         return foundWheel.map(it -> it.file);
     }

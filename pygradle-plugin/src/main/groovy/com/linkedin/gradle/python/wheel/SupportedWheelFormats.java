@@ -28,9 +28,9 @@ public class SupportedWheelFormats implements Serializable {
 
     private static final Logger logger = Logging.getLogger(SupportedWheelFormats.class);
 
-    private List<AbiTriple> supportedAbis = new ArrayList<>();
+    private List<AbiDetails> supportedAbis = new ArrayList<>();
 
-    public void addSupportedAbi(AbiTriple triple) {
+    public void addSupportedAbi(AbiDetails triple) {
         supportedAbis.add(triple);
         logger.debug("Available ABI's: {}", supportedAbis);
     }
@@ -41,11 +41,11 @@ public class SupportedWheelFormats implements Serializable {
         String[] platformTags = platformTag.split("\\.");
 
         return supportedAbis.stream()
-            .filter(it -> it.getPythonExecutable() == pythonExecutable)
+            .filter(it -> Objects.equals(it.getPythonExecutable().getAbsolutePath(), pythonExecutable.getAbsolutePath()))
             .anyMatch(it -> contains(it, pythonTags, abiTags, platformTags));
     }
 
-    private static boolean contains(AbiTriple triple, String[] pythonTags, String[] abiTags, String[] platformTags) {
+    private static boolean contains(AbiDetails triple, String[] pythonTags, String[] abiTags, String[] platformTags) {
         return contains(triple.getPythonTag(), pythonTags)
             && contains(triple.getAbiTag(), abiTags)
             && contains(triple.getPlatformTag(), platformTags);
@@ -59,5 +59,12 @@ public class SupportedWheelFormats implements Serializable {
         }
 
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return "SupportedWheelFormats{"
+            + "supportedAbis=" + supportedAbis
+            + '}';
     }
 }

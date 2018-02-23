@@ -155,7 +155,6 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider, Suppo
                 String shortHand = packageInfo.version ? "${ packageInfo.name }-${ packageInfo.version }" : packageInfo.name
 
                 def timer = taskTimer.start(shortHand)
-                logger.info("Installing {}", shortHand)
                 progressLogger.progress("Installing $shortHand (${ ++counter } of ${ installableFiles.size() })")
                 doInstall(shortHand, packageInfo, sitePackages, pyVersion, extension, installable)
                 timer.stop()
@@ -172,13 +171,9 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider, Suppo
                            String pyVersion, PythonExtension extension, File installable) {
         if (packageExcludeFilter.isSatisfiedBy(packageInfo)) {
             if (PythonHelpers.isPlainOrVerbose(project)) {
-                logger.lifecycle("Skipping {}", shortHand)
+                logger.lifecycle("Skipping {} - Excluded", shortHand)
             }
             return
-        }
-
-        if (PythonHelpers.isPlainOrVerbose(project)) {
-            logger.lifecycle("Installing {}", shortHand)
         }
 
         String sanitizedName = packageInfo.name.replace('-', '_')
@@ -193,6 +188,9 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider, Suppo
         }
 
         if (project.file(egg).exists() || project.file(dist).exists()) {
+            if (PythonHelpers.isPlainOrVerbose(project)) {
+                logger.lifecycle("Skipping {} - Installed", shortHand)
+            }
             return
         }
 
@@ -211,9 +209,17 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider, Suppo
 
         def cachedWheel = wheelCache.findWheel(packageInfo.name, packageInfo.version, pythonDetails)
         if (cachedWheel.isPresent()) {
+            if (PythonHelpers.isPlainOrVerbose(project)) {
+                logger.lifecycle("{} from wheel: {}", shortHand, cachedWheel.get().getAbsolutePath())
+            }
             commandLine.add(cachedWheel.get().getAbsolutePath())
         } else {
             commandLine.add(installable.getAbsolutePath())
+        }
+
+
+        if (PythonHelpers.isPlainOrVerbose(project)) {
+            logger.lifecycle("Installing {}", shortHand)
         }
 
         def stream = new ByteArrayOutputStream()

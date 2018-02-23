@@ -17,6 +17,7 @@ package com.linkedin.gradle.python.tasks;
 
 import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.extension.PythonDetails;
+import com.linkedin.gradle.python.plugin.PythonHelpers;
 import com.linkedin.gradle.python.util.PackageInfo;
 import com.linkedin.gradle.python.util.internal.TaskTimer;
 import com.linkedin.gradle.python.wheel.WheelCache;
@@ -96,6 +97,10 @@ public class ParallelWheelGenerationTask extends DefaultTask {
             getPythonDetails());
 
         if (cachedWheel.isPresent()) {
+            if (PythonHelpers.isPlainOrVerbose(getProject())) {
+                logger.lifecycle("Wheel for {}-{} was found: {}",
+                    packageInfo.getName(), packageInfo.getVersion(), cachedWheel.get());
+            }
             return;
         }
 
@@ -120,6 +125,10 @@ public class ParallelWheelGenerationTask extends DefaultTask {
                 FileUtils.write(resultDir, stream.toString());
             } catch (IOException ignored) {
                 // Don't fail if there is are issues writing the wheel report.
+            }
+        } else {
+            if (PythonHelpers.isPlainOrVerbose(getProject())) {
+                logger.lifecycle("Wheel was built for {}-{}", packageInfo.getName(), packageInfo.getVersion());
             }
         }
     }

@@ -20,7 +20,7 @@ import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 import com.linkedin.gradle.python.extension.PythonDetails;
-import com.linkedin.gradle.python.wheel.AbiTriple;
+import com.linkedin.gradle.python.wheel.AbiDetails;
 import com.linkedin.gradle.python.wheel.SupportedWheelFormats;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.InputFiles;
@@ -104,11 +104,13 @@ public class FindAbiForCurrentPythonTask extends DefaultTask {
                 String abiTag = entry.get("abiTag").asString();
                 String platformTag = entry.get("platformTag").asString();
 
-                AbiTriple triple = new AbiTriple(supportedPythonVersion.getVirtualEnvInterpreter(),
+                AbiDetails triple = new AbiDetails(supportedPythonVersion.getVirtualEnvInterpreter(),
                     pythonTag, abiTag, platformTag);
                 supportedWheelFormat.addSupportedAbi(triple);
             }
         }
+
+        getLogger().info("Supported Platforms: {}", supportedWheelFormat);
     }
 
     public void setSupportedWheelFormat(SupportedWheelFormats supportedWheelFormat) {

@@ -51,6 +51,8 @@ public enum StandardTextValues {
     DOCUMENTATION_GROUP("documentation"),
     BUILD_GROUP("build");
 
+    private final String value;
+
     StandardTextValues(String val) {
         this.value = val;
     }
@@ -64,5 +66,4 @@ public enum StandardTextValues {
         return value;
     }
 
-    private final String value;
 }

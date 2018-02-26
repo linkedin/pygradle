@@ -23,7 +23,7 @@ public class PythonHelpers {
     public static final int LINE_WIDTH = 80;
 
     private PythonHelpers() {
-        //NOOP
+        // noop
     }
 
     public static boolean isPlainOrVerbose(Project project) {

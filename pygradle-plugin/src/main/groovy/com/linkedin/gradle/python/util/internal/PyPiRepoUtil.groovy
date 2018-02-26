@@ -23,7 +23,7 @@ import org.gradle.api.artifacts.repositories.IvyPatternRepositoryLayout
 public class PyPiRepoUtil {
 
     private PyPiRepoUtil() {
-        //NOOP
+        // noop
     }
 
     public static void setupPyGradleRepo(Project project) {

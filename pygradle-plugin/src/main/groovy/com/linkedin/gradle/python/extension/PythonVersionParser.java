@@ -26,7 +26,7 @@ import java.util.Collections;
 public class PythonVersionParser {
 
     private PythonVersionParser() {
-        //NOOP
+        // noop
     }
 
     public static PythonVersion parsePythonVersion(final Project project, final File pythonInterpreter) {

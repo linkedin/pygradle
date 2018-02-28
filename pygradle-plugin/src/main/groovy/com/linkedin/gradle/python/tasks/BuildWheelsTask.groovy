@@ -147,12 +147,19 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache {
             }
 
             if (packageExcludeFilter.isSatisfiedBy(packageInfo)) {
+                if (PythonHelpers.isPlainOrVerbose(project)) {
+                    LOGGER.lifecycle("Skipping {}, excluded", shortHand)
+                }
                 return
             }
 
             def wheel = wheelCache.findWheel(packageInfo.name, packageInfo.version, pythonExtension.details)
             if (wheel.isPresent()) {
-                FileUtils.copyFile(wheel.get(), new File(wheelExtension.wheelCache, wheel.get().name))
+                File wheelFile = wheel.get()
+                FileUtils.copyFile(wheelFile, new File(wheelExtension.wheelCache, wheelFile.name))
+                if (PythonHelpers.isPlainOrVerbose(project)) {
+                    LOGGER.lifecycle("Skipping {}, in wheel cache {}", shortHand, wheelFile)
+                }
                 return
             }
 

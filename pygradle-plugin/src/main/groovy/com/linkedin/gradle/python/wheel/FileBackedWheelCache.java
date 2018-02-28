@@ -28,9 +28,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class CachedBackedWheelCache implements WheelCache, Serializable {
+public class FileBackedWheelCache implements WheelCache, Serializable {
 
-    private static final Logger logger = Logging.getLogger(CachedBackedWheelCache.class);
+    private static final Logger logger = Logging.getLogger(FileBackedWheelCache.class);
 
     // PEP-0427
     private static final String WHEEL_FILE_FORMAT = "(?<dist>.*?)-(?<version>.*?)(-(.*?))?-(?<pythonTag>.*?)-(?<abiTag>.*?)-(?<platformTag>.*?).whl";
@@ -39,7 +39,7 @@ public class CachedBackedWheelCache implements WheelCache, Serializable {
     private final Pattern wheelPattern;
     private final SupportedWheelFormats supportedWheelFormats;
 
-    public CachedBackedWheelCache(File cacheDir, SupportedWheelFormats supportedWheelFormats) {
+    public FileBackedWheelCache(File cacheDir, SupportedWheelFormats supportedWheelFormats) {
         this.cacheDir = cacheDir;
         this.supportedWheelFormats = supportedWheelFormats;
         this.wheelPattern = Pattern.compile(WHEEL_FILE_FORMAT);

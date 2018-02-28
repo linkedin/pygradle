@@ -18,7 +18,7 @@ package com.linkedin.gradle.python.plugin;
 import com.linkedin.gradle.python.tasks.FindAbiForCurrentPythonTask;
 import com.linkedin.gradle.python.tasks.ParallelWheelGenerationTask;
 import com.linkedin.gradle.python.util.ExtensionUtils;
-import com.linkedin.gradle.python.wheel.CachedBackedWheelCache;
+import com.linkedin.gradle.python.wheel.FileBackedWheelCache;
 import com.linkedin.gradle.python.wheel.SupportedWheelFormats;
 import com.linkedin.gradle.python.wheel.SupportsWheelCache;
 import org.gradle.api.Plugin;
@@ -37,7 +37,7 @@ import static com.linkedin.gradle.python.util.StandardTextValues.CONFIGURATION_S
 import static com.linkedin.gradle.python.util.StandardTextValues.CONFIGURATION_TEST;
 import static com.linkedin.gradle.python.util.StandardTextValues.CONFIGURATION_VENV;
 import static com.linkedin.gradle.python.util.StandardTextValues.CONFIGURATION_WHEEL;
-import static com.linkedin.gradle.python.util.StandardTextValues.TASK_INSTALL_SETUP_REQS;
+import static com.linkedin.gradle.python.util.StandardTextValues.TASK_VENV_CREATE;
 
 public class WheelFirstPlugin implements Plugin<Project> {
     @Override
@@ -49,10 +49,10 @@ public class WheelFirstPlugin implements Plugin<Project> {
         project.getPlugins().withType(PythonPlugin.class, plugin -> {
 
             SupportedWheelFormats supportedWheelFormats = new SupportedWheelFormats();
-            CachedBackedWheelCache wheelCache = new CachedBackedWheelCache(cacheDir, supportedWheelFormats);
+            FileBackedWheelCache wheelCache = new FileBackedWheelCache(cacheDir, supportedWheelFormats);
 
             FindAbiForCurrentPythonTask abiScript = tasks.create("findPythonAbi", FindAbiForCurrentPythonTask.class, it -> {
-                it.dependsOn(tasks.getByName(TASK_INSTALL_SETUP_REQS.getValue()));
+                it.dependsOn(tasks.getByName(TASK_VENV_CREATE.getValue()));
                 it.setSupportedWheelFormat(supportedWheelFormats);
                 it.addPythonDetails(() -> ExtensionUtils.getPythonExtension(project).getDetails());
             });
@@ -71,13 +71,13 @@ public class WheelFirstPlugin implements Plugin<Project> {
                 it.setFilesToConvert(dependencies);
                 it.setWheelCache(wheelCache);
                 it.setCacheDir(cacheDir);
-                it.dependsOn(tasks.getByName(TASK_INSTALL_SETUP_REQS.getValue()));
+                it.dependsOn(tasks.getByName(TASK_VENV_CREATE.getValue()));
             });
 
             tasks.withType(SupportsWheelCache.class, it -> {
                 it.setWheelCache(wheelCache);
 
-                if (!Objects.equals(it.getName(), TASK_INSTALL_SETUP_REQS.getValue())) {
+                if (!Objects.equals(it.getName(), TASK_VENV_CREATE.getValue())) {
                     it.dependsOn(parallelWheelTask);
                 }
             });

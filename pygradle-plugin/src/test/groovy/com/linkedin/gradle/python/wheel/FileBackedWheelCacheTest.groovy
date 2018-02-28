@@ -19,7 +19,7 @@ import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
-class CachedBackedWheelCacheTest extends Specification {
+class FileBackedWheelCacheTest extends Specification {
 
     @Rule
     TemporaryFolder temporaryFolder
@@ -29,7 +29,7 @@ class CachedBackedWheelCacheTest extends Specification {
         def formats = new SupportedWheelFormats()
         def pythonExec = temporaryFolder.newFile('python')
         formats.addSupportedAbi(new AbiDetails(pythonExec, 'py2', 'none', 'any'))
-        CachedBackedWheelCache cache = new CachedBackedWheelCache(wheelCache, formats)
+        FileBackedWheelCache cache = new FileBackedWheelCache(wheelCache, formats)
 
         new File(wheelCache, 'Sphinx-1.6.3-py2.py3-none-any.whl').createNewFile()
 

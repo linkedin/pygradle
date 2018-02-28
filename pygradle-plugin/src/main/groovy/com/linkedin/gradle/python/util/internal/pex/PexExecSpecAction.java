@@ -101,9 +101,11 @@ class PexExecSpecAction implements Action<ExecSpec> {
     /**
      * Generate a Pex with an entry point
      *
-     * @param project    a reference to a project.
-     * @param pexName    the name of the pex you want to make
-     * @param entryPoint the entry point you want to make
+     * @param project      a reference to a project.
+     * @param pexName      the name of the pex you want to make
+     * @param entryPoint   the entry point you want to make
+     * @param pexOptions   Options to be passed to pex
+     * @param dependencies The dependencies that are needed for this pex name => version
      * @return an instance of PexExecSpecAction to build a pex
      */
     public static PexExecSpecAction withEntryPoint(
@@ -126,8 +128,10 @@ class PexExecSpecAction implements Action<ExecSpec> {
     /**
      * Generate a Pex without an entry point
      *
-     * @param project a reference to a project.
-     * @param pexName the name of the pex you want to make
+     * @param project      a reference to a project.
+     * @param pexName      the name of the pex you want to make
+     * @param pexOptions   Options to be passed to pex
+     * @param dependencies The dependencies that are needed for this pex name => version
      * @return an instance of PexExecSpecAction to build a pex
      */
     public static PexExecSpecAction withOutEntryPoint(

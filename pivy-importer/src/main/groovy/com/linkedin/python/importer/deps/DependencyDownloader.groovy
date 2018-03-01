@@ -36,13 +36,15 @@ class DependencyDownloader {
     DependencySubstitution dependencySubstitution
     boolean latestVersions
     boolean allowPreReleases
+    boolean lenient
 
     DependencyDownloader(String project, File ivyRepoRoot, DependencySubstitution dependencySubstitution,
-                         boolean latestVersions, boolean allowPreReleases) {
+                         boolean latestVersions, boolean allowPreReleases, boolean lenient) {
         this.dependencySubstitution = dependencySubstitution
         this.ivyRepoRoot = ivyRepoRoot
         this.latestVersions = latestVersions
         this.allowPreReleases = allowPreReleases
+        this.lenient = lenient
         dependencies.add(project)
     }
 
@@ -66,6 +68,10 @@ class DependencyDownloader {
         def sdistDetails = projectDetails.findVersion(version).find { it.packageType == 'sdist' }
 
         if (sdistDetails == null) {
+            if (lenient) {
+                log.error("Unable to find source dist for $dep")
+                return
+            }
             throw new RuntimeException("Unable to find source dist for $dep")
         }
 

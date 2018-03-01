@@ -23,6 +23,7 @@ import logging
 import os
 import pkg_resources
 import re
+import subprocess
 import sys
 import textwrap
 
@@ -32,6 +33,8 @@ except ImportError:
     print("This completion script only supports Click based entrypoints.")
     sys.exit(1)
 
+
+_COMPLETION_HELPERS = None
 
 def is_group(obj):
     """ Examine the object to determine if it is wrapping a click.Group
@@ -74,6 +77,22 @@ def escape_description(desc):
     return desc
 
 
+def completion_helpers():
+    global _COMPLETION_HELPERS
+
+    def get_completion_helpers():
+        try:
+            process = subprocess.Popen(['tabby-mctabface', 'list'], stdout=subprocess.PIPE)
+            output = process.communicate()[0]
+            return set(output.split())
+        except OSError:
+            # Handle missing tabby-mctabface gracefully
+            return set()
+    if _COMPLETION_HELPERS is None:
+        _COMPLETION_HELPERS = get_completion_helpers()
+    return _COMPLETION_HELPERS
+
+
 def zsh_generate_optionspecs(click_command):
     """ Given a command, dump the appropriate optionspecs.
 
@@ -87,6 +106,11 @@ def zsh_generate_optionspecs(click_command):
     results = []
     for param in click_command.params:
         if isinstance(param, click.Option):
+            function = ''
+            # If we have an option like -l/--long, _long should be used if supported.
+            for opt in param.opts:
+                if opt.lstrip('-') in completion_helpers():
+                    function = '_{opt}'.format(opt=opt.lstrip('-'))
             for opt in param.opts:
                 desc = param.make_metavar()
                 if hasattr(param, "help") and param.help:
@@ -95,21 +119,26 @@ def zsh_generate_optionspecs(click_command):
                 desc = escape_description(desc)
                 spec = ""
                 if param.nargs:
-                    spec = ':{name}:'.format(name=opt.lstrip('-'), desc=desc)
-                results.append('"{multiple}{opt}[{desc}]{spec}"'.format(
+                    spec = ':{name}:'.format(name=(opt.lstrip('-')), desc=desc)
+
+                results.append('"{multiple}{opt}[{desc}]{spec}{function}"'.format(
                     opt=opt,
                     desc=desc,
                     spec=spec,
-                    multiple='*' if param.multiple else '')
+                    multiple='*' if param.multiple else '',
+                    function=function)
                 )
     for param in click_command.params:
         if isinstance(param, click.Argument):
             for opt in param.opts:
                 desc = param.make_metavar()
-                # TODO: nargs
-                results.append(
-                    '": : _message \'{opt} = {desc}\'"'.format(opt=opt, desc=desc)
-                )
+                if opt in completion_helpers():
+                    results.append('": : _{opt}"'.format(opt=opt))
+                else:
+                    # TODO: nargs
+                    results.append(
+                        '": : _message \'{opt} = {desc}\'"'.format(opt=opt, desc=desc)
+                    )
 
     return ' '.join(results)
 
@@ -255,6 +284,18 @@ def bash_generate_completions(click_obj):
     """
     # TODO complete option args?
     result = []
+    completable = {}
+    for param in click_obj.params:
+        if hasattr(param, 'opts'):
+            # If we have an option like -l/--long, _long should be used if supported.
+            helper = None
+            for opt in param.opts:
+                if opt.lstrip('-') in completion_helpers():
+                    helper = '_%s' % opt.lstrip('-')
+                    break
+            if helper:
+                for opt in param.opts:
+                    completable[opt] = helper
     if is_group(click_obj):
         result.append('case "${line[0]}" in')
         words = []
@@ -266,23 +307,46 @@ def bash_generate_completions(click_obj):
             words.append(name)
         for param in click_obj.params:
             if hasattr(param, 'opts'):
-                words.extend(param.opts)
+                for opt in param.opts:
+                    # --options with an argument need to stay, but
+                    # positional arguments should be provided only by the helper.
+                    if not opt.startswith('-') and completable.get(opt, False):
+                        continue
+                    words.append(opt)
+
         result.append('*)')
         # we could also switch on $cur and $prev as well to  complete option arguments
         result.append(
             'COMPREPLY=($(compgen -W "{words}" -- ${{cur}} ))'.format(words=' '.join(words))
         )
+        for opt, helper in completable.items():
+            if opt.startswith('-'):
+                result.append('if [[ "${{prev}}" == {opt} ]]; then {helper}; fi'.format(opt=opt, helper=helper))
+            else:
+                result.append(helper)
         result.append(';;')
         result.append('esac')
     elif is_command(click_obj):
         words = []
         for param in click_obj.params:
             if hasattr(param, 'opts'):
-                words.extend(param.opts)
+                for opt in param.opts:
+                    # --options with an argument need to stay, but
+                    # positional arguments should be provided only by the helper.
+                    if not opt.startswith('-') and completable.get(opt, False):
+                        continue
+                    words.append(opt)
+
         # we could also switch on $cur and $prev as well to  complete option arguments
         result.append(
             'COMPREPLY=($(compgen -W "{words}" -- ${{cur}} ))'.format(words=' '.join(words))
         )
+        # TODO refactor to remove duplication.
+        for opt, helper in completable.items():
+            if opt.startswith('-'):
+                result.append('if [[ "${{prev}}" == {opt} ]]; then {helper}; fi'.format(opt=opt, helper=helper))
+            else:
+                result.append(helper)
 
     return '\n'.join(result)
 

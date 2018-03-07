@@ -23,5 +23,7 @@ deployment:
     master:
         branch: master
         commands:
-            - ./gradlew versionBump -Prelease=true --console plain
+            - wget https://github.com/ethankhall/release-manager/releases/download/v0.1.0/release-manager-linux-0.1.0 -O ~/release-manager
+            - chmod +x ~/release-manager
+            - ~/release-manager github release-and-bump --path linkedin/pygradle -v
             - ./gradlew artifactoryPublish distributeBuild -Prelease=true --max-workers 1 --console plain

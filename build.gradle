@@ -24,7 +24,7 @@ subprojects {
         group = 'CI'
         doLast {
             //noinspection GroovyAssignabilityCheck
-            configurations.each { conf ->
+            configurations.findAll { it.isCanBeResolved() }.each { conf ->
                 conf.files
             }
         }

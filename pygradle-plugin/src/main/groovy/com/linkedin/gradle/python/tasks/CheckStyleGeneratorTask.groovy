@@ -31,26 +31,26 @@ import org.gradle.process.ExecResult
 @CompileStatic
 class CheckStyleGeneratorTask extends Flake8Task {
 
-  private final ByteArrayOutputStream outputStream = new ByteArrayOutputStream()
+    private final ByteArrayOutputStream outputStream = new ByteArrayOutputStream()
 
-  @OutputFile
-  File checkstyleReport = project.file("${project.buildDir}/checkstyle.xml")
+    @OutputFile
+    File checkstyleReport = project.file("${ project.buildDir }/checkstyle.xml")
 
-  CheckStyleGeneratorTask() {
-    stdOut = outputStream
-    errOut = outputStream
-    ignoreExitValue = true
-  }
-
-  @Override
-  void processResults(ExecResult execResult) {
-    def container = new FileStyleViolationsContainer()
-
-    outputStream.toString().readLines().each { String line ->
-      container.parseLine(line)
+    CheckStyleGeneratorTask() {
+        stdOut = outputStream
+        errOut = outputStream
+        ignoreExitValue = true
     }
 
-    def reporter = new CheckStyleXmlReporter(container)
-    checkstyleReport.text = reporter.generateXml()
-  }
+    @Override
+    void processResults(ExecResult execResult) {
+        def container = new FileStyleViolationsContainer()
+
+        outputStream.toString().readLines().each { String line ->
+            container.parseLine(line)
+        }
+
+        def reporter = new CheckStyleXmlReporter(container)
+        checkstyleReport.text = reporter.generateXml()
+    }
 }

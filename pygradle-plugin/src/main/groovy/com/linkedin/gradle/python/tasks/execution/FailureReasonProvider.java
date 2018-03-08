@@ -17,7 +17,7 @@ package com.linkedin.gradle.python.tasks.execution;
 
 /**
  * Used by tasks that will provide output messages when something goes wrong.
- *
+ * <p>
  * This is useful for collecting metric information.
  */
 public interface FailureReasonProvider {

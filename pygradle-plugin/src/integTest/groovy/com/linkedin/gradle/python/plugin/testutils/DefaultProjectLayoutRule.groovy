@@ -25,8 +25,14 @@ class DefaultProjectLayoutRule extends ExternalResource implements ProjectLayout
     TemporaryFolder tempFolder
 
     public static final String PROJECT_NAME_DIR = "foo"
+    private final boolean cleanupAfterTest
 
     public DefaultProjectLayoutRule() {
+        this(true)
+    }
+
+    public DefaultProjectLayoutRule(boolean cleanupAfterTest) {
+        this.cleanupAfterTest = cleanupAfterTest
         tempFolder = new TemporaryFolder(buildCreateWinTemp())
     }
 
@@ -53,10 +59,12 @@ class DefaultProjectLayoutRule extends ExternalResource implements ProjectLayout
     }
 
     @Override
-    @SuppressWarnings("UnnecessaryOverridingMethod")
     void after() {
-        //It's useful to comment this out if you need to look at the test env
-        tempFolder.after()
+        if (cleanupAfterTest) {
+            tempFolder.after()
+        } else {
+            println("Working directory was not deleted: ${tempFolder.root}")
+        }
     }
 
     @Override

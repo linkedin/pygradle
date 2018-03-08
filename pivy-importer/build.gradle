@@ -4,7 +4,7 @@ plugins {
     id 'application'
     id "com.github.jk1.dependency-license-report" version "0.3.4"
     id "com.github.hierynomus.license" version "0.13.1"
-    id "com.github.johnrengelman.shadow" version "1.2.3"
+    id "com.github.johnrengelman.shadow" version "2.0.2"
 }
 
 apply from: "$rootDir/gradle/code-quality.gradle"

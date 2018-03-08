@@ -15,19 +15,6 @@
  */
 package com.linkedin.gradle.python.tasks;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.io.FileUtils;
-import org.gradle.api.Action;
-import org.gradle.api.DefaultTask;
-import org.gradle.api.Project;
-import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.Optional;
-import org.gradle.api.tasks.TaskAction;
-import org.gradle.process.ExecSpec;
-
 import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.extension.DeployableExtension;
 import com.linkedin.gradle.python.extension.PexExtension;
@@ -39,24 +26,37 @@ import com.linkedin.gradle.python.util.internal.pex.FatPexGenerator;
 import com.linkedin.gradle.python.util.internal.pex.ThinPexGenerator;
 import com.linkedin.gradle.python.util.pex.DefaultEntryPointTemplateProvider;
 import com.linkedin.gradle.python.util.pex.EntryPointTemplateProvider;
+import org.apache.commons.io.FileUtils;
+import org.gradle.api.DefaultTask;
+import org.gradle.api.Project;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Optional;
+import org.gradle.api.tasks.TaskAction;
+import org.gradle.process.ExecResult;
+import org.gradle.process.ExecSpec;
+
+import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 
 /**
  * This task builds pex files; both 'thin' and 'fat' based on the settings on {@link PexExtension}
- *
+ * <p>
  * If in 'fat' pex mode, each entry point will generate it's own pex.
- *
+ * <p>
  * If in 'thin' pex mode, one pex will be created and a script for each entry point will be rendered. This helps save
  * on disk space when one pex contains multiple entry points.
- *
+ * <p>
  * The entry points scripts are customizable, so there is a property {@link BuildPexTask#templateProvider} that can be set
  * allowing the task to customize the entry point.
- *
+ * <p>
  * The template that is provided will be rendered using a {@link groovy.text.SimpleTemplateEngine}, and will have two
  * properties passed to it automatically. They are named <code>realPex</code>, gives the name of the pex to execute against
  * and <code>entryPoint</code> which is the name of the entry point. If you wish to provide your own template, with more
  * options they can be added to {@link BuildPexTask#additionalProperties} and they will be provided to the template engine.
- *
+ * <p>
  * The pexOptions allow passing of additional options to the pex command, such as '--pre' to allow pre-release packages.
  * This is useful because the default behavior changed in pex-1.2.0 without bumping of major version.
  */
@@ -91,12 +91,16 @@ public class BuildPexTask extends DefaultTask implements FailureReasonProvider {
             pexExtension.getPexCache().mkdirs();
         }
 
-        project.exec(new Action<ExecSpec>() {
-            @Override
-            public void execute(ExecSpec execSpec) {
-                configureExecution(pythonExtension, execSpec);
-            }
-        });
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        ExecResult exec = project.exec(execSpec -> configureExecution(pythonExtension, execSpec, outputStream));
+
+        if (getLogger().isInfoEnabled()) {
+            getLogger().info(outputStream.toString());
+        } else if (exec.getExitValue() != 0) {
+            getLogger().lifecycle(outputStream.toString());
+        }
+
+        exec.assertNormalExitValue();
 
         deployableExtension.getDeployableBuildDir().mkdirs();
 
@@ -107,7 +111,7 @@ public class BuildPexTask extends DefaultTask implements FailureReasonProvider {
         }
     }
 
-    private void configureExecution(PythonExtension pythonExtension, ExecSpec spec) {
+    private void configureExecution(PythonExtension pythonExtension, ExecSpec spec, ByteArrayOutputStream outputStream) {
         container.setOutputs(spec);
         WheelExtension wheelExtension = ExtensionUtils.maybeCreateWheelExtension(getProject());
 
@@ -121,6 +125,9 @@ public class BuildPexTask extends DefaultTask implements FailureReasonProvider {
             wheelExtension.getWheelCache().getAbsolutePath(),
             "--no-deps",
             ".");
+        spec.setErrorOutput(outputStream);
+        spec.setStandardOutput(outputStream);
+        spec.setIgnoreExitValue(true);
     }
 
     @Input

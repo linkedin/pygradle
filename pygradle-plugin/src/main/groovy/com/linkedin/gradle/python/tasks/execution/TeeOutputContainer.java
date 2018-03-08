@@ -24,7 +24,7 @@ import java.io.OutputStream;
 /**
  * Collects all the output of commands so they can be used elsewhere
  */
-public class TeeOutputContainer  {
+public class TeeOutputContainer {
 
     private final ByteArrayOutputStream mergedStream = new ByteArrayOutputStream();
     private final OutputStream teeStdOut;

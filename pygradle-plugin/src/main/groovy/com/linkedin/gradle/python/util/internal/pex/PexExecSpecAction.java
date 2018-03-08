@@ -15,24 +15,23 @@
  */
 package com.linkedin.gradle.python.util.internal.pex;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import java.util.Map;
-import org.gradle.api.Action;
-import org.gradle.api.Project;
-import org.gradle.process.ExecSpec;
-
 import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.extension.DeployableExtension;
 import com.linkedin.gradle.python.extension.PexExtension;
 import com.linkedin.gradle.python.extension.WheelExtension;
 import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.util.PexFileUtil;
+import org.gradle.api.Action;
+import org.gradle.api.Project;
+import org.gradle.process.ExecSpec;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 
 class PexExecSpecAction implements Action<ExecSpec> {
@@ -50,11 +49,11 @@ class PexExecSpecAction implements Action<ExecSpec> {
     /**
      * Build a pex file.
      *
-     * @param pexCache   The directory to use for pex's build cache.
-     * @param outputFile The name to use for the output pex file.
-     * @param wheelCache The repository (usually a wheel-cache) to use to build the pex file.
-     * @param pexShebang The explicit shebang line to be prepended to the resulting pex file.
-     * @param entryPoint The entry point to burn into the pex file, or <code>null</code> if no entry point should be used.
+     * @param pexCache     The directory to use for pex's build cache.
+     * @param outputFile   The name to use for the output pex file.
+     * @param wheelCache   The repository (usually a wheel-cache) to use to build the pex file.
+     * @param pexShebang   The explicit shebang line to be prepended to the resulting pex file.
+     * @param entryPoint   The entry point to burn into the pex file, or <code>null</code> if no entry point should be used.
      * @param dependencies The dependencies that are needed for this pex
      */
     private PexExecSpecAction(PythonExtension pythonExtension, File pexCache, File outputFile, File wheelCache,
@@ -102,14 +101,15 @@ class PexExecSpecAction implements Action<ExecSpec> {
     /**
      * Generate a Pex with an entry point
      *
-     * @param project a reference to a project.
-     * @param pexName the name of the pex you want to make
-     * @param entryPoint the entry point you want to make
-     *
+     * @param project      a reference to a project.
+     * @param pexName      the name of the pex you want to make
+     * @param entryPoint   the entry point you want to make
+     * @param pexOptions   Options to be passed to pex
+     * @param dependencies The dependencies that are needed for this pex name => version
      * @return an instance of PexExecSpecAction to build a pex
      */
     public static PexExecSpecAction withEntryPoint(
-            Project project, String pexName, String entryPoint, List<String> pexOptions, Map<String, String> dependencies) {
+        Project project, String pexName, String entryPoint, List<String> pexOptions, Map<String, String> dependencies) {
         PythonExtension pythonExtension = ExtensionUtils.getPythonExtension(project);
         PexExtension pexExtension = ExtensionUtils.getPythonComponentExtension(project, PexExtension.class);
         WheelExtension wheelExtension = ExtensionUtils.getPythonComponentExtension(project, WheelExtension.class);
@@ -128,13 +128,14 @@ class PexExecSpecAction implements Action<ExecSpec> {
     /**
      * Generate a Pex without an entry point
      *
-     * @param project a reference to a project.
-     * @param pexName the name of the pex you want to make
-     *
+     * @param project      a reference to a project.
+     * @param pexName      the name of the pex you want to make
+     * @param pexOptions   Options to be passed to pex
+     * @param dependencies The dependencies that are needed for this pex name => version
      * @return an instance of PexExecSpecAction to build a pex
      */
     public static PexExecSpecAction withOutEntryPoint(
-            Project project, String pexName, List<String> pexOptions, Map<String, String> dependencies) {
+        Project project, String pexName, List<String> pexOptions, Map<String, String> dependencies) {
         PythonExtension pythonExtension = ExtensionUtils.getPythonExtension(project);
         PexExtension pexExtension = ExtensionUtils.getPythonComponentExtension(project, PexExtension.class);
         WheelExtension wheelExtension = ExtensionUtils.getPythonComponentExtension(project, WheelExtension.class);

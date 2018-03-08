@@ -16,14 +16,6 @@
 
 package com.linkedin.gradle.python.util;
 
-import java.io.File;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-
 import org.gradle.api.GradleException;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ModuleVersionIdentifier;
@@ -34,6 +26,14 @@ import org.gradle.api.artifacts.result.ResolvedComponentResult;
 import org.gradle.api.artifacts.result.ResolvedDependencyResult;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
+
+import java.io.File;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -56,15 +56,15 @@ public class DependencyOrder {
      * ensures that the cycles in Ivy metadata do not cause cycles in our
      * recursive calls.
      *
-     * @param root the root of the dependency (sub)tree
-     * @param seen the input set of already seen dependencies
+     * @param root         the root of the dependency (sub)tree
+     * @param seen         the input set of already seen dependencies
      * @param dependencies the output set of dependencies in post-order
      * @return the root itself
      */
     public static ResolvedComponentResult postOrderDependencies(
-            ResolvedComponentResult root,
-            Set<ComponentIdentifier> seen,
-            Set<ResolvedComponentResult> dependencies) {
+        ResolvedComponentResult root,
+        Set<ComponentIdentifier> seen,
+        Set<ResolvedComponentResult> dependencies) {
         for (DependencyResult d : root.getDependencies()) {
             if (!(d instanceof ResolvedDependencyResult)) {
                 throw new GradleException("Unresolved dependency found for " + d.toString());

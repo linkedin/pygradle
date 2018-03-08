@@ -15,17 +15,6 @@
  */
 package com.linkedin.gradle.python.util.internal.pex;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.linkedin.gradle.python.util.pip.PipFreezeAction;
-import org.gradle.api.Project;
-import org.gradle.api.logging.Logger;
-import org.gradle.api.logging.Logging;
-import org.gradle.process.ExecResult;
-
 import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.extension.DeployableExtension;
 import com.linkedin.gradle.python.util.EntryPointHelpers;
@@ -33,6 +22,16 @@ import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.util.PexFileUtil;
 import com.linkedin.gradle.python.util.entrypoint.EntryPointWriter;
 import com.linkedin.gradle.python.util.pex.EntryPointTemplateProvider;
+import com.linkedin.gradle.python.util.pip.PipFreezeAction;
+import org.gradle.api.Project;
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
+import org.gradle.process.ExecResult;
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 public class ThinPexGenerator implements PexGenerator {
@@ -45,26 +44,26 @@ public class ThinPexGenerator implements PexGenerator {
     private final Map<String, String> extraProperties;
 
     public ThinPexGenerator(
-            Project project,
-            List<String> pexOptions,
-            EntryPointTemplateProvider templateProvider,
-            Map<String, String> extraProperties) {
+        Project project,
+        List<String> pexOptions,
+        EntryPointTemplateProvider templateProvider,
+        Map<String, String> extraProperties) {
         this.project = project;
         this.pexOptions = pexOptions;
         this.templateProvider = templateProvider;
-        this.extraProperties = extraProperties == null ? new HashMap<String, String>() : extraProperties;
+        this.extraProperties = extraProperties == null ? new HashMap<>() : extraProperties;
     }
 
     @Override
     public void buildEntryPoints() throws Exception {
         PythonExtension extension = ExtensionUtils.getPythonExtension(project);
         DeployableExtension deployableExtension = ExtensionUtils.getPythonComponentExtension(
-                extension, DeployableExtension.class);
+            extension, DeployableExtension.class);
 
         Map<String, String> dependencies = new PipFreezeAction(project).getDependencies();
 
         PexExecSpecAction action = PexExecSpecAction.withOutEntryPoint(
-                project, project.getName(), pexOptions, dependencies);
+            project, project.getName(), pexOptions, dependencies);
 
         ExecResult exec = project.exec(action);
         new PexExecOutputParser(action, exec).validatePexBuildSuccessfully();

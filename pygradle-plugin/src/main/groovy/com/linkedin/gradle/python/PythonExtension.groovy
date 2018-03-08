@@ -17,7 +17,6 @@ package com.linkedin.gradle.python
 
 import com.linkedin.gradle.python.extension.PythonDetails
 import com.linkedin.gradle.python.extension.VirtualEnvironment
-import com.linkedin.gradle.python.util.ConsoleOutput
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 
@@ -64,25 +63,23 @@ class PythonExtension {
 
     /** A way to define forced versions of libraries */
     public Map<String, Map<String, String>> forcedVersions = [
-        'argparse': ['group': 'pypi', 'name': 'argparse', 'version': '1.4.0'],
-        'flake8': ['group': 'pypi', 'name': 'flake8', 'version': '2.6.2'],
-        'pex': ['group': 'pypi', 'name': 'pex', 'version': '1.2.13'],
-        'pip': ['group': 'pypi', 'name': 'pip', 'version': '9.0.1'],
-        'pytest': ['group': 'pypi', 'name': 'pytest', 'version': '3.1.2'],
-        'pytest-cov': ['group': 'pypi', 'name': 'pytest-cov', 'version': '2.5.1'],
-        'pytest-xdist': ['group': 'pypi', 'name': 'pytest-xdist', 'version': '1.17.1'],
-        'setuptools': ['group': 'pypi', 'name': 'setuptools', 'version': '33.1.1'],
+        'argparse'      : ['group': 'pypi', 'name': 'argparse', 'version': '1.4.0'],
+        'flake8'        : ['group': 'pypi', 'name': 'flake8', 'version': '2.6.2'],
+        'pex'           : ['group': 'pypi', 'name': 'pex', 'version': '1.2.13'],
+        'pip'           : ['group': 'pypi', 'name': 'pip', 'version': '9.0.1'],
+        'pytest'        : ['group': 'pypi', 'name': 'pytest', 'version': '3.1.2'],
+        'pytest-cov'    : ['group': 'pypi', 'name': 'pytest-cov', 'version': '2.5.1'],
+        'pytest-xdist'  : ['group': 'pypi', 'name': 'pytest-xdist', 'version': '1.17.1'],
+        'setuptools'    : ['group': 'pypi', 'name': 'setuptools', 'version': '33.1.1'],
         'setuptools-git': ['group': 'pypi', 'name': 'setuptools-git', 'version': '1.2'],
-        'six': ['group': 'pypi', 'name': 'six', 'version': '1.11.0'],
-        'Sphinx': ['group': 'pypi', 'name': 'Sphinx', 'version': '1.4.9'],
-        'virtualenv': ['group': 'pypi', 'name': 'virtualenv', 'version': '15.1.0'],
-        'wheel': ['group': 'pypi', 'name': 'wheel', 'version': '0.29.0'],
+        'six'           : ['group': 'pypi', 'name': 'six', 'version': '1.11.0'],
+        'Sphinx'        : ['group': 'pypi', 'name': 'Sphinx', 'version': '1.4.9'],
+        'virtualenv'    : ['group': 'pypi', 'name': 'virtualenv', 'version': '15.1.0'],
+        'wheel'         : ['group': 'pypi', 'name': 'wheel', 'version': '0.29.0'],
     ]
 
     /* Container of the details related to the venv/python instance */
     private final PythonDetails details
-
-    public ConsoleOutput consoleOutput = ConsoleOutput.ASCII
 
     PythonExtension(Project project) {
         this.details = new PythonDetails(project)
@@ -96,7 +93,7 @@ class PythonExtension {
         def applicationDirectory = VirtualEnvironment.getPythonApplicationDirectory()
 
         pythonEnvironment = [
-                'PATH': "${ -> details.virtualEnv.toPath().resolve(applicationDirectory).toAbsolutePath().toString() }" + File.pathSeparator + System.getenv('PATH'),]
+            'PATH': "${ -> details.virtualEnv.toPath().resolve(applicationDirectory).toAbsolutePath().toString() }" + File.pathSeparator + System.getenv('PATH'),]
 
         pythonEnvironmentDistgradle = ['PYGRADLE_PROJECT_NAME'   : project.name,
                                        'PYGRADLE_PROJECT_VERSION': "${ -> project.version }",]

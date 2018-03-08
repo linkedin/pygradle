@@ -13,24 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.plugin
+package com.linkedin.gradle.python.wheel;
 
-import com.linkedin.gradle.python.PythonExtension
-import org.gradle.api.Plugin
-import org.gradle.api.Project
+import org.gradle.api.Task;
 
-abstract class PythonBasePlugin implements Plugin<Project> {
+public interface SupportsWheelCache extends Task {
+    void setWheelCache(WheelCache wheelCache);
 
-  public PythonExtension settings
-  public Project project
-
-  @Override
-  void apply(Project target) {
-    this.project = target
-    target.plugins.apply(PythonPlugin)
-    settings = project.getExtensions().getByType(PythonExtension)
-    applyTo(target)
-  }
-
-  abstract void applyTo(Project project)
+    WheelCache getWheelCache();
 }

@@ -15,10 +15,8 @@
  */
 package com.linkedin.gradle.python.util.pip
 
-import com.linkedin.gradle.python.util.pip.PipFreezeOutputParser
 import org.gradle.api.GradleException
 import spock.lang.Specification
-
 
 class PipFreezeOutputParserTest extends Specification {
 

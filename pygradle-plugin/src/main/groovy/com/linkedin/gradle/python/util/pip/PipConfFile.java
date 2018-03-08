@@ -47,9 +47,8 @@ public class PipConfFile {
     /**
      * Writes a new pip.conf file.  You can configure the contents of this file with the python extension
      * or leave it blank for it to pick up the pip.conf in your system properties.
-     *
+     * <p>
      * index-url = https://pypi.python.org/simple/
-     * @return
      */
     public void buildPipConfFile() throws IOException {
 

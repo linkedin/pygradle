@@ -15,12 +15,12 @@
  */
 package com.linkedin.gradle.python.tasks;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
+import com.linkedin.gradle.python.extension.PexExtension;
+import com.linkedin.gradle.python.util.ExtensionUtils;
+import com.linkedin.gradle.python.util.PexFileUtil;
+import com.linkedin.gradle.python.util.entrypoint.EntryPointWriter;
+import com.linkedin.gradle.python.util.internal.pex.FatPexGenerator;
+import com.linkedin.gradle.python.util.internal.pex.ThinPexGenerator;
 import org.apache.commons.io.IOUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
@@ -29,12 +29,11 @@ import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
-import com.linkedin.gradle.python.extension.PexExtension;
-import com.linkedin.gradle.python.util.ExtensionUtils;
-import com.linkedin.gradle.python.util.PexFileUtil;
-import com.linkedin.gradle.python.util.entrypoint.EntryPointWriter;
-import com.linkedin.gradle.python.util.internal.pex.FatPexGenerator;
-import com.linkedin.gradle.python.util.internal.pex.ThinPexGenerator;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 
 public class BuildWebAppTask extends DefaultTask {

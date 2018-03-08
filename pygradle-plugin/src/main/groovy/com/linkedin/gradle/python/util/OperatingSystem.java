@@ -15,8 +15,7 @@
  */
 package com.linkedin.gradle.python.util;
 
-import org.gradle.api.Nullable;
-
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;

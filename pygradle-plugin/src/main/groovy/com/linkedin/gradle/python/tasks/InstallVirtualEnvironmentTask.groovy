@@ -15,13 +15,6 @@
  */
 package com.linkedin.gradle.python.tasks
 
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.nio.file.StandardOpenOption
-
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Optional
-
 import com.linkedin.gradle.python.extension.PythonDetails
 import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider
 import com.linkedin.gradle.python.tasks.execution.TeeOutputContainer
@@ -36,11 +29,17 @@ import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.ResolvedConfiguration
 import org.gradle.api.artifacts.ResolvedDependency
 import org.gradle.api.specs.Spec
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecSpec
 import org.gradle.util.VersionNumber
+
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.StandardOpenOption
 
 @CompileStatic
 class InstallVirtualEnvironmentTask extends DefaultTask implements FailureReasonProvider {
@@ -85,20 +84,33 @@ class InstallVirtualEnvironmentTask extends DefaultTask implements FailureReason
 
         def version = findVirtualEnvDependencyVersion()
         customize(packageDir, version)
-        project.exec(new Action<ExecSpec>() {
+        def outputStream = new ByteArrayOutputStream()
+        def execResult = project.exec(new Action<ExecSpec>() {
             @Override
             void execute(ExecSpec execSpec) {
                 container.setOutputs(execSpec)
                 execSpec.commandLine(
                     pythonDetails.getSystemPythonInterpreter(),
-                    project.file("${packageDir}/virtualenv-${version}/virtualenv.py"),
+                    project.file("${ packageDir }/virtualenv-${ version }/virtualenv.py"),
                     '--never-download',
                     '--python', pythonDetails.getSystemPythonInterpreter(),
                     '--prompt', pythonDetails.virtualEnvPrompt,
                     pythonDetails.getVirtualEnv()
                 )
+                execSpec.setErrorOutput(outputStream)
+                execSpec.setStandardOutput(outputStream)
+                execSpec.ignoreExitValue = true
             }
         })
+
+        if (getLogger().isInfoEnabled()) {
+            getLogger().info(outputStream.toString())
+        } else if (execResult.getExitValue() != 0) {
+            getLogger().lifecycle(outputStream.toString())
+        }
+
+        execResult.assertNormalExitValue()
+
         project.delete(packageDir)
         pipConfFile.buildPipConfFile()
     }
@@ -144,7 +156,7 @@ class InstallVirtualEnvironmentTask extends DefaultTask implements FailureReason
 
     private void customize(File packageDir, String version) {
         if (distutilsCfg != null) {
-            String venvDir = Paths.get("${packageDir}", "virtualenv-${version}").toString()
+            String venvDir = Paths.get("${ packageDir }", "virtualenv-${ version }").toString()
             Files.write(
                 Paths.get(venvDir, "virtualenv_embedded", "distutils.cfg"),
                 distutilsCfg.getBytes(),

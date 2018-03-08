@@ -19,17 +19,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-class FileStyleViolations {
-  private final String filename;
-  private final List<StyleViolation> violations = new ArrayList<StyleViolation>();
+public class FileStyleViolations {
+    private final String filename;
+    private final List<StyleViolation> violations = new ArrayList<StyleViolation>();
 
-  FileStyleViolations(String filename) {
-    this.filename = filename;
-  }
+    FileStyleViolations(String filename) {
+        this.filename = filename;
+    }
 
-  void addViolation(Integer lineNumber, Integer columnNumber, String errorCode, String message) {
-    violations.add(new StyleViolation(lineNumber, columnNumber, errorCode, message));
-  }
+    void addViolation(Integer lineNumber, Integer columnNumber, String errorCode, String message) {
+        violations.add(new StyleViolation(lineNumber, columnNumber, errorCode, message));
+    }
 
     public String getFilename() {
         return filename;

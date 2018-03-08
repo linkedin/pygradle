@@ -15,18 +15,16 @@
  */
 package com.linkedin.gradle.python.util.internal.pex;
 
-import java.util.List;
-import java.util.Map;
-
+import com.linkedin.gradle.python.util.EntryPointHelpers;
+import com.linkedin.gradle.python.util.PexFileUtil;
 import com.linkedin.gradle.python.util.pip.PipFreezeAction;
 import org.gradle.api.Project;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.process.ExecResult;
 
-import com.linkedin.gradle.python.util.EntryPointHelpers;
-import com.linkedin.gradle.python.util.PexFileUtil;
-
+import java.util.List;
+import java.util.Map;
 
 public class FatPexGenerator implements PexGenerator {
 
@@ -58,7 +56,7 @@ public class FatPexGenerator implements PexGenerator {
         Map<String, String> dependencies = pipFreezeDependencies;
         // When called from outside buildEntryPoints above, this can be null
         if (dependencies == null) {
-             dependencies = new PipFreezeAction(project).getDependencies();
+            dependencies = new PipFreezeAction(project).getDependencies();
         }
         PexExecSpecAction action = PexExecSpecAction.withEntryPoint(project, name, entry, pexOptions, dependencies);
         ExecResult exec = project.exec(action);

@@ -13,18 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.plugin
+package com.linkedin.gradle.python.plugin;
 
-import com.linkedin.gradle.python.util.ExtensionUtils
-import com.linkedin.gradle.python.util.FileSystemUtils
-import com.linkedin.gradle.python.util.StandardTextValues
-import groovy.transform.CompileStatic
-import org.gradle.api.Plugin
-import org.gradle.api.Project
-import org.gradle.api.Task
-import org.gradle.api.tasks.Copy
+import com.linkedin.gradle.python.extension.DeployableExtension;
+import com.linkedin.gradle.python.util.ExtensionUtils;
+import com.linkedin.gradle.python.util.FileSystemUtils;
+import com.linkedin.gradle.python.util.StandardTextValues;
+import org.gradle.api.Plugin;
+import org.gradle.api.Project;
+import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.tasks.Copy;
 
-import java.nio.file.Paths
+import java.io.File;
+import java.nio.file.Paths;
 
 /**
  * A Flyer plugin.
@@ -40,7 +41,7 @@ import java.nio.file.Paths
  * the Ember code.
  * <p>
  * For the deployment, the plugin will copy the resources into the 'deployable'
- * folder under the path 'build/<project name>/' that LID could find all the
+ * folder under the path {@code 'build/<project name>/'} that LID could find all the
  * resources there.
  * <p>
  * <pre>
@@ -54,22 +55,21 @@ import java.nio.file.Paths
  * </code>
  * </pre>
  */
-@CompileStatic
-class PythonFlyerPlugin implements Plugin<Project> {
+public class PythonFlyerPlugin implements Plugin<Project> {
 
-    public final static String TASK_SETUP_RESOURCE_LINK = 'setupResourceLink'
-    public final static String TASK_PACKAGE_RESOURCE_FILES = 'packageResourceFiles'
+    public static final String TASK_SETUP_RESOURCE_LINK = "setupResourceLink";
+    public static final String TASK_PACKAGE_RESOURCE_FILES = "packageResourceFiles";
 
     @Override
-    void apply(Project project) {
+    public void apply(final Project project) {
 
-        project.plugins.apply(PythonWebApplicationPlugin)
+        project.getPlugins().apply(PythonWebApplicationPlugin.class);
 
         /*
          * This configuration is used to connect the Python project to the Ember project.
          * We will use this configuration to access the static resource, create the symlink and package the resource.
          */
-        def resourceConf = project.configurations.create("resource")
+        final Configuration resourceConf = project.getConfigurations().create("resource");
 
         /*
          * Under the Python project, we need to make a link to the Ember resource(<ember-project>/dist for now).
@@ -77,35 +77,33 @@ class PythonFlyerPlugin implements Plugin<Project> {
          * And for both local development and LID deployment, the resource folder will have the
          * same relative directory. This will also simplify the logic in python project.
          */
-        project.tasks.create(TASK_SETUP_RESOURCE_LINK) { Task task ->
-
-            task.dependsOn resourceConf
-
-            task.doLast {
-                if (!Paths.get(project.projectDir.getAbsolutePath(), "resource").toFile().exists()) {
-                    println "Making the Symlink: ${project.projectDir}${File.separatorChar}resource --> ${resourceConf.singleFile}"
-                    FileSystemUtils.makeSymLink(resourceConf.singleFile, new File(project.projectDir, 'resource'))
+        project.getTasks().create(TASK_SETUP_RESOURCE_LINK, task -> {
+            task.dependsOn(resourceConf);
+            task.doLast(it -> {
+                if (!Paths.get(project.getProjectDir().getAbsolutePath(), "resource").toFile().exists()) {
+                    project.getLogger().lifecycle("Making the Symlink: {}{}resource --> {}",
+                        project.getProjectDir(), File.separatorChar, String.valueOf(resourceConf.getSingleFile()));
+                    FileSystemUtils.makeSymLinkUnchecked(resourceConf.getSingleFile(), new File(project.getProjectDir(), "resource"));
                 }
-            }
-        }
+            });
+        });
 
-        project.tasks.getByName(StandardTextValues.TASK_INSTALL_PROJECT.value)
-            .dependsOn(project.tasks.getByName(TASK_SETUP_RESOURCE_LINK))
+        project.getTasks().getByName(StandardTextValues.TASK_INSTALL_PROJECT.getValue())
+            .dependsOn(project.getTasks().getByName(TASK_SETUP_RESOURCE_LINK));
 
         /*
          * In order to make the resource files accessible when deploying the project, we need to copy the
          * static files into the 'deployable' directory.
          */
-        project.tasks.create(name: TASK_PACKAGE_RESOURCE_FILES, type: Copy) { Copy copy ->
-            def deployableExtension = ExtensionUtils.maybeCreateDeployableExtension(project)
-            copy.dependsOn(project.tasks.getByName(PythonWebApplicationPlugin.TASK_BUILD_WEB_APPLICATION))
+        project.getTasks().create(TASK_PACKAGE_RESOURCE_FILES, Copy.class, copy -> {
+            final DeployableExtension deployableExtension = ExtensionUtils.maybeCreateDeployableExtension(project);
+            copy.dependsOn(project.getTasks().getByName(PythonWebApplicationPlugin.TASK_BUILD_WEB_APPLICATION));
 
-            copy.from resourceConf
-            copy.into "${deployableExtension.deployableBuildDir}/resource"
-        }
-
+            copy.from(resourceConf);
+            copy.into(deployableExtension.getDeployableBuildDir().toPath().resolve("resource"));
+        });
         // Make sure we've copied all the files before running the task: packageDeployable
-        project.tasks.getByName(PythonPexDistributionPlugin.TASK_PACKAGE_DEPLOYABLE)
-            .dependsOn(project.tasks.getByName(TASK_PACKAGE_RESOURCE_FILES))
+        project.getTasks().getByName(PythonPexDistributionPlugin.TASK_PACKAGE_DEPLOYABLE)
+            .dependsOn(project.getTasks().getByName(TASK_PACKAGE_RESOURCE_FILES));
     }
 }

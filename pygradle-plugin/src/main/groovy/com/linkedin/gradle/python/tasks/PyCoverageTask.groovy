@@ -34,10 +34,10 @@ import java.util.regex.Pattern
 class PyCoverageTask extends PyTestTask {
 
     @OutputDirectory
-    File coverageOutputDir = project.file("${project.buildDir}/coverage")
+    File coverageOutputDir = project.file("${ project.buildDir }/coverage")
 
     @OutputFile
-    File coverageReport = project.file("${project.buildDir}/coverage/coverage.xml")
+    File coverageReport = project.file("${ project.buildDir }/coverage/coverage.xml")
 
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream()
 

@@ -30,6 +30,7 @@ class CoverageXmlReporter {
         def coverage = getCoverage()
         def missedStatements = coverage['missed_statements']
         def coveredStatements = coverage['total_statements'] - coverage['missed_statements']
+
         xmlMarkup.report(name: "coverage") {
             "package"(name: "coverage") {
                 "class"(name: "coverage/coverage") {

@@ -23,7 +23,7 @@ class PyGradleTestBuilder {
             | ignore = E121,E123,E226,W292
             | max-line-length = 160
             |
-            | [pytest]
+            | [tool:pytest]
             | addopts = --ignore build/ --ignore dist/
             '''.stripMargin().stripIndent()
     }

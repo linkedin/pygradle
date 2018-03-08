@@ -33,15 +33,18 @@ public class DefaultTemplateProviderOptions implements TemplateProviderOptions {
         this.entryPoint = entryPoint;
     }
 
-    @Override public Project getProject() {
+    @Override
+    public Project getProject() {
         return project;
     }
 
-    @Override public PythonExtension getExtension() {
+    @Override
+    public PythonExtension getExtension() {
         return extension;
     }
 
-    @Override public String getEntryPoint() {
+    @Override
+    public String getEntryPoint() {
         return entryPoint;
     }
 }

@@ -15,9 +15,10 @@
  */
 package com.linkedin.gradle.python.extension;
 
+import org.gradle.api.GradleException;
+
 import java.util.Collection;
 import java.util.TreeSet;
-import org.gradle.api.GradleException;
 
 
 public class PythonDefaultVersions {
@@ -38,11 +39,11 @@ public class PythonDefaultVersions {
     }
 
     public PythonDefaultVersions(String defaultPython2, String defaultPython3) {
-        this(defaultPython2, defaultPython3, new TreeSet<String>());
+        this(defaultPython2, defaultPython3, new TreeSet<>());
     }
 
     public PythonDefaultVersions() {
-        this(new TreeSet<String>());
+        this(new TreeSet<>());
     }
 
     public String normalize(String version) {
@@ -59,8 +60,8 @@ public class PythonDefaultVersions {
         if (!allowedVersions.contains(new PythonVersion(version).getPythonMajorMinor())) {
             throw new GradleException(
                 "Python " + version + " is not allowed; choose from " + allowedVersions
-                + "\nSee https://github.com/linkedin/pygradle/blob/master/docs/plugins/python.md"
-                + "#default-and-allowed-python-version");
+                    + "\nSee https://github.com/linkedin/pygradle/blob/master/docs/plugins/python.md"
+                    + "#default-and-allowed-python-version");
         }
         return version;
     }

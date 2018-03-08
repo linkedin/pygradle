@@ -81,7 +81,7 @@ class DependencyDownloader {
 
         def artifact = downloadArtifact(destDir, sdistDetails.url)
         def packageDependencies = new SourceDistPackage(artifact, cache, dependencySubstitution,
-                                                        latestVersions, allowPreReleases).dependencies
+            latestVersions, allowPreReleases).dependencies
 
         new IvyFileWriter(name, version, [sdistDetails], packageDependencies).writeIvyFile(destDir)
 
@@ -103,9 +103,17 @@ class DependencyDownloader {
                 builder = builder.viaProxy(proxy)
             }
 
-            builder.connectTimeout(5000)
-                .socketTimeout(5000)
-                .execute().saveContent(contents)
+            for (int i = 0; i < 3; i++) {
+                try {
+                    builder.connectTimeout(5000)
+                        .socketTimeout(5000)
+                        .execute()
+                        .saveContent(contents)
+                    break
+                } catch (SocketTimeoutException ignored) {
+                    Thread.sleep(1000)
+                }
+            }
         }
 
         return contents

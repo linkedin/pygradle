@@ -22,17 +22,17 @@ import java.io.File;
 
 public class WheelExtension {
 
-  private File wheelCache;
+    private File wheelCache;
 
-  public WheelExtension(Project project) {
-    wheelCache = new File(project.getBuildDir(), "wheel-cache");
-  }
+    public WheelExtension(Project project) {
+        wheelCache = new File(project.getBuildDir(), "wheel-cache");
+    }
 
-  public File getWheelCache() {
-    return wheelCache;
-  }
+    public File getWheelCache() {
+        return wheelCache;
+    }
 
-  public void setWheelCache(File wheelCache) {
-    this.wheelCache = wheelCache;
-  }
+    public void setWheelCache(File wheelCache) {
+        this.wheelCache = wheelCache;
+    }
 }

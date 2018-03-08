@@ -43,7 +43,8 @@ import java.util.List;
  * This class is used to make sure that the up-to-date logic works. It also allows for lazy evaluation
  * of the sources, which comes from the lazy eval of the getComponent(). It's lazy because its a method call
  * and will only get executed right before gradle tries to figure out the inputs/outputs. By making it lazy
- * will allow {@link PythonExtension} to be updated by the project and be complete when its used in the tasks.
+ * will allow {@link PythonExtension} to be updated by the project and be complete
+ * when its used in the tasks.
  */
 abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask implements FailureReasonProvider {
 

@@ -19,11 +19,14 @@ import com.linkedin.gradle.python.PythonExtension
 import com.linkedin.gradle.python.extension.PythonDetails
 import com.linkedin.gradle.python.extension.WheelExtension
 import com.linkedin.gradle.python.plugin.PythonHelpers
-import com.linkedin.gradle.python.util.ConsoleOutput
 import com.linkedin.gradle.python.util.DependencyOrder
 import com.linkedin.gradle.python.util.ExtensionUtils
 import com.linkedin.gradle.python.util.PackageInfo
-import groovy.time.TimeCategory
+import com.linkedin.gradle.python.util.internal.TaskTimer
+import com.linkedin.gradle.python.wheel.EmptyWheelCache
+import com.linkedin.gradle.python.wheel.SupportsWheelCache
+import com.linkedin.gradle.python.wheel.WheelCache
+import org.apache.commons.io.FileUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -32,12 +35,17 @@ import org.gradle.api.logging.Logging
 import org.gradle.api.specs.Spec
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
+import org.gradle.internal.logging.progress.ProgressLogger
+import org.gradle.internal.logging.progress.ProgressLoggerFactory
 import org.gradle.process.ExecResult
 import org.gradle.process.ExecSpec
 
-class BuildWheelsTask extends DefaultTask {
+class BuildWheelsTask extends DefaultTask implements SupportsWheelCache {
 
     private static final Logger LOGGER = Logging.getLogger(BuildWheelsTask)
+
+    @Input
+    WheelCache wheelCache = new EmptyWheelCache()
 
     private PythonExtension pythonExtension
     private PythonDetails details
@@ -49,7 +57,7 @@ class BuildWheelsTask extends DefaultTask {
             configurationFiles = DependencyOrder.configurationPostOrderFiles(project.configurations.python)
         } catch (Throwable e) {
             // Log and fall back to old style installation order as before.
-            logger.lifecycle("***** WARNING: ${e.message} *****")
+            logger.lifecycle("***** WARNING: ${ e.message } *****")
             configurationFiles = project.configurations.python.files.sort()
         }
         buildWheels(project, configurationFiles, getPythonDetails())
@@ -114,17 +122,44 @@ class BuildWheelsTask extends DefaultTask {
      */
     private void buildWheels(Project project, Collection<File> installables, PythonDetails pythonDetails) {
 
+        ProgressLoggerFactory progressLoggerFactory = getServices().get(ProgressLoggerFactory)
+        ProgressLogger progressLogger = progressLoggerFactory.newOperation(BuildWheelsTask)
+        progressLogger.setDescription("Building Wheels")
+        progressLogger.started()
+
         WheelExtension wheelExtension = ExtensionUtils.getPythonComponentExtension(project, WheelExtension)
         def pythonExtension = ExtensionUtils.getPythonExtension(project)
 
+        def taskTimer = new TaskTimer()
+
+        int counter = 0
+        def numberOfInstallables = installables.size()
         installables.each { File installable ->
 
             def packageInfo = PackageInfo.fromPath(installable.path)
-            def shortHand = packageInfo.version ? "${packageInfo.name}-${packageInfo.version}" : packageInfo.name
-            def messageHead = 'Preparing wheel ' + shortHand
+            def shortHand = packageInfo.version ? "${ packageInfo.name }-${ packageInfo.version }" : packageInfo.name
+
+            def clock = taskTimer.start(shortHand)
+            progressLogger.progress("Preparing wheel $shortHand (${ ++counter } of $numberOfInstallables)")
+
+            if (PythonHelpers.isPlainOrVerbose(project)) {
+                LOGGER.lifecycle("Installing {}", shortHand)
+            }
 
             if (packageExcludeFilter.isSatisfiedBy(packageInfo)) {
-                logger.lifecycle(PythonHelpers.createPrettyLine(messageHead, "[EXCLUDED]"))
+                if (PythonHelpers.isPlainOrVerbose(project)) {
+                    LOGGER.lifecycle("Skipping {}, excluded", shortHand)
+                }
+                return
+            }
+
+            def wheel = wheelCache.findWheel(packageInfo.name, packageInfo.version, pythonExtension.details)
+            if (wheel.isPresent()) {
+                File wheelFile = wheel.get()
+                FileUtils.copyFile(wheelFile, new File(wheelExtension.wheelCache, wheelFile.name))
+                if (PythonHelpers.isPlainOrVerbose(project)) {
+                    LOGGER.lifecycle("Skipping {}, in wheel cache {}", shortHand, wheelFile)
+                }
                 return
             }
 
@@ -133,48 +168,43 @@ class BuildWheelsTask extends DefaultTask {
             // always build these locally.
             def tree = project.fileTree(
                 dir: wheelExtension.wheelCache,
-                include: "**/${packageInfo.name.replace('-', '_')}-${packageInfo.version}-*.whl")
+                include: "**/${ packageInfo.name.replace('-', '_') }-${ packageInfo.version }-*.whl")
 
             def stream = new ByteArrayOutputStream()
 
             if (tree.files.size() >= 1) {
-                LOGGER.lifecycle(PythonHelpers.createPrettyLine(messageHead, "[SKIPPING]"))
                 return
             }
 
-            LOGGER.lifecycle(PythonHelpers.createPrettyLine(messageHead, "[STARTING]"))
+            def commandLine = [pythonDetails.getVirtualEnvInterpreter(),
+                           pythonDetails.getVirtualEnvironment().getPip(),
+                           'wheel',
+                           '--disable-pip-version-check',
+                           '--wheel-dir', wheelExtension.wheelCache,
+                           '--no-deps',
+                           installable]
 
-            def startTime = new Date()
             ExecResult installResult = project.exec { ExecSpec execSpec ->
                 execSpec.environment pythonExtension.pythonEnvironment
-                execSpec.commandLine(
-                    [pythonDetails.getVirtualEnvInterpreter(),
-                     pythonDetails.getVirtualEnvironment().getPip(),
-                     'wheel',
-                     '--disable-pip-version-check',
-                     '--wheel-dir', wheelExtension.wheelCache,
-                     '--no-deps',
-                     installable
-                    ])
+                execSpec.commandLine(commandLine)
                 execSpec.standardOutput = stream
                 execSpec.errorOutput = stream
                 execSpec.ignoreExitValue = true
             }
-            def endTime = new Date()
-            def duration = TimeCategory.minus(endTime, startTime)
 
             if (installResult.exitValue != 0) {
+                LOGGER.error("Error installing package using `{}`", commandLine)
                 LOGGER.error(stream.toString().trim())
-                throw new GradleException("Failed to build wheel for ${shortHand}. Please see above output for reason, or re-run your build using ``--info`` for additional logging.")
+                throw new GradleException("Failed to build wheel for ${ shortHand }. Please see above output for reason, or re-run your build using ``--info`` for additional logging.")
             } else {
-                if (pythonExtension.consoleOutput == ConsoleOutput.RAW) {
-                    LOGGER.lifecycle(stream.toString().trim())
-                } else {
-                    String prefix = String.format(messageHead + " (%d:%02d.%03d s)", duration.minutes, duration.seconds % 60, duration.millis % 1000)
-                    LOGGER.lifecycle(PythonHelpers.createPrettyLine(prefix, "[FINISHED]"))
-                }
+                LOGGER.info(stream.toString().trim())
             }
+
+            clock.stop()
         }
 
+        progressLogger.completed()
+
+        new File(project.buildDir, getName() + "-task-runtime-report.txt").text = taskTimer.buildReport()
     }
 }

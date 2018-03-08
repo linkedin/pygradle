@@ -13,10 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.util;
+package com.linkedin.gradle.python.wheel;
 
-public enum ConsoleOutput {
-  ASCII,
-  COLOR,
-  RAW
+import com.linkedin.gradle.python.extension.PythonDetails;
+
+import java.io.File;
+import java.util.Optional;
+
+public class EmptyWheelCache implements WheelCache {
+    @Override
+    public Optional<File> findWheel(String library, String version, PythonDetails pythonDetails) {
+        return Optional.empty();
+    }
 }

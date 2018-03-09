@@ -32,7 +32,8 @@ import java.nio.file.Paths
 class ParallelWheelsIntegrationTest extends Specification {
 
     @Rule
-    final DefaultProjectLayoutRule testProjectDir = new DefaultProjectLayoutRule()
+    final DefaultProjectLayoutRule testProjectDir = new DefaultProjectLayoutRule(false)
+
     @IgnoreIf({ OperatingSystem.current() == OperatingSystem.WINDOWS })
     def "can build thin pex"() {
         testProjectDir

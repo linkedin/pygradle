@@ -1,5 +1,4 @@
 import com.linkedin.gradle.build.DistributeTask
-import org.gradle.api.logging.configuration.ConsoleOutput
 
 apply plugin: 'com.jfrog.artifactory'
 apply plugin: 'version'

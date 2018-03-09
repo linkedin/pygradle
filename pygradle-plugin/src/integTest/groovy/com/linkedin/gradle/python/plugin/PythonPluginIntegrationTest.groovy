@@ -137,7 +137,7 @@ class PythonPluginIntegrationTest extends Specification {
         def collected = []
         def sorted = []
         for (String line : lines) {
-            if (line.contains("Installing ")) {
+            if (line.contains("Installing ") || line.contains("Skipping ")) {
                 collected.add(line)
                 sorted.add(line)
             }

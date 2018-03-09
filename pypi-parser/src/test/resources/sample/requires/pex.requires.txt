@@ -1,0 +1,11 @@
+setuptools>=20.3,<34.0
+wheel>=0.26.0,<0.30.0
+
+[cachecontrol]
+CacheControl>=0.12.3
+
+[requests]
+requests>=2.8.14
+
+[subprocess]
+subprocess32>=3.2.7

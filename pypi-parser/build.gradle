@@ -1,0 +1,64 @@
+plugins {
+    id "org.jetbrains.kotlin.jvm" version "1.2.30"
+    id 'groovy'
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.2.30",
+        "org.jetbrains.kotlin:kotlin-stdlib:1.2.30",
+        "org.jetbrains.kotlin:kotlin-reflect:1.2.30"
+
+    compile 'com.squareup.retrofit2:retrofit:2.3.0',
+        'com.squareup.retrofit2:converter-jackson:2.3.0'
+
+    compile "com.fasterxml.jackson.core:jackson-annotations:2.8.11",
+        "com.fasterxml.jackson.core:jackson-databind:2.8.11",
+        "com.fasterxml.jackson.module:jackson-module-kotlin:2.8.11.1"
+
+    compile 'org.apache.commons:commons-lang3:3.5',
+        'commons-io:commons-io:2.5',
+        'org.apache.commons:commons-compress:1.10',
+        'commons-codec:commons-codec:1.10'
+
+    compile 'org.slf4j:slf4j-api:1.7.25'
+
+    testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
+    testCompile 'com.squareup.okhttp3:mockwebserver:3.8.0'
+    testCompile 'com.squareup.okhttp3:logging-interceptor:3.8.0'
+    testCompile 'ch.qos.logback:logback-classic:1.2.3'
+
+
+}
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+sourceSets {
+    integTest {
+        groovy {
+            srcDir file('src/integTest/groovy')
+        }
+        resources {
+            srcDir file('src/integTest/resources')
+        }
+
+        compileClasspath += sourceSets.main.output + configurations.testRuntime + sourceSets.test.output
+        runtimeClasspath += output + compileClasspath
+    }
+}
+
+configurations {
+    integTest.extendsFrom(configurations.testCompile, configurations.testRuntime)
+}
+
+
+task integTest(type: Test) {
+    dependsOn tasks.test
+    setTestClassesDirs sourceSets.integTest.output.classesDirs
+    classpath = sourceSets.integTest.runtimeClasspath
+    reports.html.destination = file("$buildDir${ File.separatorChar }reports${ File.separatorChar }integration-test")
+}
+
+check.dependsOn integTest

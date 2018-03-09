@@ -28,6 +28,7 @@ class PipIntegrationTest extends Specification {
 
     @Rule
     final DefaultProjectLayoutRule testProjectDir = new DefaultProjectLayoutRule()
+
     def "will write out pinned.txt"() {
         given:
         testProjectDir.buildFile << """\
@@ -45,7 +46,7 @@ class PipIntegrationTest extends Specification {
         when:
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withArguments('build')
+            .withArguments('build', '-i')
             .withPluginClasspath()
             .withDebug(true)
             .build()

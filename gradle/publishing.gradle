@@ -7,14 +7,8 @@ task sourceJar(type: Jar) {
     from sourceSets.main.allSource
 }
 
-task javadocJar(type: Jar, dependsOn: groovydoc) {
-    classifier = 'javadoc'
-    from groovydoc.destinationDir
-}
-
 artifacts {
     archives sourceJar
-    archives javadocJar
 }
 
 publishing {
@@ -22,7 +16,6 @@ publishing {
         standardjava(MavenPublication) {
             from components.java
             artifact sourceJar
-            artifact javadocJar
             pom.withXml {
                 asNode().children().last() + {
                     resolveStrategy = Closure.DELEGATE_FIRST
@@ -52,14 +45,14 @@ publishing {
         }
     }
     repositories {
-      ivy {
-        url "${System.getProperty("user.home")}/local-repo"
-        layout('pattern') {
-          ivy "[organisation]/[module]/[revision]/[module]-[revision].ivy"
-          artifact "[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
-          m2compatible true
+        ivy {
+            url "${ System.getProperty("user.home") }/local-repo"
+            layout('pattern') {
+                ivy "[organisation]/[module]/[revision]/[module]-[revision].ivy"
+                artifact "[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
+                m2compatible true
+            }
         }
-      }
     }
 }
 

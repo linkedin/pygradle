@@ -25,10 +25,9 @@
         </encoder>
     </appender>
 
-    <logger name="org.reflections.vfs" level="ERROR"/>
-    <logger name="org.reflections" level="ERROR"/>
+    <logger name="com.linkedin.pivy.downloader.PackageDownloader" level="WARN"/>
 
-    <root level="INFO">
+    <root level="DEBUG">
         <appender-ref ref="STDOUT"/>
     </root>
 </configuration>

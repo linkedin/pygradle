@@ -21,9 +21,11 @@ import org.gradle.api.logging.Logging;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -38,11 +40,35 @@ public class FileBackedWheelCache implements WheelCache, Serializable {
     private final File cacheDir;
     private final Pattern wheelPattern;
     private final SupportedWheelFormats supportedWheelFormats;
+    private final List<Function<String, Boolean>> versionFilter;
+    private final List<Function<String, Boolean>> dependencyFilter;
 
     public FileBackedWheelCache(File cacheDir, SupportedWheelFormats supportedWheelFormats) {
         this.cacheDir = cacheDir;
         this.supportedWheelFormats = supportedWheelFormats;
         this.wheelPattern = Pattern.compile(WHEEL_FILE_FORMAT);
+        this.versionFilter = new ArrayList<>();
+        this.dependencyFilter = new ArrayList<>();
+    }
+
+    @Override
+    public void addVersionFilter(Function<String, Boolean> filter) {
+        versionFilter.add(filter);
+    }
+
+    @Override
+    public boolean isWheelForVersionCacheable(String version) {
+        return versionFilter.stream().anyMatch(it -> it.apply(version));
+    }
+
+    @Override
+    public void addDependencyFilter(Function<String, Boolean> filter) {
+        dependencyFilter.add(filter);
+    }
+
+    @Override
+    public boolean isWheelForDependencyCacheable(String dependencyName) {
+        return dependencyFilter.stream().anyMatch(it -> it.apply(dependencyName));
     }
 
     /**
@@ -68,6 +94,14 @@ public class FileBackedWheelCache implements WheelCache, Serializable {
      */
     public Optional<File> findWheel(String library, String version, File pythonExecutable) {
         if (cacheDir == null) {
+            return Optional.empty();
+        }
+
+        if (version == null) {
+            return Optional.empty();
+        }
+
+        if (isWheelForVersionCacheable(version) || isWheelForDependencyCacheable(library)) {
             return Optional.empty();
         }
 

@@ -20,7 +20,42 @@ import com.linkedin.gradle.python.extension.PythonDetails;
 import java.io.File;
 import java.io.Serializable;
 import java.util.Optional;
+import java.util.function.Function;
 
 public interface WheelCache extends Serializable {
+    /**
+     * A filter will prevent a Cache Hit when the {@link Function} returns true.
+     *
+     * This is useful if you want to exclude pre-release/chaning builds from using the cache.
+     *
+     * @param filter returning true, will prevent version from matching in the cache.
+     */
+    void addVersionFilter(Function<String, Boolean> filter);
+
+    /**
+     * Given that we have versions that can be filtered, we should also prevent wheels from being built for them.
+     *
+     * @param version version to check for.
+     * @return true when the cacheable wheel should be built.
+     */
+    boolean isWheelForVersionCacheable(String version);
+
+    /**
+     * A filter will prevent a Cache Hit when the {@link Function} returns true.
+     *
+     * This is useful if you want to exclude pre-release/chaning builds from using the cache.
+     *
+     * @param filter returning true, will prevent version from matching in the cache.
+     */
+    void addDependencyFilter(Function<String, Boolean> filter);
+
+    /**
+     * If a dependency shouldn't have a wheel built, then we don't want to build wheels for it either.
+     *
+     * @param dependencyName Dependency Name
+     * @return true, when the cacheable wheel should be built.
+     */
+    boolean isWheelForDependencyCacheable(String dependencyName);
+
     Optional<File> findWheel(String library, String version, PythonDetails pythonDetails);
 }

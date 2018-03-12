@@ -36,4 +36,29 @@ class FileBackedWheelCacheTest extends Specification {
         expect:
         cache.findWheel('Sphinx', '1.6.3', pythonExec).isPresent()
     }
+
+    def 'will skip version that are excluded'() {
+        def wheelCache = temporaryFolder.newFolder('wheel-cache')
+        def formats = new SupportedWheelFormats()
+        def pythonExec = temporaryFolder.newFile('python')
+        formats.addSupportedAbi(new AbiDetails(pythonExec, 'py2', 'none', 'any'))
+        FileBackedWheelCache cache = new FileBackedWheelCache(wheelCache, formats)
+        cache.addVersionFilter({ it -> true })
+
+        new File(wheelCache, 'Sphinx-1.6.3-py2.py3-none-any.whl').createNewFile()
+
+        expect:
+        !cache.findWheel('Sphinx', '1.6.3', pythonExec).isPresent()
+    }
+
+    def 'will handle null version'() {
+        def wheelCache = temporaryFolder.newFolder('wheel-cache')
+        def pythonExec = temporaryFolder.newFile('python')
+        def formats = new SupportedWheelFormats()
+        FileBackedWheelCache cache = new FileBackedWheelCache(wheelCache, formats)
+
+
+        expect:
+        !cache.findWheel('Sphinx', null, pythonExec).isPresent()
+    }
 }

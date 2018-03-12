@@ -25,6 +25,8 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.plugins.ExtensionAware;
+import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.api.tasks.TaskContainer;
 
 import java.io.File;
@@ -50,6 +52,9 @@ public class WheelFirstPlugin implements Plugin<Project> {
 
             SupportedWheelFormats supportedWheelFormats = new SupportedWheelFormats();
             FileBackedWheelCache wheelCache = new FileBackedWheelCache(cacheDir, supportedWheelFormats);
+
+            ExtensionContainer extensionContainer = ((ExtensionAware) ExtensionUtils.getPythonExtension(project)).getExtensions();
+            extensionContainer.add("wheelCache", wheelCache);
 
             FindAbiForCurrentPythonTask abiScript = tasks.create("findPythonAbi", FindAbiForCurrentPythonTask.class, it -> {
                 it.dependsOn(tasks.getByName(TASK_VENV_CREATE.getValue()));

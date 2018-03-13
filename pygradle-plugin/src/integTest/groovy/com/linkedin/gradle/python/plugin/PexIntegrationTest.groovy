@@ -36,12 +36,12 @@ class PexIntegrationTest extends Specification {
     @IgnoreIf({ OperatingSystem.current() == OperatingSystem.WINDOWS })
     def "can build thin pex"() {
         testProjectDir
-        given:
+        given: "project with the version containing a hyphen"
         testProjectDir.buildFile << """\
         | plugins {
         |     id 'com.linkedin.python-pex'
         | }
-        | version = '1.0.0'
+        | version = '1.0.0-SNAPSHOT'
         | python {
         |   pex {
         |     fatPex = false
@@ -50,7 +50,7 @@ class PexIntegrationTest extends Specification {
         | ${PyGradleTestBuilder.createRepoClosure()}
         """.stripMargin().stripIndent()
 
-        when:
+        when: "we build it with info option"
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
             .withArguments('build', '--stacktrace', '--info')
@@ -61,8 +61,9 @@ class PexIntegrationTest extends Specification {
 
         Path deployablePath = testProjectDir.root.toPath().resolve(Paths.get('foo', 'build', 'deployable', "bin"))
 
-        then:
+        then: "it succeeds and the hyphen was converted into underscore for pex command due to pex bug workaround"
 
+        result.output.find("pex [^\n]+ foo==1.0.0_SNAPSHOT")
         result.output.contains("BUILD SUCCESS")
         result.task(':foo:flake8').outcome == TaskOutcome.SUCCESS
         result.task(':foo:installPythonRequirements').outcome == TaskOutcome.SUCCESS

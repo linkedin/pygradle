@@ -19,9 +19,13 @@ import com.linkedin.gradle.python.PythonExtension
 import com.linkedin.gradle.python.extension.PythonDetails
 import com.linkedin.gradle.python.extension.WheelExtension
 import com.linkedin.gradle.python.plugin.PythonHelpers
+import com.linkedin.gradle.python.util.DefaultEnvironmentMerger
+import com.linkedin.gradle.python.util.DefaultPackageSettings
 import com.linkedin.gradle.python.util.DependencyOrder
+import com.linkedin.gradle.python.util.EnvironmentMerger
 import com.linkedin.gradle.python.util.ExtensionUtils
 import com.linkedin.gradle.python.util.PackageInfo
+import com.linkedin.gradle.python.util.PackageSettings
 import com.linkedin.gradle.python.util.internal.TaskTimer
 import com.linkedin.gradle.python.wheel.EmptyWheelCache
 import com.linkedin.gradle.python.wheel.SupportsWheelCache
@@ -30,15 +34,19 @@ import org.apache.commons.io.FileUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.file.FileCollection
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.specs.Spec
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.internal.logging.progress.ProgressLogger
 import org.gradle.internal.logging.progress.ProgressLoggerFactory
 import org.gradle.process.ExecResult
 import org.gradle.process.ExecSpec
+
 
 class BuildWheelsTask extends DefaultTask implements SupportsWheelCache {
 
@@ -50,17 +58,20 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache {
     private PythonExtension pythonExtension
     private PythonDetails details
 
+    @InputFiles
+    FileCollection installFileCollection
+
+    @Input
+    @Optional
+    Map<String, String> environment
+
+    PackageSettings<PackageInfo> packageSettings = new DefaultPackageSettings(project.name)
+
+    EnvironmentMerger environmentMerger = new DefaultEnvironmentMerger()
+
     @TaskAction
-    public void buildWheelsTask() {
-        Collection<File> configurationFiles = null
-        try {
-            configurationFiles = DependencyOrder.configurationPostOrderFiles(project.configurations.python)
-        } catch (Throwable e) {
-            // Log and fall back to old style installation order as before.
-            logger.lifecycle("***** WARNING: ${ e.message } *****")
-            configurationFiles = project.configurations.python.files.sort()
-        }
-        buildWheels(project, configurationFiles, getPythonDetails())
+    void buildWheelsTask() {
+        buildWheels(project, DependencyOrder.getConfigurationFiles(installFileCollection), getPythonDetails())
 
         /*
          * If pexDependencies are empty or its wheels are already
@@ -135,7 +146,7 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache {
         int counter = 0
         def numberOfInstallables = installables.size()
         installables.each { File installable ->
-
+            def pyVersion = pythonDetails.getPythonVersion().pythonMajorMinor
             def packageInfo = PackageInfo.fromPath(installable.path)
             def shortHand = packageInfo.version ? "${ packageInfo.name }-${ packageInfo.version }" : packageInfo.name
 
@@ -143,49 +154,76 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache {
             progressLogger.progress("Preparing wheel $shortHand (${ ++counter } of $numberOfInstallables)")
 
             if (PythonHelpers.isPlainOrVerbose(project)) {
-                LOGGER.lifecycle("Installing {}", shortHand)
+                LOGGER.lifecycle("Installing {} wheel", shortHand)
             }
 
             if (packageExcludeFilter.isSatisfiedBy(packageInfo)) {
                 if (PythonHelpers.isPlainOrVerbose(project)) {
-                    LOGGER.lifecycle("Skipping {}, excluded", shortHand)
+                    LOGGER.lifecycle("Skipping {} wheel - Excluded", shortHand)
                 }
                 return
             }
 
-            def wheel = wheelCache.findWheel(packageInfo.name, packageInfo.version, pythonExtension.details)
-            if (wheel.isPresent()) {
-                File wheelFile = wheel.get()
-                FileUtils.copyFile(wheelFile, new File(wheelExtension.wheelCache, wheelFile.name))
-                if (PythonHelpers.isPlainOrVerbose(project)) {
-                    LOGGER.lifecycle("Skipping {}, in wheel cache {}", shortHand, wheelFile)
-                }
-                return
+            // If supported versions are empty, there are no restrictions.
+            def supportedVersions = packageSettings.getSupportedLanguageVersions(packageInfo)
+            if (supportedVersions != null && !supportedVersions.empty && !supportedVersions.contains(pyVersion)) {
+                throw new GradleException(
+                    "Package ${packageInfo.name} works only with Python versions: ${supportedVersions}")
             }
 
-            // Check if a wheel exists for this product already and only build it
-            // if it is missing. We don't care about the wheel details because we
-            // always build these locally.
-            def tree = project.fileTree(
-                dir: wheelExtension.wheelCache,
-                include: "**/${ packageInfo.name.replace('-', '_') }-${ packageInfo.version }-*.whl")
+            /*
+             * Check if a wheel exists for this product already and only build it
+             * if it is missing. We don't care about the wheel details because we
+             * always build these locally.
+             */
+            if (!packageSettings.requiresSourceBuild(packageInfo)) {
+                def wheel = wheelCache.findWheel(packageInfo.name, packageInfo.version, pythonExtension.details)
+                if (wheel.isPresent()) {
+                    File wheelFile = wheel.get()
+                    FileUtils.copyFile(wheelFile, new File(wheelExtension.wheelCache, wheelFile.name))
+                    if (PythonHelpers.isPlainOrVerbose(project)) {
+                        LOGGER.lifecycle("Skipping {}, in wheel cache {}", shortHand, wheelFile)
+                    }
+                    return
+                }
+
+                def tree = project.fileTree(
+                    dir: wheelExtension.wheelCache,
+                    include: "**/${packageInfo.name.replace('-', '_')}-${(packageInfo.version ?: 'unspecified').replace('-', '_')}-*.whl")
+
+                if (tree.files.size() >= 1) {
+                    return
+                }
+            }
 
             def stream = new ByteArrayOutputStream()
 
-            if (tree.files.size() >= 1) {
-                return
+            def mergedEnv = environmentMerger.mergeEnvironments(
+                [pythonExtension.pythonEnvironment, environment, packageSettings.getEnvironment(packageInfo)])
+
+            def commandLine = [
+                pythonDetails.getVirtualEnvInterpreter().toString(),
+                pythonDetails.getVirtualEnvironment().getPip().toString(),
+                'wheel',
+                '--disable-pip-version-check',
+                '--wheel-dir', wheelExtension.wheelCache.toString(),
+                '--no-deps',
+            ]
+
+            def globalOptions = packageSettings.getGlobalOptions(packageInfo)
+            if (globalOptions != null) {
+                commandLine.addAll(globalOptions)
             }
 
-            def commandLine = [pythonDetails.getVirtualEnvInterpreter(),
-                           pythonDetails.getVirtualEnvironment().getPip(),
-                           'wheel',
-                           '--disable-pip-version-check',
-                           '--wheel-dir', wheelExtension.wheelCache,
-                           '--no-deps',
-                           installable]
+            def buildOptions = packageSettings.getBuildOptions(packageInfo)
+            if (buildOptions != null) {
+                commandLine.addAll(buildOptions)
+            }
+
+            commandLine.add(installable.toString())
 
             ExecResult installResult = project.exec { ExecSpec execSpec ->
-                execSpec.environment pythonExtension.pythonEnvironment
+                execSpec.environment mergedEnv
                 execSpec.commandLine(commandLine)
                 execSpec.standardOutput = stream
                 execSpec.errorOutput = stream

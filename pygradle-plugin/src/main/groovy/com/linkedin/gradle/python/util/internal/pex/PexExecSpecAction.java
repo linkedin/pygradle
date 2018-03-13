@@ -154,7 +154,18 @@ class PexExecSpecAction implements Action<ExecSpec> {
     private List<String> pexRequirements(Map<String, String> dependencies) {
         List<String> requirements = new ArrayList<>();
         for (Map.Entry<String, String> entry : dependencies.entrySet()) {
-            requirements.add(entry.getKey() + "==" + entry.getValue());
+            /*
+             * Work around the bug in pex.
+             * It does not follow PEP 427 completely: https://www.python.org/dev/peps/pep-0427/
+             * It turns hyphens into underscored for wheel file name in package (distribution) name only,
+             * but it does not do the same for package version.
+             * The pep is quite clear about this:
+             *     "Each component of the filename is escaped by replacing runs of non-alphanumeric characters
+             *     with an underscore _"
+             * On the other hand, pip handles this correctly, so there's a discrepancy.
+             * Until pex fixes this bug, we have to tell it that version in the file name has underscore.
+             */
+            requirements.add(entry.getKey() + "==" + entry.getValue().replace("-", "_"));
         }
         return requirements;
     }

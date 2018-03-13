@@ -66,8 +66,8 @@ public class PipFreezeAction {
         });
 
         Map<String, String> dependencies = PipFreezeOutputParser.getDependencies(developmentDependencies, requirements);
-        // The version will convert - into _ for wheel builds, so convert right here to handle -SNAPSHOT, -MPDEP, ...
-        dependencies.put(project.getName(), project.getVersion().toString().replace("-", "_"));
+        // Always add project unconditionally.
+        dependencies.put(project.getName(), project.getVersion().toString());
         return dependencies;
     }
 

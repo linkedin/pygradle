@@ -19,10 +19,14 @@ import com.linkedin.gradle.python.PythonExtension
 import com.linkedin.gradle.python.extension.PythonDetails
 import com.linkedin.gradle.python.plugin.PythonHelpers
 import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider
+import com.linkedin.gradle.python.util.DefaultEnvironmentMerger
+import com.linkedin.gradle.python.util.DefaultPackageSettings
 import com.linkedin.gradle.python.util.DependencyOrder
+import com.linkedin.gradle.python.util.EnvironmentMerger
 import com.linkedin.gradle.python.util.ExtensionUtils
 import com.linkedin.gradle.python.util.OperatingSystem
 import com.linkedin.gradle.python.util.PackageInfo
+import com.linkedin.gradle.python.util.PackageSettings
 import com.linkedin.gradle.python.util.internal.TaskTimer
 import com.linkedin.gradle.python.wheel.EmptyWheelCache
 import com.linkedin.gradle.python.wheel.SupportsWheelCache
@@ -30,7 +34,6 @@ import com.linkedin.gradle.python.wheel.WheelCache
 import groovy.transform.CompileStatic
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
-import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.FileCollection
 import org.gradle.api.specs.Spec
 import org.gradle.api.tasks.Input
@@ -44,6 +47,7 @@ import org.gradle.process.ExecSpec
 
 import java.nio.file.Path
 import java.nio.file.Paths
+
 
 /**
  * Execute pip install
@@ -73,6 +77,10 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider, Suppo
     @Optional
     boolean sorted = true
 
+    PackageSettings<PackageInfo> packageSettings = new DefaultPackageSettings(project.name)
+
+    EnvironmentMerger environmentMerger = new DefaultEnvironmentMerger()
+
     /**
      * Will return true when the package should be excluded from being installed.
      */
@@ -85,24 +93,6 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider, Suppo
     }
 
     private String lastInstallMessage = null
-
-    /**
-     * Returns a set of configuration files in the insert order or sorted.
-     *
-     * If sorted is true (default) the sorted configuration set is returned,
-     * otherwise the original order.
-     */
-    Collection<File> getConfigurationFiles() {
-        if (sorted && (installFileCollection instanceof Configuration)) {
-            try {
-                return DependencyOrder.configurationPostOrderFiles((Configuration) installFileCollection)
-            } catch (Throwable e) {
-                // Log and fall back to old style installation order as before.
-                logger.lifecycle("***** WARNING: ${ e.message } *****")
-            }
-        }
-        return sorted ? installFileCollection.files.sort() : installFileCollection.files
-    }
 
     /**
      * Method that checks to ensure that the current project is prepared to pip install.  It ignores the
@@ -148,7 +138,7 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider, Suppo
         TaskTimer taskTimer = new TaskTimer()
 
         int counter = 0
-        def installableFiles = getConfigurationFiles()
+        def installableFiles = DependencyOrder.getConfigurationFiles(installFileCollection, sorted)
         for (File installable : installableFiles) {
             if (isReadyForInstall(installable)) {
                 def packageInfo = PackageInfo.fromPath(installable.getAbsolutePath())
@@ -176,39 +166,53 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider, Suppo
             return
         }
 
+        // If supported versions are empty, there are no restrictions.
+        def supportedVersions = packageSettings.getSupportedLanguageVersions(packageInfo)
+        if (supportedVersions != null && !supportedVersions.empty && !supportedVersions.contains(pyVersion)) {
+            throw new PipInstallException(
+                "Package ${packageInfo.name} works only with Python versions: ${supportedVersions}")
+        }
+
         String sanitizedName = packageInfo.name.replace('-', '_')
 
         // See: https://www.python.org/dev/peps/pep-0376/
         File egg = sitePackages.resolve("${ sanitizedName }-${ packageInfo.version }-py${ pyVersion }.egg-info").toFile()
         File dist = sitePackages.resolve("${ sanitizedName }-${ packageInfo.version }.dist-info").toFile()
 
-        def mergedEnv = new HashMap(extension.pythonEnvironment)
-        if (environment != null) {
-            mergedEnv.putAll(environment)
-        }
-
-        if (project.file(egg).exists() || project.file(dist).exists()) {
+        if (!packageSettings.requiresSourceBuild(packageInfo) &&
+            (project.file(egg).exists() || project.file(dist).exists())) {
             if (PythonHelpers.isPlainOrVerbose(project)) {
                 logger.lifecycle("Skipping {} - Installed", shortHand)
             }
             return
         }
 
-        def commandLine = [pythonDetails.getVirtualEnvInterpreter(),
-                           pythonDetails.getVirtualEnvironment().getPip(),
-                           'install',
-                           '--disable-pip-version-check',
-                           '--no-deps']
+        def mergedEnv = environmentMerger.mergeEnvironments(
+            [extension.pythonEnvironment, environment, packageSettings.getEnvironment(packageInfo)])
+
+
+        def commandLine = [
+            pythonDetails.getVirtualEnvInterpreter().toString(),
+            pythonDetails.getVirtualEnvironment().getPip().toString(),
+            'install',
+            '--disable-pip-version-check',
+            '--no-deps',
+        ]
+
         commandLine.addAll(args)
 
-        if (shortHand.endsWith('-SNAPSHOT')) {
-            // snapshot packages may have changed, so reinstall them every time
-            commandLine.add('--ignore-installed')
+        def globalOptions = packageSettings.getGlobalOptions(packageInfo)
+        if (globalOptions != null) {
+            commandLine.addAll(globalOptions)
         }
 
+        def installOptions = packageSettings.getInstallOptions(packageInfo)
+        if (installOptions != null) {
+            commandLine.addAll(installOptions)
+        }
 
         def cachedWheel = wheelCache.findWheel(packageInfo.name, packageInfo.version, pythonDetails)
-        if (cachedWheel.isPresent()) {
+        if (!packageSettings.requiresSourceBuild(packageInfo) && cachedWheel.isPresent()) {
             if (PythonHelpers.isPlainOrVerbose(project)) {
                 logger.lifecycle("{} from wheel: {}", shortHand, cachedWheel.get().getAbsolutePath())
             }
@@ -216,7 +220,6 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider, Suppo
         } else {
             commandLine.add(installable.getAbsolutePath())
         }
-
 
         if (PythonHelpers.isPlainOrVerbose(project)) {
             logger.lifecycle("Installing {}", shortHand)
@@ -251,8 +254,8 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider, Suppo
         }
     }
 
-    public static class PipInstallException extends GradleException {
-        public PipInstallException(String message) {
+    static class PipInstallException extends GradleException {
+        PipInstallException(String message) {
             super(message)
         }
     }

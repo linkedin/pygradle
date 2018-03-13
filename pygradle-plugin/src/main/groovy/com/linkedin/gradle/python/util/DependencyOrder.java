@@ -24,6 +24,7 @@ import org.gradle.api.artifacts.component.ComponentIdentifier;
 import org.gradle.api.artifacts.result.DependencyResult;
 import org.gradle.api.artifacts.result.ResolvedComponentResult;
 import org.gradle.api.artifacts.result.ResolvedDependencyResult;
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 
@@ -34,6 +35,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 /**
@@ -142,6 +144,38 @@ public class DependencyOrder {
         }
 
         return files;
+    }
+
+    /**
+     * Returns a set of configuration files in the tree post-order,
+     * or sorted, or in the original insert order.
+     *
+     * Attempt to collect dependency tree post-order and fall back to
+     * sorted or insert order.
+     * If sorted is false, it will always return the original insert order.
+     */
+    public static Collection<File> getConfigurationFiles(FileCollection files, boolean sorted) {
+        if (sorted && (files instanceof Configuration)) {
+            try {
+                return DependencyOrder.configurationPostOrderFiles((Configuration) files);
+            } catch (Throwable e) {
+                // Log and fall back to old style installation order as before.
+                logger.lifecycle("***** WARNING: ${ e.message } *****");
+            }
+        }
+        return sorted
+            ? files.getFiles().stream().sorted().collect(Collectors.toSet())
+            : files.getFiles();
+    }
+
+    /**
+     * Returns a set of configuration files in the tree post-order or sorted.
+     *
+     * Attempt to collect dependency tree post-order and fall back to
+     * sorted order.
+     */
+    public static Collection<File> getConfigurationFiles(FileCollection files) {
+        return getConfigurationFiles(files, true);
     }
 
     /*

@@ -28,6 +28,7 @@ import org.gradle.api.tasks.bundling.Tar;
 public class PythonPexDistributionPlugin extends PythonBasePlugin {
 
     public static final String TASK_BUILD_WHEELS = "buildWheels";
+    public static final String TASK_BUILD_PROJECT_WHEEL = "buildProjectWheel";
     public static final String TASK_BUILD_PEX = "buildPex";
     public static final String TASK_PACKAGE_DEPLOYABLE = "packageDeployable";
 
@@ -56,11 +57,19 @@ public class PythonPexDistributionPlugin extends PythonBasePlugin {
          *
          * We need wheels to build pex files.
          */
-        project.getTasks().create(TASK_BUILD_WHEELS, BuildWheelsTask.class,
-            task -> task.dependsOn(project.getTasks().getByName(StandardTextValues.TASK_INSTALL_PROJECT.getValue())));
+        project.getTasks().create(TASK_BUILD_WHEELS, BuildWheelsTask.class, task -> {
+            task.dependsOn(project.getTasks().getByName(StandardTextValues.TASK_INSTALL_PROJECT.getValue()));
+            task.setInstallFileCollection(project.getConfigurations().getByName("python"));
+        });
+
+        project.getTasks().create(TASK_BUILD_PROJECT_WHEEL, BuildWheelsTask.class, task -> {
+            task.dependsOn(project.getTasks().getByName(TASK_BUILD_WHEELS));
+            task.setInstallFileCollection(project.files(project.file(project.getProjectDir())));
+            task.setEnvironment(extension.pythonEnvironmentDistgradle);
+        });
 
         project.getTasks().create(TASK_BUILD_PEX, BuildPexTask.class,
-            task -> task.dependsOn(project.getTasks().getByName(TASK_BUILD_WHEELS)));
+            task -> task.dependsOn(project.getTasks().getByName(TASK_BUILD_PROJECT_WHEEL)));
 
         Tar packageDeployable = project.getTasks().create(TASK_PACKAGE_DEPLOYABLE, Tar.class, tar -> {
             tar.setCompression(Compression.GZIP);

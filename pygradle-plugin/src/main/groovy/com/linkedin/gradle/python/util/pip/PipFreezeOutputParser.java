@@ -49,7 +49,7 @@ public class PipFreezeOutputParser {
                  * The version will convert - into _ for wheel builds, so convert right here.
                  */
                 if (!(ignoredDependencies.contains(name) || ignoredDependencies.contains(name.replace("-", "_")))) {
-                    reqs.put(name, version.replace("-", "_"));
+                    reqs.put(name, version);
                 }
             }
         }

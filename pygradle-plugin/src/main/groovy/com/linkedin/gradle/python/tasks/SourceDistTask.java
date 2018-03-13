@@ -40,6 +40,7 @@ public class SourceDistTask extends AbstractPythonMainSourceDefaultTask {
             String.format(
                 "%s-%s.tar.gz",
                 project.getName(),
+                // TODO: Is this replace here really necessary?
                 project.getVersion().toString().replace("_", "-")));
     }
 

@@ -31,7 +31,7 @@ public class VersionPlugin implements Plugin<Project> {
 
     @Override
     public void apply(Project target) {
-        if(target.getRootProject() != target) {
+        if (target.getRootProject() != target) {
             throw new GradleException("Cannot apply dependency plugin to a non-root project");
         }
 
@@ -39,16 +39,12 @@ public class VersionPlugin implements Plugin<Project> {
 
         Version version = VersionFile.getVersion(versionProperties);
 
-        if(!target.hasProperty("release") || !Boolean.parseBoolean((String) target.property("release"))) {
-            version = version.withNextPatch().asSnapshot();
+        if (!target.hasProperty("release") || !Boolean.parseBoolean((String) target.property("release"))) {
+            version = version.asSnapshot();
         }
 
         logger.lifecycle("Building using version {}", version);
         target.allprojects(new VersionAction(version));
-
-        VersionBumpTask versionBump = target.getTasks().create("versionBump", VersionBumpTask.class);
-        versionBump.setVersionFile(versionProperties);
-        versionBump.setCurrentVersion(version);
     }
 
     private static class VersionAction implements Action<Project> {

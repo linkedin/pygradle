@@ -49,7 +49,7 @@ public class DefaultPackageSettings implements PackageSettings<PackageInfo> {
 
         // always reinstall snapshots, but current project is installed editable anyway, no need for other options
         if (!projectName.equals(name)
-                && ((version != null && version.endsWith("-SNAPSHOT")) || requiresSourceBuild(packageInfo))) {
+                && ((version != null && version.contains("-")) || requiresSourceBuild(packageInfo))) {
             return Collections.singletonList("--ignore-installed");
         }
         return Collections.emptyList();
@@ -79,7 +79,7 @@ public class DefaultPackageSettings implements PackageSettings<PackageInfo> {
         if (projectName.equals(name)) {
             return true;
         }
-        // always rebuild snapshots; otherwise no rebuild required
-        return (version != null && version.endsWith("-SNAPSHOT"));
+        // always rebuild snapshots; otherwise no rebuild required, per semver versions with '-' are pre-release
+        return (version != null && version.contains("-"));
     }
 }

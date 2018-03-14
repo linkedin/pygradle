@@ -78,7 +78,7 @@ public class PipFreezeAction {
     private static Set<String> configurationToSet(Collection<File> files) {
         Set<String> configNames = new HashSet<>();
         for (File file : files) {
-            PackageInfo packageInfo = PackageInfo.fromPath(file.getName());
+            PackageInfo packageInfo = PackageInfo.fromPath(file);
             configNames.add(packageInfo.getName());
         }
 

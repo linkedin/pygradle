@@ -19,8 +19,9 @@ import com.linkedin.gradle.python.PythonExtension
 import com.linkedin.gradle.python.extension.PythonDetails
 import com.linkedin.gradle.python.plugin.PythonHelpers
 import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider
+import com.linkedin.gradle.python.tasks.supports.SupportsPackageInfoSettings
+import com.linkedin.gradle.python.tasks.supports.SupportsWheelCache
 import com.linkedin.gradle.python.util.DefaultEnvironmentMerger
-import com.linkedin.gradle.python.util.DefaultPackageSettings
 import com.linkedin.gradle.python.util.DependencyOrder
 import com.linkedin.gradle.python.util.EnvironmentMerger
 import com.linkedin.gradle.python.util.ExtensionUtils
@@ -29,7 +30,6 @@ import com.linkedin.gradle.python.util.PackageInfo
 import com.linkedin.gradle.python.util.PackageSettings
 import com.linkedin.gradle.python.util.internal.TaskTimer
 import com.linkedin.gradle.python.wheel.EmptyWheelCache
-import com.linkedin.gradle.python.wheel.SupportsWheelCache
 import com.linkedin.gradle.python.wheel.WheelCache
 import groovy.transform.CompileStatic
 import org.gradle.api.DefaultTask
@@ -48,14 +48,13 @@ import org.gradle.process.ExecSpec
 import java.nio.file.Path
 import java.nio.file.Paths
 
-
 /**
  * Execute pip install
  *
  * TODO: Add an output to make execution faster
  */
 @CompileStatic
-class PipInstallTask extends DefaultTask implements FailureReasonProvider, SupportsWheelCache {
+class PipInstallTask extends DefaultTask implements FailureReasonProvider, SupportsWheelCache, SupportsPackageInfoSettings {
 
     @Input
     WheelCache wheelCache = new EmptyWheelCache()
@@ -77,7 +76,7 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider, Suppo
     @Optional
     boolean sorted = true
 
-    PackageSettings<PackageInfo> packageSettings = new DefaultPackageSettings(project.name)
+    PackageSettings<PackageInfo> packageSettings
 
     EnvironmentMerger environmentMerger = new DefaultEnvironmentMerger()
 
@@ -141,7 +140,7 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider, Suppo
         def installableFiles = DependencyOrder.getConfigurationFiles(installFileCollection, sorted)
         for (File installable : installableFiles) {
             if (isReadyForInstall(installable)) {
-                def packageInfo = PackageInfo.fromPath(installable.getAbsolutePath())
+                def packageInfo = PackageInfo.fromPath(installable)
                 String shortHand = packageInfo.version ? "${ packageInfo.name }-${ packageInfo.version }" : packageInfo.name
 
                 def timer = taskTimer.start(shortHand)
@@ -170,7 +169,7 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider, Suppo
         def supportedVersions = packageSettings.getSupportedLanguageVersions(packageInfo)
         if (supportedVersions != null && !supportedVersions.empty && !supportedVersions.contains(pyVersion)) {
             throw new PipInstallException(
-                "Package ${packageInfo.name} works only with Python versions: ${supportedVersions}")
+                "Package ${ packageInfo.name } works only with Python versions: ${ supportedVersions }")
         }
 
         String sanitizedName = packageInfo.name.replace('-', '_')

@@ -76,7 +76,6 @@ public interface PackageSettings<T> {
      * @param t package information object
      * @return a list of configure options
      */
-    @SuppressWarnings("unused")
     List<String> getConfigureOptions(T t);
 
     /**

@@ -13,10 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.wheel;
+package com.linkedin.gradle.python.tasks.supports;
 
+import com.linkedin.gradle.python.wheel.WheelCache;
 import org.gradle.api.Task;
 
+/**
+ * Marker interface for tasks that support WheelCache
+ */
 public interface SupportsWheelCache extends Task {
     void setWheelCache(WheelCache wheelCache);
 

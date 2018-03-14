@@ -18,7 +18,9 @@ package com.linkedin.gradle.python.tasks;
 import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.extension.PythonDetails;
 import com.linkedin.gradle.python.plugin.PythonHelpers;
+import com.linkedin.gradle.python.tasks.supports.SupportsPackageInfoSettings;
 import com.linkedin.gradle.python.util.PackageInfo;
+import com.linkedin.gradle.python.util.PackageSettings;
 import com.linkedin.gradle.python.util.internal.TaskTimer;
 import com.linkedin.gradle.python.wheel.WheelCache;
 import org.apache.commons.io.FileUtils;
@@ -43,7 +45,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ParallelWheelGenerationTask extends DefaultTask {
+public class ParallelWheelGenerationTask extends DefaultTask implements SupportsPackageInfoSettings {
 
     private static final Logger logger = Logging.getLogger(ParallelWheelGenerationTask.class);
 
@@ -54,6 +56,8 @@ public class ParallelWheelGenerationTask extends DefaultTask {
     private File cacheDir;
     private PythonExtension extension;
     private AtomicInteger counter = new AtomicInteger();
+
+    private PackageSettings<PackageInfo> packageSettings;
 
     @TaskAction
     public void buildWheels() {
@@ -69,9 +73,11 @@ public class ParallelWheelGenerationTask extends DefaultTask {
         Set<File> files = getFilesToConvert().getFiles();
         int totalSize = files.size();
         files.parallelStream().forEach(file -> {
-            PackageInfo packageInfo = PackageInfo.fromPath(file.getPath());
+            PackageInfo packageInfo = PackageInfo.fromPath(file);
             TaskTimer.TickingClock clock = taskTimer.start(packageInfo.getName() + "-" + packageInfo.getVersion());
-            makeWheelFromSdist(progressLogger, totalSize, file);
+            if (!packageSettings.requiresSourceBuild(packageInfo)) {
+                makeWheelFromSdist(progressLogger, totalSize, file);
+            }
             clock.stop();
         });
 
@@ -89,7 +95,7 @@ public class ParallelWheelGenerationTask extends DefaultTask {
             return;
         }
 
-        PackageInfo packageInfo = PackageInfo.fromPath(input.getPath());
+        PackageInfo packageInfo = PackageInfo.fromPath(input);
         progressLogger.progress(String.format("Building wheel %s %d of %d", packageInfo.getName(), counter.incrementAndGet(), totalSize));
         Optional<File> cachedWheel = wheelCache.findWheel(
             packageInfo.getName(),
@@ -175,5 +181,15 @@ public class ParallelWheelGenerationTask extends DefaultTask {
 
     public void setWheelCache(WheelCache wheelCache) {
         this.wheelCache = wheelCache;
+    }
+
+    @Override
+    public void setPackageSettings(PackageSettings<PackageInfo> settings) {
+        this.packageSettings = settings;
+    }
+
+    @Override
+    public PackageSettings<PackageInfo> getPackageSettings() {
+        return this.packageSettings;
     }
 }

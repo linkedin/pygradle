@@ -20,7 +20,7 @@ import com.linkedin.gradle.python.tasks.ParallelWheelGenerationTask;
 import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.wheel.FileBackedWheelCache;
 import com.linkedin.gradle.python.wheel.SupportedWheelFormats;
-import com.linkedin.gradle.python.wheel.SupportsWheelCache;
+import com.linkedin.gradle.python.tasks.supports.SupportsWheelCache;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurationContainer;

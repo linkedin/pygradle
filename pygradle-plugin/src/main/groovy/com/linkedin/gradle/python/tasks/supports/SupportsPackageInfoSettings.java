@@ -13,26 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.plugin.testutils
+package com.linkedin.gradle.python.tasks.supports;
 
-trait ProjectLayoutRule {
-    abstract void before() throws Throwable
+import com.linkedin.gradle.python.util.PackageInfo;
+import com.linkedin.gradle.python.util.PackageSettings;
+import org.gradle.api.Task;
 
-    abstract void after()
+/**
+ * Marker interface for tasks that support PackageSettings
+ */
+public interface SupportsPackageInfoSettings extends Task {
 
-    abstract void create() throws IOException
+    /**
+     * Set the package settings
+     */
+    void setPackageSettings(PackageSettings<PackageInfo> settings);
 
-    abstract File newFile(String fileName) throws IOException
-
-    abstract File newFile() throws IOException
-
-    abstract File newFolder(String folder) throws IOException
-
-    abstract File newFolder(String... folderNames) throws IOException
-
-    abstract File newFolder() throws IOException
-
-    abstract File getRoot()
-
-    abstract void delete()
+    /**
+     * Get the package settings
+     *
+     * @return package settings
+     */
+    PackageSettings<PackageInfo> getPackageSettings();
 }

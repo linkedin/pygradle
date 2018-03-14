@@ -19,8 +19,9 @@ import com.linkedin.gradle.python.PythonExtension
 import com.linkedin.gradle.python.extension.PythonDetails
 import com.linkedin.gradle.python.extension.WheelExtension
 import com.linkedin.gradle.python.plugin.PythonHelpers
+import com.linkedin.gradle.python.tasks.supports.SupportsPackageInfoSettings
+import com.linkedin.gradle.python.tasks.supports.SupportsWheelCache
 import com.linkedin.gradle.python.util.DefaultEnvironmentMerger
-import com.linkedin.gradle.python.util.DefaultPackageSettings
 import com.linkedin.gradle.python.util.DependencyOrder
 import com.linkedin.gradle.python.util.EnvironmentMerger
 import com.linkedin.gradle.python.util.ExtensionUtils
@@ -28,7 +29,6 @@ import com.linkedin.gradle.python.util.PackageInfo
 import com.linkedin.gradle.python.util.PackageSettings
 import com.linkedin.gradle.python.util.internal.TaskTimer
 import com.linkedin.gradle.python.wheel.EmptyWheelCache
-import com.linkedin.gradle.python.wheel.SupportsWheelCache
 import com.linkedin.gradle.python.wheel.WheelCache
 import org.apache.commons.io.FileUtils
 import org.gradle.api.DefaultTask
@@ -47,8 +47,7 @@ import org.gradle.internal.logging.progress.ProgressLoggerFactory
 import org.gradle.process.ExecResult
 import org.gradle.process.ExecSpec
 
-
-class BuildWheelsTask extends DefaultTask implements SupportsWheelCache {
+class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, SupportsPackageInfoSettings {
 
     private static final Logger LOGGER = Logging.getLogger(BuildWheelsTask)
 
@@ -65,7 +64,7 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache {
     @Optional
     Map<String, String> environment
 
-    PackageSettings<PackageInfo> packageSettings = new DefaultPackageSettings(project.name)
+    PackageSettings<PackageInfo> packageSettings
 
     EnvironmentMerger environmentMerger = new DefaultEnvironmentMerger()
 
@@ -147,7 +146,7 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache {
         def numberOfInstallables = installables.size()
         installables.each { File installable ->
             def pyVersion = pythonDetails.getPythonVersion().pythonMajorMinor
-            def packageInfo = PackageInfo.fromPath(installable.path)
+            def packageInfo = PackageInfo.fromPath(installable)
             def shortHand = packageInfo.version ? "${ packageInfo.name }-${ packageInfo.version }" : packageInfo.name
 
             def clock = taskTimer.start(shortHand)
@@ -168,7 +167,7 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache {
             def supportedVersions = packageSettings.getSupportedLanguageVersions(packageInfo)
             if (supportedVersions != null && !supportedVersions.empty && !supportedVersions.contains(pyVersion)) {
                 throw new GradleException(
-                    "Package ${packageInfo.name} works only with Python versions: ${supportedVersions}")
+                    "Package ${ packageInfo.name } works only with Python versions: ${ supportedVersions }")
             }
 
             /*
@@ -189,7 +188,7 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache {
 
                 def tree = project.fileTree(
                     dir: wheelExtension.wheelCache,
-                    include: "**/${packageInfo.name.replace('-', '_')}-${(packageInfo.version ?: 'unspecified').replace('-', '_')}-*.whl")
+                    include: "**/${ packageInfo.name.replace('-', '_') }-${ (packageInfo.version ?: 'unspecified').replace('-', '_') }-*.whl")
 
                 if (tree.files.size() >= 1) {
                     return

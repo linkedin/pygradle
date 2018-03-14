@@ -23,12 +23,19 @@ import java.util.regex.Matcher
 
 class PackageInfo {
 
+    final File packageFile
     final String name
     final String version
 
-    private PackageInfo(String name, String version) {
+    private PackageInfo(File packageFile, String name, String version) {
+        this.packageFile = packageFile
         this.name = name
         this.version = version
+    }
+
+    @Deprecated
+    public static PackageInfo fromPath(String packagePath) {
+        return fromPath(new File(packagePath))
     }
 
     /**
@@ -57,18 +64,18 @@ class PackageInfo {
      * <p>
      * @param packagePath The path to a Python package.
      */
-    public static PackageInfo fromPath(String packagePath) {
+    public static PackageInfo fromPath(File packagePath) {
         def extensionRegex = /\.tar\.gz|\.zip|\.tar|\.tar\.bz2|\.tgz/
         def nameVersionRegex = /^(?<name>[a-zA-Z0-9._\-]+)-(?<version>([0-9][0-9a-z\.]+(-.*)*))$/
 
-        def filename = FilenameUtils.getName(packagePath)
+        def filename = FilenameUtils.getName(packagePath.getPath())
         def packageName = filename.split(extensionRegex).first()
 
-        if (new File(packagePath).isDirectory()) {
-            return new PackageInfo(filename, null)
+        if (packagePath.isDirectory()) {
+            return new PackageInfo(packagePath, filename, null)
         }
 
-        if (packagePath == packageName) {
+        if (packagePath.getPath() == packageName) {
             throw new GradleException("Cannot calculate Python package extension from ${ packagePath } using regular expression /${ extensionRegex }/.")
         }
 
@@ -76,7 +83,7 @@ class PackageInfo {
         if (matcher.matches()) {
             def name = matcher.group('name')
             def version = matcher.group('version')
-            return new PackageInfo(name, version)
+            return new PackageInfo(packagePath, name, version)
         } else {
             throw new GradleException("Cannot calculate Python package name and version from ${ packageName } using regular expression /${ nameVersionRegex }/.")
         }

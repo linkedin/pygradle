@@ -23,6 +23,8 @@ import com.linkedin.gradle.python.tasks.CleanSaveVenvTask;
 import com.linkedin.gradle.python.tasks.GenerateSetupPyTask;
 import com.linkedin.gradle.python.tasks.InstallVirtualEnvironmentTask;
 import com.linkedin.gradle.python.tasks.PinRequirementsTask;
+import com.linkedin.gradle.python.tasks.supports.SupportsPackageInfoSettings;
+import com.linkedin.gradle.python.util.DefaultPackageSettings;
 import com.linkedin.gradle.python.util.FileSystemUtils;
 import com.linkedin.gradle.python.util.internal.PyPiRepoUtil;
 import org.gradle.api.Plugin;
@@ -57,6 +59,9 @@ public class PythonPlugin implements Plugin<Project> {
 
         createConfigurations(project);
         configureVendedDependencies(project, settings);
+
+        DefaultPackageSettings packageSettings = new DefaultPackageSettings(project.getName());
+        project.getTasks().withType(SupportsPackageInfoSettings.class, it -> it.setPackageSettings(packageSettings));
 
         /*
          * To prevent base dependencies, such as setuptools, from installing/reinstalling, we will

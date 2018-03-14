@@ -73,11 +73,12 @@ class PackageSettingsIntegrationTest extends Specification {
             .build()
         println result.output
 
-        then: "we can observe the environment for 'foo' provided exactly two lines after its install is logged"
-        result.output.find(
-            'Installing foo\n[^\n]+\n[^\n]+Environment for[^\n]+CPPFLAGS=-I/some/custom/path/include')
-        result.output.find(
-            'Installing foo\n[^\n]+\n[^\n]+LDFLAGS=-L/some/custom/path/lib -Wl,-rpath,/some/custom/path/lib')
+        then: "we can observe the environment for 'foo' provided a few lines after its install is logged"
+        def match = result.output.find(/Installing foo[\s\S]+?Environment for[^\n]+: \{[^}]+\}/)
+        match != null
+        match.findAll('Installing ').size() == 1
+        match.contains('CPPFLAGS=-I/some/custom/path/include')
+        match.contains('LDFLAGS=-L/some/custom/path/lib -Wl,-rpath,/some/custom/path/lib')
         result.output.contains('BUILD SUCCESS')
         result.task(':foo:installProject').outcome == TaskOutcome.SUCCESS
     }
@@ -133,7 +134,7 @@ class PackageSettingsIntegrationTest extends Specification {
 
         then: "we can observe global options being passed to 'setuptools' and failing because it does not expect them"
         // the global option for setup.py is passed *before* install command
-        result.output.find('setup.py[^\n]+ --dummy-global-option install')
+        result.output.find(/setup.py[^\n]+ --dummy-global-option install/)
         result.output.contains('Running setup.py install for setuptools')
         result.output.contains('error: option --dummy-global-option not recognized')
         result.output.contains('BUILD FAILED')
@@ -185,7 +186,7 @@ class PackageSettingsIntegrationTest extends Specification {
 
         then: "we can observe install options being passed to 'setuptools' and failing because it does not expect them"
         // the install option is passed *after* install command
-        result.output.find('setup.py[^\n]+ install [^\n]+ --ignore=E123,E234')
+        result.output.find(/setup.py[^\n]+ install [^\n]+ --ignore=E123,E234/)
         result.output.contains('Running setup.py install for setuptools')
         result.output.contains('error: option --ignore not recognized')
         result.output.contains('BUILD FAILED')
@@ -289,7 +290,7 @@ class PackageSettingsIntegrationTest extends Specification {
 
         then: "we can observe that required source rebuild happens"
         // pyflakes should be installed in build requirements, and then again in runtime requirements
-        result.output.findAll('Installing pyflakes[^\n]+\n[^\n]+ --ignore-installed [^\n]+pyflakes').size() == 2
+        result.output.findAll(/Installing pyflakes[\s\S]+? --ignore-installed [^\n]+pyflakes/).size() == 2
         result.output.contains('BUILD SUCCESS')
         result.task(':foo:installProject').outcome == TaskOutcome.SUCCESS
     }
@@ -345,11 +346,12 @@ class PackageSettingsIntegrationTest extends Specification {
             .build()
         println result.output
 
-        then: "we can observe the environment for 'foo' provided exactly two lines after its build is logged"
-        result.output.find(
-            'Installing foo wheel\n[^\n]+\n[^\n]+Environment for[^\n]+CPPFLAGS=-I/some/custom/path/include')
-        result.output.find(
-            'Installing foo wheel\n[^\n]+\n[^\n]+LDFLAGS=-L/some/custom/path/lib -Wl,-rpath,/some/custom/path/lib')
+        then: "we can observe the environment for 'foo' provided a few lines after its build is logged"
+        def match = result.output.find(/Installing foo\S* wheel[\s\S]+?Environment for[^\n]+: \{[^}]+\}/)
+        match != null
+        match.findAll('Installing ').size() == 1
+        match.contains('CPPFLAGS=-I/some/custom/path/include')
+        match.contains('LDFLAGS=-L/some/custom/path/lib -Wl,-rpath,/some/custom/path/lib')
         result.output.contains('BUILD SUCCESS')
         result.task(':foo:buildWheels').outcome == TaskOutcome.SUCCESS
         result.task(':foo:buildProjectWheel').outcome == TaskOutcome.SUCCESS
@@ -406,7 +408,7 @@ class PackageSettingsIntegrationTest extends Specification {
 
         then: "we can observe global options being passed to 'pyflakes' and failing because it does not expect them"
         // the global option for setup.py is passed *before* bdist_wheel command
-        result.output.find('setup.py[^\n]+ --dummy-global-option bdist_wheel')
+        result.output.find(/setup.py[^\n]+ --dummy-global-option bdist_wheel/)
         result.output.contains('Failed building wheel for pyflakes')
         result.output.contains('error: option --dummy-global-option not recognized')
         result.output.contains('BUILD FAILED')
@@ -467,7 +469,7 @@ class PackageSettingsIntegrationTest extends Specification {
 
         then: "we can observe build options being passed to 'pyflakes' and failing because it does not expect them"
         // the build option is passed *after* bdist_wheel command
-        result.output.find('setup.py[^\n]+ bdist_wheel [^\n]+ --disable-something')
+        result.output.find(/setup.py[^\n]+ bdist_wheel [^\n]+ --disable-something/)
         result.output.contains('Failed building wheel for pyflakes')
         result.output.contains('error: option --disable-something not recognized')
         result.output.contains('BUILD FAILED')
@@ -580,8 +582,8 @@ class PackageSettingsIntegrationTest extends Specification {
 
         then: "we can observe that required source rebuild happens"
         // pyflakes wheel should be re-installed after install in build and runtime requirements of virtualenv.
-        result.output.findAll('Installing pyflakes[^\n]+\n[^\n]+pip install [^\n]+pyflakes').size() == 2
-        result.output.find('Installing pyflakes[^ ]+ wheel\n[^\n]+pip wheel [^\n]+pyflakes')
+        result.output.findAll(/Installing pyflakes[\s\S]+?pip install [^\n]+pyflakes/).size() == 2
+        result.output.find(/Installing pyflakes\S+ wheel[\s\S]+?pip wheel [^\n]+pyflakes/)
         result.output.contains('BUILD SUCCESS')
         result.task(':foo:installProject').outcome == TaskOutcome.SUCCESS
         result.task(':foo:buildWheels').outcome == TaskOutcome.SUCCESS

@@ -41,9 +41,14 @@ import org.gradle.process.ExecResult;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class ParallelWheelGenerationTask extends DefaultTask implements SupportsPackageInfoSettings {
 
@@ -51,6 +56,8 @@ public class ParallelWheelGenerationTask extends DefaultTask implements Supports
 
     @Input
     private WheelCache wheelCache;
+
+    private Set<String> currentPackages = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     private FileCollection filesToConvert;
     private File cacheDir;
@@ -70,16 +77,35 @@ public class ParallelWheelGenerationTask extends DefaultTask implements Supports
 
         TaskTimer taskTimer = new TaskTimer();
 
+        // This way we don't try to over-alloc the system to much. We'll use slightly over 1/2 of the machine to build
+        // the wheels in parallel. Allowing other operations to continue.
+        ForkJoinPool forkJoinPool = new ForkJoinPool(Runtime.getRuntime().availableProcessors() / 2 + 1);
+
         Set<File> files = getFilesToConvert().getFiles();
         int totalSize = files.size();
-        files.parallelStream().forEach(file -> {
-            PackageInfo packageInfo = PackageInfo.fromPath(file);
-            TaskTimer.TickingClock clock = taskTimer.start(packageInfo.getName() + "-" + packageInfo.getVersion());
-            if (!packageSettings.requiresSourceBuild(packageInfo)) {
-                makeWheelFromSdist(progressLogger, totalSize, file);
-            }
-            clock.stop();
-        });
+
+        try {
+            forkJoinPool.submit(() -> {
+                files.stream().parallel().forEach(file -> {
+
+                    PackageInfo packageInfo = PackageInfo.fromPath(file);
+                    currentPackages.add(packageInfo.getName());
+                    counter.incrementAndGet();
+                    updateStatusLine(progressLogger, totalSize, counter.get());
+                    TaskTimer.TickingClock clock = taskTimer.start(packageInfo.getName() + "-" + packageInfo.getVersion());
+                    if (!packageSettings.requiresSourceBuild(packageInfo)) {
+                        makeWheelFromSdist(packageInfo);
+                    }
+                    currentPackages.remove(packageInfo.getName());
+                    updateStatusLine(progressLogger, totalSize, counter.get());
+                    clock.stop();
+                });
+            }).get();
+        } catch (InterruptedException | ExecutionException e) {
+            logger.warn("Unable to pre-build some dependencies");
+        } finally {
+            forkJoinPool.shutdown();
+        }
 
         try {
             FileUtils.write(getBuildReport(), taskTimer.buildReport());
@@ -89,14 +115,12 @@ public class ParallelWheelGenerationTask extends DefaultTask implements Supports
         progressLogger.completed();
     }
 
-    private void makeWheelFromSdist(ProgressLogger progressLogger, int totalSize, File input) {
+    private void makeWheelFromSdist(PackageInfo packageInfo) {
 
-        if (input.getName().endsWith(".whl")) {
+        if (packageInfo.getPackageFile().getName().endsWith(".whl")) {
             return;
         }
 
-        PackageInfo packageInfo = PackageInfo.fromPath(input);
-        progressLogger.progress(String.format("Building wheel %s %d of %d", packageInfo.getName(), counter.incrementAndGet(), totalSize));
         Optional<File> cachedWheel = wheelCache.findWheel(
             packageInfo.getName(),
             packageInfo.getVersion(),
@@ -118,7 +142,7 @@ public class ParallelWheelGenerationTask extends DefaultTask implements Supports
                 "--disable-pip-version-check",
                 "--wheel-dir", cacheDir,
                 "--no-deps",
-                input.getAbsoluteFile().getAbsolutePath());
+                packageInfo.getPackageFile().getAbsoluteFile().getAbsolutePath());
             exec.setStandardOutput(stream);
             exec.setErrorOutput(stream);
             exec.setIgnoreExitValue(true);
@@ -137,6 +161,11 @@ public class ParallelWheelGenerationTask extends DefaultTask implements Supports
                 logger.lifecycle("Wheel was built for {}-{}", packageInfo.getName(), packageInfo.getVersion());
             }
         }
+    }
+
+    private void updateStatusLine(ProgressLogger progressLogger, int totalSize, int currentPackageCount) {
+        String packagesBeingBuilt = currentPackages.stream().collect(Collectors.joining(", "));
+        progressLogger.progress(String.format("Building wheel(s) [ %s ] %d of %d", packagesBeingBuilt, currentPackageCount, totalSize));
     }
 
     @Internal

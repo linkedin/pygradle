@@ -75,7 +75,7 @@ class PackageInfo {
             return new PackageInfo(packagePath, filename, null)
         }
 
-        if (packagePath.getPath() == packageName) {
+        if (packagePath.getName() == packageName) {
             throw new GradleException("Cannot calculate Python package extension from ${ packagePath } using regular expression /${ extensionRegex }/.")
         }
 

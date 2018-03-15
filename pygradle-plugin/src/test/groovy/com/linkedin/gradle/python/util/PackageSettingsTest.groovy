@@ -26,63 +26,67 @@ class PackageSettingsTest extends Specification {
 
     def "default package settings environment"() {
         expect: "empty environment"
-        packageSettings.getEnvironment(PackageInfo.fromPath('flake8-1.2.3.tar.gz')) == [:]
+        packageSettings.getEnvironment(packageInGradleCache('flake8-1.2.3.tar.gz')) == [:]
     }
 
     def "default package settings global options"() {
         expect: "empty global options"
-        packageSettings.getGlobalOptions(PackageInfo.fromPath('Sphinx-1.2.3.tar.gz')) == []
+        packageSettings.getGlobalOptions(packageInGradleCache('Sphinx-1.2.3.tar.gz')) == []
     }
 
     def "default package settings install options"() {
         expect: "empty install options for non-project package that is not a snapshot"
-        packageSettings.getInstallOptions(PackageInfo.fromPath('requests-1.2.3.tar.gz')) == []
+        packageSettings.getInstallOptions(packageInGradleCache('requests-1.2.3.tar.gz')) == []
     }
 
     def "package settings install options for snapshot"() {
         expect: "install option --ignore-installed for SNAPSHOT packages to enforce re-install"
-        packageSettings.getInstallOptions(PackageInfo.fromPath('requests-1.2.3-SNAPSHOT.tar.gz')) == [
+        packageSettings.getInstallOptions(packageInGradleCache('requests-1.2.3-SNAPSHOT.tar.gz')) == [
             '--ignore-installed']
     }
 
     def "package settings install options for project snapshot()"() {
         expect: "project snapshot does not use --ignore-installed because it's installed editable"
-        packageSettings.getInstallOptions(PackageInfo.fromPath('foo-1.2.3-SNAPSHOT.tar.gz')) == []
+        packageSettings.getInstallOptions(packageInGradleCache('foo-1.2.3-SNAPSHOT.tar.gz')) == []
     }
 
     def "default package settings build options"() {
         expect: "empty build options"
-        packageSettings.getBuildOptions(PackageInfo.fromPath('numpy-1.2.3.tar.gz')) == []
+        packageSettings.getBuildOptions(packageInGradleCache('numpy-1.2.3.tar.gz')) == []
     }
 
     def "package settings build options for snapshot"() {
         expect: "empty build options"
-        packageSettings.getBuildOptions(PackageInfo.fromPath('scipy-1.2.3-SNAPSHOT.tar.gz')) == []
+        packageSettings.getBuildOptions(packageInGradleCache('scipy-1.2.3-SNAPSHOT.tar.gz')) == []
     }
 
     def "default package settings configure options"() {
         expect: "empty configure options"
-        packageSettings.getConfigureOptions(PackageInfo.fromPath('pytest-1.2.3.tar.gz')) == []
+        packageSettings.getConfigureOptions(packageInGradleCache('pytest-1.2.3.tar.gz')) == []
     }
 
     def "default package settings supported language versions"() {
         expect: "empty supported language versions"
-        packageSettings.getSupportedLanguageVersions(PackageInfo.fromPath('foo-1.2.3.tar.gz')) == []
+        packageSettings.getSupportedLanguageVersions(packageInGradleCache('foo-1.2.3.tar.gz')) == []
     }
 
     def "default package settings requires source build"() {
         expect: "does not require source build"
-        !packageSettings.requiresSourceBuild(PackageInfo.fromPath('requests-1.2.3.tar.gz'))
+        !packageSettings.requiresSourceBuild(packageInGradleCache('requests-1.2.3.tar.gz'))
     }
 
     def "package settings require source build for snapshot"() {
         expect: "snapshot requires a build"
-        packageSettings.requiresSourceBuild(PackageInfo.fromPath('requests-1.2.3-SNAPSHOT.tar.gz'))
+        packageSettings.requiresSourceBuild(packageInGradleCache('requests-1.2.3-SNAPSHOT.tar.gz'))
     }
 
     def "package settings requires a rebuild for the current project"() {
         expect: "project requires a rebuild"
-        packageSettings.requiresSourceBuild(PackageInfo.fromPath('foo-1.2.3.tar.gz'))
+        packageSettings.requiresSourceBuild(packageInGradleCache('foo-1.2.3.tar.gz'))
+    }
+
+    static PackageInfo packageInGradleCache(String name) {
+        return PackageInfo.fromPath(new File("/foo/.gradle/caches/", name))
     }
 
 }

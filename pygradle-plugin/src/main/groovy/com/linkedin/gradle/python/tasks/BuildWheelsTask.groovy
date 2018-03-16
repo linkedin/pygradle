@@ -61,6 +61,9 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, Support
     FileCollection installFileCollection
 
     @Input
+    List<String> args = []
+
+    @Input
     @Optional
     Map<String, String> environment
 
@@ -208,6 +211,8 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, Support
                 '--wheel-dir', wheelExtension.wheelCache.toString(),
                 '--no-deps',
             ]
+
+            commandLine.addAll(args)
 
             def globalOptions = packageSettings.getGlobalOptions(packageInfo)
             if (globalOptions != null) {

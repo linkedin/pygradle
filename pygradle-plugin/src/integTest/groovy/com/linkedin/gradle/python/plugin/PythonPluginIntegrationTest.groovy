@@ -32,6 +32,7 @@ class PythonPluginIntegrationTest extends Specification {
         testProjectDir.buildFile << """
         |plugins {
         |    id 'com.linkedin.python'
+        |    id 'com.linkedin.python-wheel-dist'
         |}
         |
         |${PyGradleTestBuilder.createRepoClosure()}

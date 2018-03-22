@@ -34,6 +34,7 @@ import com.linkedin.gradle.python.wheel.WheelCache
 import groovy.transform.CompileStatic
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
+import org.gradle.api.Task
 import org.gradle.api.file.FileCollection
 import org.gradle.api.specs.Spec
 import org.gradle.api.tasks.Input
@@ -80,16 +81,19 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider, Suppo
 
     EnvironmentMerger environmentMerger = new DefaultEnvironmentMerger()
 
+    public PipInstallTask() {
+        getOutputs().doNotCacheIf('When package packageExcludeFilter is set', new Spec<Task>() {
+            @Override
+            boolean isSatisfiedBy(Task element) {
+                return ((PipInstallTask) element).packageExcludeFilter != null
+            }
+        })
+    }
+
     /**
      * Will return true when the package should be excluded from being installed.
      */
-    @Input
-    Spec<PackageInfo> packageExcludeFilter = new Spec<PackageInfo>() {
-        @Override
-        boolean isSatisfiedBy(PackageInfo packageInfo) {
-            return false
-        }
-    }
+    Spec<PackageInfo> packageExcludeFilter = null
 
     private String lastInstallMessage = null
 
@@ -158,7 +162,7 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider, Suppo
     @SuppressWarnings("ParameterCount")
     private void doInstall(String shortHand, PackageInfo packageInfo, Path sitePackages,
                            String pyVersion, PythonExtension extension, File installable) {
-        if (packageExcludeFilter.isSatisfiedBy(packageInfo)) {
+        if (packageExcludeFilter != null && packageExcludeFilter.isSatisfiedBy(packageInfo)) {
             if (PythonHelpers.isPlainOrVerbose(project)) {
                 logger.lifecycle("Skipping {} - Excluded", shortHand)
             }

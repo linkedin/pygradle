@@ -37,7 +37,6 @@ public class PythonDetails implements Serializable {
     private String virtualEnvPrompt;
     private PythonVersion pythonVersion;
     private PythonDefaultVersions pythonDefaultVersions;
-    private OperatingSystem operatingSystem = OperatingSystem.current();
 
     private List<File> searchPath;
 
@@ -47,9 +46,9 @@ public class PythonDetails implements Serializable {
 
     public PythonDetails(Project project, File venvDir) {
         this.project = project;
-        activateLink = new File(project.getProjectDir(), operatingSystem.getScriptName("activate"));
+        activateLink = new File(project.getProjectDir(), OperatingSystem.current().getScriptName("activate"));
         virtualEnvPrompt = String.format("(%s)", project.getName());
-        searchPath = operatingSystem.getPath();
+        searchPath = OperatingSystem.current().getPath();
         venvOverride = venvDir;
         this.virtualEnvironment = new VirtualEnvironment(this);
         pythonDefaultVersions = new PythonDefaultVersions();
@@ -80,7 +79,7 @@ public class PythonDetails implements Serializable {
 
     public File getVirtualEnvInterpreter() {
         String binDir = VirtualEnvironment.getPythonApplicationDirectory();
-        String binName = operatingSystem.getExecutableName("python");
+        String binName = OperatingSystem.current().getExecutableName("python");
         return Paths.get(getVirtualEnv().getAbsolutePath(), binDir, binName).toFile();
     }
 
@@ -131,6 +130,7 @@ public class PythonDetails implements Serializable {
 
     public void setPythonVersion(String version) {
         version = pythonDefaultVersions.normalize(version);
+        OperatingSystem operatingSystem = OperatingSystem.current();
         pythonInterpreter = operatingSystem.findInPath(searchPath, operatingSystem.getExecutableName(String.format("python%s", version)));
         updateFromPythonInterpreter();
     }
@@ -147,6 +147,7 @@ public class PythonDetails implements Serializable {
 
     private void findPythonWhenAbsent() {
         if (pythonInterpreter == null) {
+            OperatingSystem operatingSystem = OperatingSystem.current();
             File python = operatingSystem.findInPath(searchPath, operatingSystem.getExecutableName("python"));
             if (python == null) {
                 python = new File("/usr/bin/python");

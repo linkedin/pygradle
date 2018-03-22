@@ -17,11 +17,12 @@ package com.linkedin.gradle.python.extension;
 
 import org.gradle.api.GradleException;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.TreeSet;
 
 
-public class PythonDefaultVersions {
+public class PythonDefaultVersions implements Serializable {
     private final String defaultPython2Version;
     private final String defaultPython3Version;
     private final Collection<String> allowedVersions;

@@ -18,9 +18,10 @@ package com.linkedin.gradle.python.extension;
 import com.linkedin.gradle.python.util.OperatingSystem;
 
 import java.io.File;
+import java.io.Serializable;
 import java.nio.file.Path;
 
-public class VirtualEnvironment {
+public class VirtualEnvironment implements Serializable {
 
     private final PythonDetails details;
 

@@ -34,6 +34,7 @@ import org.apache.commons.io.FileUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.file.FileCollection
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
@@ -71,6 +72,15 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, Support
 
     EnvironmentMerger environmentMerger = new DefaultEnvironmentMerger()
 
+    public BuildWheelsTask() {
+        getOutputs().doNotCacheIf('When package packageExcludeFilter is set', new Spec<Task>() {
+            @Override
+            boolean isSatisfiedBy(Task element) {
+                return ((BuildWheelsTask) element).packageExcludeFilter != null
+            }
+        })
+    }
+
     @TaskAction
     void buildWheelsTask() {
         buildWheels(project, DependencyOrder.getConfigurationFiles(installFileCollection), getPythonDetails())
@@ -97,13 +107,7 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, Support
     /**
      * Will return true when the package should be excluded from being installed.
      */
-    @Input
-    Spec<PackageInfo> packageExcludeFilter = new Spec<PackageInfo>() {
-        @Override
-        boolean isSatisfiedBy(PackageInfo packageInfo) {
-            return false
-        }
-    }
+    Spec<PackageInfo> packageExcludeFilter = null
 
     @Input
     PythonDetails getPythonDetails() {
@@ -159,7 +163,7 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, Support
                 LOGGER.lifecycle("Installing {} wheel", shortHand)
             }
 
-            if (packageExcludeFilter.isSatisfiedBy(packageInfo)) {
+            if (packageExcludeFilter != null && packageExcludeFilter.isSatisfiedBy(packageInfo)) {
                 if (PythonHelpers.isPlainOrVerbose(project)) {
                     LOGGER.lifecycle("Skipping {} wheel - Excluded", shortHand)
                 }

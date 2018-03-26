@@ -75,6 +75,14 @@ class PackageInfoTest extends Specification {
         thrown(GradleException)
     }
 
+    def 'can parse a wheel distribution'() {
+        when:
+        def packageInfo = packageInGradleCache('foo-1.0.0-py2-none-any.whl')
+        then:
+        assert packageInfo.name == 'foo'
+        assert packageInfo.version == '1.0.0'
+    }
+
     // TODO: Remove this test completely when we drop the deprecated method.
     def 'still supports deprecated fromPath method'() {
         when:

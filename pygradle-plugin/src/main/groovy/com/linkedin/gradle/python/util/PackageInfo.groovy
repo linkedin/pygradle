@@ -15,6 +15,7 @@
  */
 package com.linkedin.gradle.python.util
 
+import com.linkedin.gradle.python.wheel.PythonWheelDetails
 import org.apache.commons.io.FilenameUtils
 import org.gradle.api.GradleException
 
@@ -50,6 +51,7 @@ class PackageInfo {
      *   <li>.tar</li>
      *   <li>.tgz</li>
      *   <li>.zip</li>
+     *   <li>.whl</li>
      * </ul>
      * <p>
      * A path to a expanded Python package can be provided as long as the path
@@ -65,7 +67,7 @@ class PackageInfo {
      * @param packagePath The path to a Python package.
      */
     public static PackageInfo fromPath(File packagePath) {
-        def extensionRegex = /\.tar\.gz|\.zip|\.tar|\.tar\.bz2|\.tgz/
+        def extensionRegex = /\.tar\.gz|\.zip|\.tar|\.tar\.bz2|\.tgz|\.whl/
         def nameVersionRegex = /^(?<name>[a-zA-Z0-9._\-]+)-(?<version>([0-9][0-9a-z\.]+(-.*)*))$/
 
         def filename = FilenameUtils.getName(packagePath.getPath())
@@ -77,6 +79,11 @@ class PackageInfo {
 
         if (packagePath.getName() == packageName) {
             throw new GradleException("Cannot calculate Python package extension from ${ packagePath } using regular expression /${ extensionRegex }/.")
+        }
+
+        Optional<PythonWheelDetails> pythonWheels = PythonWheelDetails.fromFile(packagePath)
+        if (pythonWheels.isPresent()) {
+            return new PackageInfo(packagePath, pythonWheels.get().getDist(), pythonWheels.get().getVersion())
         }
 
         Matcher matcher = packageName =~ nameVersionRegex

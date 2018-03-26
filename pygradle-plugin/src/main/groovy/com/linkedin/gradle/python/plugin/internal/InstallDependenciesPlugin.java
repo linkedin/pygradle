@@ -37,7 +37,6 @@ import static com.linkedin.gradle.python.util.StandardTextValues.TASK_SETUP_LINK
 public class InstallDependenciesPlugin implements Plugin<Project> {
 
     private static final String PIP_UPGRADE = "--upgrade";
-    private static final String PIP_EDITABLE = "--editable";
 
     @Override
     public void apply(final Project project) {
@@ -103,7 +102,6 @@ public class InstallDependenciesPlugin implements Plugin<Project> {
             it.setPythonDetails(settings.getDetails());
             it.dependsOn(project.getTasks().getByName(TASK_INSTALL_PYTHON_REQS.getValue()));
             it.setInstallFileCollection(project.files(project.file(project.getProjectDir())));
-            it.setArgs(Collections.singletonList(PIP_EDITABLE));
             it.setEnvironment(settings.pythonEnvironmentDistgradle);
         });
     }

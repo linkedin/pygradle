@@ -46,8 +46,9 @@ class PackageSettingsTest extends Specification {
     }
 
     def "package settings install options for project snapshot()"() {
-        expect: "project snapshot does not use --ignore-installed because it's installed editable"
-        packageSettings.getInstallOptions(packageInGradleCache('foo-1.2.3-SNAPSHOT.tar.gz')) == []
+        expect: "project snapshot uses --ignore-installed and --editable"
+        packageSettings.getInstallOptions(packageInGradleCache('foo-1.2.3-SNAPSHOT.tar.gz')) == [
+            '--ignore-installed', '--editable']
     }
 
     def "default package settings build options"() {

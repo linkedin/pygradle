@@ -24,25 +24,18 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class FileBackedWheelCache implements WheelCache, Serializable {
 
     private static final Logger logger = Logging.getLogger(FileBackedWheelCache.class);
 
-    // PEP-0427
-    private static final String WHEEL_FILE_FORMAT = "(?<dist>.*?)-(?<version>.*?)(-(.*?))?-(?<pythonTag>.*?)-(?<abiTag>.*?)-(?<platformTag>.*?).whl";
-
     private final File cacheDir;
-    private final Pattern wheelPattern;
     private final SupportedWheelFormats supportedWheelFormats;
 
     public FileBackedWheelCache(File cacheDir, SupportedWheelFormats supportedWheelFormats) {
         this.cacheDir = cacheDir;
         this.supportedWheelFormats = supportedWheelFormats;
-        this.wheelPattern = Pattern.compile(WHEEL_FILE_FORMAT);
     }
 
     /**
@@ -79,7 +72,7 @@ public class FileBackedWheelCache implements WheelCache, Serializable {
             return Optional.empty();
         }
 
-        List<PythonWheelDetails> wheelDetails = Arrays.stream(files).map(this::fromFile)
+        List<PythonWheelDetails> wheelDetails = Arrays.stream(files).map(PythonWheelDetails::fromFile)
             .filter(Optional::isPresent)
             .map(Optional::get)
             .collect(Collectors.toList());
@@ -105,45 +98,5 @@ public class FileBackedWheelCache implements WheelCache, Serializable {
             wheelDetails.pythonTag,
             wheelDetails.abiTag,
             wheelDetails.platformTag);
-    }
-
-    private Optional<PythonWheelDetails> fromFile(File file) {
-        Matcher matcher = wheelPattern.matcher(file.getName());
-        if (!matcher.matches()) {
-            return Optional.empty();
-        }
-
-        return Optional.of(new PythonWheelDetails(file, matcher));
-    }
-
-    private class PythonWheelDetails {
-
-        final private File file;
-        final private String dist;
-        final private String version;
-        final private String pythonTag;
-        final private String abiTag;
-        final private String platformTag;
-
-        private PythonWheelDetails(File file, Matcher matcher) {
-            this.file = file;
-            this.dist = matcher.group("dist");
-            this.version = matcher.group("version");
-            this.pythonTag = matcher.group("pythonTag");
-            this.abiTag = matcher.group("abiTag");
-            this.platformTag = matcher.group("platformTag");
-        }
-
-        @Override
-        public String toString() {
-            return "PythonWheelDetails{"
-                + "file=" + file
-                + ", dist='" + dist + '\''
-                + ", version='" + version + '\''
-                + ", pythonTag='" + pythonTag + '\''
-                + ", abiTag='" + abiTag + '\''
-                + ", platformTag='" + platformTag + '\''
-                + '}';
-        }
     }
 }

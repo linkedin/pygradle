@@ -96,6 +96,11 @@ gradlePlugin {
             implementationClass = 'com.linkedin.gradle.python.plugin.PythonSourceDistributionPlugin'
         }
 
+        pythonWheelPlugins {
+            id = 'com.linkedin.python-wheel-dist'
+            implementationClass = 'com.linkedin.gradle.python.plugin.PythonWheelDistributionPlugin'
+        }
+
         pythonWebappPlugins {
             id = 'com.linkedin.python-web-app'
             implementationClass = 'com.linkedin.gradle.python.plugin.PythonWebApplicationPlugin'

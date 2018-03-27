@@ -15,6 +15,8 @@
  */
 package com.linkedin.gradle.python.util;
 
+import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +28,9 @@ import java.util.Map;
  * Handles snapshots and project package rebuilds automatically.
  */
 public class DefaultPackageSettings implements PackageSettings<PackageInfo> {
+    private static final String PIP_EDITABLE = "--editable";
+    private static final String PIP_IGNORE_INSTALLED = "--ignore-installed";
+
     private final String projectName;
 
     public DefaultPackageSettings(String projectName) {
@@ -46,13 +51,23 @@ public class DefaultPackageSettings implements PackageSettings<PackageInfo> {
     public List<String> getInstallOptions(PackageInfo packageInfo) {
         String name = packageInfo.getName();
         String version = packageInfo.getVersion();
+        boolean isProjectDir = version == null && Files.isDirectory(packageInfo.getPackageFile().toPath());
+        List<String> options = new ArrayList<>();
 
-        // always reinstall snapshots, but current project is installed editable anyway, no need for other options
-        if (!projectName.equals(name)
-                && ((version != null && version.contains("-")) || requiresSourceBuild(packageInfo))) {
-            return Collections.singletonList("--ignore-installed");
+        // always reinstall snapshots
+        if ((version != null && version.contains("-")) || requiresSourceBuild(packageInfo)) {
+            options.add(PIP_IGNORE_INSTALLED);
         }
-        return Collections.emptyList();
+
+        /*
+         * The current project is installed editable.
+         * This option **must be last** because it expects the directory name after it.
+         */
+        if (projectName.equals(name) || isProjectDir) {
+            options.add(PIP_EDITABLE);
+        }
+
+        return options;
     }
 
     @Override

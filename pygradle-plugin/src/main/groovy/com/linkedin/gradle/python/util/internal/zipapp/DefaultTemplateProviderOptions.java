@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.util.internal.pex;
+package com.linkedin.gradle.python.util.internal.zipapp;
 
 import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.util.pex.TemplateProviderOptions;

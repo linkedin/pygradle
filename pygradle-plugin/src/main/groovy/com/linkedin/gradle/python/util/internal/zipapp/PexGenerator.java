@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.util.pex;
+package com.linkedin.gradle.python.util.internal.zipapp;
 
-import com.linkedin.gradle.python.PythonExtension;
-import org.gradle.api.Project;
+public interface ZipappGenerator {
 
-public interface TemplateProviderOptions {
-    Project getProject();
-
-    PythonExtension getExtension();
-
-    String getEntryPoint();
+    /**
+     * When called will generate entry point files for a zipapp.
+     *
+     * @throws Exception when failing to build entry point
+     */
+    void buildEntryPoints() throws Exception;
 }

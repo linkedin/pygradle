@@ -21,6 +21,7 @@ import com.linkedin.gradle.python.util.EntryPointHelpers;
 import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.util.PexFileUtil;
 import com.linkedin.gradle.python.util.entrypoint.EntryPointWriter;
+import com.linkedin.gradle.python.util.internal.zipapp.ZipappGenerator;
 import com.linkedin.gradle.python.util.pex.EntryPointTemplateProvider;
 import com.linkedin.gradle.python.util.pip.PipFreezeAction;
 import org.gradle.api.Project;
@@ -34,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class ThinPexGenerator implements PexGenerator {
+public class ThinPexGenerator implements ZipappGenerator {
 
     private static final Logger logger = Logging.getLogger(ThinPexGenerator.class);
 
@@ -77,6 +78,7 @@ public class ThinPexGenerator implements PexGenerator {
             Map<String, String> propertyMap = new HashMap<>();
             propertyMap.putAll(extraProperties);
             propertyMap.put("realPex", PexFileUtil.createThinPexFilename(project.getName()));
+            propertyMap.put("toolName", project.getName());
             propertyMap.put("entryPoint", entry);
             propertyMap.put("pythonExecutable", extension.getDetails().getSystemPythonInterpreter().getAbsolutePath());
             propertyMap.put("toolName", project.getName());

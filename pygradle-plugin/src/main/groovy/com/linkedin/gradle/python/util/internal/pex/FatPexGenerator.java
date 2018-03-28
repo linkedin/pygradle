@@ -17,6 +17,7 @@ package com.linkedin.gradle.python.util.internal.pex;
 
 import com.linkedin.gradle.python.util.EntryPointHelpers;
 import com.linkedin.gradle.python.util.PexFileUtil;
+import com.linkedin.gradle.python.util.internal.zipapp.ZipappGenerator;
 import com.linkedin.gradle.python.util.pip.PipFreezeAction;
 import org.gradle.api.Project;
 import org.gradle.api.logging.Logger;
@@ -26,7 +27,7 @@ import org.gradle.process.ExecResult;
 import java.util.List;
 import java.util.Map;
 
-public class FatPexGenerator implements PexGenerator {
+public class FatPexGenerator implements ZipappGenerator {
 
     private static final Logger logger = Logging.getLogger(FatPexGenerator.class);
 

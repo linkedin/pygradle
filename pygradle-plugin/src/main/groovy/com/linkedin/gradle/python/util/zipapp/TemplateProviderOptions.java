@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.util.internal.pex;
+package com.linkedin.gradle.python.util.zipapp;
 
-public interface PexGenerator {
+import com.linkedin.gradle.python.PythonExtension;
+import org.gradle.api.Project;
 
-    /**
-     * When called will generate entry point files for a pex.
-     *
-     * @throws Exception when failing to build entry point
-     */
-    void buildEntryPoints() throws Exception;
+public interface TemplateProviderOptions {
+    Project getProject();
+
+    PythonExtension getExtension();
+
+    String getEntryPoint();
 }

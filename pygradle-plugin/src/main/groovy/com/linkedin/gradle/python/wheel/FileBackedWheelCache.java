@@ -85,7 +85,7 @@ public class FileBackedWheelCache implements WheelCache, Serializable {
 
         logger.info("Found artifacts: {}", foundWheel);
 
-        return foundWheel.map(it -> it.file);
+        return foundWheel.map(it -> it.getFile());
     }
 
     public File getCacheDir() {
@@ -95,8 +95,8 @@ public class FileBackedWheelCache implements WheelCache, Serializable {
     private boolean wheelMatches(File pythonExecutable, PythonWheelDetails wheelDetails) {
         return supportedWheelFormats.matchesSupportedVersion(
             pythonExecutable,
-            wheelDetails.pythonTag,
-            wheelDetails.abiTag,
-            wheelDetails.platformTag);
+            wheelDetails.getPythonTag(),
+            wheelDetails.getAbiTag(),
+            wheelDetails.getPlatformTag());
     }
 }

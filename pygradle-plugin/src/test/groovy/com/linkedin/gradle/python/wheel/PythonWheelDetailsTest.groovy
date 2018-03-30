@@ -33,11 +33,11 @@ class PythonWheelDetailsTest extends Specification {
 
     def 'can parse wheel file with SNAPSHOT version'() {
         when:
-        def wheelFile = new File("foo-1.0.0-SNAPSHOT-py2-none-any.whl")
+        def wheelFile = new File("foo-1.0.0_SNAPSHOT-py2-none-any.whl")
         PythonWheelDetails pythonWheelDetails = PythonWheelDetails.fromFile(wheelFile).get()
         then:
         pythonWheelDetails.dist == "foo"
-        pythonWheelDetails.version == "1.0.0"
+        pythonWheelDetails.version == "1.0.0-SNAPSHOT"
         pythonWheelDetails.pythonTag == "py2"
         pythonWheelDetails.abiTag == "none"
         pythonWheelDetails.platformTag == "any"

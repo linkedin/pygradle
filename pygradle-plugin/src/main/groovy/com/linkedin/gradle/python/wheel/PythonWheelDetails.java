@@ -23,22 +23,36 @@ import java.util.regex.Pattern;
 public class PythonWheelDetails {
 
     // PEP-0427
-    public static final String WHEEL_FILE_FORMAT = "(?<dist>.*?)-(?<version>.*?)(-(.*?))?-(?<pythonTag>.*?)-(?<abiTag>.*?)-(?<platformTag>.*?).whl";
+    private static final String WHEEL_FILE_FORMAT = "(?<dist>.+?)-(?<version>\\d.*?)(-(\\d.*?))?-(?<pythonTag>.+?)-(?<abiTag>.+?)-(?<platformTag>.+?).whl";
 
-    final File file;
-    final String dist;
-    final String version;
-    final String pythonTag;
-    final String abiTag;
-    final String platformTag;
+    private static final Pattern WHEEL_PATTERN = Pattern.compile(WHEEL_FILE_FORMAT);
+    private static final Pattern SNAPSHOT_PATTERN = Pattern.compile("_(?<snapshot>[A-Z]+)$");
 
-    public PythonWheelDetails(File file, Matcher matcher) {
-        this.file = file;
-        this.dist = matcher.group("dist");
-        this.version = matcher.group("version");
-        this.pythonTag = matcher.group("pythonTag");
-        this.abiTag = matcher.group("abiTag");
-        this.platformTag = matcher.group("platformTag");
+    private final File file;
+    private final String dist;
+    private final String version;
+    private final String pythonTag;
+    private final String abiTag;
+    private final String platformTag;
+
+    private PythonWheelDetails(File wheelFile, Matcher matcher) {
+        file = wheelFile;
+        dist = matcher.group("dist");
+        String matchedVersion = matcher.group("version");
+        pythonTag = matcher.group("pythonTag");
+        abiTag = matcher.group("abiTag");
+        platformTag = matcher.group("platformTag");
+
+        Matcher snapshotMatcher = SNAPSHOT_PATTERN.matcher(matchedVersion);
+        if (snapshotMatcher.find()) {
+            version = snapshotMatcher.replaceFirst("-" + snapshotMatcher.group("snapshot"));
+        } else {
+            version = matchedVersion;
+        }
+    }
+
+    public File getFile() {
+        return file;
     }
 
     public String getDist() {
@@ -47,6 +61,18 @@ public class PythonWheelDetails {
 
     public String getVersion() {
         return version;
+    }
+
+    public String getPythonTag() {
+        return pythonTag;
+    }
+
+    public String getAbiTag() {
+        return abiTag;
+    }
+
+    public String getPlatformTag() {
+        return platformTag;
     }
 
     @Override
@@ -61,9 +87,8 @@ public class PythonWheelDetails {
             + '}';
     }
 
-    static public Optional<PythonWheelDetails> fromFile(File file) {
-        Pattern wheelPattern = Pattern.compile(WHEEL_FILE_FORMAT);
-        Matcher matcher = wheelPattern.matcher(file.getName());
+    public static Optional<PythonWheelDetails> fromFile(File file) {
+        Matcher matcher = WHEEL_PATTERN.matcher(file.getName());
         if (!matcher.matches()) {
             return Optional.empty();
         }

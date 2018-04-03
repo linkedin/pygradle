@@ -60,7 +60,7 @@ public class PythonPlugin implements Plugin<Project> {
         createConfigurations(project);
         configureVendedDependencies(project, settings);
 
-        DefaultPackageSettings packageSettings = new DefaultPackageSettings(project.getName());
+        DefaultPackageSettings packageSettings = new DefaultPackageSettings(project.getProjectDir());
         project.getTasks().withType(SupportsPackageInfoSettings.class, it -> it.setPackageSettings(packageSettings));
 
         /*

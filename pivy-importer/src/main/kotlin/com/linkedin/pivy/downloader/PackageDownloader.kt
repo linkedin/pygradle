@@ -66,13 +66,16 @@ class PackageDownloader(private val options: ImporterOptions,
 
     private fun getVersion(name: String, resolvePackage: PyPiPackageDetails): Pair<String, List<PackageRelease>?> {
         var version = requiredVersionsContainer.findVersion(name)
-        version = if (version == null && options.requireAllVersions) {
-            throw RuntimeException("No version was provided for $name")
-        } else if (version == null) {
-            resolvePackage.getLatestVersion()!!.toVersionString()
-        } else {
-            version
+
+        if (version == null && !options.requireAllVersions) {
+            val pickedVersion = resolvePackage.getLatestVersion()!!.toVersionString()
+            log.warn("Registering {} to use {} globally", name, pickedVersion)
+            requiredVersionsContainer.register(name, pickedVersion)
         }
+
+        version = version ?: requiredVersionsContainer.findVersion(name)
+        version ?: throw RuntimeException("No version was provided for $name")
+
         val availableReleased = resolvePackage.getPackageInfo().releases[version]
         return Pair(version, availableReleased)
     }

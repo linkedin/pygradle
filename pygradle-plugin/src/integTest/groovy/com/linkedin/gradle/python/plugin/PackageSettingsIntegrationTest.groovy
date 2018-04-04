@@ -44,7 +44,7 @@ class PackageSettingsIntegrationTest extends Specification {
         | import com.linkedin.gradle.python.util.PackageInfo
         |
         | class DefaultTestPackageSettings extends DefaultPackageSettings {
-        |     DefaultTestPackageSettings(String projectName) { super(projectName) }
+        |     DefaultTestPackageSettings(File projectDir) { super(projectDir) }
         |
         |     @Override
         |     Map<String, String> getEnvironment(PackageInfo packageInfo) {
@@ -58,7 +58,7 @@ class PackageSettingsIntegrationTest extends Specification {
         | import com.linkedin.gradle.python.tasks.PipInstallTask
         |
         | project.tasks.withType(PipInstallTask) { PipInstallTask task ->
-        |     task.packageSettings = new DefaultTestPackageSettings(project.name)
+        |     task.packageSettings = new DefaultTestPackageSettings(project.projectDir)
         | }
         |
         |${PyGradleTestBuilder.createRepoClosure()}
@@ -100,7 +100,7 @@ class PackageSettingsIntegrationTest extends Specification {
         | import com.linkedin.gradle.python.util.PackageInfo
         |
         | class DefaultTestPackageSettings extends DefaultPackageSettings {
-        |     DefaultTestPackageSettings(String projectName) { super(projectName) }
+        |     DefaultTestPackageSettings(File projectDir) { super(projectDir) }
         |
         |     @Override
         |     List<String> getGlobalOptions(PackageInfo packageInfo) {
@@ -111,7 +111,7 @@ class PackageSettingsIntegrationTest extends Specification {
         | import com.linkedin.gradle.python.tasks.PipInstallTask
         |
         | project.tasks.withType(PipInstallTask) { PipInstallTask task ->
-        |     task.packageSettings = new DefaultTestPackageSettings(project.name)
+        |     task.packageSettings = new DefaultTestPackageSettings(project.projectDir)
         | }
         |
         |${PyGradleTestBuilder.createRepoClosure()}
@@ -152,7 +152,7 @@ class PackageSettingsIntegrationTest extends Specification {
         | import com.linkedin.gradle.python.util.PackageInfo
         |
         | class DefaultTestPackageSettings extends DefaultPackageSettings {
-        |     DefaultTestPackageSettings(String projectName) { super(projectName) }
+        |     DefaultTestPackageSettings(File projectDir) { super(projectDir) }
         |
         |     @Override
         |     List<String> getInstallOptions(PackageInfo packageInfo) {
@@ -163,7 +163,7 @@ class PackageSettingsIntegrationTest extends Specification {
         | import com.linkedin.gradle.python.tasks.PipInstallTask
         |
         | project.tasks.withType(PipInstallTask) { PipInstallTask task ->
-        |     task.packageSettings = new DefaultTestPackageSettings(project.name)
+        |     task.packageSettings = new DefaultTestPackageSettings(project.projectDir)
         | }
         |
         |${PyGradleTestBuilder.createRepoClosure()}
@@ -204,7 +204,7 @@ class PackageSettingsIntegrationTest extends Specification {
         | import com.linkedin.gradle.python.util.PackageInfo
         |
         | class DefaultTestPackageSettings extends DefaultPackageSettings {
-        |     DefaultTestPackageSettings(String projectName) { super(projectName) }
+        |     DefaultTestPackageSettings(File projectDir) { super(projectDir) }
         |
         |     @Override
         |     List<String> getSupportedLanguageVersions(PackageInfo packageInfo) {
@@ -215,7 +215,7 @@ class PackageSettingsIntegrationTest extends Specification {
         | import com.linkedin.gradle.python.tasks.PipInstallTask
         |
         | project.tasks.withType(PipInstallTask) { PipInstallTask task ->
-        |     task.packageSettings = new DefaultTestPackageSettings(project.name)
+        |     task.packageSettings = new DefaultTestPackageSettings(project.projectDir)
         | }
         |
         |${PyGradleTestBuilder.createRepoClosure()}
@@ -262,7 +262,7 @@ class PackageSettingsIntegrationTest extends Specification {
         | import com.linkedin.gradle.python.util.PackageInfo
         |
         | class DefaultTestPackageSettings extends DefaultPackageSettings {
-        |     DefaultTestPackageSettings(String projectName) { super(projectName) }
+        |     DefaultTestPackageSettings(File projectDir) { super(projectDir) }
         |
         |     @Override
         |     boolean requiresSourceBuild(PackageInfo packageInfo) {
@@ -273,7 +273,7 @@ class PackageSettingsIntegrationTest extends Specification {
         | import com.linkedin.gradle.python.tasks.PipInstallTask
         |
         | project.tasks.withType(PipInstallTask) { PipInstallTask task ->
-        |     task.packageSettings = new DefaultTestPackageSettings(project.name)
+        |     task.packageSettings = new DefaultTestPackageSettings(project.projectDir)
         | }
         |
         |${PyGradleTestBuilder.createRepoClosure()}
@@ -317,7 +317,7 @@ class PackageSettingsIntegrationTest extends Specification {
         | import com.linkedin.gradle.python.util.PackageInfo
         |
         | class DefaultTestPackageSettings extends DefaultPackageSettings {
-        |     DefaultTestPackageSettings(String projectName) { super(projectName) }
+        |     DefaultTestPackageSettings(File projectDir) { super(projectDir) }
         |
         |     @Override
         |     Map<String, String> getEnvironment(PackageInfo packageInfo) {
@@ -331,7 +331,7 @@ class PackageSettingsIntegrationTest extends Specification {
         | import com.linkedin.gradle.python.tasks.BuildWheelsTask
         |
         | project.tasks.withType(BuildWheelsTask) { BuildWheelsTask task ->
-        |     task.packageSettings = new DefaultTestPackageSettings(project.name)
+        |     task.packageSettings = new DefaultTestPackageSettings(project.projectDir)
         | }
         |
         |${PyGradleTestBuilder.createRepoClosure()}
@@ -374,7 +374,7 @@ class PackageSettingsIntegrationTest extends Specification {
         | import com.linkedin.gradle.python.util.PackageInfo
         |
         | class DefaultTestPackageSettings extends DefaultPackageSettings {
-        |     DefaultTestPackageSettings(String projectName) { super(projectName) }
+        |     DefaultTestPackageSettings(File projectDir) { super(projectDir) }
         |
         |     @Override
         |     List<String> getGlobalOptions(PackageInfo packageInfo) {
@@ -385,7 +385,7 @@ class PackageSettingsIntegrationTest extends Specification {
         | import com.linkedin.gradle.python.tasks.BuildWheelsTask
         |
         | project.tasks.withType(BuildWheelsTask) { BuildWheelsTask task ->
-        |     task.packageSettings = new DefaultTestPackageSettings(project.name)
+        |     task.packageSettings = new DefaultTestPackageSettings(project.projectDir)
         | }
         |
         |${PyGradleTestBuilder.createRepoClosure()}
@@ -435,7 +435,7 @@ class PackageSettingsIntegrationTest extends Specification {
         | import com.linkedin.gradle.python.util.PackageInfo
         |
         | class DefaultTestPackageSettings extends DefaultPackageSettings {
-        |     DefaultTestPackageSettings(String projectName) { super(projectName) }
+        |     DefaultTestPackageSettings(File projectDir) { super(projectDir) }
         |
         |     @Override
         |     List<String> getBuildOptions(PackageInfo packageInfo) {
@@ -446,7 +446,7 @@ class PackageSettingsIntegrationTest extends Specification {
         | import com.linkedin.gradle.python.tasks.BuildWheelsTask
         |
         | project.tasks.withType(BuildWheelsTask) { BuildWheelsTask task ->
-        |     task.packageSettings = new DefaultTestPackageSettings(project.name)
+        |     task.packageSettings = new DefaultTestPackageSettings(project.projectDir)
         | }
         |
         |${PyGradleTestBuilder.createRepoClosure()}
@@ -496,7 +496,7 @@ class PackageSettingsIntegrationTest extends Specification {
         | import com.linkedin.gradle.python.util.PackageInfo
         |
         | class DefaultTestPackageSettings extends DefaultPackageSettings {
-        |     DefaultTestPackageSettings(String projectName) { super(projectName) }
+        |     DefaultTestPackageSettings(File projectDir) { super(projectDir) }
         |
         |     @Override
         |     List<String> getSupportedLanguageVersions(PackageInfo packageInfo) {
@@ -507,7 +507,7 @@ class PackageSettingsIntegrationTest extends Specification {
         | import com.linkedin.gradle.python.tasks.BuildWheelsTask
         |
         | project.tasks.withType(BuildWheelsTask) { BuildWheelsTask task ->
-        |     task.packageSettings = new DefaultTestPackageSettings(project.name)
+        |     task.packageSettings = new DefaultTestPackageSettings(project.projectDir)
         | }
         |
         |${PyGradleTestBuilder.createRepoClosure()}
@@ -554,7 +554,7 @@ class PackageSettingsIntegrationTest extends Specification {
         | import com.linkedin.gradle.python.util.PackageInfo
         |
         | class DefaultTestPackageSettings extends DefaultPackageSettings {
-        |     DefaultTestPackageSettings(String projectName) { super(projectName) }
+        |     DefaultTestPackageSettings(File projectDir) { super(projectDir) }
         |
         |     @Override
         |     boolean requiresSourceBuild(PackageInfo packageInfo) {
@@ -565,7 +565,7 @@ class PackageSettingsIntegrationTest extends Specification {
         | import com.linkedin.gradle.python.tasks.BuildWheelsTask
         |
         | project.tasks.withType(BuildWheelsTask) { BuildWheelsTask task ->
-        |     task.packageSettings = new DefaultTestPackageSettings(project.name)
+        |     task.packageSettings = new DefaultTestPackageSettings(project.projectDir)
         | }
         |
         |${PyGradleTestBuilder.createRepoClosure()}

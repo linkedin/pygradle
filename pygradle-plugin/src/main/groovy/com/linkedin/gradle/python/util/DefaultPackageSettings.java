@@ -15,6 +15,7 @@
  */
 package com.linkedin.gradle.python.util;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,10 +32,10 @@ public class DefaultPackageSettings implements PackageSettings<PackageInfo> {
     private static final String PIP_EDITABLE = "--editable";
     private static final String PIP_IGNORE_INSTALLED = "--ignore-installed";
 
-    private final String projectName;
+    private final File projectDir;
 
-    public DefaultPackageSettings(String projectName) {
-        this.projectName = projectName;
+    public DefaultPackageSettings(File projectDir) {
+        this.projectDir = projectDir;
     }
 
     @Override
@@ -49,9 +50,7 @@ public class DefaultPackageSettings implements PackageSettings<PackageInfo> {
 
     @Override
     public List<String> getInstallOptions(PackageInfo packageInfo) {
-        String name = packageInfo.getName();
         String version = packageInfo.getVersion();
-        boolean isProjectDir = version == null && Files.isDirectory(packageInfo.getPackageFile().toPath());
         List<String> options = new ArrayList<>();
 
         // always reinstall snapshots
@@ -63,7 +62,7 @@ public class DefaultPackageSettings implements PackageSettings<PackageInfo> {
          * The current project is installed editable.
          * This option **must be last** because it expects the directory name after it.
          */
-        if (projectName.equals(name) || isProjectDir) {
+        if (isProjectDirectory(packageInfo)) {
             options.add(PIP_EDITABLE);
         }
 
@@ -87,14 +86,19 @@ public class DefaultPackageSettings implements PackageSettings<PackageInfo> {
 
     @Override
     public boolean requiresSourceBuild(PackageInfo packageInfo) {
-        String name = packageInfo.getName();
         String version = packageInfo.getVersion();
 
         // always rebuild the project package itself
-        if (projectName.equals(name)) {
+        if (isProjectDirectory(packageInfo)) {
             return true;
         }
         // always rebuild snapshots; otherwise no rebuild required, per semver versions with '-' are pre-release
         return (version != null && version.contains("-"));
+    }
+
+    private boolean isProjectDirectory(PackageInfo packageInfo) {
+        File packageDir = packageInfo.getPackageFile();
+        String version = packageInfo.getVersion();
+        return version == null && Files.isDirectory(packageDir.toPath()) && projectDir.equals(packageDir);
     }
 }

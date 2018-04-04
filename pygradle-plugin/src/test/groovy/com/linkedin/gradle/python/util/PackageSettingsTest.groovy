@@ -15,6 +15,7 @@
  */
 package com.linkedin.gradle.python.util
 
+import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
 
@@ -22,7 +23,9 @@ import spock.lang.Specification
  * Unit tests for package settings implementers.
  */
 class PackageSettingsTest extends Specification {
-    PackageSettings<PackageInfo> packageSettings = new DefaultPackageSettings('foo')
+    def project = new ProjectBuilder().build()
+    def projectPath = project.file(project.getProjectDir())
+    PackageSettings<PackageInfo> packageSettings = new DefaultPackageSettings(project.projectDir)
 
     def "default package settings environment"() {
         expect: "empty environment"
@@ -47,8 +50,7 @@ class PackageSettingsTest extends Specification {
 
     def "package settings install options for project snapshot()"() {
         expect: "project snapshot uses --ignore-installed and --editable"
-        packageSettings.getInstallOptions(packageInGradleCache('foo-1.2.3-SNAPSHOT.tar.gz')) == [
-            '--ignore-installed', '--editable']
+        packageSettings.getInstallOptions(PackageInfo.fromPath(projectPath)) == ['--ignore-installed', '--editable']
     }
 
     def "default package settings build options"() {
@@ -68,7 +70,7 @@ class PackageSettingsTest extends Specification {
 
     def "default package settings supported language versions"() {
         expect: "empty supported language versions"
-        packageSettings.getSupportedLanguageVersions(packageInGradleCache('foo-1.2.3.tar.gz')) == []
+        packageSettings.getSupportedLanguageVersions(PackageInfo.fromPath(projectPath)) == []
     }
 
     def "default package settings requires source build"() {
@@ -83,7 +85,7 @@ class PackageSettingsTest extends Specification {
 
     def "package settings requires a rebuild for the current project"() {
         expect: "project requires a rebuild"
-        packageSettings.requiresSourceBuild(packageInGradleCache('foo-1.2.3.tar.gz'))
+        packageSettings.requiresSourceBuild(PackageInfo.fromPath(projectPath))
     }
 
     static PackageInfo packageInGradleCache(String name) {

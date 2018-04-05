@@ -16,7 +16,7 @@
 package com.linkedin.gradle.python.util.internal.zipapp;
 
 import com.linkedin.gradle.python.PythonExtension;
-import com.linkedin.gradle.python.util.pex.TemplateProviderOptions;
+import com.linkedin.gradle.python.util.zipapp.TemplateProviderOptions;
 import org.gradle.api.Project;
 
 /**

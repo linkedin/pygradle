@@ -26,7 +26,7 @@ public class ZipappExtension {
     // Default to fat zipapps on Windows, since our wrappers are fairly POSIX specific.
     private boolean isFat = OperatingSystem.current().isWindows();
 
-    public PexExtension(File cache) {
+    public ZipappExtension(File cache) {
         this.cache = cache;
     }
 

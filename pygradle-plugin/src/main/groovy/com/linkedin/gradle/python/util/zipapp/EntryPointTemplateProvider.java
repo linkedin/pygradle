@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.util.pex;
+package com.linkedin.gradle.python.util.zipapp;
 
 import java.io.IOException;
 import java.io.Serializable;

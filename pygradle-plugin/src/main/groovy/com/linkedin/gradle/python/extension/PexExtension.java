@@ -24,8 +24,7 @@ public class PexExtension extends ZipappExtension {
     private boolean pythonWrapper = true;
 
     public PexExtension(Project project) {
-        File pexCache = new File(project.getBuildDir(), "pex-cache");
-        super(pexCache);
+        super(new File(project.getBuildDir(), "pex-cache"));
     }
 
     // These are kept for API backward compatibility.

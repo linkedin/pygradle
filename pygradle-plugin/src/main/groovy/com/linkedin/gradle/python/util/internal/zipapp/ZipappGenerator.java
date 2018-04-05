@@ -13,9 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.linkedin.gradle.python.util.internal.zipapp;
 
+import com.linkedin.gradle.python.PythonExtension;
+import java.util.Map;
+
+
 public interface ZipappGenerator {
+
+    /**
+     * When called, create the substitution map for the template generation.
+     */
+    Map<String, String> buildSubstitutions(PythonExtension extension, String entry);
 
     /**
      * When called will generate entry point files for a zipapp.

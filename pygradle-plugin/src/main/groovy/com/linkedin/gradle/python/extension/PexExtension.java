@@ -17,40 +17,39 @@ package com.linkedin.gradle.python.extension;
 
 import com.linkedin.gradle.python.util.OperatingSystem;
 import org.gradle.api.Project;
-
 import java.io.File;
 
 
-public class PexExtension {
-
-    private File pexCache;
-    private boolean fatPex = OperatingSystem.current().isWindows(); //Defaulting to fat pex's on windows
+public class PexExtension extends ZipappExtension {
     private boolean pythonWrapper = true;
 
     public PexExtension(Project project) {
-        pexCache = new File(project.getBuildDir(), "pex-cache");
+        super(new File(project.getBuildDir(), "pex-cache"));
     }
+
+    // These are kept for API backward compatibility.
 
     public File getPexCache() {
-        return pexCache;
+        return getCache();
     }
 
+
     public void setPexCache(File pexCache) {
-        this.pexCache = pexCache;
+        super.setCache(pexCache);
     }
 
     /**
      * @return when <code>true</code>, then skinny pex's will be used.
      */
     public boolean isFatPex() {
-        return fatPex;
+        return isFat();
     }
 
     /**
      * @param fatPex when <code>true</code>, wrappers will be made all pointing to a single pex file.
      */
     public void setFatPex(boolean fatPex) {
-        this.fatPex = fatPex;
+        super.setIsFat(fatPex);
     }
 
     /**

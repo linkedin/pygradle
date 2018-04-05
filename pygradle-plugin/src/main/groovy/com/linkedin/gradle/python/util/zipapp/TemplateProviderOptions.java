@@ -13,22 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.util.pex;
+package com.linkedin.gradle.python.util.zipapp;
 
-import java.io.IOException;
-import java.io.Serializable;
+import com.linkedin.gradle.python.PythonExtension;
+import org.gradle.api.Project;
 
-/**
- * Used to get a template to use for the entry points
- */
-public interface EntryPointTemplateProvider extends Serializable {
+public interface TemplateProviderOptions {
+    Project getProject();
 
-    /**
-     * Returns a template to be used for an entry point. The template must be renderable by
-     * {@link groovy.text.SimpleTemplateEngine}.
-     *
-     * @param options to use to pick the template
-     * @return A template to be used when building entry points.
-     */
-    String retrieveTemplate(TemplateProviderOptions options) throws IOException;
+    PythonExtension getExtension();
+
+    String getEntryPoint();
 }

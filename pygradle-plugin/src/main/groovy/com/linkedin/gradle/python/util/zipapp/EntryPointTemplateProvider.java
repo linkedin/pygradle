@@ -13,14 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.util.internal.pex;
+package com.linkedin.gradle.python.util.zipapp;
 
-public interface PexGenerator {
+import java.io.IOException;
+import java.io.Serializable;
+
+/**
+ * Used to get a template to use for the entry points
+ */
+public interface EntryPointTemplateProvider extends Serializable {
 
     /**
-     * When called will generate entry point files for a pex.
+     * Returns a template to be used for an entry point. The template must be renderable by
+     * {@link groovy.text.SimpleTemplateEngine}.
      *
-     * @throws Exception when failing to build entry point
+     * @param options to use to pick the template
+     * @return A template to be used when building entry points.
      */
-    void buildEntryPoints() throws Exception;
+    String retrieveTemplate(TemplateProviderOptions options) throws IOException;
 }

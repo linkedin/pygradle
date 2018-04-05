@@ -21,8 +21,10 @@ import com.linkedin.gradle.python.util.EntryPointHelpers;
 import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.util.PexFileUtil;
 import com.linkedin.gradle.python.util.entrypoint.EntryPointWriter;
-import com.linkedin.gradle.python.util.pex.EntryPointTemplateProvider;
+import com.linkedin.gradle.python.util.internal.zipapp.DefaultTemplateProviderOptions;
+import com.linkedin.gradle.python.util.internal.zipapp.ThinZipappGenerator;
 import com.linkedin.gradle.python.util.pip.PipFreezeAction;
+import com.linkedin.gradle.python.util.zipapp.EntryPointTemplateProvider;
 import org.gradle.api.Project;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
@@ -34,24 +36,23 @@ import java.util.List;
 import java.util.Map;
 
 
-public class ThinPexGenerator implements PexGenerator {
-
-    private static final Logger logger = Logging.getLogger(ThinPexGenerator.class);
-
-    private final Project project;
-    private final List<String> pexOptions;
-    private final EntryPointTemplateProvider templateProvider;
-    private final Map<String, String> extraProperties;
+public class ThinPexGenerator extends ThinZipappGenerator {
 
     public ThinPexGenerator(
         Project project,
         List<String> pexOptions,
         EntryPointTemplateProvider templateProvider,
-        Map<String, String> extraProperties) {
-        this.project = project;
-        this.pexOptions = pexOptions;
-        this.templateProvider = templateProvider;
-        this.extraProperties = extraProperties == null ? new HashMap<>() : extraProperties;
+        Map<String, String> extraProperties)
+    {
+        super(project, pexOptions, templateProvider, extraProperties);
+        logger = Logging.getLogger(ThinPexGenerator.class);
+    }
+
+    @Override
+    public Map<String, String> buildSubstitutions(PythonExtension extension, String entry) {
+        Map<String, String> substitutions = super.buildSubstitutions(extension, entry);
+        substitutions.put("realPex", PexFileUtil.createThinPexFilename(project.getName()));
+        return substitutions;
     }
 
     @Override
@@ -63,7 +64,7 @@ public class ThinPexGenerator implements PexGenerator {
         Map<String, String> dependencies = new PipFreezeAction(project).getDependencies();
 
         PexExecSpecAction action = PexExecSpecAction.withOutEntryPoint(
-            project, project.getName(), pexOptions, dependencies);
+            project, project.getName(), options, dependencies);
 
         ExecResult exec = project.exec(action);
         new PexExecOutputParser(action, exec).validatePexBuildSuccessfully();
@@ -73,17 +74,11 @@ public class ThinPexGenerator implements PexGenerator {
             String[] split = it.split("=");
             String name = split[0].trim();
             String entry = split[1].trim();
-
-            Map<String, String> propertyMap = new HashMap<>();
-            propertyMap.putAll(extraProperties);
-            propertyMap.put("realPex", PexFileUtil.createThinPexFilename(project.getName()));
-            propertyMap.put("entryPoint", entry);
-            propertyMap.put("pythonExecutable", extension.getDetails().getSystemPythonInterpreter().getAbsolutePath());
-            propertyMap.put("toolName", project.getName());
+            Map<String, String> substitutions = buildSubstitutions(extension, entry);
 
             DefaultTemplateProviderOptions providerOptions = new DefaultTemplateProviderOptions(project, extension, entry);
             new EntryPointWriter(project, templateProvider.retrieveTemplate(providerOptions))
-                .writeEntryPoint(new File(deployableExtension.getDeployableBinDir(), name), propertyMap);
+                .writeEntryPoint(new File(deployableExtension.getDeployableBinDir(), name), substitutions);
         }
     }
 }

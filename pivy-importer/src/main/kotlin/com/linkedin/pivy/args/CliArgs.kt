@@ -31,7 +31,7 @@ class CliArgs {
     @Parameter(names = ["--version-overrides"],
         description = "Override graph resolution to be these.",
         converter = VersionForceConverter::class)
-    var versionOverrides = HashMap<String, String>()
+    var versionOverrides: MutableMap<String, String> = HashMap()
 
     @Parameter(names = ["--require-all-versions"],
         description = "Fail of a dependency is processed without a provided version number")

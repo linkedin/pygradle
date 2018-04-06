@@ -582,7 +582,8 @@ class PackageSettingsIntegrationTest extends Specification {
 
         then: "we can observe that required source rebuild happens"
         // pyflakes wheel should be re-installed after install in build and runtime requirements of virtualenv.
-        result.output.findAll(/Installing pyflakes[\s\S]+?pip install [^\n]+pyflakes/).size() == 2
+        result.output.findAll(/Installing pyflakes[\s\S]+?pip install [^\n]+pyflakes/).size() == 1
+        result.output.contains('Skipping pyflakes-1.6.0 - Installed')
         result.output.find(/Installing pyflakes\S+ wheel[\s\S]+?pip wheel [^\n]+pyflakes/)
         result.output.contains('BUILD SUCCESS')
         result.task(':foo:installProject').outcome == TaskOutcome.SUCCESS

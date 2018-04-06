@@ -52,7 +52,7 @@ task importRequiredDependencies(type: JavaExec) { task ->
         'Flask:0.12.2',
         'pbr:1.8.0',
         'pex:1.2.13',
-        'pip:9.0.1',
+        'pip:9.0.3',
         'pytest:3.1.2',
         'pytest-cov:2.5.1',
         'pytest-xdist:1.17.1',
@@ -67,6 +67,7 @@ task importRequiredDependencies(type: JavaExec) { task ->
     def forceDeps = [
         'setuptools:33.1.1',
         'wheel:0.29.0',
+        'pip:9.0.3',
     ].join(',')
     args "--repo ${getIvyRepo().absolutePath} $packagesToInclude --replace $replacements --force $forceDeps".split(' ')
 

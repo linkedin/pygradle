@@ -159,10 +159,6 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, Support
             def clock = taskTimer.start(shortHand)
             progressLogger.progress("Preparing wheel $shortHand (${ ++counter } of $numberOfInstallables)")
 
-            if (PythonHelpers.isPlainOrVerbose(project)) {
-                LOGGER.lifecycle("Installing {} wheel", shortHand)
-            }
-
             if (packageExcludeFilter != null && packageExcludeFilter.isSatisfiedBy(packageInfo)) {
                 if (PythonHelpers.isPlainOrVerbose(project)) {
                     LOGGER.lifecycle("Skipping {} wheel - Excluded", shortHand)
@@ -198,8 +194,13 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, Support
                     include: "**/${ packageInfo.name.replace('-', '_') }-${ (packageInfo.version ?: 'unspecified').replace('-', '_') }-*.whl")
 
                 if (tree.files.size() >= 1) {
+                    LOGGER.lifecycle("Skipping {} wheel - Installed", shortHand)
                     return
                 }
+            }
+
+            if (PythonHelpers.isPlainOrVerbose(project)) {
+                LOGGER.lifecycle("Installing {} wheel", shortHand)
             }
 
             def stream = new ByteArrayOutputStream()

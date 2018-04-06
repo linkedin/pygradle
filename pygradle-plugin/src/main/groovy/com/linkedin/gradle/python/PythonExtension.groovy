@@ -66,7 +66,7 @@ class PythonExtension {
         'argparse'      : ['group': 'pypi', 'name': 'argparse', 'version': '1.4.0'],
         'flake8'        : ['group': 'pypi', 'name': 'flake8', 'version': '2.6.2'],
         'pex'           : ['group': 'pypi', 'name': 'pex', 'version': '1.2.13'],
-        'pip'           : ['group': 'pypi', 'name': 'pip', 'version': '9.0.1'],
+        'pip'           : ['group': 'pypi', 'name': 'pip', 'version': '9.0.3'],
         'pytest'        : ['group': 'pypi', 'name': 'pytest', 'version': '3.1.2'],
         'pytest-cov'    : ['group': 'pypi', 'name': 'pytest-cov', 'version': '2.5.1'],
         'pytest-xdist'  : ['group': 'pypi', 'name': 'pytest-xdist', 'version': '1.17.1'],

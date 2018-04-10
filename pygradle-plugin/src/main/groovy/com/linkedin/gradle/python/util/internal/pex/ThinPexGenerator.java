@@ -17,6 +17,7 @@ package com.linkedin.gradle.python.util.internal.pex;
 
 import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.extension.DeployableExtension;
+import com.linkedin.gradle.python.extension.PexExtension;
 import com.linkedin.gradle.python.util.EntryPointHelpers;
 import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.util.PexFileUtil;
@@ -58,6 +59,7 @@ public class ThinPexGenerator extends ThinZipappGenerator {
     @Override
     public void buildEntryPoints() throws Exception {
         PythonExtension extension = ExtensionUtils.getPythonExtension(project);
+        PexExtension pexExtension = ExtensionUtils.getPythonComponentExtension(extension, PexExtension.class);
         DeployableExtension deployableExtension = ExtensionUtils.getPythonComponentExtension(
             extension, DeployableExtension.class);
 
@@ -77,7 +79,9 @@ public class ThinPexGenerator extends ThinZipappGenerator {
             Map<String, String> substitutions = buildSubstitutions(extension, entry);
 
             DefaultTemplateProviderOptions providerOptions = new DefaultTemplateProviderOptions(project, extension, entry);
-            new EntryPointWriter(project, templateProvider.retrieveTemplate(providerOptions))
+            new EntryPointWriter(
+                project,
+                templateProvider.retrieveTemplate(providerOptions, pexExtension.isPythonWrapper()))
                 .writeEntryPoint(new File(deployableExtension.getDeployableBinDir(), name), substitutions);
         }
     }

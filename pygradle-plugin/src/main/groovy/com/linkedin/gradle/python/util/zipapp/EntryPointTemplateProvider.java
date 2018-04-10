@@ -30,5 +30,5 @@ public interface EntryPointTemplateProvider extends Serializable {
      * @param options to use to pick the template
      * @return A template to be used when building entry points.
      */
-    String retrieveTemplate(TemplateProviderOptions options) throws IOException;
+    String retrieveTemplate(TemplateProviderOptions options, boolean isPythonWrapper) throws IOException;
 }

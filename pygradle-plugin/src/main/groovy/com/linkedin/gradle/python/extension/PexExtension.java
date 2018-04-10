@@ -51,7 +51,7 @@ public class PexExtension extends ZipappExtension {
      */
     public void setFatPex(boolean fatPex) {
         super.setIsFat(fatPex);
-    }
+     }
 
     /**
      * TODO: Revisit if this is needed.

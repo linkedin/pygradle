@@ -15,7 +15,6 @@
  */
 package com.linkedin.gradle.python.extension;
 
-import com.linkedin.gradle.python.util.OperatingSystem;
 import org.gradle.api.Project;
 
 import java.io.File;

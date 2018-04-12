@@ -27,12 +27,10 @@ import com.linkedin.gradle.python.util.internal.zipapp.ThinZipappGenerator;
 import com.linkedin.gradle.python.util.pip.PipFreezeAction;
 import com.linkedin.gradle.python.util.zipapp.EntryPointTemplateProvider;
 import org.gradle.api.Project;
-import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.process.ExecResult;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,8 +41,8 @@ public class ThinPexGenerator extends ThinZipappGenerator {
         Project project,
         List<String> pexOptions,
         EntryPointTemplateProvider templateProvider,
-        Map<String, String> extraProperties)
-    {
+        Map<String, String> extraProperties) {
+
         super(project, pexOptions, templateProvider, extraProperties);
         logger = Logging.getLogger(ThinPexGenerator.class);
     }

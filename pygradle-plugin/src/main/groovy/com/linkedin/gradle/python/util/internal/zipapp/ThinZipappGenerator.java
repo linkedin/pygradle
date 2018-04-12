@@ -16,20 +16,11 @@
 package com.linkedin.gradle.python.util.internal.zipapp;
 
 import com.linkedin.gradle.python.PythonExtension;
-import com.linkedin.gradle.python.extension.DeployableExtension;
-import com.linkedin.gradle.python.util.EntryPointHelpers;
-import com.linkedin.gradle.python.util.ExtensionUtils;
-import com.linkedin.gradle.python.util.PexFileUtil;
-import com.linkedin.gradle.python.util.entrypoint.EntryPointWriter;
-import com.linkedin.gradle.python.util.internal.zipapp.ZipappGenerator;
-import com.linkedin.gradle.python.util.pip.PipFreezeAction;
 import com.linkedin.gradle.python.util.zipapp.EntryPointTemplateProvider;
 import org.gradle.api.Project;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
-import org.gradle.process.ExecResult;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,8 +39,8 @@ public class ThinZipappGenerator implements ZipappGenerator {
         Project project,
         List<String> options,
         EntryPointTemplateProvider templateProvider,
-        Map<String, String> extraProperties)
-    {
+        Map<String, String> extraProperties) {
+
         this.project = project;
         this.options = options;
         this.templateProvider = templateProvider;
@@ -67,5 +58,5 @@ public class ThinZipappGenerator implements ZipappGenerator {
     }
 
     @Override
-    public void buildEntryPoints() throws Exception {};
+    public void buildEntryPoints() throws Exception { };
 }

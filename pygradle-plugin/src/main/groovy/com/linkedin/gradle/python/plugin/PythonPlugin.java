@@ -36,6 +36,7 @@ import java.io.File;
 
 import static com.linkedin.gradle.python.util.StandardTextValues.CONFIGURATION_BOOTSTRAP_REQS;
 import static com.linkedin.gradle.python.util.StandardTextValues.CONFIGURATION_BUILD_REQS;
+import static com.linkedin.gradle.python.util.StandardTextValues.CONFIGURATION_FLAKE8;
 import static com.linkedin.gradle.python.util.StandardTextValues.CONFIGURATION_PYDOCS;
 import static com.linkedin.gradle.python.util.StandardTextValues.CONFIGURATION_PYTHON;
 import static com.linkedin.gradle.python.util.StandardTextValues.CONFIGURATION_SETUP_REQS;
@@ -129,11 +130,15 @@ public class PythonPlugin implements Plugin<Project> {
 
         project.getConfigurations().create(CONFIGURATION_BOOTSTRAP_REQS.getValue());
         project.getConfigurations().create(CONFIGURATION_SETUP_REQS.getValue());
-        project.getConfigurations().create(CONFIGURATION_BUILD_REQS.getValue());
+        Configuration buildReq = project.getConfigurations().create(CONFIGURATION_BUILD_REQS.getValue());
         project.getConfigurations().create(CONFIGURATION_PYDOCS.getValue());
         project.getConfigurations().create(CONFIGURATION_TEST.getValue());
         project.getConfigurations().create(CONFIGURATION_VENV.getValue());
+        Configuration flake8 = project.getConfigurations().create(CONFIGURATION_FLAKE8.getValue());
         project.getConfigurations().create(CONFIGURATION_WHEEL.getValue());
+
+        //So flake8 will be installed into the activate-able venv
+        buildReq.extendsFrom(flake8);
     }
 
     /*
@@ -152,7 +157,8 @@ public class PythonPlugin implements Plugin<Project> {
         project.getDependencies().add(CONFIGURATION_SETUP_REQS.getValue(), settings.forcedVersions.get("pip"));
         project.getDependencies().add(CONFIGURATION_SETUP_REQS.getValue(), settings.forcedVersions.get("setuptools-git"));
 
-        project.getDependencies().add(CONFIGURATION_BUILD_REQS.getValue(), settings.forcedVersions.get("flake8"));
+        project.getDependencies().add(CONFIGURATION_FLAKE8.getValue(), settings.forcedVersions.get("flake8"));
+
         project.getDependencies().add(CONFIGURATION_BUILD_REQS.getValue(), settings.forcedVersions.get("Sphinx"));
 
         project.getDependencies().add(CONFIGURATION_TEST.getValue(), settings.forcedVersions.get("pytest"));

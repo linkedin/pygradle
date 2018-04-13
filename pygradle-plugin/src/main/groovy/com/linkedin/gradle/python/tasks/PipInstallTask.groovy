@@ -15,10 +15,11 @@
  */
 package com.linkedin.gradle.python.tasks
 
-import com.linkedin.gradle.python.exception.PipExecutionException
+
 import com.linkedin.gradle.python.extension.PythonDetails
 import com.linkedin.gradle.python.plugin.PythonHelpers
-import com.linkedin.gradle.python.tasks.action.pip.PipInstallAction
+import com.linkedin.gradle.python.tasks.action.PipExecutionException
+import com.linkedin.gradle.python.tasks.action.PipInstallAction
 import com.linkedin.gradle.python.tasks.exec.ExternalExec
 import com.linkedin.gradle.python.tasks.exec.ProjectExternalExec
 import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider

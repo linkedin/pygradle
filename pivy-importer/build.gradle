@@ -70,6 +70,7 @@ task importRequiredDependencies(type: JavaExec) { task ->
     def forceDeps = [
         'setuptools:33.1.1',
         'wheel:0.29.0',
+        'python-dateutil:2.7.2',
         'pip:9.0.3',
     ].join(',')
     args "--repo ${getIvyRepo().absolutePath} $packagesToInclude --replace $replacements --force $forceDeps".split(' ')

@@ -17,16 +17,12 @@ package com.linkedin.gradle.python.tasks;
 
 import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.extension.PythonDetails;
-import com.linkedin.gradle.python.tasks.exec.ExternalExec;
-import com.linkedin.gradle.python.tasks.exec.ProjectExternalExec;
 import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider;
 import com.linkedin.gradle.python.tasks.execution.TeeOutputContainer;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.api.file.FileCollection;
-import org.gradle.api.file.FileTree;
 import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.InputDirectory;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.TaskAction;
@@ -47,28 +43,18 @@ import java.util.List;
  * will allow {@link PythonExtension} to be updated by the project and be complete
  * when its used in the tasks.
  */
-abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask implements FailureReasonProvider {
+abstract public class AbstractPythonInfrastructureDefaultTask extends DefaultTask implements FailureReasonProvider {
 
-    FileTree sources;
     private List<String> arguments = new ArrayList<>();
     // similar to additionalArguments, but not overridable by user's build script
-    private List<String> subArguments = new ArrayList<>();
-    private PythonExtension component;
-    private PythonDetails pythonDetails;
+    private PythonExtension pythonExtension;
+
     private String output;
-
-    @Input
-    public List<String> additionalArguments = new ArrayList<>();
-
-    ExternalExec externalExec = new ProjectExternalExec(getProject());
 
     @InputFiles
     public FileCollection getSourceFiles() {
-        ConfigurableFileTree componentFiles = getProject().fileTree(getComponent().srcDir);
+        ConfigurableFileTree componentFiles = getProject().fileTree(getPythonExtension().srcDir);
         componentFiles.exclude(standardExcludes());
-        if (null != sources) {
-            return sources.plus(componentFiles);
-        }
         return componentFiles;
     }
 
@@ -77,31 +63,15 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask im
     }
 
     @Internal
-    public PythonExtension getComponent() {
-        if (null == component) {
-            component = getProject().getExtensions().getByType(PythonExtension.class);
+    public PythonExtension getPythonExtension() {
+        if (null == pythonExtension) {
+            pythonExtension = getProject().getExtensions().getByType(PythonExtension.class);
         }
-        return component;
+        return pythonExtension;
     }
 
     @Internal
-    public PythonDetails getPythonDetails() {
-        if (null == pythonDetails) {
-            pythonDetails = getComponent().getDetails();
-        }
-        return pythonDetails;
-    }
-
-    public void setPythonDetails(PythonDetails pythonDetails) {
-        this.pythonDetails = pythonDetails;
-    }
-
-    @InputDirectory
-    public FileTree getVirtualEnv() {
-        ConfigurableFileTree files = getProject().fileTree(getPythonDetails().getVirtualEnv());
-        files.exclude(standardExcludes());
-        return files;
-    }
+    abstract PythonDetails getPythonDetails();
 
     @Input
     public boolean ignoreExitValue = false;
@@ -118,31 +88,18 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask im
         arguments.addAll(args);
     }
 
-    public void subArgs(String... args) {
-        subArguments.addAll(Arrays.asList(args));
-    }
-
-    public void subArgs(Collection<String> args) {
-        subArguments.addAll(args);
-    }
-
     @TaskAction
     public void executePythonProcess() {
         preExecution();
 
         final TeeOutputContainer container = new TeeOutputContainer(stdOut, errOut);
 
-        ExecResult result = externalExec.exec(execSpec -> {
-            execSpec.environment(getComponent().pythonEnvironment);
-            execSpec.environment(getComponent().pythonEnvironmentDistgradle);
+        ExecResult result = getProject().exec(execSpec -> {
+            execSpec.environment(getPythonExtension().pythonEnvironment);
             execSpec.commandLine(getPythonDetails().getVirtualEnvInterpreter());
             // arguments are passed to the python interpreter
             execSpec.args(arguments);
-            // subArguments are arguments for previous arguments. eg: arguments to py.test like -k
-            execSpec.args(subArguments);
-            // additionalArguments are same as subArguments, but are expected from user's build script
-            execSpec.args(additionalArguments);
-            execSpec.setIgnoreExitValue(true);
+            execSpec.setIgnoreExitValue(ignoreExitValue);
 
             container.setOutputs(execSpec);
 
@@ -150,10 +107,6 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask im
         });
 
         output = container.getCommandOutput();
-
-        if (!ignoreExitValue) {
-            result.assertNormalExitValue();
-        }
 
         processResults(result);
     }

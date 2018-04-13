@@ -58,5 +58,8 @@ public class ThinZipappGenerator implements ZipappGenerator {
     }
 
     @Override
-    public void buildEntryPoints() throws Exception { };
+    public void buildEntryPoints() throws Exception {
+        // Generic zipapps don't build anything, so subclasses should override
+        // this to build their entry point specific artifacts.
+    };
 }

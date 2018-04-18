@@ -4,6 +4,9 @@ import com.linkedin.pygradle.pypi.model.DependencyOptions
 import org.apache.commons.lang3.builder.EqualsBuilder
 import org.apache.commons.lang3.builder.HashCodeBuilder
 
+/**
+ * Useful when you require a package
+ */
 data class PackageRequiredDependencyCondition(val name: String) : DependencyCondition {
     override fun shouldInclude(options: DependencyOptions) = options.hasPackage(name)
 

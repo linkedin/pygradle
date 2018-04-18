@@ -2,6 +2,9 @@ package com.linkedin.pygradle.pypi.model
 
 import com.linkedin.pygradle.pypi.internal.http.PackageRelease
 
+/**
+ * A representation of the different types of packages
+ */
 enum class PackageType(val text: String) {
     BDIST_WHEEL("bdist_wheel"),
     BDIST_WININST("bdist_wininst"),
@@ -11,7 +14,7 @@ enum class PackageType(val text: String) {
 
 
     companion object {
-        fun parse(text: String): PackageType {
+        private fun parse(text: String): PackageType {
             return when(text) {
                 BDIST_WHEEL.text -> BDIST_WHEEL
                 S_DIST.text -> S_DIST
@@ -21,6 +24,9 @@ enum class PackageType(val text: String) {
             }
         }
 
+        /**
+         * Convert the PackageRelease into an enum
+         */
         fun PackageRelease.matchPackageType(): PackageType {
             return parse(this.packageType)
         }

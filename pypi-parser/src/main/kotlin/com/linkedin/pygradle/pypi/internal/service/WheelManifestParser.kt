@@ -15,7 +15,7 @@ import com.linkedin.pygradle.pypi.model.extra.DependencyCondition
 import com.linkedin.pygradle.pypi.service.PyPiRemote
 import org.slf4j.LoggerFactory
 
-class WheelManifestParser(private val remote: PyPiRemote) : AbstractDependencyParser() {
+internal class WheelManifestParser(private val remote: PyPiRemote) : AbstractDependencyParser() {
 
     private val om = ObjectMapperContainer.objectMapper
     private val log = LoggerFactory.getLogger(WheelManifestParser::class.java)

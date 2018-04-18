@@ -11,6 +11,9 @@ import java.util.*
 
 private val log = LoggerFactory.getLogger("ImporterCLI")
 
+/**
+ * Main method for Pivy
+ */
 fun main(args: Array<String>) {
     val options = CliParser.parseArg(args)
     val container = RequiredVersionBuilder.buildRequiredVersion(options)

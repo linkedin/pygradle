@@ -6,6 +6,9 @@ import com.linkedin.pygradle.pypi.model.DependencyOptions
 import org.apache.commons.lang3.builder.EqualsBuilder
 import org.apache.commons.lang3.builder.HashCodeBuilder
 
+/**
+ * A dependency on something like Python
+ */
 data class SystemDependencyCondition(val name: String, val version: String, val condition: DependencyOperator) : DependencyCondition {
 
     override fun toString(): String = "${name}_${condition.description}_$version"

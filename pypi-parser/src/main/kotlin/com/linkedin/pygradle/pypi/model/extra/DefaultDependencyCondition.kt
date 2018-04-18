@@ -3,6 +3,9 @@ package com.linkedin.pygradle.pypi.model.extra
 import com.linkedin.pygradle.pypi.model.DependencyOptions
 import org.apache.commons.lang3.builder.HashCodeBuilder
 
+/**
+ * Base class for [DependencyCondition]
+ */
 class DefaultDependencyCondition : DependencyCondition {
     override fun shouldInclude(options: DependencyOptions) = true
 

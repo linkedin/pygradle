@@ -2,8 +2,11 @@ package com.linkedin.pivy.downloader
 
 import com.linkedin.pivy.ImporterOptions
 
-object RequiredVersionBuilder {
+internal object RequiredVersionBuilder {
 
+    /**
+     * Given CLI args, get the required versions for the run.
+     */
     fun buildRequiredVersion(args: ImporterOptions): RequiredVersionContainer {
 
         val requiredVersionContainer = RequiredVersionContainer()

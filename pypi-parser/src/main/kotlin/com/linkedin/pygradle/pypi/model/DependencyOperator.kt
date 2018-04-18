@@ -1,5 +1,8 @@
 package com.linkedin.pygradle.pypi.model
 
+/**
+ * Dependency version operators
+ */
 enum class DependencyOperator(val code: String, val description: String) {
     EQUAL("==", "eq"),
     LESS_THAN_EQUAL("<=", "le"),

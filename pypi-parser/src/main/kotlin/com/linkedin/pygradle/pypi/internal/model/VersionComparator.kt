@@ -3,7 +3,7 @@ package com.linkedin.pygradle.pypi.internal.model
 import com.linkedin.pygradle.pypi.model.PythonPackageVersion
 
 //PEP 440 compatible - https://www.python.org/dev/peps/pep-0440/#definitions
-class VersionComparator : Comparator<Any> {
+internal class VersionComparator : Comparator<Any> {
     override fun compare(o1: Any?, o2: Any?): Int {
         if (o1 == null && o2 == null) return 0
         else if (o1 == null) return 1

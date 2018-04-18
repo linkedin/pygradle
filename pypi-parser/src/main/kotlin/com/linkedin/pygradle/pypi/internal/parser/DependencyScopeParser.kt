@@ -4,7 +4,7 @@ import com.linkedin.pygradle.pypi.model.extra.DependencyCondition
 import com.linkedin.pygradle.pypi.model.extra.PackageRequiredDependencyCondition
 import com.linkedin.pygradle.pypi.model.extra.SystemDependencyCondition
 
-object DependencyScopeParser {
+internal object DependencyScopeParser {
     private val scopeParser = Regex("(?<name>[:a-zA-Z0-9_\\.]+)((?<operator>[=><!]{1,2})(?<option>.+))?")
 
     @JvmStatic

@@ -10,7 +10,7 @@ import com.linkedin.pygradle.pypi.model.extra.DefaultDependencyCondition
 import com.linkedin.pygradle.pypi.model.extra.DependencyCondition
 import com.linkedin.pygradle.pypi.service.PyPiRemote
 
-class RequiresTxtParser(private val remote: PyPiRemote) : AbstractDependencyParser() {
+internal class RequiresTxtParser(private val remote: PyPiRemote) : AbstractDependencyParser() {
 
     private val dependencyParser = Regex("(?<name>[a-zA-Z0-9_.]+)(?<options>.+)?")
 

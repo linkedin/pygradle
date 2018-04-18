@@ -1,18 +1,19 @@
 package com.linkedin.pygradle.pypi.internal.model
 
 import com.linkedin.pygradle.pypi.model.PythonPackageVersion
+import com.linkedin.pygradle.pypi.exception.VersionNotSupportedException
 import org.apache.commons.lang3.builder.ToStringBuilder
 import org.apache.commons.lang3.builder.ToStringStyle
 
-class DefaultPythonPackageVersion(private val version: String) : PythonPackageVersion {
+internal class DefaultPythonPackageVersion(private val version: String) : PythonPackageVersion {
 
-    internal val epoch: String?
-    internal val release: String
-    internal val pre: String?
-    internal val post: String?
-    internal val dev: String?
-    internal val local: String?
-    internal val wildcard: Boolean
+    private val epoch: String?
+    private val release: String
+    private val pre: String?
+    private val post: String?
+    private val dev: String?
+    private val local: String?
+    private val wildcard: Boolean
 
     init {
         val tempVersion = if (version.endsWith(".*")) {
@@ -23,7 +24,7 @@ class DefaultPythonPackageVersion(private val version: String) : PythonPackageVe
             version
         }
 
-        if (!isSupportedVersion(tempVersion)) throw RuntimeException("Version $version($tempVersion) doesn't match PEP-440")
+        if (!isSupportedVersion(tempVersion)) throw VersionNotSupportedException("Version $version($tempVersion) doesn't match PEP-440")
         val result = regex.find(tempVersion)!!
         epoch = result.groups["epoch"]?.value
         release = result.groups["release"]?.value!!

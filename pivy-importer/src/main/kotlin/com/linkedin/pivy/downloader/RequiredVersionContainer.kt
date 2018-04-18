@@ -1,6 +1,6 @@
 package com.linkedin.pivy.downloader
 
-class RequiredVersionContainer {
+internal class RequiredVersionContainer {
 
     private val versionMap: MutableMap<String, String> = mutableMapOf()
 

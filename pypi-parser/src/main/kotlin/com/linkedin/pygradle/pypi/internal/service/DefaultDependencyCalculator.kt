@@ -1,10 +1,14 @@
 package com.linkedin.pygradle.pypi.internal.service
 
+import com.linkedin.pygradle.pypi.exception.DownloadedArtifactWasNotValidException
+import com.linkedin.pygradle.pypi.exception.NoCompatibleDependencyException
+import com.linkedin.pygradle.pypi.exception.UnableToMakeHttpRequestException
 import com.linkedin.pygradle.pypi.internal.http.PackageRelease
 import com.linkedin.pygradle.pypi.model.PackageType
 import com.linkedin.pygradle.pypi.model.PackageType.Companion.matchPackageType
 import com.linkedin.pygradle.pypi.model.ParseReport
 import com.linkedin.pygradle.pypi.model.PythonPackageVersion
+import com.linkedin.pygradle.pypi.exception.UnsupportedDistributionTypeException
 import com.linkedin.pygradle.pypi.service.DependencyCalculator
 import com.linkedin.pygradle.pypi.service.PyPiPackageDetails
 import com.linkedin.pygradle.pypi.service.PyPiRemote
@@ -17,10 +21,10 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 
-class DefaultDependencyCalculator(private val okHttpClient: OkHttpClient,
-                                  private val pyPiRemote: PyPiRemote,
-                                  private val cacheFolder: File,
-                                  private val typeFilter: (PackageRelease) -> Boolean) : DependencyCalculator {
+internal class DefaultDependencyCalculator(private val okHttpClient: OkHttpClient,
+                                           private val pyPiRemote: PyPiRemote,
+                                           private val cacheFolder: File,
+                                           private val typeFilter: (PackageRelease) -> Boolean) : DependencyCalculator {
 
     private val log = LoggerFactory.getLogger(DefaultDependencyCalculator::class.java)
 
@@ -32,12 +36,12 @@ class DefaultDependencyCalculator(private val okHttpClient: OkHttpClient,
                 PackageType.BDIST_WHEEL -> processWheel(packageDetails, version, packageRelease)
                 PackageType.S_DIST -> processSdist(packageDetails, version, packageRelease)
                 else -> {
-                    throw RuntimeException("Unsupported Type: ${packageRelease.matchPackageType()}")
+                    throw UnsupportedDistributionTypeException(packageRelease)
                 }
             }
         }
 
-        throw RuntimeException("Unable to find any compatible dependencies")
+        throw NoCompatibleDependencyException()
     }
 
     private fun processWheel(packageDetails: PyPiPackageDetails, version: PythonPackageVersion, dist: PackageRelease): ParseReport {
@@ -89,7 +93,7 @@ class DefaultDependencyCalculator(private val okHttpClient: OkHttpClient,
             val response = sdistCall.execute()
 
             if (!response.isSuccessful) {
-                throw RuntimeException("Unable to make request to ${dist.url}")
+                throw UnableToMakeHttpRequestException(dist.url)
             }
 
             val tempFile = Files.createTempFile("sdist_${packageDetails.getPackageName()}", "." + FilenameUtils.getExtension(dist.url))
@@ -102,7 +106,7 @@ class DefaultDependencyCalculator(private val okHttpClient: OkHttpClient,
         }
 
         if (!dist.md5Digest.equals(md5, ignoreCase = true)) {
-            throw RuntimeException("$cacheFile doesn't match expected md5 (${dist.md5Digest})")
+            throw DownloadedArtifactWasNotValidException(cacheFile, dist.md5Digest)
         }
     }
 }

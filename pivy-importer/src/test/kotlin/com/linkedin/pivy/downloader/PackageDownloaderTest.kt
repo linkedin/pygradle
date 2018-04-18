@@ -16,7 +16,7 @@ internal class PackageDownloaderTest {
 
 
     @Test
-    fun `when version provided, it will be used`() {
+    internal fun `when version provided, it will be used`() {
         val packageDownloader = makeDependencies(mapOf("flake8" to "2.6.2"), true)
         val report = packageDownloader.downloadPackage("flake8")
 
@@ -25,7 +25,7 @@ internal class PackageDownloaderTest {
     }
 
     @Test
-    fun `when version not provided, and require all versions is true, it will throw`() {
+    internal fun `when version not provided, and require all versions is true, it will throw`() {
         val packageDownloader = makeDependencies(emptyMap(), true)
         assertFails {
             packageDownloader.downloadPackage("flake8")
@@ -33,13 +33,13 @@ internal class PackageDownloaderTest {
     }
 
     @Test
-    fun `when version not provided, and require all versions is false, it will resolve`() {
+    internal fun `when version not provided, and require all versions is false, it will resolve`() {
         val packageDownloader = makeDependencies(emptyMap(), false)
         packageDownloader.downloadPackage("flake8")
     }
 
     @Test
-    fun `when version is provides, and require all versions is false, it will resolve to specified version`() {
+    internal fun `when version is provides, and require all versions is false, it will resolve to specified version`() {
         val packageDownloader = makeDependencies(mapOf("flake8" to "2.6.2"), false)
         val report = packageDownloader.downloadPackage("flake8")
 

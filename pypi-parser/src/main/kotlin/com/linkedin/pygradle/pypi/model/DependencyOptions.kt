@@ -6,5 +6,8 @@ interface DependencyOptions {
      */
     fun getSystemVersion(name: String): String?
 
+    /**
+     * If the package exists
+     */
     fun hasPackage(name: String): Boolean
 }

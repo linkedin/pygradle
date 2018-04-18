@@ -1,5 +1,6 @@
 package com.linkedin.pivy.ivy
 
+import com.linkedin.pivy.UnsupportedDistributionTypeException
 import com.linkedin.pivy.downloader.RequiredVersionContainer
 import com.linkedin.pygradle.pypi.model.Dependency
 import com.linkedin.pygradle.pypi.model.PackageType
@@ -10,13 +11,16 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 
-class IvyRepoHelper(private val versionContainer: RequiredVersionContainer) {
+internal class IvyRepoHelper(private val versionContainer: RequiredVersionContainer) {
 
+    /**
+     * Puts a given resolved report into the Ivy Repo
+     */
     fun putPackageInRepo(report: ParseReport, repoBase: File, deps: List<Dependency>) {
         val configuration = when (report.type) {
             PackageType.S_DIST -> "sdist"
             PackageType.BDIST_WHEEL -> "wheel"
-            else -> throw RuntimeException("Unsupported Dist Type")
+            else -> throw UnsupportedDistributionTypeException("Unsupported Dist Type")
         }
 
         val ext = listOf("tar.gz", "whl", "zip", "tar.bz2").first { report.file.name.endsWith(it) }

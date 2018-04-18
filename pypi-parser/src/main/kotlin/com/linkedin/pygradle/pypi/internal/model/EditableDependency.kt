@@ -5,7 +5,10 @@ import com.linkedin.pygradle.pypi.model.DependencyOperator
 import com.linkedin.pygradle.pypi.model.PythonPackageVersion
 import com.linkedin.pygradle.pypi.model.extra.DependencyCondition
 
-data class EditableDependency(override val name: String,
+/**
+ * Dependency Implementation
+ */
+internal data class EditableDependency(override val name: String,
                               override val version: PythonPackageVersion,
                               override val operator: DependencyOperator,
                               override val extras: MutableSet<DependencyCondition>) : Dependency

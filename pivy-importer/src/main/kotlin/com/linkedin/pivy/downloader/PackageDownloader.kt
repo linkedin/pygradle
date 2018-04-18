@@ -1,9 +1,10 @@
 package com.linkedin.pivy.downloader
 
 import com.linkedin.pivy.ImporterOptions
+import com.linkedin.pivy.NoVersionProvidedException
 import com.linkedin.pygradle.pypi.factory.DependencyCalculatorFactory
 import com.linkedin.pygradle.pypi.factory.PyPiRemoteFactory
-import com.linkedin.pygradle.pypi.factory.PythonVersionFactory
+import com.linkedin.pygradle.pypi.factory.PythonPackageVersionFactory
 import com.linkedin.pygradle.pypi.internal.http.PackageRelease
 import com.linkedin.pygradle.pypi.model.PackageType
 import com.linkedin.pygradle.pypi.model.PackageType.Companion.matchPackageType
@@ -17,9 +18,9 @@ import java.net.InetSocketAddress
 import java.net.Proxy
 import java.util.concurrent.TimeUnit
 
-class PackageDownloader(private val options: ImporterOptions,
-                        private val requiredVersionsContainer: RequiredVersionContainer,
-                        private val supportedTypes: List<String>) {
+internal class PackageDownloader(private val options: ImporterOptions,
+                                 private val requiredVersionsContainer: RequiredVersionContainer,
+                                 private val supportedTypes: List<String>) {
 
     private val log = LoggerFactory.getLogger(PackageDownloader::class.java)
 
@@ -46,6 +47,9 @@ class PackageDownloader(private val options: ImporterOptions,
     private val dependencyCalculator = DependencyCalculatorFactory.buildDependencyCalculator(
         httpClient, pyPiRemote, cacheDir, { it.matchPackageType() == PackageType.S_DIST })
 
+    /**
+     * Downloads a given package.
+     */
     fun downloadPackage(name: String): ParseReport? {
         val resolvePackage = pyPiRemote.resolvePackage(name)
         val (version, availableReleased) = getVersion(name, resolvePackage)
@@ -61,7 +65,7 @@ class PackageDownloader(private val options: ImporterOptions,
             return null
         }
 
-        return dependencyCalculator.calculateDependencies(resolvePackage, PythonVersionFactory.makeVersion(version))
+        return dependencyCalculator.calculateDependencies(resolvePackage, PythonPackageVersionFactory.makeVersion(version))
     }
 
     private fun getVersion(name: String, resolvePackage: PyPiPackageDetails): Pair<String, List<PackageRelease>?> {
@@ -74,7 +78,7 @@ class PackageDownloader(private val options: ImporterOptions,
         }
 
         version = version ?: requiredVersionsContainer.findVersion(name)
-        version ?: throw RuntimeException("No version was provided for $name")
+        version ?: throw NoVersionProvidedException("No version was provided for $name")
 
         val availableReleased = resolvePackage.getPackageInfo().releases[version]
         return Pair(version, availableReleased)

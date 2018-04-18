@@ -3,7 +3,7 @@ package com.linkedin.pygradle.pypi.internal.model
 import com.linkedin.pygradle.pypi.model.DependencyOperator
 import java.util.Objects
 
-object VersionExpressionEvaluator {
+internal object VersionExpressionEvaluator {
     private val comparator = VersionComparator()
 
     fun isExpressionTrue(first: Any, operator: DependencyOperator, second: Any): Boolean {

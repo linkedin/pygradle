@@ -6,6 +6,9 @@ import java.io.File
 import java.util.*
 
 
+/**
+ * Class used to manage the CLI's args use by Pivy Importer
+ */
 class CliArgs {
     @Parameter(required = true)
     lateinit var dependencies: String

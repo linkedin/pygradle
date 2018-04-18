@@ -2,7 +2,7 @@ package com.linkedin.pivy
 
 import java.io.File
 
-data class ImporterOptions(
+internal data class ImporterOptions(
     val dependencies: List<String>,
     val versionRequirements: Map<String, String>,
     val repo: File,

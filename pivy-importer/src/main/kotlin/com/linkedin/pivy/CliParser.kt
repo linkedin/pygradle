@@ -7,9 +7,15 @@ import com.linkedin.pivy.args.CliArgs
 import org.slf4j.LoggerFactory
 import com.linkedin.pivy.downloader.PackageDownloader
 
-object CliParser {
+/**
+ * Parses the CLI Args
+ */
+internal object CliParser {
     private val log = LoggerFactory.getLogger(CliParser::class.java)
 
+    /**
+     * Parsed the CLI args and provides an [ImporterOptions] as a result.
+     */
     fun parseArg(args: Array<String>): ImporterOptions {
         val cliArgs = CliArgs()
         val jCommander = JCommander.newBuilder()

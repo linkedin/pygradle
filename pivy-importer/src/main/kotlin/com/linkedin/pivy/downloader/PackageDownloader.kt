@@ -1,6 +1,7 @@
 package com.linkedin.pivy.downloader
 
 import com.linkedin.pivy.ImporterOptions
+import com.linkedin.pivy.NoVersionAvaliabe
 import com.linkedin.pivy.NoVersionProvidedException
 import com.linkedin.pygradle.pypi.factory.DependencyCalculatorFactory
 import com.linkedin.pygradle.pypi.factory.PyPiRemoteFactory
@@ -72,7 +73,8 @@ internal class PackageDownloader(private val options: ImporterOptions,
         var version = requiredVersionsContainer.findVersion(name)
 
         if (version == null && !options.requireAllVersions) {
-            val pickedVersion = resolvePackage.getLatestVersion()!!.toVersionString()
+            val latestVersion = resolvePackage.getLatestVersion() ?: throw NoVersionAvaliabe(name)
+            val pickedVersion = latestVersion!!.toVersionString()
             log.warn("Registering {} to use {} globally", name, pickedVersion)
             requiredVersionsContainer.register(name, pickedVersion)
         }

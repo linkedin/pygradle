@@ -25,7 +25,8 @@ internal class DefaultPyPiRemote(url: String, okHttpClient: OkHttpClient) : PyPi
                 throw RequestWasNotSuccessfulException(name)
             }
 
-            return@computeIfAbsent DefaultPyPiPackageDetails(response.body()!!)
+            val packageDetailsBody = response.body() ?: throw RequestWasNotSuccessfulException(name)
+            return@computeIfAbsent DefaultPyPiPackageDetails(packageDetailsBody)
         }
     }
 }

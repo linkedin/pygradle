@@ -1,14 +1,11 @@
 package com.linkedin.pygradle.pypi.internal.service
 
-import com.linkedin.pygradle.pypi.exception.DownloadedArtifactWasNotValidException
-import com.linkedin.pygradle.pypi.exception.NoCompatibleDependencyException
-import com.linkedin.pygradle.pypi.exception.UnableToMakeHttpRequestException
+import com.linkedin.pygradle.pypi.exception.*
 import com.linkedin.pygradle.pypi.internal.http.PackageRelease
 import com.linkedin.pygradle.pypi.model.PackageType
 import com.linkedin.pygradle.pypi.model.PackageType.Companion.matchPackageType
 import com.linkedin.pygradle.pypi.model.ParseReport
 import com.linkedin.pygradle.pypi.model.PythonPackageVersion
-import com.linkedin.pygradle.pypi.exception.UnsupportedDistributionTypeException
 import com.linkedin.pygradle.pypi.service.DependencyCalculator
 import com.linkedin.pygradle.pypi.service.PyPiPackageDetails
 import com.linkedin.pygradle.pypi.service.PyPiRemote
@@ -29,7 +26,8 @@ internal class DefaultDependencyCalculator(private val okHttpClient: OkHttpClien
     private val log = LoggerFactory.getLogger(DefaultDependencyCalculator::class.java)
 
     override fun calculateDependencies(packageDetails: PyPiPackageDetails, version: PythonPackageVersion): ParseReport {
-        val versions = packageDetails.getPackageInfo().releases[version.toVersionString()]!!
+        val versions = packageDetails.getPackageInfo().releases[version.toVersionString()]
+            ?: throw VersionNotSupportedException("Version $version didn't exist")
 
         for (packageRelease in versions.filter(typeFilter)) {
             return when (packageRelease.matchPackageType()) {
@@ -97,7 +95,9 @@ internal class DefaultDependencyCalculator(private val okHttpClient: OkHttpClien
             }
 
             val tempFile = Files.createTempFile("sdist_${packageDetails.getPackageName()}", "." + FilenameUtils.getExtension(dist.url))
-            tempFile.toFile().writeBytes(response.body()!!.bytes())
+            val bodyBytes = response.body()?.bytes()
+                ?: throw RequestWasNotSuccessfulException(packageDetails.getPackageName())
+            tempFile.toFile().writeBytes(bodyBytes)
             Files.move(tempFile, cacheFile)
         }
 

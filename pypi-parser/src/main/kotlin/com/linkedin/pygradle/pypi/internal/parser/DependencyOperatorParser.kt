@@ -3,7 +3,7 @@ package com.linkedin.pygradle.pypi.internal.parser
 import com.linkedin.pygradle.pypi.model.DependencyOperator
 
 internal object DependencyOperatorParser {
-    fun parseComparison(operator: String?): DependencyOperator? = when (operator?.trim()) {
+    internal fun parseComparison(operator: String?): DependencyOperator? = when (operator?.trim()) {
         ">=" -> DependencyOperator.GREATER_THAN_EQUAL
         "<=" -> DependencyOperator.LESS_THAN_EQUAL
         ">" -> DependencyOperator.GREATER_THAN
@@ -11,6 +11,6 @@ internal object DependencyOperatorParser {
         "==" -> DependencyOperator.EQUAL
         "!=" -> DependencyOperator.NOT_EQUAL
         null -> null
-        else -> throw Throwable("`$operator` is not an understood value")
+        else -> throw IllegalArgumentException("`$operator` is not an understood value")
     }
 }

@@ -6,6 +6,9 @@ import java.util.Objects
 internal object VersionExpressionEvaluator {
     private val comparator = VersionComparator()
 
+    /**
+     * Check the the first is ___ than second
+     */
     fun isExpressionTrue(first: Any, operator: DependencyOperator, second: Any): Boolean {
         if (operator == DependencyOperator.EQUAL) {
             return Objects.equals(first, second)

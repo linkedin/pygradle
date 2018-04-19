@@ -1,5 +1,6 @@
 package com.linkedin.pygradle.pypi.internal.model
 
+import com.linkedin.pygradle.pypi.exception.VersionNotSupportedException
 import com.linkedin.pygradle.pypi.model.PythonPackageVersion
 
 //PEP 440 compatible - https://www.python.org/dev/peps/pep-0440/#definitions
@@ -13,7 +14,7 @@ internal class VersionComparator : Comparator<Any> {
         val v2 = o2.toPythonVersion()
 
         val (v1Groups, v2Groups) = zeroPadAsRequired(v1, v2)
-        for (i in (0..v1Groups.size - 1)) {
+        for (i in (0 until v1Groups.size)) {
             val value1 = v1Groups[i].orEmpty()
             val value2 = v2Groups[i].orEmpty()
             val trimmedValue1 = value1.replace(Regex("(?<realVersion>.*?)(.0)+")) { it -> it.groups["realVersion"]!!.value }
@@ -26,6 +27,7 @@ internal class VersionComparator : Comparator<Any> {
             if (value1 == "" && !v1.isWildcardVersion()) {
                 return 1
             }
+
             if (value2 == "" && !v2.isWildcardVersion()) {
                 return -1
             }
@@ -58,7 +60,7 @@ internal class VersionComparator : Comparator<Any> {
         val group1 = v1.getGroups().toMutableList()
         val group2 = v2.getGroups().toMutableList()
 
-        for (i in (0..group1.size - 1)) {
+        for (i in (0 until group1.size)) {
             val part1 = group1[i]
             val part2 = group2[i]
 
@@ -67,9 +69,9 @@ internal class VersionComparator : Comparator<Any> {
                 val split2 = part2.split(".")
 
                 if (split1.size < split2.size) {
-                    group1[i] = part1 + "." + (0..split2.size - split1.size - 1).map { "0" }.joinToString(".")
+                    group1[i] = part1 + "." + (0 until split2.size - split1.size).map { "0" }.joinToString(".")
                 } else if (split1.size > split2.size) {
-                    group2[i] = part2 + "." + (0..split1.size - split2.size - 1).map { "0" }.joinToString(".")
+                    group2[i] = part2 + "." + (0 until split1.size - split2.size).map { "0" }.joinToString(".")
                 }
             }
         }
@@ -81,7 +83,7 @@ internal class VersionComparator : Comparator<Any> {
         return when (this) {
             is PythonPackageVersion -> return this
             is String -> DefaultPythonPackageVersion(this)
-            else -> throw RuntimeException("${this.javaClass.name} is not either String or PythonPackageVersion")
+            else -> throw VersionNotSupportedException("${this.javaClass.name} is not either String or PythonPackageVersion")
         }
     }
 }

@@ -4,8 +4,8 @@ import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
 import com.beust.jcommander.JCommander
 import com.linkedin.pivy.args.CliArgs
-import org.slf4j.LoggerFactory
 import com.linkedin.pivy.downloader.PackageDownloader
+import org.slf4j.LoggerFactory
 
 /**
  * Parses the CLI Args
@@ -28,8 +28,9 @@ internal object CliParser {
             System.exit(0)
         }
 
-        val root = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as Logger
-        val packageDownloaderLogger = LoggerFactory.getLogger(PackageDownloader::class.java) as Logger
+        val root = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as? Logger ?: throw NotSupportedLoggerException()
+        val packageDownloaderLogger = LoggerFactory.getLogger(PackageDownloader::class.java) as? Logger
+            ?: throw NotSupportedLoggerException()
         root.level = Level.INFO
 
         if (cliArgs.verbose) {

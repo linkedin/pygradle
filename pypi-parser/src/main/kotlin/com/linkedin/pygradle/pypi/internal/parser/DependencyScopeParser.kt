@@ -7,15 +7,14 @@ import com.linkedin.pygradle.pypi.model.extra.SystemDependencyCondition
 internal object DependencyScopeParser {
     private val scopeParser = Regex("(?<name>[:a-zA-Z0-9_\\.]+)((?<operator>[=><!]{1,2})(?<option>.+))?")
 
-    @JvmStatic
-    fun matches(input: String) = scopeParser.matches(input)
+    internal fun matches(input: String) = scopeParser.matches(input)
 
-    @JvmStatic
-    fun parseScope(input: String): Collection<DependencyCondition> {
-        val groups = scopeParser.find(input)!!.groups
-        val operatorString = if (groups["operator"] != null) groups["operator"]!!.value else null
-        val optionString = if (groups["option"] != null) groups["option"]!!.value else null
-        val name = groups["name"]!!.value
+    internal fun parseScope(input: String): Collection<DependencyCondition> {
+        val result = scopeParser.find(input) ?: return emptyList()
+        val groups = result.groups
+        val operatorString = groups["operator"]?.value
+        val optionString = groups["option"]?.value
+        val name = groups["name"]?.value ?: throw IllegalArgumentException("Regex Match failed.")
 
         return if (operatorString == null || optionString == null) {
             listOf(PackageRequiredDependencyCondition(name))
@@ -26,7 +25,8 @@ internal object DependencyScopeParser {
             } else {
                 name
             }
-            val condition = DependencyOperatorParser.parseComparison(operatorString)!!
+            val condition = DependencyOperatorParser.parseComparison(operatorString)
+                ?: throw IllegalArgumentException("operator string was null")
             val removedQuotes = optionString.replace("\"", "").replace("'", "")
             listOf(SystemDependencyCondition(requirement, removedQuotes, condition))
         }

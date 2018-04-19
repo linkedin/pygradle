@@ -5,11 +5,12 @@ import com.linkedin.pygradle.pypi.internal.model.DefaultPythonPackageVersion
 import com.linkedin.pygradle.pypi.internal.model.VersionComparator
 import com.linkedin.pygradle.pypi.model.PythonPackageVersion
 import com.linkedin.pygradle.pypi.service.PyPiPackageDetails
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class DefaultPyPiPackageDetails(private val packageDetails: PackageDetails) : PyPiPackageDetails {
+internal class DefaultPyPiPackageDetails(private val packageDetails: PackageDetails) : PyPiPackageDetails {
 
-    private val logger = LoggerFactory.getLogger(DefaultPyPiPackageDetails::class.java)!!
+    private val logger = LoggerFactory.getLogger(DefaultPyPiPackageDetails::class.java) as Logger
     private val versions: List<PythonPackageVersion>
 
     init {

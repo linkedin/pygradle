@@ -8,6 +8,10 @@ import retrofit2.http.Path
  * Retrofit call to PyPi
  */
 internal interface PyPiResource {
+
+    /**
+     * Make network call to pypi
+     */
     @GET("/pypi/{library}/json")
     fun getManifest(@Path("library") library: String): Call<PackageDetails>
 }

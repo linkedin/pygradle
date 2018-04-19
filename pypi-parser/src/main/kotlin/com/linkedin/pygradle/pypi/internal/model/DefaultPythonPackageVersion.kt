@@ -25,7 +25,7 @@ internal class DefaultPythonPackageVersion(private val version: String) : Python
         }
 
         if (!isSupportedVersion(tempVersion)) throw VersionNotSupportedException("Version $version($tempVersion) doesn't match PEP-440")
-        val result = regex.find(tempVersion)!!
+        val result = regex.find(tempVersion) ?: throw VersionNotSupportedException("Version $version($tempVersion) doesn't match PEP-440")
         epoch = result.groups["epoch"]?.value
         release = result.groups["release"]?.value!!
         pre = normalizeToTrailingZero(result.groups["pre"]?.value)
@@ -43,7 +43,7 @@ internal class DefaultPythonPackageVersion(private val version: String) : Python
             "(\\+(?<local>[a-zA-Z0-9]([.a-zA-Z0-9])*[a-zA-Z0-9]?))?"
         val regex = Regex(pep440Pattern)
 
-        fun isSupportedVersion(string: String): Boolean = regex.matches(string)
+        internal fun isSupportedVersion(string: String): Boolean = regex.matches(string)
 
         private fun normalizeToTrailingZero(value: String?): String? {
             val input = value ?: return null

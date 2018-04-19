@@ -37,6 +37,7 @@ fun main(args: Array<String>) {
     }
 
     val ivyRepoHelper = IvyRepoHelper(container)
+    var hadError = false
 
     while (processQueue.isNotEmpty()) {
         val packageName = processQueue.poll()
@@ -64,10 +65,12 @@ fun main(args: Array<String>) {
             ivyRepoHelper.putPackageInRepo(report, options.repo, unconditionalDependencies)
         } catch (t: Throwable) {
             log.error("Error processing {}", packageName)
-            throw Throwable(t)
+            hadError = true
         } finally {
             log.trace("Finished {}", packageName)
             log.trace("Queue Size: {}", processQueue.size)
         }
     }
+
+    System.exit(if (hadError) 1 else 0)
 }

@@ -15,9 +15,12 @@
  */
 package com.linkedin.gradle.python.tasks
 
-import com.linkedin.gradle.python.PythonExtension
+import com.linkedin.gradle.python.exception.PipExecutionException
 import com.linkedin.gradle.python.extension.PythonDetails
 import com.linkedin.gradle.python.plugin.PythonHelpers
+import com.linkedin.gradle.python.tasks.action.pip.PipInstallAction
+import com.linkedin.gradle.python.tasks.exec.ExternalExec
+import com.linkedin.gradle.python.tasks.exec.ProjectExternalExec
 import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider
 import com.linkedin.gradle.python.tasks.supports.SupportsPackageInfoSettings
 import com.linkedin.gradle.python.tasks.supports.SupportsWheelCache
@@ -25,7 +28,6 @@ import com.linkedin.gradle.python.util.DefaultEnvironmentMerger
 import com.linkedin.gradle.python.util.DependencyOrder
 import com.linkedin.gradle.python.util.EnvironmentMerger
 import com.linkedin.gradle.python.util.ExtensionUtils
-import com.linkedin.gradle.python.util.OperatingSystem
 import com.linkedin.gradle.python.util.PackageInfo
 import com.linkedin.gradle.python.util.PackageSettings
 import com.linkedin.gradle.python.util.internal.TaskTimer
@@ -33,7 +35,6 @@ import com.linkedin.gradle.python.wheel.EmptyWheelCache
 import com.linkedin.gradle.python.wheel.WheelCache
 import groovy.transform.CompileStatic
 import org.gradle.api.DefaultTask
-import org.gradle.api.GradleException
 import org.gradle.api.Task
 import org.gradle.api.file.FileCollection
 import org.gradle.api.specs.Spec
@@ -43,11 +44,6 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.internal.logging.progress.ProgressLogger
 import org.gradle.internal.logging.progress.ProgressLoggerFactory
-import org.gradle.process.ExecResult
-import org.gradle.process.ExecSpec
-
-import java.nio.file.Path
-import java.nio.file.Paths
 
 /**
  * Execute pip install
@@ -78,8 +74,8 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider, Suppo
     boolean sorted = true
 
     PackageSettings<PackageInfo> packageSettings
-
     EnvironmentMerger environmentMerger = new DefaultEnvironmentMerger()
+    ExternalExec externalExec = new ProjectExternalExec(getProject())
 
     public PipInstallTask() {
         getOutputs().doNotCacheIf('When package packageExcludeFilter is set', new Spec<Task>() {
@@ -129,9 +125,7 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider, Suppo
      */
     @TaskAction
     void pipInstall() {
-        def pyVersion = pythonDetails.getPythonVersion().pythonMajorMinor
         def extension = ExtensionUtils.getPythonExtension(project)
-        def sitePackages = findSitePackages()
 
         ProgressLoggerFactory progressLoggerFactory = getServices().get(ProgressLoggerFactory)
         ProgressLogger progressLogger = progressLoggerFactory.newOperation(PipInstallTask)
@@ -139,17 +133,31 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider, Suppo
 
         progressLogger.started()
         TaskTimer taskTimer = new TaskTimer()
+        def baseEnvironment = environmentMerger.mergeEnvironments([extension.pythonEnvironment, environment])
+        def pipInstallAction = new PipInstallAction(packageSettings, project, externalExec,
+            baseEnvironment, pythonDetails, wheelCache, environmentMerger)
 
         int counter = 0
         def installableFiles = DependencyOrder.getConfigurationFiles(installFileCollection, sorted)
         for (File installable : installableFiles) {
             if (isReadyForInstall(installable)) {
                 def packageInfo = PackageInfo.fromPath(installable)
-                String shortHand = packageInfo.version ? "${ packageInfo.name }-${ packageInfo.version }" : packageInfo.name
 
-                def timer = taskTimer.start(shortHand)
-                progressLogger.progress("Installing $shortHand (${ ++counter } of ${ installableFiles.size() })")
-                doInstall(shortHand, packageInfo, sitePackages, pyVersion, extension, installable)
+                def timer = taskTimer.start(packageInfo.toShortHand())
+                progressLogger.progress("Installing ${packageInfo.toShortHand()} (${++counter} of ${installableFiles.size()})")
+
+                if (packageExcludeFilter != null && packageExcludeFilter.isSatisfiedBy(packageInfo)) {
+                    if (PythonHelpers.isPlainOrVerbose(project)) {
+                        logger.lifecycle("Skipping {} - Excluded", packageInfo.toShortHand())
+                    }
+                } else {
+                    try {
+                        pipInstallAction.installPackage(packageInfo, args)
+                    } catch (PipExecutionException pee) {
+                        lastInstallMessage = pee.pipText
+                        throw pee
+                    }
+                }
                 timer.stop()
             }
         }
@@ -159,121 +167,9 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider, Suppo
         new File(project.buildDir, getName() + "-task-runtime-report.txt").text = taskTimer.buildReport()
     }
 
-    @SuppressWarnings("ParameterCount")
-    private void doInstall(String shortHand, PackageInfo packageInfo, Path sitePackages,
-                           String pyVersion, PythonExtension extension, File installable) {
-        if (packageExcludeFilter != null && packageExcludeFilter.isSatisfiedBy(packageInfo)) {
-            if (PythonHelpers.isPlainOrVerbose(project)) {
-                logger.lifecycle("Skipping {} - Excluded", shortHand)
-            }
-            return
-        }
-
-        // If supported versions are empty, there are no restrictions.
-        def supportedVersions = packageSettings.getSupportedLanguageVersions(packageInfo)
-        if (supportedVersions != null && !supportedVersions.empty && !supportedVersions.contains(pyVersion)) {
-            throw new PipInstallException(
-                "Package ${ packageInfo.name } works only with Python versions: ${ supportedVersions }")
-        }
-
-        String sanitizedName = packageInfo.name.replace('-', '_')
-
-        // See: https://www.python.org/dev/peps/pep-0376/
-        File egg = sitePackages.resolve("${ sanitizedName }-${ packageInfo.version }-py${ pyVersion }.egg-info").toFile()
-        File dist = sitePackages.resolve("${ sanitizedName }-${ packageInfo.version }.dist-info").toFile()
-
-        if (!packageSettings.requiresSourceBuild(packageInfo) &&
-            (project.file(egg).exists() || project.file(dist).exists())) {
-            if (PythonHelpers.isPlainOrVerbose(project)) {
-                logger.lifecycle("Skipping {} - Installed", shortHand)
-            }
-            return
-        }
-
-        def mergedEnv = environmentMerger.mergeEnvironments(
-            [extension.pythonEnvironment, environment, packageSettings.getEnvironment(packageInfo)])
-
-
-        def commandLine = [
-            pythonDetails.getVirtualEnvInterpreter().toString(),
-            pythonDetails.getVirtualEnvironment().getPip().toString(),
-            'install',
-            '--disable-pip-version-check',
-            '--no-deps',
-        ]
-
-        commandLine.addAll(args)
-
-        def globalOptions = packageSettings.getGlobalOptions(packageInfo)
-        if (globalOptions != null) {
-            commandLine.addAll(globalOptions)
-        }
-
-        def installOptions = packageSettings.getInstallOptions(packageInfo)
-        if (installOptions != null) {
-            commandLine.addAll(installOptions)
-        }
-
-        def cachedWheel = wheelCache.findWheel(packageInfo.name, packageInfo.version, pythonDetails)
-        if (!packageSettings.requiresSourceBuild(packageInfo) && cachedWheel.isPresent()) {
-            if (PythonHelpers.isPlainOrVerbose(project)) {
-                logger.lifecycle("{} from wheel: {}", shortHand, cachedWheel.get().getAbsolutePath())
-            }
-            commandLine.add(cachedWheel.get().getAbsolutePath())
-        } else {
-            commandLine.add(installable.getAbsolutePath())
-        }
-
-        if (PythonHelpers.isPlainOrVerbose(project)) {
-            logger.lifecycle("Installing {}", shortHand)
-        }
-
-        def stream = new ByteArrayOutputStream()
-        ExecResult installResult = project.exec { ExecSpec execSpec ->
-            execSpec.environment mergedEnv
-            execSpec.commandLine(commandLine)
-            execSpec.standardOutput = stream
-            execSpec.errorOutput = stream
-            execSpec.ignoreExitValue = true
-        }
-
-        def message = stream.toString().trim()
-        if (installResult.exitValue != 0) {
-            /*
-             * TODO: maintain a list of packages that failed to install, and report a failure
-             * report at the end. We can leverage our domain expertise here to provide very
-             * meaningful errors. E.g., we see lxml failed to install, do you have libxml2
-             * installed? E.g., we see pyOpenSSL>0.15 failed to install, do you have libffi
-             * installed?
-             */
-            logger.error("Error installing package using `{}`", commandLine)
-            logger.error(message)
-            lastInstallMessage = message
-
-            throw new PipInstallException(
-                "Failed to install ${ shortHand }. Please see above output for reason, or re-run your build using ``gradle -i build`` for additional logging.")
-        } else {
-            logger.info(message)
-        }
-    }
-
-    static class PipInstallException extends GradleException {
-        PipInstallException(String message) {
-            super(message)
-        }
-    }
-
-    private Path findSitePackages() {
-        def pyVersion = pythonDetails.getPythonVersion().pythonMajorMinor
-        if (OperatingSystem.current().isUnix()) {
-            return pythonDetails.virtualEnv.toPath().resolve(Paths.get("lib", "python${ pyVersion }", "site-packages"))
-        } else {
-            return pythonDetails.virtualEnv.toPath().resolve(Paths.get("Lib", "site-packages"))
-        }
-    }
-
     @Override
     String getReason() {
         return lastInstallMessage
     }
+
 }

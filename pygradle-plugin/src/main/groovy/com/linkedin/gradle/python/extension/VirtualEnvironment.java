@@ -51,16 +51,20 @@ public class VirtualEnvironment implements Serializable {
         return OperatingSystem.current().isWindows() ? "Scripts" : "bin";
     }
 
-    public File getExecutable(String path) {
-        return validateFileExists(prefixBuilder().resolve(OperatingSystem.current().getExecutableName(path)));
+    public File getExecutable(String execName) {
+        return validateFileExists(findExecutable(prefixBuilder(), execName));
     }
 
     public File getScript(String path) {
         return validateFileExists(prefixBuilder().resolve(OperatingSystem.current().getScriptName(path)));
     }
 
-    public File findExecutable(String path) {
-        return prefixBuilder().resolve(OperatingSystem.current().getExecutableName(path)).toFile();
+    public File findExecutable(String name) {
+        return findExecutable(prefixBuilder(), name).toFile();
+    }
+
+    public static Path findExecutable(Path path, String name) {
+        return path.resolve(OperatingSystem.current().getExecutableName(name));
     }
 
     private Path prefixBuilder() {

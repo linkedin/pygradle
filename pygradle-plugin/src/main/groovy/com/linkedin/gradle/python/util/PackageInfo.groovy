@@ -19,6 +19,7 @@ import com.linkedin.gradle.python.wheel.PythonWheelDetails
 import org.apache.commons.io.FilenameUtils
 import org.gradle.api.GradleException
 
+import java.nio.file.Path
 import java.util.regex.Matcher
 
 
@@ -96,9 +97,16 @@ class PackageInfo {
         }
     }
 
+    public static PackageInfo fromPath(Path packagePath) {
+        return fromPath(packagePath.toFile())
+    }
 
     @Override
     public String toString() {
         return name + "-" + version
+    }
+
+    public String toShortHand() {
+        return version ? "${name}-${version}" : name
     }
 }

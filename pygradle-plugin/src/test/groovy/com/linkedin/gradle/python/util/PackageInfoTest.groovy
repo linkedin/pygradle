@@ -62,7 +62,7 @@ class PackageInfoTest extends Specification {
 
     def 'can parse a windows path'() {
         when:
-        def packageInfo = packageInGradleCache('Z:\\pygradle\\build\\ivy-repo\\pypi\\setuptools\\19.1.1\\setuptools-19.1.1')
+        def packageInfo = PackageInfo.fromPath(new File('Z:\\pygradle\\.gradle\\caches\\build\\ivy-repo\\pypi\\setuptools\\19.1.1\\setuptools-19.1.1.tar.gz'))
         then:
         assert packageInfo.name == 'setuptools'
         assert packageInfo.version == '19.1.1'

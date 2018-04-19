@@ -1,5 +1,6 @@
 package com.linkedin.pygradle.pypi.internal.parser
 
+import com.linkedin.pygradle.pypi.exception.InternalBugException
 import com.linkedin.pygradle.pypi.model.DependencyOperator
 
 internal object DependencyOperatorParser {
@@ -12,5 +13,9 @@ internal object DependencyOperatorParser {
         "!=" -> DependencyOperator.NOT_EQUAL
         null -> null
         else -> throw IllegalArgumentException("`$operator` is not an understood value")
+    }
+
+    internal fun getParsedComparison(operator: String): DependencyOperator {
+        return parseComparison(operator) ?: throw InternalBugException("Operator should never be null")
     }
 }

@@ -28,7 +28,7 @@ class DefaultDependencyCalculatorTest extends Specification {
 
         when:
         def packageDetails = pyPiRemote.resolvePackage("flake8")
-        def dependencies = calculator.calculateDependencies(packageDetails, packageDetails.latestVersion)
+        def dependencies = calculator.calculateDependencies(packageDetails, packageDetails.findLatestVersion())
 
         then:
         def expectedDependencies = [
@@ -65,7 +65,7 @@ class DefaultDependencyCalculatorTest extends Specification {
 
         when:
         def packageDetails = pyPiRemote.resolvePackage("Sphinx")
-        def dependencies = calculator.calculateDependencies(packageDetails, packageDetails.latestVersion)
+        def dependencies = calculator.calculateDependencies(packageDetails, packageDetails.findLatestVersion())
 
         then:
         def expectedDependencies = [

@@ -3,7 +3,10 @@ package com.linkedin.pygradle.pypi.internal.service
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.linkedin.pygradle.pypi.exception.ArchiveParseException
+import com.linkedin.pygradle.pypi.exception.InternalBugException
 import com.linkedin.pygradle.pypi.internal.ObjectMapperContainer
+import com.linkedin.pygradle.pypi.internal.extractField
 import com.linkedin.pygradle.pypi.internal.model.DefaultPythonPackageVersion
 import com.linkedin.pygradle.pypi.internal.model.EditableDependency
 import com.linkedin.pygradle.pypi.internal.parser.DependencyOperatorParser
@@ -27,7 +30,7 @@ internal class WheelManifestParser(private val remote: PyPiRemote) : AbstractDep
             om.readValue<Map<String, Any>>(requires)
         } catch (e: JsonMappingException) {
             log.error("Unable to parse `{}`", requires)
-            throw RuntimeException(e)
+            throw ArchiveParseException("wheel", "_unknown_")
         }
 
         val dependencies: List<RequiresDependency> =
@@ -42,41 +45,48 @@ internal class WheelManifestParser(private val remote: PyPiRemote) : AbstractDep
         dependencies.forEach { dep ->
             val scope = if (dep.environment != null) DependencyScopeParser.parseScope(dep.environment) else defaultScope
             dep.requires.forEach {
-                if (v1Regex.matches(it)) {
-                    val matchResult = v1Regex.find(it)!!
-                    val name = matchResult.groups["dep"]!!.value
-                    val versions = matchResult.groups["versions"]!!.value.split(",")
-
-                    versions.forEach {
-                        val startOfVersion = it.indexOfFirst { it.isLetterOrDigit() }
-                        val operator = DependencyOperatorParser.parseComparison(it.substring(0, startOfVersion))!!
-                        includeDependency(dependencyList, name, it.substring(startOfVersion), operator, scope)
-                    }
-                } else if (v2Regex.matches(it)) {
-                    val matchResult = v2Regex.find(it)!!
-                    val name = matchResult.groups["dep"]!!.value
-                    val versions = matchResult.groups["versions"]!!.value.split(",")
-                        .map { it.replace(" ", "").trim() }
-
-                    versions.forEach {
-                        val startOfVersion = it.indexOfFirst { it.isLetterOrDigit() }
-                        val operator = DependencyOperatorParser.parseComparison(it.substring(0, startOfVersion))!!
-                        includeDependency(dependencyList, name, it.substring(startOfVersion), operator, scope)
-                    }
-                } else if (v3Regex.matches(it)) {
-                    val matchResult = v3Regex.find(it)!!
-                    val name = matchResult.groups["dep"]!!.value
-
-                    val versionString = remote.resolvePackage(name).getLatestVersion()!!.toVersionString()
-
-                    includeDependency(dependencyList, name, versionString, DependencyOperator.GREATER_THAN_EQUAL, scope)
-                } else {
-                    throw RuntimeException("Unable to parse wheel format ($it)")
-                }
+                processDependency(it, dependencyList, scope)
             }
         }
 
         return dependencyList
+    }
+
+    private fun processDependency(dependencyName: String, dependencyList: MutableList<EditableDependency>, scope: Collection<DependencyCondition>) {
+        when {
+            v1Regex.matches(dependencyName) -> {
+                val matchResult = v1Regex.find(dependencyName) ?: throw InternalBugException("Regex Parse Failed")
+                val name = matchResult.extractField("dep")
+                val versions = matchResult.extractField("versions").split(",")
+
+                versions.forEach {
+                    val startOfVersion = it.indexOfFirst { it.isLetterOrDigit() }
+                    val operator = DependencyOperatorParser.getParsedComparison(it.substring(0, startOfVersion))
+                    includeDependency(dependencyList, name, it.substring(startOfVersion), operator, scope)
+                }
+            }
+            v2Regex.matches(dependencyName) -> {
+                val matchResult = v2Regex.find(dependencyName) ?: throw InternalBugException("Regex Parse Failed")
+                val name = matchResult.extractField("dep")
+                val versions = matchResult.extractField("versions").split(",")
+                    .map { it.replace(" ", "").trim() }
+
+                versions.forEach {
+                    val startOfVersion = it.indexOfFirst { it.isLetterOrDigit() }
+                    val operator = DependencyOperatorParser.getParsedComparison(it.substring(0, startOfVersion))
+                    includeDependency(dependencyList, name, it.substring(startOfVersion), operator, scope)
+                }
+            }
+            v3Regex.matches(dependencyName) -> {
+                val matchResult = v3Regex.find(dependencyName) ?: throw InternalBugException("Regex Parse Failed")
+                val name = matchResult.extractField("dep")
+
+                val versionString = remote.resolvePackage(name).getLatestVersion().toVersionString()
+
+                includeDependency(dependencyList, name, versionString, DependencyOperator.GREATER_THAN_EQUAL, scope)
+            }
+            else -> throw ArchiveParseException("wheel", dependencyName)
+        }
     }
 
     private fun includeDependency(dependencyList: MutableList<EditableDependency>, name: String, version: String,
@@ -91,8 +101,8 @@ internal class WheelManifestParser(private val remote: PyPiRemote) : AbstractDep
         foundDep.extras.addAll(scope)
     }
 
-    class RequiresDependency(val environment: String?,
-                             val requires: List<String>)
+    internal class RequiresDependency(val environment: String?,
+                                      val requires: List<String>)
 
     companion object {
         private const val DEPENDENCY_LINE_V1 = "(?<dep>[a-zA-Z._\\-\\d]+) \\((?<versions>.*)\\)"

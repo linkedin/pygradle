@@ -1,5 +1,6 @@
 package com.linkedin.pygradle.pypi.internal.service
 
+import com.linkedin.pygradle.pypi.exception.NoVersionAvailableException
 import com.linkedin.pygradle.pypi.internal.http.PackageDetails
 import com.linkedin.pygradle.pypi.internal.model.DefaultPythonPackageVersion
 import com.linkedin.pygradle.pypi.internal.model.VersionComparator
@@ -10,7 +11,7 @@ import org.slf4j.LoggerFactory
 
 internal class DefaultPyPiPackageDetails(private val packageDetails: PackageDetails) : PyPiPackageDetails {
 
-    private val logger = LoggerFactory.getLogger(DefaultPyPiPackageDetails::class.java) as Logger
+    private val logger: Logger = LoggerFactory.getLogger(DefaultPyPiPackageDetails::class.java)
     private val versions: List<PythonPackageVersion>
 
     init {
@@ -23,7 +24,11 @@ internal class DefaultPyPiPackageDetails(private val packageDetails: PackageDeta
 
     override fun getVersion(): List<PythonPackageVersion> = versions
 
-    override fun getLatestVersion(): PythonPackageVersion? = versions.lastOrNull()
+    override fun findLatestVersion(): PythonPackageVersion? = versions.lastOrNull()
+
+    override fun getLatestVersion(): PythonPackageVersion {
+        return findLatestVersion() ?: throw NoVersionAvailableException(getPackageName())
+    }
 
     override fun getPackageName(): String = packageDetails.info.name
 

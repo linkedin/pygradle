@@ -18,10 +18,8 @@ internal class PackageDownloaderTest {
     @Test
     internal fun `when version provided, it will be used`() {
         val packageDownloader = makeDependencies(mapOf("flake8" to "2.6.2"), true)
-        val report = packageDownloader.downloadPackage("flake8")
-
-        assertNotNull(report)
-        assertEquals("2.6.2", report!!.version)
+        val report = assertNotNull(packageDownloader.downloadPackage("flake8"))
+        assertEquals("2.6.2", report.version)
     }
 
     @Test

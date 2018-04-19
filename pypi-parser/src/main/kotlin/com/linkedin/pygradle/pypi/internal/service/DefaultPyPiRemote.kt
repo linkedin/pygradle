@@ -14,7 +14,7 @@ internal class DefaultPyPiRemote(url: String, okHttpClient: OkHttpClient) : PyPi
     private val cachedResponses: MutableMap<String, PyPiPackageDetails> = Collections.synchronizedMap(mutableMapOf())
 
     init {
-        val retrofit = buildRetrofit(url, okHttpClient)
+        val retrofit = RetrofitUtil.buildRetrofit(url, okHttpClient)
         pypiResource = retrofit.create(PyPiResource::class.java)
     }
 

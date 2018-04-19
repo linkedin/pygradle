@@ -1,6 +1,7 @@
 package com.linkedin.pygradle.pypi.internal.model
 
 import com.linkedin.pygradle.pypi.exception.VersionNotSupportedException
+import com.linkedin.pygradle.pypi.internal.extractField
 import com.linkedin.pygradle.pypi.model.PythonPackageVersion
 
 //PEP 440 compatible - https://www.python.org/dev/peps/pep-0440/#definitions
@@ -17,8 +18,8 @@ internal class VersionComparator : Comparator<Any> {
         for (i in (0 until v1Groups.size)) {
             val value1 = v1Groups[i].orEmpty()
             val value2 = v2Groups[i].orEmpty()
-            val trimmedValue1 = value1.replace(Regex("(?<realVersion>.*?)(.0)+")) { it -> it.groups["realVersion"]!!.value }
-            val trimmedValue2 = value2.replace(Regex("(?<realVersion>.*?)(.0)+")) { it -> it.groups["realVersion"]!!.value }
+            val trimmedValue1 = value1.replace(Regex("(?<realVersion>.*?)(.0)+")) { it -> it.extractField("realVersion") }
+            val trimmedValue2 = value2.replace(Regex("(?<realVersion>.*?)(.0)+")) { it -> it.extractField("realVersion") }
 
             if (value1 == value2) {
                 continue

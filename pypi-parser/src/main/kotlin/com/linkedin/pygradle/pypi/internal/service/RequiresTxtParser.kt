@@ -1,5 +1,7 @@
 package com.linkedin.pygradle.pypi.internal.service
 
+import com.linkedin.pygradle.pypi.exception.InternalBugException
+import com.linkedin.pygradle.pypi.internal.extractField
 import com.linkedin.pygradle.pypi.internal.model.DefaultPythonPackageVersion
 import com.linkedin.pygradle.pypi.internal.model.EditableDependency
 import com.linkedin.pygradle.pypi.internal.parser.DependencyOperatorParser
@@ -26,7 +28,7 @@ internal class RequiresTxtParser(private val remote: PyPiRemote) : AbstractDepen
 
             } else if (dependencyParser.matches(line)) {
                 val dependency = breakIntoComponents(line)
-                scope.forEach { dependenciesFrom[it]!!.addAll(dependency) }
+                scope.forEach { dependenciesFrom.getOrElse(it, { throw InternalBugException("Unknown scope!")}).addAll(dependency) }
             }
         }
 
@@ -51,9 +53,9 @@ internal class RequiresTxtParser(private val remote: PyPiRemote) : AbstractDepen
     }
 
     private fun breakIntoComponents(line: String): List<DependencyComponent> {
-        val groups = dependencyParser.find(line)!!.groups
-        val name = groups["name"]?.value!!
-        val options = groups["options"]?.value
+        val matches = dependencyParser.find(line) ?: throw InternalBugException("Regex parse failed")
+        val name = matches.extractField("name")
+        val options = matches.groups["options"]?.value
 
         val resolvePackage = remote.resolvePackage(name)
 
@@ -62,11 +64,11 @@ internal class RequiresTxtParser(private val remote: PyPiRemote) : AbstractDepen
                 val versionStartsAt = it.indexOfFirst { it.isLetterOrDigit() }
                 val comp = it.substring(0, versionStartsAt)
                 val version = it.substring(versionStartsAt)
-                val parseComparison = DependencyOperatorParser.parseComparison(comp)!!
+                val parseComparison = DependencyOperatorParser.getParsedComparison(comp)
                 DependencyVersionElement(parseComparison, version)
             }
         } else {
-            listOf(DependencyVersionElement(DependencyOperator.GREATER_THAN_EQUAL, resolvePackage.getLatestVersion()!!.toVersionString()))
+            listOf(DependencyVersionElement(DependencyOperator.GREATER_THAN_EQUAL, resolvePackage.getLatestVersion().toVersionString()))
         }
 
         // Use the name from PyPi as it's probably more correct than random user input

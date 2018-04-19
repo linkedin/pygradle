@@ -2,6 +2,7 @@ package com.linkedin.pygradle.pypi.internal.model
 
 import com.linkedin.pygradle.pypi.model.PythonPackageVersion
 import com.linkedin.pygradle.pypi.exception.VersionNotSupportedException
+import com.linkedin.pygradle.pypi.internal.extractField
 import org.apache.commons.lang3.builder.ToStringBuilder
 import org.apache.commons.lang3.builder.ToStringStyle
 
@@ -27,7 +28,7 @@ internal class DefaultPythonPackageVersion(private val version: String) : Python
         if (!isSupportedVersion(tempVersion)) throw VersionNotSupportedException("Version $version($tempVersion) doesn't match PEP-440")
         val result = regex.find(tempVersion) ?: throw VersionNotSupportedException("Version $version($tempVersion) doesn't match PEP-440")
         epoch = result.groups["epoch"]?.value
-        release = result.groups["release"]?.value!!
+        release = result.extractField("release")
         pre = normalizeToTrailingZero(result.groups["pre"]?.value)
         post = result.groups["post"]?.value
         dev = result.groups["dev"]?.value

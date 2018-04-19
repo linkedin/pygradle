@@ -9,7 +9,11 @@ internal object DependencyScopeParser {
 
     internal fun matches(input: String) = scopeParser.matches(input)
 
-    internal fun parseScope(input: String): Collection<DependencyCondition> {
+    /**
+     * Parses a dependency scope and returns a collection of conditions
+     */
+    @JvmStatic
+    fun parseScope(input: String): Collection<DependencyCondition> {
         val result = scopeParser.find(input) ?: return emptyList()
         val groups = result.groups
         val operatorString = groups["operator"]?.value

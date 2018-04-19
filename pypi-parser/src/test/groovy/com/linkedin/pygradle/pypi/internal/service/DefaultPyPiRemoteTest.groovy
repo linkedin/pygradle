@@ -22,7 +22,7 @@ class DefaultPyPiRemoteTest extends Specification {
         then:
         noExceptionThrown()
         packageDetails.version.collect { it.toVersionString() } == getVersionsFor('pytest')
-        packageDetails.latestVersion.toVersionString() == '3.1.0'
+        packageDetails.findLatestVersion().toVersionString() == '3.1.0'
         packageDetails.packageName == 'pytest'
 
         and:

@@ -1,5 +1,6 @@
 package com.linkedin.pygradle.pypi.service
 
+import com.linkedin.pygradle.pypi.exception.NoVersionAvailableException
 import com.linkedin.pygradle.pypi.internal.http.PackageDetails
 import com.linkedin.pygradle.pypi.model.PythonPackageVersion
 
@@ -13,9 +14,15 @@ interface PyPiPackageDetails {
     fun getVersion(): List<PythonPackageVersion>
 
     /**
-     * Get the latest version
+     * Find the latest version
      */
-    fun getLatestVersion(): PythonPackageVersion?
+    fun findLatestVersion(): PythonPackageVersion?
+
+    /**
+     * Return the latest version or throw [NoVersionAvailableException]
+     */
+    @Throws(NoVersionAvailableException::class)
+    fun getLatestVersion(): PythonPackageVersion
 
     /**
      * Get the name

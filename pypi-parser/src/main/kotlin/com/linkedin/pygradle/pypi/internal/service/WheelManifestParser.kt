@@ -3,8 +3,7 @@ package com.linkedin.pygradle.pypi.internal.service
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.linkedin.pygradle.pypi.exception.ArchiveParseException
-import com.linkedin.pygradle.pypi.exception.InternalBugException
+import com.linkedin.pygradle.pypi.exception.PyPiParserBugException
 import com.linkedin.pygradle.pypi.internal.ObjectMapperContainer
 import com.linkedin.pygradle.pypi.internal.extractField
 import com.linkedin.pygradle.pypi.internal.model.DefaultPythonPackageVersion
@@ -30,7 +29,7 @@ internal class WheelManifestParser(private val remote: PyPiRemote) : AbstractDep
             om.readValue<Map<String, Any>>(requires)
         } catch (e: JsonMappingException) {
             log.error("Unable to parse `{}`", requires)
-            throw ArchiveParseException("wheel", "_unknown_")
+            throw PyPiParserBugException.WheelParseException("_unknown_")
         }
 
         val dependencies: List<RequiresDependency> =
@@ -55,7 +54,7 @@ internal class WheelManifestParser(private val remote: PyPiRemote) : AbstractDep
     private fun processDependency(dependencyName: String, dependencyList: MutableList<EditableDependency>, scope: Collection<DependencyCondition>) {
         when {
             v1Regex.matches(dependencyName) -> {
-                val matchResult = v1Regex.find(dependencyName) ?: throw InternalBugException("Regex Parse Failed")
+                val matchResult = v1Regex.find(dependencyName) ?: throw PyPiParserBugException("Regex Parse Failed")
                 val name = matchResult.extractField("dep")
                 val versions = matchResult.extractField("versions").split(",")
 
@@ -66,7 +65,7 @@ internal class WheelManifestParser(private val remote: PyPiRemote) : AbstractDep
                 }
             }
             v2Regex.matches(dependencyName) -> {
-                val matchResult = v2Regex.find(dependencyName) ?: throw InternalBugException("Regex Parse Failed")
+                val matchResult = v2Regex.find(dependencyName) ?: throw PyPiParserBugException("Regex Parse Failed")
                 val name = matchResult.extractField("dep")
                 val versions = matchResult.extractField("versions").split(",")
                     .map { it.replace(" ", "").trim() }
@@ -78,14 +77,14 @@ internal class WheelManifestParser(private val remote: PyPiRemote) : AbstractDep
                 }
             }
             v3Regex.matches(dependencyName) -> {
-                val matchResult = v3Regex.find(dependencyName) ?: throw InternalBugException("Regex Parse Failed")
+                val matchResult = v3Regex.find(dependencyName) ?: throw PyPiParserBugException("Regex Parse Failed")
                 val name = matchResult.extractField("dep")
 
                 val versionString = remote.resolvePackage(name).getLatestVersion().toVersionString()
 
                 includeDependency(dependencyList, name, versionString, DependencyOperator.GREATER_THAN_EQUAL, scope)
             }
-            else -> throw ArchiveParseException("wheel", dependencyName)
+            else -> throw PyPiParserBugException.WheelParseException(dependencyName)
         }
     }
 

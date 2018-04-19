@@ -1,6 +1,6 @@
 package com.linkedin.pygradle.pypi.internal.service
 
-import com.linkedin.pygradle.pypi.exception.InternalBugException
+import com.linkedin.pygradle.pypi.exception.PyPiParserBugException
 import com.linkedin.pygradle.pypi.internal.extractField
 import com.linkedin.pygradle.pypi.internal.model.DefaultPythonPackageVersion
 import com.linkedin.pygradle.pypi.internal.model.EditableDependency
@@ -28,7 +28,7 @@ internal class RequiresTxtParser(private val remote: PyPiRemote) : AbstractDepen
 
             } else if (dependencyParser.matches(line)) {
                 val dependency = breakIntoComponents(line)
-                scope.forEach { dependenciesFrom.getOrElse(it, { throw InternalBugException("Unknown scope!")}).addAll(dependency) }
+                scope.forEach { dependenciesFrom.getOrElse(it, { throw PyPiParserBugException("Unknown scope!")}).addAll(dependency) }
             }
         }
 
@@ -53,7 +53,7 @@ internal class RequiresTxtParser(private val remote: PyPiRemote) : AbstractDepen
     }
 
     private fun breakIntoComponents(line: String): List<DependencyComponent> {
-        val matches = dependencyParser.find(line) ?: throw InternalBugException("Regex parse failed")
+        val matches = dependencyParser.find(line) ?: throw PyPiParserBugException("Regex parse failed")
         val name = matches.extractField("name")
         val options = matches.groups["options"]?.value
 

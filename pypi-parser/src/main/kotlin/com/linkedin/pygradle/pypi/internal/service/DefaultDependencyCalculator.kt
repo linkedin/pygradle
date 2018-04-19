@@ -34,7 +34,7 @@ internal class DefaultDependencyCalculator(private val okHttpClient: OkHttpClien
                 PackageType.BDIST_WHEEL -> processWheel(packageDetails, version, packageRelease)
                 PackageType.S_DIST -> processSdist(packageDetails, version, packageRelease)
                 else -> {
-                    throw UnsupportedDistributionTypeException(packageRelease)
+                    throw PyPiParserBugException.UnsupportedDistributionTypeException(packageRelease)
                 }
             }
         }
@@ -96,7 +96,7 @@ internal class DefaultDependencyCalculator(private val okHttpClient: OkHttpClien
 
             val tempFile = Files.createTempFile("sdist_${packageDetails.getPackageName()}", "." + FilenameUtils.getExtension(dist.url))
             val bodyBytes = response.body()?.bytes()
-                ?: throw RequestWasNotSuccessfulException(packageDetails.getPackageName())
+                ?: throw PyPiParserBugException.RequestWasNotSuccessfulException(packageDetails.getPackageName())
             tempFile.toFile().writeBytes(bodyBytes)
             Files.move(tempFile, cacheFile)
         }
@@ -106,7 +106,7 @@ internal class DefaultDependencyCalculator(private val okHttpClient: OkHttpClien
         }
 
         if (!dist.md5Digest.equals(md5, ignoreCase = true)) {
-            throw DownloadedArtifactWasNotValidException(cacheFile, dist.md5Digest)
+            throw PyPiParserBugException.DownloadedArtifactWasNotValidException(cacheFile, dist.md5Digest)
         }
     }
 }

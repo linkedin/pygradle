@@ -1,7 +1,6 @@
 package com.linkedin.pygradle.pypi.internal.service
 
-import com.linkedin.pygradle.pypi.exception.RequestWasNotSuccessfulException
-import com.linkedin.pygradle.pypi.exception.UnableToMakeHttpRequestException
+import com.linkedin.pygradle.pypi.exception.PyPiParserBugException
 import com.linkedin.pygradle.pypi.internal.http.PyPiResource
 import com.linkedin.pygradle.pypi.service.PyPiPackageDetails
 import com.linkedin.pygradle.pypi.service.PyPiRemote
@@ -22,10 +21,10 @@ internal class DefaultPyPiRemote(url: String, okHttpClient: OkHttpClient) : PyPi
         return cachedResponses.computeIfAbsent(name.toLowerCase()) {
             val response = pypiResource.getManifest(name).execute()
             if (!response.isSuccessful) {
-                throw RequestWasNotSuccessfulException(name)
+                throw PyPiParserBugException.RequestWasNotSuccessfulException(name)
             }
 
-            val packageDetailsBody = response.body() ?: throw RequestWasNotSuccessfulException(name)
+            val packageDetailsBody = response.body() ?: throw PyPiParserBugException.RequestWasNotSuccessfulException(name)
             return@computeIfAbsent DefaultPyPiPackageDetails(packageDetailsBody)
         }
     }

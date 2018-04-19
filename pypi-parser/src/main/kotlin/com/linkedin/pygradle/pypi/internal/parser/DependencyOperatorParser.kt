@@ -1,6 +1,6 @@
 package com.linkedin.pygradle.pypi.internal.parser
 
-import com.linkedin.pygradle.pypi.exception.InternalBugException
+import com.linkedin.pygradle.pypi.exception.PyPiParserBugException
 import com.linkedin.pygradle.pypi.model.DependencyOperator
 
 internal object DependencyOperatorParser {
@@ -16,6 +16,6 @@ internal object DependencyOperatorParser {
     }
 
     internal fun getParsedComparison(operator: String): DependencyOperator {
-        return parseComparison(operator) ?: throw InternalBugException("Operator should never be null")
+        return parseComparison(operator) ?: throw PyPiParserBugException("Operator should never be null")
     }
 }

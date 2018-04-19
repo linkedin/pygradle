@@ -67,7 +67,7 @@ public class BuildWebAppTask extends DefaultTask {
         Project project = getProject();
         PexExtension pexExtension = ExtensionUtils.getPythonComponentExtension(project, PexExtension.class);
 
-        if (pexExtension.isFatPex()) {
+        if (pexExtension.isFat()) {
             new FatPexGenerator(project, pexOptions).buildEntryPoint(
                 PexFileUtil.createFatPexFilename(executable.getName()), entryPoint, null);
         } else {

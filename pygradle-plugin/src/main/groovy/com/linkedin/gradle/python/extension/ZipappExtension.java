@@ -15,39 +15,15 @@
  */
 package com.linkedin.gradle.python.extension;
 
-import com.linkedin.gradle.python.util.OperatingSystem;
 
-import java.io.File;
-
-
-public class ZipappExtension {
-    private File cache;
-    // Default to fat zipapps on Windows, since our wrappers are fairly POSIX specific.
-    private boolean isFat = OperatingSystem.current().isWindows();
-
-    public ZipappExtension(File cache) {
-        this.cache = cache;
-    }
-
-    public File getCache() {
-        return cache;
-    }
-
-    public void setCache(File cache) {
-        this.cache = cache;
-    }
-
+public interface ZipappExtension {
     /**
      * @return when <code>true</code>, then skinny pex's will be used.
      */
-    public boolean isFat() {
-        return isFat;
-    }
+    public boolean isFat();
 
     /**
      * @param fat when <code>true</code>, wrappers will be made all pointing to a single pex file.
      */
-    public void setIsFat(boolean isFat) {
-        this.isFat = isFat;
-    }
+    public void setIsFat(boolean isFat);
 }

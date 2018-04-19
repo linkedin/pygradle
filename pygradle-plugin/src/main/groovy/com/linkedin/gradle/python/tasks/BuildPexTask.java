@@ -87,7 +87,7 @@ public class BuildPexTask extends DefaultTask implements FailureReasonProvider {
 
         deployableExtension.getDeployableBuildDir().mkdirs();
 
-        if (pexExtension.isFatPex()) {
+        if (pexExtension.isFat()) {
             new FatPexGenerator(project, pexOptions).buildEntryPoints();
         } else {
             new ThinPexGenerator(project, pexOptions, templateProvider, additionalProperties).buildEntryPoints();

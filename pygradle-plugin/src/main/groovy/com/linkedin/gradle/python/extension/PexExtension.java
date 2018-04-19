@@ -15,32 +15,36 @@
  */
 package com.linkedin.gradle.python.extension;
 
+import com.linkedin.gradle.python.util.OperatingSystem;
 import org.gradle.api.Project;
 
 import java.io.File;
 
 
-public class PexExtension extends ZipappExtension {
+public class PexExtension implements ZipappExtension {
+    private File cache;
+    // Default to fat zipapps on Windows, since our wrappers are fairly POSIX specific.
+    private boolean isFat = OperatingSystem.current().isWindows();
     private boolean pythonWrapper = true;
 
     public PexExtension(Project project) {
-        super(new File(project.getBuildDir(), "pex-cache"));
+        this.cache = new File(project.getBuildDir(), "pex-cache");
+    }
+
+    public File getPexCache() {
+        return cache;
+    }
+
+    public void setPexCache(File pexCache) {
+        cache = pexCache;
     }
 
     // These are kept for API backward compatibility.
 
-    public File getPexCache() {
-        return getCache();
-    }
-
-
-    public void setPexCache(File pexCache) {
-        super.setCache(pexCache);
-    }
-
     /**
      * @return when <code>true</code>, then skinny pex's will be used.
      */
+    @Deprecated
     public boolean isFatPex() {
         return isFat();
     }
@@ -48,9 +52,26 @@ public class PexExtension extends ZipappExtension {
     /**
      * @param fatPex when <code>true</code>, wrappers will be made all pointing to a single pex file.
      */
+    @Deprecated
     public void setFatPex(boolean fatPex) {
-        super.setIsFat(fatPex);
+        isFat = fatPex;
      }
+
+    // Use these properties instead.
+
+    /**
+     * @return when <code>true</code>, then skinny pex's will be used.
+     */
+    public boolean isFat() {
+        return isFat;
+    }
+
+    /**
+     * @param fat when <code>true</code>, wrappers will be made all pointing to a single pex file.
+     */
+    public void setIsFat(boolean isFat) {
+        this.isFat = isFat;
+    }
 
     /**
      * TODO: Revisit if this is needed.
@@ -63,5 +84,13 @@ public class PexExtension extends ZipappExtension {
 
     public void setPythonWrapper(boolean pythonWrapper) {
         this.pythonWrapper = pythonWrapper;
+    }
+
+    public File getCache() {
+        return cache;
+    }
+
+    public void setCache(File cache) {
+        this.cache = cache;
     }
 }

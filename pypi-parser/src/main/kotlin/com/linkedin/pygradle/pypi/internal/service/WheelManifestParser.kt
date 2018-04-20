@@ -91,9 +91,15 @@ internal class WheelManifestParser(private val remote: PyPiRemote) : AbstractDep
     private fun includeDependency(dependencyList: MutableList<EditableDependency>, name: String, version: String,
                                   operator: DependencyOperator, scope: Collection<DependencyCondition>) {
         val packageDetails = remote.resolvePackage(name)
-        var foundDep = dependencyList.find { it.name == packageDetails.getPackageName() && version == it.version.toVersionString() && it.operator == operator }
+        var foundDep = dependencyList.find {
+            it.name == packageDetails.getPackageName() && version == it.version.toVersionString() && it.operator == operator
+        }
         if (foundDep == null) {
-            foundDep = EditableDependency(packageDetails.getPackageName(), DefaultPythonPackageVersion(version), operator, mutableSetOf())
+            foundDep = EditableDependency(packageDetails.getPackageName(),
+                DefaultPythonPackageVersion.parseVersion(version),
+                operator,
+                mutableSetOf())
+
             dependencyList.add(foundDep)
         }
 

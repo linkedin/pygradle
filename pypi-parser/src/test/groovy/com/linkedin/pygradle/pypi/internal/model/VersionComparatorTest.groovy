@@ -44,7 +44,7 @@ class VersionComparatorTest extends Specification {
     @Unroll
     def 'order test #order'() {
         def comparator = new VersionComparator()
-        def versions = order.collect { new DefaultPythonPackageVersion(it) }
+        def versions = order.collect { DefaultPythonPackageVersion.parseVersion(it) }
 
         when:
         versions.sort(comparator)

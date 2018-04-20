@@ -37,9 +37,13 @@ internal class RequiresTxtParser(private val remote: PyPiRemote) : AbstractDepen
         dependenciesFrom.forEach { key, value ->
             value.forEach { dependency ->
                 val packageDetails = remote.resolvePackage(dependency.name)
-                var foundDep = dependencyList.find { packageDetails.getPackageName()== it.name && dependency.version.version == it.version.toVersionString() }
+                var foundDep = dependencyList.find {
+                    packageDetails.getPackageName()== it.name && dependency.version.version == it.version.toVersionString()
+                }
+
                 if (foundDep == null) {
-                    foundDep = EditableDependency(packageDetails.getPackageName(), DefaultPythonPackageVersion(dependency.version.version),
+                    foundDep = EditableDependency(packageDetails.getPackageName(),
+                        DefaultPythonPackageVersion.parseVersion(dependency.version.version),
                         dependency.version.comparison, mutableSetOf())
                     dependencyList.add(foundDep)
                 }

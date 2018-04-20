@@ -9,7 +9,7 @@ class DefaultPythonPackageVersionTest extends Specification {
     @Unroll
     def 'can parse example #version'() {
         when:
-        def pythonVersion = new DefaultPythonPackageVersion(version)
+        def pythonVersion = DefaultPythonPackageVersion.parseVersion(version)
 
         then:
         noExceptionThrown()

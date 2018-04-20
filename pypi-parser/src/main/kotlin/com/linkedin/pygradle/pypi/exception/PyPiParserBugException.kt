@@ -26,7 +26,10 @@ open class PyPiParserBugException(message: String) : RuntimeException("Pivy Inte
     /**
      * A package was downloaded, but we don't know how to support this package type
      */
-    class UnsupportedDistributionTypeException internal constructor(s: PackageRelease) :
-        RuntimeException("Unsupported Type: ${s.matchPackageType()}")
+    class UnsupportedDistributionTypeException internal constructor(s: String) :
+        RuntimeException("Unsupported Type: $s") {
+
+        constructor(s: PackageRelease) : this(s.matchPackageType().text)
+    }
 
 }

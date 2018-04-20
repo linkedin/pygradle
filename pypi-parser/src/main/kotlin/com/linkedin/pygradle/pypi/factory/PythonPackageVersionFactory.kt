@@ -11,5 +11,5 @@ object PythonPackageVersionFactory {
      * Creates a version, making it so people don't depend on the impl
      */
     @JvmStatic
-    fun makeVersion(version: String): PythonPackageVersion = DefaultPythonPackageVersion(version)
+    fun makeVersion(version: String): PythonPackageVersion = DefaultPythonPackageVersion.parseVersion(version)
 }

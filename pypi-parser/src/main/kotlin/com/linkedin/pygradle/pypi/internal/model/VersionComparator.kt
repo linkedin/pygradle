@@ -83,7 +83,7 @@ internal class VersionComparator : Comparator<Any> {
     private fun Any.toPythonVersion(): PythonPackageVersion {
         return when (this) {
             is PythonPackageVersion -> return this
-            is String -> DefaultPythonPackageVersion(this)
+            is String -> DefaultPythonPackageVersion.parseVersion(this)
             else -> throw VersionNotSupportedException("${this.javaClass.name} is not either String or PythonPackageVersion")
         }
     }

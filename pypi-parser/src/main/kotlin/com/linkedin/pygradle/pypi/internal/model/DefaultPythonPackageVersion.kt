@@ -6,34 +6,15 @@ import com.linkedin.pygradle.pypi.internal.extractField
 import org.apache.commons.lang3.builder.ToStringBuilder
 import org.apache.commons.lang3.builder.ToStringStyle
 
-internal class DefaultPythonPackageVersion(private val version: String) : PythonPackageVersion {
-
-    private val epoch: String?
-    private val release: String
-    private val pre: String?
-    private val post: String?
-    private val dev: String?
-    private val local: String?
-    private val wildcard: Boolean
-
-    init {
-        val tempVersion = if (version.endsWith(".*")) {
-            wildcard = true
-            version.substring(0, version.length - 2)
-        } else {
-            wildcard = false
-            version
-        }
-
-        if (!isSupportedVersion(tempVersion)) throw VersionNotSupportedException("Version $version($tempVersion) doesn't match PEP-440")
-        val result = regex.find(tempVersion) ?: throw VersionNotSupportedException("Version $version($tempVersion) doesn't match PEP-440")
-        epoch = result.groups["epoch"]?.value
-        release = result.extractField("release")
-        pre = normalizeToTrailingZero(result.groups["pre"]?.value)
-        post = result.groups["post"]?.value
-        dev = result.groups["dev"]?.value
-        local = result.groups["local"]?.value
-    }
+internal class DefaultPythonPackageVersion private constructor(
+    private val version: String,
+    private val epoch: String?,
+    private val release: String,
+    private val pre: String?,
+    private val post: String?,
+    private val dev: String?,
+    private val local: String?,
+    private val wildcard: Boolean) : PythonPackageVersion {
 
     companion object {
         private const val pep440Pattern = "((?<epoch>\\d+)!)?" +
@@ -42,9 +23,29 @@ internal class DefaultPythonPackageVersion(private val version: String) : Python
             "(\\.post(?<post>\\d+))?" +
             "(\\.dev(?<dev>\\d+))?" +
             "(\\+(?<local>[a-zA-Z0-9]([.a-zA-Z0-9])*[a-zA-Z0-9]?))?"
-        val regex = Regex(pep440Pattern)
+        private val regex = Regex(pep440Pattern)
 
         internal fun isSupportedVersion(string: String): Boolean = regex.matches(string)
+
+        @JvmStatic
+        fun parseVersion(version: String): DefaultPythonPackageVersion {
+            val (wildcard, tempVersion) = if (version.endsWith(".*")) {
+                true to version.substring(0, version.length - 2)
+            } else {
+                false to version
+            }
+
+            if (!isSupportedVersion(tempVersion)) throw VersionNotSupportedException("Version $version($tempVersion) doesn't match PEP-440")
+            val result = regex.find(tempVersion)!!
+            val epoch = result.groups["epoch"]?.value
+            val release = result.groups["release"]?.value!!
+            val pre = normalizeToTrailingZero(result.groups["pre"]?.value)
+            val post = result.groups["post"]?.value
+            val dev = result.groups["dev"]?.value
+            val local = result.groups["local"]?.value
+
+            return DefaultPythonPackageVersion(version, epoch, release, pre, post, dev, local, wildcard)
+        }
 
         private fun normalizeToTrailingZero(value: String?): String? {
             val input = value ?: return null

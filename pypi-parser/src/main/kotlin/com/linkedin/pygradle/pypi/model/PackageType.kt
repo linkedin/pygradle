@@ -1,5 +1,6 @@
 package com.linkedin.pygradle.pypi.model
 
+import com.linkedin.pygradle.pypi.exception.PyPiParserBugException
 import com.linkedin.pygradle.pypi.internal.http.PackageRelease
 
 /**
@@ -15,12 +16,12 @@ enum class PackageType(val text: String) {
 
     companion object {
         private fun parse(text: String): PackageType {
-            return when(text) {
+            return when (text) {
                 BDIST_WHEEL.text -> BDIST_WHEEL
                 S_DIST.text -> S_DIST
                 BDIST_WININST.text -> BDIST_WININST
                 BDIST_EGG.text -> BDIST_EGG
-                else -> throw RuntimeException("Unable to find match for `$text`")
+                else -> throw PyPiParserBugException.UnsupportedDistributionTypeException(text)
             }
         }
 

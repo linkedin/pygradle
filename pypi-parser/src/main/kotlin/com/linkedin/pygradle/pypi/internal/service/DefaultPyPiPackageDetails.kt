@@ -18,7 +18,7 @@ internal class DefaultPyPiPackageDetails(private val packageDetails: PackageDeta
         logger.trace("Building {}", packageDetails.info.name)
         versions = packageDetails.releases.keys
             .filter { DefaultPythonPackageVersion.isSupportedVersion(it) }
-            .map { DefaultPythonPackageVersion(it) }
+            .map { DefaultPythonPackageVersion.parseVersion(it) }
             .sortedWith(VersionComparator())
     }
 

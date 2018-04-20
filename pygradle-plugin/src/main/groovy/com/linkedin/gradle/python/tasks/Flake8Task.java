@@ -18,16 +18,21 @@ package com.linkedin.gradle.python.tasks;
 import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.extension.PythonDetails;
 import com.linkedin.gradle.python.tasks.action.CreateVirtualEnvAction;
-import com.linkedin.gradle.python.tasks.action.PipInstallAction;
+import com.linkedin.gradle.python.tasks.action.VirtualEnvCustomizer;
+import com.linkedin.gradle.python.tasks.action.pip.PipInstallAction;
 import com.linkedin.gradle.python.tasks.exec.ProjectExternalExec;
+import com.linkedin.gradle.python.tasks.supports.SupportsDistutilsCfg;
 import com.linkedin.gradle.python.tasks.supports.SupportsPackageInfoSettings;
 import com.linkedin.gradle.python.util.DefaultEnvironmentMerger;
+import com.linkedin.gradle.python.util.EnvironmentMerger;
 import com.linkedin.gradle.python.util.PackageInfo;
 import com.linkedin.gradle.python.util.PackageSettings;
 import com.linkedin.gradle.python.wheel.EmptyWheelCache;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Optional;
 import org.gradle.process.ExecResult;
 
 import java.io.File;
@@ -38,13 +43,19 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class Flake8Task extends AbstractPythonInfrastructureDefaultTask implements SupportsPackageInfoSettings {
+public class Flake8Task extends AbstractPythonInfrastructureDefaultTask implements SupportsPackageInfoSettings,
+    SupportsDistutilsCfg {
 
     private static final Logger log = Logging.getLogger(Flake8Task.class);
     private PackageSettings<PackageInfo> packageSettings;
+    private EnvironmentMerger environmentMerger = new DefaultEnvironmentMerger();
+
+    @Input
+    @Optional
+    private String distutilsCfg;
 
     @Override
-    PythonDetails getPythonDetails() {
+    public PythonDetails getPythonDetails() {
         return new PythonDetails(getProject(), new File(getProject().getBuildDir(), "flake8-venv"));
 
     }
@@ -60,16 +71,17 @@ public class Flake8Task extends AbstractPythonInfrastructureDefaultTask implemen
                 FileUtils.deleteQuietly(flake8Python.getVirtualEnv());
             }
 
+            ProjectExternalExec externalExec = new ProjectExternalExec(getProject());
+
             CreateVirtualEnvAction action = new CreateVirtualEnvAction(getProject(), flake8Python);
-            action.buildVenv(null);
+            action.buildVenv(new VirtualEnvCustomizer(distutilsCfg, externalExec, flake8Python));
 
             PipInstallAction pipInstallAction = new PipInstallAction(packageSettings, getProject(),
-                new ProjectExternalExec(getProject()), getPythonExtension().pythonEnvironment,
-                flake8Python, new EmptyWheelCache(), new DefaultEnvironmentMerger());
+                externalExec, getPythonExtension().pythonEnvironment,
+                flake8Python, new EmptyWheelCache(), environmentMerger);
 
             getProject().getConfigurations().getByName("flake8").forEach(file -> {
                 PackageInfo packageInfo = PackageInfo.fromPath(file);
-                log.info("Installing {}", packageInfo);
                 pipInstallAction.installPackage(packageInfo, Collections.emptyList());
             });
         }
@@ -79,9 +91,6 @@ public class Flake8Task extends AbstractPythonInfrastructureDefaultTask implemen
          the task isn't actually run.
          */
         PythonExtension pythonExtension = getPythonExtension();
-        List<String> sArgs = Arrays.asList(
-            flake8Exec.getAbsolutePath(),
-            "--config", pythonExtension.setupCfg);
 
         List<String> paths = new ArrayList<>();
         if (getProject().file(pythonExtension.srcDir).exists()) {
@@ -97,7 +106,9 @@ public class Flake8Task extends AbstractPythonInfrastructureDefaultTask implemen
         } else {
             log.info("Flake8: testDir doesn't exist");
         }
-        args(sArgs);
+        args(Arrays.asList(
+            flake8Exec.getAbsolutePath(),
+            "--config", pythonExtension.setupCfg));
 
         // creating a flake8 config file if one doesn't exist, this prevents "file not found" issues.
         File cfgCheck = getProject().file(pythonExtension.setupCfg);
@@ -117,6 +128,7 @@ public class Flake8Task extends AbstractPythonInfrastructureDefaultTask implemen
 
     @Override
     public void processResults(ExecResult execResult) {
+        //Not needed
     }
 
     @Override
@@ -127,5 +139,15 @@ public class Flake8Task extends AbstractPythonInfrastructureDefaultTask implemen
     @Override
     public PackageSettings<PackageInfo> getPackageSettings() {
         return packageSettings;
+    }
+
+    @Override
+    public void setDistutilsCfg(String cfg) {
+        distutilsCfg = cfg;
+    }
+
+    @Override
+    public String getDistutilsCfg() {
+        return distutilsCfg;
     }
 }

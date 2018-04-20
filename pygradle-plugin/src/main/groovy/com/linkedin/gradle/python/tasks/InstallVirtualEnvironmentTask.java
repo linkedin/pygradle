@@ -17,8 +17,11 @@ package com.linkedin.gradle.python.tasks;
 
 import com.linkedin.gradle.python.extension.PythonDetails;
 import com.linkedin.gradle.python.tasks.action.CreateVirtualEnvAction;
+import com.linkedin.gradle.python.tasks.action.VirtualEnvCustomizer;
+import com.linkedin.gradle.python.tasks.exec.ProjectExternalExec;
 import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider;
 import com.linkedin.gradle.python.tasks.execution.TeeOutputContainer;
+import com.linkedin.gradle.python.tasks.supports.SupportsDistutilsCfg;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.tasks.Input;
@@ -27,21 +30,12 @@ import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 
-public class InstallVirtualEnvironmentTask extends DefaultTask implements FailureReasonProvider {
+public class InstallVirtualEnvironmentTask extends DefaultTask implements FailureReasonProvider, SupportsDistutilsCfg {
+
     private PythonDetails pythonDetails;
-    @Input
-    @Optional
     private String distutilsCfg;
-
     private final TeeOutputContainer container = new TeeOutputContainer();
 
     @InputFiles
@@ -50,20 +44,14 @@ public class InstallVirtualEnvironmentTask extends DefaultTask implements Failur
     }
 
     @OutputFile
-    public File getVirtualEnvDir() {
+    public File getVirtualEnvInterpreter() {
         return pythonDetails.getVirtualEnvInterpreter();
     }
 
     @TaskAction
     public void installVEnv() {
         CreateVirtualEnvAction action = new CreateVirtualEnvAction(getProject(), pythonDetails);
-        action.buildVenv(file -> {
-            try {
-                customize(file);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        });
+        action.buildVenv(new VirtualEnvCustomizer(distutilsCfg, new ProjectExternalExec(getProject()), pythonDetails));
     }
 
     @Override
@@ -79,20 +67,8 @@ public class InstallVirtualEnvironmentTask extends DefaultTask implements Failur
         return pythonDetails;
     }
 
-    private void customize(File preInstallVenv) throws IOException {
-        if (distutilsCfg != null) {
-            final Path path = preInstallVenv.toPath();
-            Files.write(path.resolve(Paths.get("virtualenv_embedded", "distutils.cfg")), distutilsCfg.getBytes(), StandardOpenOption.APPEND);
-            final ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            getProject().exec(execSpec -> {
-                execSpec.commandLine(getPythonDetails().getSystemPythonInterpreter(), path.resolve(Paths.get("bin", "rebuild-script.py")).toFile());
-                execSpec.setStandardOutput(stream);
-                execSpec.setErrorOutput(stream);
-            });
-            getLogger().info("Customized distutils.cfg");
-        }
-    }
-
+    @Input
+    @Optional
     public String getDistutilsCfg() {
         return distutilsCfg;
     }

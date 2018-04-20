@@ -53,7 +53,7 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask im
     private List<String> arguments = new ArrayList<>();
     // similar to additionalArguments, but not overridable by user's build script
     private List<String> subArguments = new ArrayList<>();
-    private PythonExtension component;
+    private PythonExtension extension;
     private PythonDetails pythonDetails;
     private String output;
 
@@ -76,12 +76,20 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask im
         return new String[]{"**/*.pyc", "**/*.pyo", "**/__pycache__/", "**/*.egg-info/"};
     }
 
-    @Internal
-    public PythonExtension getComponent() {
-        if (null == component) {
-            component = getProject().getExtensions().getByType(PythonExtension.class);
+    public PythonExtension getPythonExtension() {
+        if (null == extension) {
+            extension = getProject().getExtensions().getByType(PythonExtension.class);
         }
-        return component;
+        return extension;
+    }
+
+    /**
+     * Use {@link AbstractPythonMainSourceDefaultTask#getPythonExtension()} instead.
+     */
+    @Internal
+    @Deprecated
+    public PythonExtension getComponent() {
+        return getPythonExtension();
     }
 
     @Internal

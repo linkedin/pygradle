@@ -35,10 +35,6 @@ class PackageInfo {
         this.version = version
     }
 
-    public String toShortHand() {
-        return version ? "${ name }-${ version }" : name
-    }
-
     @Deprecated
     public static PackageInfo fromPath(String packagePath) {
         return fromPath(new File(packagePath))

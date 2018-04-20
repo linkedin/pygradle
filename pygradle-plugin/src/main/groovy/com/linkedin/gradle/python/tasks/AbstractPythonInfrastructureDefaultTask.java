@@ -46,9 +46,7 @@ import java.util.List;
 abstract public class AbstractPythonInfrastructureDefaultTask extends DefaultTask implements FailureReasonProvider {
 
     private List<String> arguments = new ArrayList<>();
-    // similar to additionalArguments, but not overridable by user's build script
     private PythonExtension pythonExtension;
-
     private String output;
 
     @InputFiles
@@ -71,7 +69,7 @@ abstract public class AbstractPythonInfrastructureDefaultTask extends DefaultTas
     }
 
     @Internal
-    abstract PythonDetails getPythonDetails();
+    abstract public PythonDetails getPythonDetails();
 
     @Input
     public boolean ignoreExitValue = false;

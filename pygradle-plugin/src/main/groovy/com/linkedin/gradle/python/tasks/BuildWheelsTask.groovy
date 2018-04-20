@@ -66,7 +66,6 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, Support
     Map<String, String> environment
 
     PackageSettings<PackageInfo> packageSettings
-
     EnvironmentMerger environmentMerger = new DefaultEnvironmentMerger()
     ExternalExec externalExec = new ProjectExternalExec(getProject())
     String lastInstallMessage = null
@@ -173,7 +172,6 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, Support
                     throw e
                 }
             }
-
             clock.stop()
         }
 

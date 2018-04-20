@@ -15,9 +15,9 @@
  */
 package com.linkedin.gradle.python.tasks.action.pip;
 
+import com.linkedin.gradle.python.exception.PipExecutionException;
 import com.linkedin.gradle.python.extension.PythonDetails;
 import com.linkedin.gradle.python.extension.PythonVersion;
-import com.linkedin.gradle.python.exception.PipExecutionException;
 import com.linkedin.gradle.python.tasks.exec.ExternalExec;
 import com.linkedin.gradle.python.util.EnvironmentMerger;
 import com.linkedin.gradle.python.util.PackageInfo;

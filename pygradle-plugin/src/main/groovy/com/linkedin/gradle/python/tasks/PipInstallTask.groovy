@@ -15,11 +15,10 @@
  */
 package com.linkedin.gradle.python.tasks
 
-
+import com.linkedin.gradle.python.exception.PipExecutionException
 import com.linkedin.gradle.python.extension.PythonDetails
 import com.linkedin.gradle.python.plugin.PythonHelpers
-import com.linkedin.gradle.python.tasks.action.PipExecutionException
-import com.linkedin.gradle.python.tasks.action.PipInstallAction
+import com.linkedin.gradle.python.tasks.action.pip.PipInstallAction
 import com.linkedin.gradle.python.tasks.exec.ExternalExec
 import com.linkedin.gradle.python.tasks.exec.ProjectExternalExec
 import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider
@@ -144,12 +143,13 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider, Suppo
             if (isReadyForInstall(installable)) {
                 def packageInfo = PackageInfo.fromPath(installable)
 
-                def timer = taskTimer.start(packageInfo.toShortHand())
-                progressLogger.progress("Installing ${packageInfo.toShortHand()} (${++counter} of ${installableFiles.size()})")
+                def shortHand = packageInfo.toShortHand()
+                def timer = taskTimer.start(shortHand)
+                progressLogger.progress("Installing ${ shortHand } (${ ++counter } of ${ installableFiles.size() })")
 
                 if (packageExcludeFilter != null && packageExcludeFilter.isSatisfiedBy(packageInfo)) {
                     if (PythonHelpers.isPlainOrVerbose(project)) {
-                        logger.lifecycle("Skipping {} - Excluded", packageInfo.toShortHand())
+                        logger.lifecycle("Skipping {} - Excluded", shortHand)
                     }
                 } else {
                     try {

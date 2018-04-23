@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.util.pex;
+package com.linkedin.gradle.python.extension;
 
-import com.linkedin.gradle.python.PythonExtension;
-import org.gradle.api.Project;
 
-public interface TemplateProviderOptions {
-    Project getProject();
+public interface ZipappExtension {
+    /**
+     * @return when <code>true</code>, then skinny pex's will be used.
+     */
+    public boolean isFat();
 
-    PythonExtension getExtension();
-
-    String getEntryPoint();
+    /**
+     * @param fat when <code>true</code>, wrappers will be made all pointing to a single pex file.
+     */
+    public void setIsFat(boolean isFat);
 }

@@ -22,8 +22,8 @@ import com.linkedin.gradle.python.tasks.execution.TeeOutputContainer;
 import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.util.internal.pex.FatPexGenerator;
 import com.linkedin.gradle.python.util.internal.pex.ThinPexGenerator;
-import com.linkedin.gradle.python.util.pex.DefaultEntryPointTemplateProvider;
-import com.linkedin.gradle.python.util.pex.EntryPointTemplateProvider;
+import com.linkedin.gradle.python.util.pex.DefaultPexEntryPointTemplateProvider;
+import com.linkedin.gradle.python.util.zipapp.EntryPointTemplateProvider;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
@@ -58,7 +58,7 @@ import java.util.Map;
 public class BuildPexTask extends DefaultTask implements FailureReasonProvider {
 
     private Map<String, String> additionalProperties;
-    private EntryPointTemplateProvider templateProvider = new DefaultEntryPointTemplateProvider();
+    private EntryPointTemplateProvider templateProvider = new DefaultPexEntryPointTemplateProvider();
     private TeeOutputContainer container = new TeeOutputContainer(System.out, System.err);
     private List<String> pexOptions = new ArrayList<>();
 
@@ -87,7 +87,7 @@ public class BuildPexTask extends DefaultTask implements FailureReasonProvider {
 
         deployableExtension.getDeployableBuildDir().mkdirs();
 
-        if (pexExtension.isFatPex()) {
+        if (pexExtension.isFat()) {
             new FatPexGenerator(project, pexOptions).buildEntryPoints();
         } else {
             new ThinPexGenerator(project, pexOptions, templateProvider, additionalProperties).buildEntryPoints();

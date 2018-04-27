@@ -19,7 +19,6 @@ This project uses the following in the plugin:
 This project uses the following part of the python environment:
     argparse (https://github.com/ThomasWaldmann/argparse/) - Python Software Foundation License
     flake8 (https://gitlab.com/pycqa/flake8) - MIT
-    pbr (https://launchpad.net/pbr) - Apache License 2.0
     pex (https://github.com/pantsbuild/pex) - Apache License 2.0
     pip (https://pip.pypa.io/) - MIT
     pytest (http://pytest.org) - MIT
@@ -27,8 +26,7 @@ This project uses the following part of the python environment:
     pytest-xdist (https://github.com/pytest-dev/pytest-xdist) - MIT
     setuptools (https://github.com/pypa/setuptools) - MIT
     setuptools-git (https://github.com/wichert/setuptools-git) - BSD
-    six (http://pypi.python.org/pypi/six/) - MIT
+    six (http://pypi.org/pypi/six/) - MIT
     Sphinx (http://sphinx-doc.org/) - BSD
-    unittest2 (http://pypi.python.org/pypi/unittest2) - BSD
     virtualenv (https://virtualenv.pypa.io/) - MIT
-    wheel (https://bitbucket.org/pypa/wheel/) - MIT
+    wheel (https://github.com/pypa/wheel/) - MIT

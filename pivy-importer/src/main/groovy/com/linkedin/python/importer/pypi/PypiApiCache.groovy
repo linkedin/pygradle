@@ -31,7 +31,7 @@ class PypiApiCache {
     }
 
     static private Map<String, Object> downloadMetadata(String dependency) {
-        def url = "https://pypi.python.org/pypi/$dependency/json"
+        def url = "https://pypi.org/pypi/$dependency/json"
         log.debug("Metadata url: {}", url)
         def proxy = ProxyDetector.maybeGetHttpProxy()
 

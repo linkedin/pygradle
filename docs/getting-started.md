@@ -14,7 +14,7 @@ Guide](https://docs.gradle.org/3.3/userguide/userguide.html).
 ## Hosting
 
 The Python community maintains [The Python Package
-Index](https://pypi.python.org/pypi), or PyPI for short, to host open source
+Index](https://pypi.org), or PyPI for short, to host open source
 Python artifacts.
 
 Unfortunately, PyGradle cannot leverage PyPI yet for one primary reason: open

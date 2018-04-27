@@ -33,7 +33,7 @@ plugins {
 
 ## pipConfig Examples
 Sometimes you need to configure pip inside of the venv itself.  The most common use cases are when you don't use 
-pypi.python.com, but you use your own internal pypi server, or you need to set a proxy.  Typically, you can configure 
+pypi.org, but you use your own internal pypi server, or you need to set a proxy.  Typically, you can configure
 this with an operating system
 level pip.* file as documented on the [pip web site](https://pip.pypa.io/en/stable/user_guide/#config-file).  But
 occasionally you need to configure this on a per-project basis.  This is where this setting comes in.  Take this example

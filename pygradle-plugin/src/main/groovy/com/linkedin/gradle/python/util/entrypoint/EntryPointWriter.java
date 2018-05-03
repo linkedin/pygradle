@@ -15,11 +15,12 @@
  */
 package com.linkedin.gradle.python.util.entrypoint;
 
-import com.linkedin.gradle.python.extension.CliExtension;
 import com.linkedin.gradle.python.util.ExtensionUtils;
 import groovy.text.SimpleTemplateEngine;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.Project;
+import com.linkedin.gradle.python.extension.CliExtension;
+import com.linkedin.gradle.python.extension.ZipappExtension;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,11 +30,13 @@ public class EntryPointWriter {
 
     private final String template;
     private final boolean isCliTool;
+    private final boolean isZipapp;
 
     public EntryPointWriter(Project project, String template) {
         this.template = template;
 
         this.isCliTool = ExtensionUtils.findPythonComponentExtension(project, CliExtension.class) != null;
+        this.isZipapp = ExtensionUtils.findPythonComponentExtension(project, ZipappExtension.class) != null;
     }
 
     public void writeEntryPoint(File location, Map<String, String> properties) throws IOException, ClassNotFoundException {
@@ -43,15 +46,15 @@ public class EntryPointWriter {
 
         location.createNewFile();
 
-        if (isCliTool) {
+        SimpleTemplateEngine simpleTemplateEngine = new SimpleTemplateEngine();
+        String rendered = simpleTemplateEngine.createTemplate(template).make(properties).toString();
+        FileUtils.write(location, rendered);
+
+        if (isCliTool || isZipapp) {
             location.setExecutable(true, false);
             location.setReadable(true, false);
         } else {
             location.setExecutable(true);
         }
-
-        SimpleTemplateEngine simpleTemplateEngine = new SimpleTemplateEngine();
-        String rendered = simpleTemplateEngine.createTemplate(template).make(properties).toString();
-        FileUtils.write(location, rendered);
     }
 }

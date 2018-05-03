@@ -16,9 +16,10 @@
 package com.linkedin.gradle.python.tasks.action.pip
 
 import com.linkedin.gradle.python.exception.PipExecutionException
+import com.linkedin.gradle.python.extension.PythonDetailsFactory
 import com.linkedin.gradle.python.extension.PythonDetailsTestDouble
-import com.linkedin.gradle.python.extension.VirtualEnvironment
 import com.linkedin.gradle.python.extension.WheelExtension
+import com.linkedin.gradle.python.extension.internal.DefaultVirtualEnvironment
 import com.linkedin.gradle.python.tasks.exec.ExternalExecTestDouble
 import com.linkedin.gradle.python.util.DefaultEnvironmentMerger
 import com.linkedin.gradle.python.util.PackageSettings
@@ -31,7 +32,6 @@ import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
 import static com.linkedin.gradle.python.tasks.action.pip.PipActionHelpers.packageInGradleCache
-
 
 class PipWheelActionTest extends Specification {
 
@@ -173,9 +173,9 @@ class PipWheelActionTest extends Specification {
 
     private PipWheelAction createPipWheelAction(PackageSettings settings, ExecSpec execSpec, WheelCache wheelCache) {
         def project = new ProjectBuilder().withProjectDir(temporaryFolder.root).build()
-        def binDir = temporaryFolder.newFolder('build', 'venv', VirtualEnvironment.getPythonApplicationDirectory())
-        VirtualEnvironment.findExecutable(binDir.toPath(), "pip").toFile().createNewFile()
-        VirtualEnvironment.findExecutable(binDir.toPath(), "python").toFile().createNewFile()
+        def binDir = temporaryFolder.newFolder('build', 'venv', PythonDetailsFactory.getPythonApplicationDirectory())
+        DefaultVirtualEnvironment.findExecutable(binDir.toPath(), "pip").createNewFile()
+        DefaultVirtualEnvironment.findExecutable(binDir.toPath(), "python").createNewFile()
         def details = new PythonDetailsTestDouble(project, binDir.parentFile)
         return new PipWheelAction(settings, project, new ExternalExecTestDouble(execSpec),
             ['CPPFLAGS': 'bogus', 'LDFLAGS': 'bogus'],

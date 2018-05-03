@@ -16,7 +16,7 @@
 package com.linkedin.gradle.python
 
 import com.linkedin.gradle.python.extension.PythonDetails
-import com.linkedin.gradle.python.extension.VirtualEnvironment
+import com.linkedin.gradle.python.extension.PythonDetailsFactory
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 
@@ -82,7 +82,7 @@ class PythonExtension {
     private final PythonDetails details
 
     PythonExtension(Project project) {
-        this.details = new PythonDetails(project)
+        this.details = PythonDetailsFactory.makePythonDetails(project, null)
         docsDir = Paths.get(project.projectDir.absolutePath, "docs").toFile().path
         testDir = Paths.get(project.projectDir.absolutePath, "test").toFile().path
         srcDir = Paths.get(project.projectDir.absolutePath, "src").toFile().path
@@ -90,7 +90,7 @@ class PythonExtension {
 
         pinnedFile = project.file("pinned.txt")
 
-        def applicationDirectory = VirtualEnvironment.getPythonApplicationDirectory()
+        def applicationDirectory = PythonDetailsFactory.getPythonApplicationDirectory()
 
         pythonEnvironment = [
             'PATH': "${ -> details.virtualEnv.toPath().resolve(applicationDirectory).toAbsolutePath().toString() }" + File.pathSeparator + System.getenv('PATH'),]

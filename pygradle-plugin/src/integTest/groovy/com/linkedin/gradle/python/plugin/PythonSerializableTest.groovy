@@ -31,7 +31,7 @@ class PythonSerializableTest extends Specification {
         given:
         testProjectDir.buildFile << """\
         |import com.linkedin.gradle.python.tasks.InstallVirtualEnvironmentTask
-        |import com.linkedin.gradle.python.extension.PythonDetails
+        |import com.linkedin.gradle.python.extension.PythonDetailsFactory
         |import com.linkedin.gradle.python.tasks.PipInstallTask
         |
         |import static com.linkedin.gradle.python.util.StandardTextValues.CONFIGURATION_PYTHON
@@ -51,13 +51,13 @@ class PythonSerializableTest extends Specification {
         |ext.anotherVenv = new File("\$buildDir/AnotherVenv")
         |
         |task installAnotherVenv ( type: InstallVirtualEnvironmentTask ) {
-        |    pythonDetails = new PythonDetails(project, anotherVenv)
+        |    pythonDetails = PythonDetailsFactory.makePythonDetails(project, anotherVenv)
         |}
         |
         |task installPythonRequirementsInAnotherVenv ( type: PipInstallTask ){
         |    dependsOn installAnotherVenv
         |    mustRunAfter installAnotherVenv
-        |    pythonDetails = new PythonDetails(project, anotherVenv)
+        |    pythonDetails = PythonDetailsFactory.makePythonDetails(project, anotherVenv)
         |    installFileCollection = project.getConfigurations().getByName(CONFIGURATION_PYTHON.getValue())
         |    outputs.dir anotherVenv
         |}

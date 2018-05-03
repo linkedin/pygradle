@@ -22,7 +22,8 @@ import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Rule
 import spock.lang.Specification
 
-class Flake8Test extends Specification {
+class Flake8TaskIntegrationTest extends Specification {
+
     @Rule
     final DefaultProjectLayoutRule testProjectDir = new DefaultProjectLayoutRule()
 

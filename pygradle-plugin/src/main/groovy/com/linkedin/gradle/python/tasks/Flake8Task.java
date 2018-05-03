@@ -17,74 +17,57 @@ package com.linkedin.gradle.python.tasks;
 
 import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.extension.PythonDetails;
-import com.linkedin.gradle.python.tasks.action.CreateVirtualEnvAction;
-import com.linkedin.gradle.python.tasks.action.VirtualEnvCustomizer;
-import com.linkedin.gradle.python.tasks.action.pip.PipInstallAction;
-import com.linkedin.gradle.python.tasks.exec.ProjectExternalExec;
+import com.linkedin.gradle.python.extension.PythonDetailsFactory;
 import com.linkedin.gradle.python.tasks.supports.SupportsDistutilsCfg;
+import com.linkedin.gradle.python.tasks.supports.SupportsPackageFiltering;
 import com.linkedin.gradle.python.tasks.supports.SupportsPackageInfoSettings;
-import com.linkedin.gradle.python.util.DefaultEnvironmentMerger;
-import com.linkedin.gradle.python.util.EnvironmentMerger;
-import com.linkedin.gradle.python.util.PackageInfo;
-import com.linkedin.gradle.python.util.PackageSettings;
-import com.linkedin.gradle.python.wheel.EmptyWheelCache;
+import com.linkedin.gradle.python.util.ExtensionUtils;
 import org.apache.commons.io.FileUtils;
+import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
-import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.Optional;
 import org.gradle.process.ExecResult;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class Flake8Task extends AbstractPythonInfrastructureDefaultTask implements SupportsPackageInfoSettings,
-    SupportsDistutilsCfg {
+    SupportsDistutilsCfg, SupportsPackageFiltering {
 
     private static final Logger log = Logging.getLogger(Flake8Task.class);
-    private PackageSettings<PackageInfo> packageSettings;
-    private EnvironmentMerger environmentMerger = new DefaultEnvironmentMerger();
 
-    @Input
-    @Optional
-    private String distutilsCfg;
+    @Override
+    public File getVenvPath() {
+        return getProject().getBuildDir().toPath().resolve(Paths.get("infra-venv", "flake8")).toFile();
+    }
+
+    @Override
+    public Configuration getInstallConfiguration() {
+        return getProject().getConfigurations().getByName("flake8");
+    }
 
     @Override
     public PythonDetails getPythonDetails() {
-        return new PythonDetails(getProject(), new File(getProject().getBuildDir(), "flake8-venv"));
+        PythonDetails projectPythonDetails = ExtensionUtils.getPythonExtension(getProject()).getDetails();
+        return PythonDetailsFactory.withNewVenv(getProject(), projectPythonDetails, getVenvPath());
+    }
 
+    @Override
+    protected boolean isVenvReady() {
+        PythonDetails flake8Python = getPythonDetails();
+        File flake8Exec = flake8Python.getVirtualEnvironment().findExecutable("flake8");
+        return flake8Exec.exists() && flake8Exec.isFile();
     }
 
     public void preExecution() {
         PythonDetails flake8Python = getPythonDetails();
 
         File flake8Exec = flake8Python.getVirtualEnvironment().findExecutable("flake8");
-        if (!flake8Exec.exists() || !flake8Exec.isFile()) {
-
-            // We don't know what happened to this venv, so lets kill it
-            if (flake8Python.getVirtualEnv().exists()) {
-                FileUtils.deleteQuietly(flake8Python.getVirtualEnv());
-            }
-
-            ProjectExternalExec externalExec = new ProjectExternalExec(getProject());
-
-            CreateVirtualEnvAction action = new CreateVirtualEnvAction(getProject(), flake8Python);
-            action.buildVenv(new VirtualEnvCustomizer(distutilsCfg, externalExec, flake8Python));
-
-            PipInstallAction pipInstallAction = new PipInstallAction(packageSettings, getProject(),
-                externalExec, getPythonExtension().pythonEnvironment,
-                flake8Python, new EmptyWheelCache(), environmentMerger);
-
-            getProject().getConfigurations().getByName("flake8").forEach(file -> {
-                PackageInfo packageInfo = PackageInfo.fromPath(file);
-                pipInstallAction.installPackage(packageInfo, Collections.emptyList());
-            });
-        }
 
         /*
          Modified to only include folders that exist. if no folders exist, then
@@ -129,25 +112,5 @@ public class Flake8Task extends AbstractPythonInfrastructureDefaultTask implemen
     @Override
     public void processResults(ExecResult execResult) {
         //Not needed
-    }
-
-    @Override
-    public void setPackageSettings(PackageSettings<PackageInfo> settings) {
-        packageSettings = settings;
-    }
-
-    @Override
-    public PackageSettings<PackageInfo> getPackageSettings() {
-        return packageSettings;
-    }
-
-    @Override
-    public void setDistutilsCfg(String cfg) {
-        distutilsCfg = cfg;
-    }
-
-    @Override
-    public String getDistutilsCfg() {
-        return distutilsCfg;
     }
 }

@@ -13,23 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.extension;
+package com.linkedin.gradle.python.tasks.supports;
 
-import java.io.File;
-import java.io.Serializable;
+import com.linkedin.gradle.python.extension.PythonDetails;
+import org.gradle.api.Task;
 
 /**
- * Description of a virtual environment
+ * Used to denote that a task has access to a PythonDetails object.
  */
-public interface VirtualEnvironment extends Serializable {
+public interface HasPythonDetails extends Task {
 
-    File getPip();
-
-    File getPex();
-
-    File getExecutable(String path);
-
-    File getScript(String path);
-
-    File findExecutable(String path);
+    /**
+     * @return A reference to the Python Details object
+     */
+    PythonDetails getPythonDetails();
 }

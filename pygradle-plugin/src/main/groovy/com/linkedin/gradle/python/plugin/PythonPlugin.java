@@ -23,6 +23,7 @@ import com.linkedin.gradle.python.tasks.CleanSaveVenvTask;
 import com.linkedin.gradle.python.tasks.GenerateSetupPyTask;
 import com.linkedin.gradle.python.tasks.InstallVirtualEnvironmentTask;
 import com.linkedin.gradle.python.tasks.PinRequirementsTask;
+import com.linkedin.gradle.python.tasks.supports.SupportsPackageFiltering;
 import com.linkedin.gradle.python.tasks.supports.SupportsPackageInfoSettings;
 import com.linkedin.gradle.python.util.DefaultPackageSettings;
 import com.linkedin.gradle.python.util.FileSystemUtils;
@@ -60,6 +61,11 @@ public class PythonPlugin implements Plugin<Project> {
 
         createConfigurations(project);
         configureVendedDependencies(project, settings);
+
+        project.getTasks().withType(SupportsPackageFiltering.class, action -> {
+            action.getOutputs().doNotCacheIf("When package packageFilter is set",
+                task -> ((SupportsPackageFiltering) task).getPackageExcludeFilter() != null);
+        });
 
         DefaultPackageSettings packageSettings = new DefaultPackageSettings(project.getProjectDir());
         project.getTasks().withType(SupportsPackageInfoSettings.class, it -> it.setPackageSettings(packageSettings));

@@ -56,6 +56,7 @@ public class VirtualEnvCustomizer implements Consumer<File> {
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
+
             final ByteArrayOutputStream stream = new ByteArrayOutputStream();
             exec.exec(execSpec -> {
                 execSpec.commandLine(pythonDetails.getSystemPythonInterpreter(), path.resolve(Paths.get("bin", "rebuild-script.py")).toFile());

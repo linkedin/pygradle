@@ -22,6 +22,7 @@ import com.linkedin.gradle.python.tasks.action.pip.PipInstallAction
 import com.linkedin.gradle.python.tasks.exec.ExternalExec
 import com.linkedin.gradle.python.tasks.exec.ProjectExternalExec
 import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider
+import com.linkedin.gradle.python.tasks.supports.SupportsPackageFiltering
 import com.linkedin.gradle.python.tasks.supports.SupportsPackageInfoSettings
 import com.linkedin.gradle.python.tasks.supports.SupportsWheelCache
 import com.linkedin.gradle.python.util.DefaultEnvironmentMerger
@@ -35,7 +36,6 @@ import com.linkedin.gradle.python.wheel.EmptyWheelCache
 import com.linkedin.gradle.python.wheel.WheelCache
 import groovy.transform.CompileStatic
 import org.gradle.api.DefaultTask
-import org.gradle.api.Task
 import org.gradle.api.file.FileCollection
 import org.gradle.api.specs.Spec
 import org.gradle.api.tasks.Input
@@ -51,7 +51,8 @@ import org.gradle.internal.logging.progress.ProgressLoggerFactory
  * TODO: Add an output to make execution faster
  */
 @CompileStatic
-class PipInstallTask extends DefaultTask implements FailureReasonProvider, SupportsWheelCache, SupportsPackageInfoSettings {
+class PipInstallTask extends DefaultTask implements FailureReasonProvider, SupportsWheelCache,
+    SupportsPackageInfoSettings, SupportsPackageFiltering {
 
     @Input
     WheelCache wheelCache = new EmptyWheelCache()
@@ -76,15 +77,6 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider, Suppo
     PackageSettings<PackageInfo> packageSettings
     EnvironmentMerger environmentMerger = new DefaultEnvironmentMerger()
     ExternalExec externalExec = new ProjectExternalExec(getProject())
-
-    public PipInstallTask() {
-        getOutputs().doNotCacheIf('When package packageExcludeFilter is set', new Spec<Task>() {
-            @Override
-            boolean isSatisfiedBy(Task element) {
-                return ((PipInstallTask) element).packageExcludeFilter != null
-            }
-        })
-    }
 
     /**
      * Will return true when the package should be excluded from being installed.
@@ -172,5 +164,4 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider, Suppo
     String getReason() {
         return lastInstallMessage
     }
-
 }

@@ -15,6 +15,7 @@
  */
 package com.linkedin.gradle.python.extension
 
+import com.linkedin.gradle.python.extension.internal.DefaultPythonDetails
 import com.linkedin.gradle.python.util.OperatingSystem
 import org.gradle.internal.impldep.org.apache.commons.lang.SerializationUtils
 import org.gradle.testfixtures.ProjectBuilder
@@ -25,12 +26,12 @@ import spock.lang.Specification
 
 
 @Requires({ OperatingSystem.current() == OperatingSystem.UNIX })
-class PythonDetailsUnixTest extends Specification {
+class DefaultPythonDetailsUnixTest extends Specification {
 
     @Rule
     TemporaryFolder temporaryFolder
     def project = new ProjectBuilder().build()
-    def details = new PythonDetails(project)
+    def details = new DefaultPythonDetails(project, new File("/foo/bar/venv"))
 
     def 'test serialization'() {
         expect:

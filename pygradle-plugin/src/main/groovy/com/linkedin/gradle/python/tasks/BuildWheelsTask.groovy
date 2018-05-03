@@ -24,6 +24,7 @@ import com.linkedin.gradle.python.tasks.action.pip.PipWheelAction
 import com.linkedin.gradle.python.tasks.exec.ExternalExec
 import com.linkedin.gradle.python.tasks.exec.ProjectExternalExec
 import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider
+import com.linkedin.gradle.python.tasks.supports.SupportsPackageFiltering
 import com.linkedin.gradle.python.tasks.supports.SupportsPackageInfoSettings
 import com.linkedin.gradle.python.tasks.supports.SupportsWheelCache
 import com.linkedin.gradle.python.util.DefaultEnvironmentMerger
@@ -37,7 +38,6 @@ import com.linkedin.gradle.python.wheel.EmptyWheelCache
 import com.linkedin.gradle.python.wheel.WheelCache
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
-import org.gradle.api.Task
 import org.gradle.api.file.FileCollection
 import org.gradle.api.specs.Spec
 import org.gradle.api.tasks.Input
@@ -47,7 +47,8 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.internal.logging.progress.ProgressLogger
 import org.gradle.internal.logging.progress.ProgressLoggerFactory
 
-class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, SupportsPackageInfoSettings, FailureReasonProvider {
+class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, SupportsPackageInfoSettings,
+    FailureReasonProvider, SupportsPackageFiltering {
 
     @Input
     WheelCache wheelCache = new EmptyWheelCache()
@@ -69,15 +70,6 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, Support
     EnvironmentMerger environmentMerger = new DefaultEnvironmentMerger()
     ExternalExec externalExec = new ProjectExternalExec(getProject())
     String lastInstallMessage = null
-
-    public BuildWheelsTask() {
-        getOutputs().doNotCacheIf('When package packageExcludeFilter is set', new Spec<Task>() {
-            @Override
-            boolean isSatisfiedBy(Task element) {
-                return ((BuildWheelsTask) element).packageExcludeFilter != null
-            }
-        })
-    }
 
     @TaskAction
     void buildWheelsTask() {

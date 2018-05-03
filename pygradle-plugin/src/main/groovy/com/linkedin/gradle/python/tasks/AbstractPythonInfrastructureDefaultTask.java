@@ -17,23 +17,48 @@ package com.linkedin.gradle.python.tasks;
 
 import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.extension.PythonDetails;
+import com.linkedin.gradle.python.plugin.PythonHelpers;
+import com.linkedin.gradle.python.tasks.action.CreateVirtualEnvAction;
+import com.linkedin.gradle.python.tasks.action.VirtualEnvCustomizer;
+import com.linkedin.gradle.python.tasks.action.pip.PipInstallAction;
+import com.linkedin.gradle.python.tasks.exec.ProjectExternalExec;
 import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider;
 import com.linkedin.gradle.python.tasks.execution.TeeOutputContainer;
+import com.linkedin.gradle.python.tasks.supports.SupportsDistutilsCfg;
+import com.linkedin.gradle.python.tasks.supports.SupportsPackageFiltering;
+import com.linkedin.gradle.python.tasks.supports.SupportsPackageInfoSettings;
+import com.linkedin.gradle.python.util.DefaultEnvironmentMerger;
+import com.linkedin.gradle.python.util.DependencyOrder;
+import com.linkedin.gradle.python.util.EnvironmentMerger;
+import com.linkedin.gradle.python.util.PackageInfo;
+import com.linkedin.gradle.python.util.PackageSettings;
+import com.linkedin.gradle.python.wheel.EmptyWheelCache;
+import org.apache.commons.io.FileUtils;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
+import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
+import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecResult;
 import org.gradle.process.ExecSpec;
 
+import javax.annotation.Nullable;
+import java.io.File;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+
+import static com.linkedin.gradle.python.util.StandardTextValues.CONFIGURATION_SETUP_REQS;
 
 
 /**
@@ -43,11 +68,30 @@ import java.util.List;
  * will allow {@link PythonExtension} to be updated by the project and be complete
  * when its used in the tasks.
  */
-abstract public class AbstractPythonInfrastructureDefaultTask extends DefaultTask implements FailureReasonProvider {
+abstract public class AbstractPythonInfrastructureDefaultTask extends DefaultTask implements FailureReasonProvider,
+    SupportsPackageInfoSettings, SupportsDistutilsCfg, SupportsPackageFiltering {
+
+    private static final Logger log = Logging.getLogger(AbstractPythonInfrastructureDefaultTask.class);
 
     private List<String> arguments = new ArrayList<>();
     private PythonExtension pythonExtension;
     private String output;
+
+    @Input
+    @Optional
+    private String distutilsCfg;
+    private PackageSettings<PackageInfo> packageSettings;
+    private Spec<PackageInfo> packageExcludeFilter;
+
+    private EnvironmentMerger environmentMerger = new DefaultEnvironmentMerger();
+
+    @Input
+    abstract protected File getVenvPath();
+
+    @InputFiles
+    abstract protected Configuration getInstallConfiguration();
+
+    abstract protected boolean isVenvReady();
 
     @InputFiles
     public FileCollection getSourceFiles() {
@@ -88,6 +132,10 @@ abstract public class AbstractPythonInfrastructureDefaultTask extends DefaultTas
 
     @TaskAction
     public void executePythonProcess() {
+        if (!isVenvReady()) {
+            prepairVenv();
+        }
+
         preExecution();
 
         final TeeOutputContainer container = new TeeOutputContainer(stdOut, errOut);
@@ -109,6 +157,39 @@ abstract public class AbstractPythonInfrastructureDefaultTask extends DefaultTas
         processResults(result);
     }
 
+    protected void prepairVenv() {
+        // We don't know what happened to this venv, so lets kill it
+        PythonDetails pythonDetails = getPythonDetails();
+        if (pythonDetails.getVirtualEnv().exists()) {
+            FileUtils.deleteQuietly(pythonDetails.getVirtualEnv());
+        }
+
+        ProjectExternalExec externalExec = new ProjectExternalExec(getProject());
+
+        CreateVirtualEnvAction action = new CreateVirtualEnvAction(getProject(), pythonDetails);
+        action.buildVenv(new VirtualEnvCustomizer(distutilsCfg, externalExec, pythonDetails));
+
+        PipInstallAction pipInstallAction = new PipInstallAction(packageSettings, getProject(),
+            externalExec, getPythonExtension().pythonEnvironment,
+            pythonDetails, new EmptyWheelCache(), environmentMerger);
+
+        installPackages(pipInstallAction, getProject().getConfigurations().getByName(CONFIGURATION_SETUP_REQS.getValue()));
+        installPackages(pipInstallAction, getInstallConfiguration());
+    }
+
+    private void installPackages(PipInstallAction pipInstallAction, Configuration configuration) {
+        DependencyOrder.configurationPostOrderFiles(configuration).forEach(file -> {
+            PackageInfo packageInfo = PackageInfo.fromPath(file);
+            if (packageExcludeFilter != null && packageExcludeFilter.isSatisfiedBy(packageInfo)) {
+                if (PythonHelpers.isPlainOrVerbose(getProject())) {
+                    log.lifecycle("Skipping {} - Excluded", packageInfo.toShortHand());
+                }
+            } else {
+                pipInstallAction.installPackage(packageInfo, Collections.emptyList());
+            }
+        });
+    }
+
     public void configureExecution(ExecSpec spec) {
     }
 
@@ -116,6 +197,37 @@ abstract public class AbstractPythonInfrastructureDefaultTask extends DefaultTas
     }
 
     public abstract void processResults(ExecResult execResult);
+
+    @Override
+    public void setPackageSettings(PackageSettings<PackageInfo> settings) {
+        packageSettings = settings;
+    }
+
+    @Override
+    public PackageSettings<PackageInfo> getPackageSettings() {
+        return packageSettings;
+    }
+
+    @Override
+    public void setDistutilsCfg(String cfg) {
+        distutilsCfg = cfg;
+    }
+
+    @Override
+    public String getDistutilsCfg() {
+        return distutilsCfg;
+    }
+
+    @Nullable
+    @Override
+    public Spec<PackageInfo> getPackageExcludeFilter() {
+        return packageExcludeFilter;
+    }
+
+    @Override
+    public void setPackageExcludeFilter(Spec<PackageInfo> filter) {
+        packageExcludeFilter = filter;
+    }
 
     @Internal
     @Override

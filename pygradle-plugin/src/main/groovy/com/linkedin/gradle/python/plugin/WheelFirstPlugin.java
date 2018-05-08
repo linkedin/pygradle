@@ -18,6 +18,7 @@ package com.linkedin.gradle.python.plugin;
 import com.linkedin.gradle.python.tasks.FindAbiForCurrentPythonTask;
 import com.linkedin.gradle.python.tasks.ParallelWheelGenerationTask;
 import com.linkedin.gradle.python.tasks.supports.SupportsWheelCache;
+import com.linkedin.gradle.python.tasks.supports.WithoutPrebuiltWheels;
 import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.wheel.FileBackedWheelCache;
 import com.linkedin.gradle.python.wheel.SupportedWheelFormats;
@@ -80,7 +81,8 @@ public class WheelFirstPlugin implements Plugin<Project> {
                 it.setWheelCache(wheelCache);
 
                 if (!Objects.equals(it.getName(), TASK_VENV_CREATE.getValue())
-                    && !Objects.equals(it.getName(), TASK_INSTALL_SETUP_REQS.getValue())) {
+                    && !Objects.equals(it.getName(), TASK_INSTALL_SETUP_REQS.getValue())
+                    && !it.getClass().isAnnotationPresent(WithoutPrebuiltWheels.class)) {
                     it.dependsOn(parallelWheelTask);
                 }
             });

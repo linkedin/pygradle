@@ -97,8 +97,10 @@ class ParallelWheelsIntegrationTest extends Specification {
         when:
         result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withArguments('parallelWheels', '--stacktrace', '--info')
+
+            .withArguments('flake8', '--stacktrace', '--info')
             .withPluginClasspath()
+            .withDebug(true)
             .build()
         println result.output
 
@@ -136,5 +138,8 @@ class ParallelWheelsIntegrationTest extends Specification {
         output.contains("wheel==0.29.0")
         output.contains("pip==9.0.3")
         output.contains("setuptools==33.1.1")
+        result.task(':foo:flake8').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:findPythonAbi') == null
+        result.task(':foo:parallelWheels').outcome == TaskOutcome.SUCCESS
     }
 }

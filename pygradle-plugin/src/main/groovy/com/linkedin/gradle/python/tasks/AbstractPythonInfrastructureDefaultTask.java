@@ -27,12 +27,15 @@ import com.linkedin.gradle.python.tasks.execution.TeeOutputContainer;
 import com.linkedin.gradle.python.tasks.supports.SupportsDistutilsCfg;
 import com.linkedin.gradle.python.tasks.supports.SupportsPackageFiltering;
 import com.linkedin.gradle.python.tasks.supports.SupportsPackageInfoSettings;
+import com.linkedin.gradle.python.tasks.supports.SupportsWheelCache;
+import com.linkedin.gradle.python.tasks.supports.WithoutPrebuiltWheels;
 import com.linkedin.gradle.python.util.DefaultEnvironmentMerger;
 import com.linkedin.gradle.python.util.DependencyOrder;
 import com.linkedin.gradle.python.util.EnvironmentMerger;
 import com.linkedin.gradle.python.util.PackageInfo;
 import com.linkedin.gradle.python.util.PackageSettings;
 import com.linkedin.gradle.python.wheel.EmptyWheelCache;
+import com.linkedin.gradle.python.wheel.WheelCache;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.artifacts.Configuration;
@@ -68,8 +71,9 @@ import static com.linkedin.gradle.python.util.StandardTextValues.CONFIGURATION_S
  * will allow {@link PythonExtension} to be updated by the project and be complete
  * when its used in the tasks.
  */
+@WithoutPrebuiltWheels
 abstract public class AbstractPythonInfrastructureDefaultTask extends DefaultTask implements FailureReasonProvider,
-    SupportsPackageInfoSettings, SupportsDistutilsCfg, SupportsPackageFiltering {
+    SupportsPackageInfoSettings, SupportsDistutilsCfg, SupportsPackageFiltering, SupportsWheelCache {
 
     private static final Logger log = Logging.getLogger(AbstractPythonInfrastructureDefaultTask.class);
 
@@ -82,6 +86,7 @@ abstract public class AbstractPythonInfrastructureDefaultTask extends DefaultTas
     private String distutilsCfg;
     private PackageSettings<PackageInfo> packageSettings;
     private Spec<PackageInfo> packageExcludeFilter;
+    private WheelCache wheelCache = new EmptyWheelCache();
 
     private EnvironmentMerger environmentMerger = new DefaultEnvironmentMerger();
 
@@ -171,7 +176,7 @@ abstract public class AbstractPythonInfrastructureDefaultTask extends DefaultTas
 
         PipInstallAction pipInstallAction = new PipInstallAction(packageSettings, getProject(),
             externalExec, getPythonExtension().pythonEnvironment,
-            pythonDetails, new EmptyWheelCache(), environmentMerger);
+            pythonDetails, wheelCache, environmentMerger);
 
         installPackages(pipInstallAction, getProject().getConfigurations().getByName(CONFIGURATION_SETUP_REQS.getValue()));
         installPackages(pipInstallAction, getInstallConfiguration());
@@ -233,5 +238,15 @@ abstract public class AbstractPythonInfrastructureDefaultTask extends DefaultTas
     @Override
     public String getReason() {
         return output;
+    }
+
+    @Override
+    public WheelCache getWheelCache() {
+        return wheelCache;
+    }
+
+    @Override
+    public void setWheelCache(WheelCache wheelCache) {
+        this.wheelCache = wheelCache;
     }
 }

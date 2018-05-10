@@ -1,0 +1,9 @@
+[github]
+owner = "linkedin"
+repo = "pygradle"
+
+[artifactory]
+repo="pygradle"
+group="com.linkedin.pygradle"
+server="https://linkedin.jfrog.io/linkedin"
+bintray-repo="maven"

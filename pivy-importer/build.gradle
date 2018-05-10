@@ -100,5 +100,4 @@ publishing.publications.standardjava {
 }
 
 assemble.dependsOn shadowJar
-artifactoryPublish.dependsOn shadowJar
 build.dependsOn shadowJar

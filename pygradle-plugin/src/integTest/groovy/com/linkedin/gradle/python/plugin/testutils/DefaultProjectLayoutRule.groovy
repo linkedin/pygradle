@@ -17,12 +17,11 @@ package com.linkedin.gradle.python.plugin.testutils
 
 import com.linkedin.gradle.python.util.OperatingSystem
 import org.junit.rules.ExternalResource
-import org.junit.rules.TemporaryFolder
 
 import java.nio.file.Paths
 
 class DefaultProjectLayoutRule extends ExternalResource implements ProjectLayoutRule {
-    TemporaryFolder tempFolder
+    PythonTemporaryFolder tempFolder
 
     public static final String PROJECT_NAME_DIR = "foo"
     private final boolean cleanupAfterTest
@@ -33,7 +32,7 @@ class DefaultProjectLayoutRule extends ExternalResource implements ProjectLayout
 
     public DefaultProjectLayoutRule(boolean cleanupAfterTest) {
         this.cleanupAfterTest = cleanupAfterTest
-        tempFolder = new TemporaryFolder(buildCreateWinTemp())
+        tempFolder = new PythonTemporaryFolder(buildCreateWinTemp())
     }
 
     @SuppressWarnings("GrMethodMayBeStatic")

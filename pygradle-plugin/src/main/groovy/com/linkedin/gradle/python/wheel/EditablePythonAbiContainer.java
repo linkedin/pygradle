@@ -13,20 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.tasks.supports;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package com.linkedin.gradle.python.wheel;
 
 /**
- * Used when a task doesn't need
+ * Adds an Python ABI to the container
  */
-@Inherited
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface WithoutPrebuiltWheels {
+public interface EditablePythonAbiContainer extends PythonAbiContainer {
 
+    /**
+     * Adds an Python/ABI group to the container.
+     */
+    void addSupportedAbi(AbiDetails triple);
 }

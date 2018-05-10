@@ -21,7 +21,9 @@ import com.linkedin.gradle.python.tasks.action.VirtualEnvCustomizer;
 import com.linkedin.gradle.python.tasks.exec.ProjectExternalExec;
 import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider;
 import com.linkedin.gradle.python.tasks.execution.TeeOutputContainer;
+import com.linkedin.gradle.python.tasks.provides.ProvidesVenv;
 import com.linkedin.gradle.python.tasks.supports.SupportsDistutilsCfg;
+import com.linkedin.gradle.python.wheel.EditablePythonAbiContainer;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.tasks.Input;
@@ -32,11 +34,13 @@ import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
 
-public class InstallVirtualEnvironmentTask extends DefaultTask implements FailureReasonProvider, SupportsDistutilsCfg {
+public class InstallVirtualEnvironmentTask extends DefaultTask implements FailureReasonProvider, SupportsDistutilsCfg,
+    ProvidesVenv {
 
     private PythonDetails pythonDetails;
     private String distutilsCfg;
     private final TeeOutputContainer container = new TeeOutputContainer();
+    private EditablePythonAbiContainer editablePythonAbiContainer;
 
     @InputFiles
     public Configuration getPyGradleBootstrap() {
@@ -50,7 +54,7 @@ public class InstallVirtualEnvironmentTask extends DefaultTask implements Failur
 
     @TaskAction
     public void installVEnv() {
-        CreateVirtualEnvAction action = new CreateVirtualEnvAction(getProject(), pythonDetails);
+        CreateVirtualEnvAction action = new CreateVirtualEnvAction(getProject(), pythonDetails, editablePythonAbiContainer);
         action.buildVenv(new VirtualEnvCustomizer(distutilsCfg, new ProjectExternalExec(getProject()), pythonDetails));
     }
 
@@ -77,4 +81,8 @@ public class InstallVirtualEnvironmentTask extends DefaultTask implements Failur
         this.distutilsCfg = distutilsCfg;
     }
 
+    @Override
+    public void setEditablePythonAbiContainer(EditablePythonAbiContainer editablePythonAbiContainer) {
+        this.editablePythonAbiContainer = editablePythonAbiContainer;
+    }
 }

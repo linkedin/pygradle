@@ -23,11 +23,15 @@ import com.linkedin.gradle.python.tasks.CleanSaveVenvTask;
 import com.linkedin.gradle.python.tasks.GenerateSetupPyTask;
 import com.linkedin.gradle.python.tasks.InstallVirtualEnvironmentTask;
 import com.linkedin.gradle.python.tasks.PinRequirementsTask;
+import com.linkedin.gradle.python.tasks.provides.ProvidesVenv;
 import com.linkedin.gradle.python.tasks.supports.SupportsPackageFiltering;
 import com.linkedin.gradle.python.tasks.supports.SupportsPackageInfoSettings;
 import com.linkedin.gradle.python.util.DefaultPackageSettings;
+import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.util.FileSystemUtils;
 import com.linkedin.gradle.python.util.internal.PyPiRepoUtil;
+import com.linkedin.gradle.python.wheel.EditablePythonAbiContainer;
+import com.linkedin.gradle.python.wheel.internal.DefaultPythonAbiContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
@@ -56,6 +60,10 @@ public class PythonPlugin implements Plugin<Project> {
     public void apply(final Project project) {
 
         final PythonExtension settings = project.getExtensions().create("python", PythonExtension.class, project);
+
+        EditablePythonAbiContainer supportedWheelFormats =
+            ExtensionUtils.maybeCreate(settings, EditablePythonAbiContainer.class.getName(), DefaultPythonAbiContainer.class);
+        project.getTasks().withType(ProvidesVenv.class, it -> it.setEditablePythonAbiContainer(supportedWheelFormats));
 
         project.getPlugins().apply("base");
 

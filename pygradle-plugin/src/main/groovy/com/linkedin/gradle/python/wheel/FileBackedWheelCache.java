@@ -31,11 +31,11 @@ public class FileBackedWheelCache implements WheelCache, Serializable {
     private static final Logger logger = Logging.getLogger(FileBackedWheelCache.class);
 
     private final File cacheDir;
-    private final SupportedWheelFormats supportedWheelFormats;
+    private final PythonAbiContainer pythonAbiContainer;
 
-    public FileBackedWheelCache(File cacheDir, SupportedWheelFormats supportedWheelFormats) {
+    public FileBackedWheelCache(File cacheDir, PythonAbiContainer pythonAbiContainer) {
         this.cacheDir = cacheDir;
-        this.supportedWheelFormats = supportedWheelFormats;
+        this.pythonAbiContainer = pythonAbiContainer;
     }
 
     /**
@@ -93,7 +93,7 @@ public class FileBackedWheelCache implements WheelCache, Serializable {
     }
 
     private boolean wheelMatches(File pythonExecutable, PythonWheelDetails wheelDetails) {
-        return supportedWheelFormats.matchesSupportedVersion(
+        return pythonAbiContainer.matchesSupportedVersion(
             pythonExecutable,
             wheelDetails.getPythonTag(),
             wheelDetails.getAbiTag(),

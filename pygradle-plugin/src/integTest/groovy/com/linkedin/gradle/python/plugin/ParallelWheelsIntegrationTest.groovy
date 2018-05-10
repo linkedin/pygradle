@@ -49,7 +49,7 @@ class ParallelWheelsIntegrationTest extends Specification {
         |     fatPex = false
         |   }
         | }
-        | ${PyGradleTestBuilder.createRepoClosure()}
+        | ${ PyGradleTestBuilder.createRepoClosure() }
         """.stripMargin().stripIndent()
 
         when:
@@ -67,7 +67,6 @@ class ParallelWheelsIntegrationTest extends Specification {
 
         result.output.contains("BUILD SUCCESS")
         result.task(':foo:flake8').outcome == TaskOutcome.SUCCESS
-        result.task(':foo:findPythonAbi').outcome == TaskOutcome.SUCCESS
         result.task(':foo:parallelWheels').outcome == TaskOutcome.SUCCESS
         result.task(':foo:installPythonRequirements').outcome == TaskOutcome.SUCCESS
         result.task(':foo:installTestRequirements').outcome == TaskOutcome.SUCCESS
@@ -95,6 +94,7 @@ class ParallelWheelsIntegrationTest extends Specification {
         out.toString() == "Hello World${System.getProperty("line.separator")}".toString()
 
         when:
+        println "======================="
         result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
 
@@ -141,5 +141,19 @@ class ParallelWheelsIntegrationTest extends Specification {
         result.task(':foo:flake8').outcome == TaskOutcome.SUCCESS
         result.task(':foo:findPythonAbi') == null
         result.task(':foo:parallelWheels').outcome == TaskOutcome.SUCCESS
+
+        when:
+        println "======================="
+        result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withArguments('pytest', '--stacktrace', '--info')
+            .withPluginClasspath()
+            .withDebug(true)
+            .build()
+        println result.output
+
+        then:
+        result.task(':foo:pytest').outcome == TaskOutcome.SUCCESS  //using pytest sense it will always require deps
+        result.task(':foo:parallelWheels').outcome == TaskOutcome.SKIPPED
     }
 }

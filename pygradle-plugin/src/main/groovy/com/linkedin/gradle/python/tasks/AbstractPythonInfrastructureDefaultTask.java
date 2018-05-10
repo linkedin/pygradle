@@ -24,6 +24,7 @@ import com.linkedin.gradle.python.tasks.action.pip.PipInstallAction;
 import com.linkedin.gradle.python.tasks.exec.ProjectExternalExec;
 import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider;
 import com.linkedin.gradle.python.tasks.execution.TeeOutputContainer;
+import com.linkedin.gradle.python.tasks.provides.ProvidesVenv;
 import com.linkedin.gradle.python.tasks.supports.SupportsDistutilsCfg;
 import com.linkedin.gradle.python.tasks.supports.SupportsPackageFiltering;
 import com.linkedin.gradle.python.tasks.supports.SupportsPackageInfoSettings;
@@ -34,6 +35,7 @@ import com.linkedin.gradle.python.util.DependencyOrder;
 import com.linkedin.gradle.python.util.EnvironmentMerger;
 import com.linkedin.gradle.python.util.PackageInfo;
 import com.linkedin.gradle.python.util.PackageSettings;
+import com.linkedin.gradle.python.wheel.EditablePythonAbiContainer;
 import com.linkedin.gradle.python.wheel.EmptyWheelCache;
 import com.linkedin.gradle.python.wheel.WheelCache;
 import org.apache.commons.io.FileUtils;
@@ -73,7 +75,7 @@ import static com.linkedin.gradle.python.util.StandardTextValues.CONFIGURATION_S
  */
 @WithoutPrebuiltWheels
 abstract public class AbstractPythonInfrastructureDefaultTask extends DefaultTask implements FailureReasonProvider,
-    SupportsPackageInfoSettings, SupportsDistutilsCfg, SupportsPackageFiltering, SupportsWheelCache {
+    SupportsPackageInfoSettings, SupportsDistutilsCfg, SupportsPackageFiltering, SupportsWheelCache, ProvidesVenv {
 
     private static final Logger log = Logging.getLogger(AbstractPythonInfrastructureDefaultTask.class);
 
@@ -87,8 +89,16 @@ abstract public class AbstractPythonInfrastructureDefaultTask extends DefaultTas
     private PackageSettings<PackageInfo> packageSettings;
     private Spec<PackageInfo> packageExcludeFilter;
     private WheelCache wheelCache = new EmptyWheelCache();
+    private EditablePythonAbiContainer editablePythonAbiContainer;
 
     private EnvironmentMerger environmentMerger = new DefaultEnvironmentMerger();
+
+    @Input
+    public boolean ignoreExitValue = false;
+
+    public OutputStream stdOut = System.out;
+
+    public OutputStream errOut = System.err;
 
     @Input
     abstract protected File getVenvPath();
@@ -119,13 +129,6 @@ abstract public class AbstractPythonInfrastructureDefaultTask extends DefaultTas
 
     @Internal
     abstract public PythonDetails getPythonDetails();
-
-    @Input
-    public boolean ignoreExitValue = false;
-
-    public OutputStream stdOut = System.out;
-
-    public OutputStream errOut = System.err;
 
     public void args(String... args) {
         arguments.addAll(Arrays.asList(args));
@@ -171,7 +174,7 @@ abstract public class AbstractPythonInfrastructureDefaultTask extends DefaultTas
 
         ProjectExternalExec externalExec = new ProjectExternalExec(getProject());
 
-        CreateVirtualEnvAction action = new CreateVirtualEnvAction(getProject(), pythonDetails);
+        CreateVirtualEnvAction action = new CreateVirtualEnvAction(getProject(), pythonDetails, editablePythonAbiContainer);
         action.buildVenv(new VirtualEnvCustomizer(distutilsCfg, externalExec, pythonDetails));
 
         PipInstallAction pipInstallAction = new PipInstallAction(packageSettings, getProject(),
@@ -196,9 +199,11 @@ abstract public class AbstractPythonInfrastructureDefaultTask extends DefaultTas
     }
 
     public void configureExecution(ExecSpec spec) {
+        // Here for users to override with other impl
     }
 
     public void preExecution() {
+        // Here for users to override with other impl
     }
 
     public abstract void processResults(ExecResult execResult);
@@ -248,5 +253,10 @@ abstract public class AbstractPythonInfrastructureDefaultTask extends DefaultTas
     @Override
     public void setWheelCache(WheelCache wheelCache) {
         this.wheelCache = wheelCache;
+    }
+
+    @Override
+    public void setEditablePythonAbiContainer(EditablePythonAbiContainer editablePythonAbiContainer) {
+        this.editablePythonAbiContainer = editablePythonAbiContainer;
     }
 }

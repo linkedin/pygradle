@@ -13,20 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.tasks.supports;
+package com.linkedin.gradle.python.tasks.provides;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import com.linkedin.gradle.python.wheel.EditablePythonAbiContainer;
+import org.gradle.api.Task;
 
 /**
- * Used when a task doesn't need
+ * Marker interface for tasks that make a Venv.
+ *
+ * This is used so that we can track venv's and the Python ABI they support
  */
-@Inherited
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface WithoutPrebuiltWheels {
-
+public interface ProvidesVenv extends Task {
+    /**
+     * The PythonAbiContainer
+     */
+    void setEditablePythonAbiContainer(EditablePythonAbiContainer editablePythonAbiContainer);
 }

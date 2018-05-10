@@ -18,6 +18,7 @@ package com.linkedin.gradle.python.tasks.action;
 import com.linkedin.gradle.python.extension.PythonDetails;
 import com.linkedin.gradle.python.tasks.execution.TeeOutputContainer;
 import com.linkedin.gradle.python.util.pip.PipConfFile;
+import com.linkedin.gradle.python.wheel.EditablePythonAbiContainer;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.logging.Logger;
@@ -39,11 +40,14 @@ public class CreateVirtualEnvAction {
     private static Logger log = Logging.getLogger(CreateVirtualEnvAction.class);
     private final Project project;
     private final PythonDetails pythonDetails;
+    private final EditablePythonAbiContainer editablePythonAbiContainer;
     private final TeeOutputContainer container = new TeeOutputContainer();
 
-    public CreateVirtualEnvAction(Project project, PythonDetails pythonDetails) {
+    public CreateVirtualEnvAction(Project project, PythonDetails pythonDetails,
+                                  EditablePythonAbiContainer editablePythonAbiContainer) {
         this.project = project;
         this.pythonDetails = pythonDetails;
+        this.editablePythonAbiContainer = editablePythonAbiContainer;
     }
 
     public void buildVenv(@Nullable Consumer<File> customize) {
@@ -91,6 +95,8 @@ public class CreateVirtualEnvAction {
         }
 
         execResult.assertNormalExitValue();
+
+        ProbeVenvInfoAction.probeVenv(project, pythonDetails, editablePythonAbiContainer);
 
         project.delete(packageDir);
         try {

@@ -15,18 +15,19 @@
  */
 package com.linkedin.gradle.python.wheel
 
+import com.linkedin.gradle.python.wheel.internal.DefaultPythonAbiContainer
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
-class SupportedWheelFormatsTest extends Specification {
+class PythonAbiContainerTest extends Specification {
 
     @Rule
     TemporaryFolder temporaryFolder
 
     def 'will explode the compact keys'() {
         def pythonExe = temporaryFolder.newFile('python')
-        def formats = new SupportedWheelFormats()
+        def formats = new DefaultPythonAbiContainer()
         formats.addSupportedAbi(new AbiDetails(pythonExe, 'py2', 'none', 'any'))
         formats.addSupportedAbi(new AbiDetails(pythonExe, 'py3', 'cp27mu', 'any'))
 
@@ -39,7 +40,7 @@ class SupportedWheelFormatsTest extends Specification {
     def 'different pythons will not match'() {
         def python1Exe = temporaryFolder.newFile('python1')
         def python2Exe = temporaryFolder.newFile('python2')
-        def formats = new SupportedWheelFormats()
+        def formats = new DefaultPythonAbiContainer()
         formats.addSupportedAbi(new AbiDetails(python1Exe, 'py2', 'none', 'any'))
         formats.addSupportedAbi(new AbiDetails(python2Exe, 'py3', 'cp27mu', 'any'))
 

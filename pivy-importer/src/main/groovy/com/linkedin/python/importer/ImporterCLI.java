@@ -57,7 +57,6 @@ public class ImporterCLI {
             throw new RuntimeException("Unable to continue, no repository location given on the command line (use the --repo switch)");
         }
         final File repoPath = new File(line.getOptionValue("repo"));
-        final DependencySubstitution replacements = new DependencySubstitution(buildSubstitutionMap(line), buildForceMap(line));
 
         repoPath.mkdirs();
 
@@ -65,18 +64,30 @@ public class ImporterCLI {
             throw new RuntimeException("Unable to continue, " + repoPath.getAbsolutePath() + " does not exist, or is not a directory");
         }
 
+        if (line.hasOption("wheel")) {
+            importWheelPacakges(line, repoPath);
+        } else {
+            importSdistPackages(line, repoPath);
+        }
 
+        logger.info("Execution Finished!");
+    }
+
+    private static void importWheelPacakges(CommandLine line, File repoPath) {
+        System.out.println("this is importing wheels");
+    }
+
+    private static void importSdistPackages(CommandLine line, File repoPath) {
+        final DependencySubstitution replacements = new DependencySubstitution(buildSubstitutionMap(line), buildForceMap(line));
         Set<String> processedDependencies = new HashSet<>();
         for (String dependency : line.getArgList()) {
             DependencyDownloader dependencyDownloader = new DependencyDownloader(
-                    dependency, repoPath, replacements, line.hasOption("latest"), line.hasOption("pre"),
-                    line.hasOption("lenient"));
+                dependency, repoPath, replacements, line.hasOption("latest"), line.hasOption("pre"),
+                line.hasOption("lenient"));
             dependencyDownloader.getProcessedDependencies().addAll(processedDependencies);
             dependencyDownloader.download();
             processedDependencies.addAll(dependencyDownloader.getProcessedDependencies());
         }
-
-        logger.info("Execution Finished!");
     }
 
     private static Map<String, String> buildForceMap(CommandLine line) {
@@ -97,6 +108,11 @@ public class ImporterCLI {
             .numberOfArgs(1)
             .argName("file")
             .desc("location of the ivy repo")
+            .build();
+
+        Option wheel = Option.builder()
+            .longOpt("wheel")
+            .desc("get wheel package instead of sdist pacakge")
             .build();
 
         Option replacement = Option.builder()
@@ -141,6 +157,7 @@ public class ImporterCLI {
         Options options = new Options();
         options.addOption(replacement);
         options.addOption(repo);
+        options.addOption(wheel);
         options.addOption(quiet);
         options.addOption(force);
         options.addOption(latest);
@@ -160,7 +177,5 @@ public class ImporterCLI {
             }
         }
         return sub;
-
     }
-
 }

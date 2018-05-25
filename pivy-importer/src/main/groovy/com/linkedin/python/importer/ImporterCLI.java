@@ -17,6 +17,8 @@ package com.linkedin.python.importer;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import com.linkedin.python.importer.deps.SdistDownloader;
+import com.linkedin.python.importer.deps.WheelsDownloader;
 import com.linkedin.python.importer.deps.DependencyDownloader;
 import com.linkedin.python.importer.deps.DependencySubstitution;
 import org.apache.commons.cli.CommandLine;
@@ -65,7 +67,7 @@ public class ImporterCLI {
         }
 
         if (line.hasOption("wheel")) {
-            importWheelPacakges(line, repoPath);
+            importWheelPackages(line, repoPath);
         } else {
             importSdistPackages(line, repoPath);
         }
@@ -73,20 +75,28 @@ public class ImporterCLI {
         logger.info("Execution Finished!");
     }
 
-    private static void importWheelPacakges(CommandLine line, File repoPath) {
-        System.out.println("this is importing wheels");
+    private static void importWheelPackages(CommandLine line, File repoPath) {
+        logger.info("Importing Wheel packages...");
+        Set<String> processedDependencies = new HashSet<>();
+        for (String project : line.getArgList()) {
+            DependencyDownloader wheelsDownloader = new WheelsDownloader(project, repoPath, line.hasOption("lenient"));
+            wheelsDownloader.getProcessedDependencies().addAll(processedDependencies);
+            wheelsDownloader.download();
+            processedDependencies.addAll(wheelsDownloader.getProcessedDependencies());
+        }
     }
 
     private static void importSdistPackages(CommandLine line, File repoPath) {
+        logger.info("Importing Sdist packages...");
         final DependencySubstitution replacements = new DependencySubstitution(buildSubstitutionMap(line), buildForceMap(line));
         Set<String> processedDependencies = new HashSet<>();
         for (String dependency : line.getArgList()) {
-            DependencyDownloader dependencyDownloader = new DependencyDownloader(
+            DependencyDownloader sdistDownloader = new SdistDownloader(
                 dependency, repoPath, replacements, line.hasOption("latest"), line.hasOption("pre"),
                 line.hasOption("lenient"));
-            dependencyDownloader.getProcessedDependencies().addAll(processedDependencies);
-            dependencyDownloader.download();
-            processedDependencies.addAll(dependencyDownloader.getProcessedDependencies());
+            sdistDownloader.getProcessedDependencies().addAll(processedDependencies);
+            sdistDownloader.download();
+            processedDependencies.addAll(sdistDownloader.getProcessedDependencies());
         }
     }
 
@@ -113,6 +123,12 @@ public class ImporterCLI {
         Option wheel = Option.builder()
             .longOpt("wheel")
             .desc("get wheel package instead of sdist pacakge")
+            .build();
+
+        Option classifier = Option.builder()
+            .longOpt("classifier")
+            .numberOfArgs(1)
+            .desc("classifier of the artifact")
             .build();
 
         Option replacement = Option.builder()
@@ -158,6 +174,7 @@ public class ImporterCLI {
         options.addOption(replacement);
         options.addOption(repo);
         options.addOption(wheel);
+        options.addOption(classifier);
         options.addOption(quiet);
         options.addOption(force);
         options.addOption(latest);

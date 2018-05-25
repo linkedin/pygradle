@@ -15,35 +15,22 @@
  */
 package com.linkedin.python.importer.deps
 
-import com.linkedin.python.importer.distribution.SourceDistPackage
-import com.linkedin.python.importer.ivy.IvyFileWriter
 import com.linkedin.python.importer.pypi.PypiApiCache
 import com.linkedin.python.importer.util.ProxyDetector
 import groovy.util.logging.Slf4j
 import org.apache.commons.io.FilenameUtils
 import org.apache.http.client.fluent.Request
 
-import java.nio.file.Paths
-
 @Slf4j
-class DependencyDownloader {
-
-
+abstract class DependencyDownloader {
     Queue<String> dependencies = [] as Queue
     Set<String> processedDependencies = [] as Set
     PypiApiCache cache = new PypiApiCache()
     File ivyRepoRoot
-    DependencySubstitution dependencySubstitution
-    boolean latestVersions
-    boolean allowPreReleases
     boolean lenient
 
-    DependencyDownloader(String project, File ivyRepoRoot, DependencySubstitution dependencySubstitution,
-                         boolean latestVersions, boolean allowPreReleases, boolean lenient) {
-        this.dependencySubstitution = dependencySubstitution
+    protected DependencyDownloader(String project, File ivyRepoRoot, boolean lenient) {
         this.ivyRepoRoot = ivyRepoRoot
-        this.latestVersions = latestVersions
-        this.allowPreReleases = allowPreReleases
         this.lenient = lenient
         dependencies.add(project)
     }
@@ -59,38 +46,9 @@ class DependencyDownloader {
         }
     }
 
-    def downloadDependency(String dep) {
-        log.info("Pulling in $dep")
-        def (name, version) = dep.split(":")
+    abstract downloadDependency(String dep)
 
-        def projectDetails = cache.getDetails(name)
-        version = projectDetails.maybeFixVersion(version)
-        def sdistDetails = projectDetails.findVersion(version).find { it.packageType == 'sdist' }
-
-        if (sdistDetails == null) {
-            if (lenient) {
-                log.error("Unable to find source dist for $dep")
-                return
-            }
-            throw new RuntimeException("Unable to find source dist for $dep")
-        }
-
-        def destDir = Paths.get(ivyRepoRoot.absolutePath, "pypi", name, version).toFile()
-
-        destDir.mkdirs()
-
-        def artifact = downloadArtifact(destDir, sdistDetails.url)
-        def packageDependencies = new SourceDistPackage(artifact, cache, dependencySubstitution,
-            latestVersions, allowPreReleases).dependencies
-
-        new IvyFileWriter(name, version, [sdistDetails], packageDependencies).writeIvyFile(destDir)
-
-        packageDependencies.each { key, value ->
-            dependencies.addAll(value)
-        }
-    }
-
-    static File downloadArtifact(File destDir, String url) {
+    protected static File downloadArtifact(File destDir, String url) {
 
         def filename = FilenameUtils.getName(new URL(url).getPath())
         def contents = new File(destDir, filename)

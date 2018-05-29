@@ -24,6 +24,7 @@ import java.nio.file.Paths
 @Slf4j
 class SdistDownloader extends DependencyDownloader {
     static final String SOURCE_DIST_PACKAGE_TYPE = "sdist"
+    static final String SOURCE_DIST_ORG = "pypi"
 
     DependencySubstitution dependencySubstitution
     boolean latestVersions
@@ -55,7 +56,7 @@ class SdistDownloader extends DependencyDownloader {
             throw new RuntimeException("Unable to find source dist for $dep")
         }
 
-        def destDir = Paths.get(ivyRepoRoot.absolutePath, "pypi", name, version).toFile()
+        def destDir = Paths.get(ivyRepoRoot.absolutePath, SOURCE_DIST_ORG, name, version).toFile()
         destDir.mkdirs()
 
         def artifact = downloadArtifact(destDir, sdistDetails.url)

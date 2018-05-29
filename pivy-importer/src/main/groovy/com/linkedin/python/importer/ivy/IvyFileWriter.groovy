@@ -22,9 +22,6 @@ import groovy.xml.MarkupBuilder
 import org.apache.commons.io.FilenameUtils
 
 class IvyFileWriter {
-    static final String SOURCE_DIST_ORG = "pypi"
-    static final String BINARY_DIST_ORG = "wheel"
-
     final String name
     final String version
     final String packageType
@@ -110,9 +107,9 @@ class IvyFileWriter {
         String organisation
 
         if (packageType == SdistDownloader.SOURCE_DIST_PACKAGE_TYPE) {
-            organisation = SOURCE_DIST_ORG
+            organisation = SdistDownloader.SOURCE_DIST_ORG
         } else if (packageType == WheelsDownloader.BINARY_DIST_PACKAGE_TYPE) {
-            organisation = BINARY_DIST_ORG
+            organisation = WheelsDownloader.BINARY_DIST_ORG
         } else {
             throw new RuntimeException("Package type $packageType is not supported yet.")
         }

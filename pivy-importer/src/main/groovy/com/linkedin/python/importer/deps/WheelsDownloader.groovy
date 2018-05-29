@@ -23,6 +23,7 @@ import java.nio.file.Paths
 @Slf4j
 class WheelsDownloader extends DependencyDownloader {
     static final String BINARY_DIST_PACKAGE_TYPE = "bdist_wheel"
+    static final String BINARY_DIST_ORG = "wheel"
 
     WheelsDownloader(String project, File ivyRepoRoot, boolean lenient) {
         super(project, ivyRepoRoot, lenient)
@@ -45,7 +46,7 @@ class WheelsDownloader extends DependencyDownloader {
             throw new RuntimeException("Unable to find wheels for $dep")
         }
 
-        def destDir = Paths.get(ivyRepoRoot.absolutePath, "pypi", name, version, classifier).toFile()
+        def destDir = Paths.get(ivyRepoRoot.absolutePath, BINARY_DIST_ORG, name, version, classifier).toFile()
         destDir.mkdirs()
 
         downloadArtifact(destDir, wheelDetails.url)

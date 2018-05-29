@@ -128,7 +128,7 @@ public class ImporterCLI {
         Option classifier = Option.builder()
             .longOpt("classifier")
             .numberOfArgs(1)
-            .desc("classifier of the artifact")
+            .desc("classifier of the archives")
             .build();
 
         Option replacement = Option.builder()

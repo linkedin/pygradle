@@ -1,5 +1,5 @@
 The Python ecosystem is extremely productive in aspects such as local
-development, artifact management, library functionality, and more. But, the
+development, archives management, library functionality, and more. But, the
 Python ecosystem does struggle with things like dependency management,
 dependency resolution, conflict resolution, integration with existing metadata
 systems, and more. Projects that are built with the PyGradle build system get

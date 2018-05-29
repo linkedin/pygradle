@@ -62,7 +62,7 @@ class SdistDownloader extends DependencyDownloader {
         def packageDependencies = new SourceDistPackage(artifact, cache, dependencySubstitution,
             latestVersions, allowPreReleases).dependencies
 
-        new IvyFileWriter(name, version, SOURCE_DIST_PACKAGE_TYPE, sdistDetails).writeIvyFile(destDir, packageDependencies)
+        new IvyFileWriter(name, version, SOURCE_DIST_PACKAGE_TYPE, [sdistDetails]).writeIvyFile(destDir, packageDependencies)
 
         packageDependencies.each { key, value ->
             dependencies.addAll(value)

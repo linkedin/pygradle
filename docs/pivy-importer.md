@@ -11,7 +11,7 @@ We publish the importer into bintray. You can find all the copies at https://bin
 
 At the time of writing this doc, the current version is 0.6.17, so the jar you would want to download is
 https://dl.bintray.com/linkedin/maven/com/linkedin/pygradle/pivy-importer/0.6.17/pivy-importer-0.6.17-all.jar .
-This artifact has all dependencies bundled together to make a nice CLI. 
+This archives has all dependencies bundled together to make a nice CLI. 
 
 ### Building it Locally
 
@@ -53,7 +53,7 @@ repositories {
     url '/path/to/repo'
     layout "pattern", {
       ivy "[organisation]/[module]/[revision]/[module]-[revision].ivy"
-      artifact "[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
+      archives "[organisation]/[module]/[revision]/[archives]-[revision](-[classifier]).[ext]"
       m2compatible = true
     }
   }

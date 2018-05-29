@@ -28,27 +28,25 @@ class IvyFileWriter {
     final String name
     final String version
     final String packageType
-    final VersionEntry artifact
+    final List<VersionEntry> archives
 
-    IvyFileWriter(String name, String version, String packageType, VersionEntry artifact) {
+    IvyFileWriter(String name, String version, String packageType, List<VersionEntry> archives) {
         this.name = name
         this.version = version
         this.packageType = packageType
-        this.artifact = artifact
+        this.archives = archives
     }
 
     @SuppressWarnings("SpaceAroundClosureArrow")
-    def writeIvyFile(File destDir, Map<String, List<String>> dependenciesMap) {
+    def writeIvyFile(File destDir, Map<String, List<String>> dependenciesMap, String classifier=null) {
         def writer = new StringWriter()
         def xml = new MarkupBuilder(writer)
         xml.setDoubleQuotes(true)
 
-        def ext = artifact.filename.contains(".tar.") ? artifact.filename.find('tar\\..*') : FilenameUtils.getExtension(artifact.filename)
-        String filename = artifact.filename - ("." + ext)
-        def pub = getPublicationsMap(filename, ext)
+        def pub = getPublicationsMap()
 
-        if (!(pub.conf == 'default' )) {
-            pub.conf = 'default'
+        if (!(pub.any { it.conf == 'default' })) {
+            pub.first().conf = 'default'
         }
 
         xml.'ivy-module'(version: "2.0", 'xmlns:e': "http://ant.apache.org/ivy/extra", 'xmlns:m': "http://ant.apache.org/ivy/maven") {
@@ -65,7 +63,9 @@ class IvyFileWriter {
                 }
             }
             publications {
-                artifact(pub)
+                pub.each { archive ->
+                    artifact(archive)
+                }
             }
             dependencies(defaultconfmapping: "*->default") {
                 dependenciesMap.each { config, deps ->
@@ -82,19 +82,24 @@ class IvyFileWriter {
         if (packageType == SdistDownloader.SOURCE_DIST_PACKAGE_TYPE) {
             new File(destDir, "${name}-${version}.ivy").text = ivyText
         } else if (packageType == WheelsDownloader.BINARY_DIST_PACKAGE_TYPE) {
-            new File(destDir, "${name}-${version}-${getClassifier(filename)}.ivy").text = ivyText
+            new File(destDir, "${name}-${version}-${classifier}.ivy").text = ivyText
         }
     }
 
-    private Map<String, String> getPublicationsMap(String filename, String ext) {
-        def source = 'sdist' == artifact.packageType
-        def map = [name: name, ext: ext, conf: source ? 'source' : 'default', type: ext == 'whl' ? 'zip' : ext]
+    private def getPublicationsMap() {
+        def publicationMap = archives.collect { artifact ->
+            def ext = artifact.filename.contains(".tar.") ? artifact.filename.find('tar\\..*') : FilenameUtils.getExtension(artifact.filename)
+            String filename = artifact.filename - ("." + ext)
+            def source = 'sdist' == artifact.packageType
+            def map = [name: name, ext: ext, conf: source ? 'source' : 'default', type: ext == 'whl' ? 'zip' : ext]
 
-        if (filename.indexOf(version) + version.length() + 1 < filename.length()) {
-            map['m:classifier'] = getClassifier(filename)
+            if (filename.indexOf(version) + version.length() + 1 < filename.length()) {
+                map['m:classifier'] = getClassifier(filename)
+            }
+            return map
         }
 
-        return map
+        return publicationMap
     }
 
     private String getClassifier(String filename) {

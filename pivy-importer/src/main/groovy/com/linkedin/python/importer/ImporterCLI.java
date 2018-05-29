@@ -66,37 +66,37 @@ public class ImporterCLI {
             throw new RuntimeException("Unable to continue, " + repoPath.getAbsolutePath() + " does not exist, or is not a directory");
         }
 
-        if (line.hasOption("wheel")) {
-            importWheelPackages(line, repoPath);
-        } else {
-            importSdistPackages(line, repoPath);
-        }
-
+        importPackages(line, repoPath);
         logger.info("Execution Finished!");
     }
 
-    private static void importWheelPackages(CommandLine line, File repoPath) {
-        logger.info("Importing Wheel packages...");
-        Set<String> processedDependencies = new HashSet<>();
-        for (String project : line.getArgList()) {
-            DependencyDownloader wheelsDownloader = new WheelsDownloader(project, repoPath, line.hasOption("lenient"));
-            wheelsDownloader.getProcessedDependencies().addAll(processedDependencies);
-            wheelsDownloader.download();
-            processedDependencies.addAll(wheelsDownloader.getProcessedDependencies());
-        }
-    }
-
-    private static void importSdistPackages(CommandLine line, File repoPath) {
-        logger.info("Importing Sdist packages...");
+    private static void importPackages(CommandLine line, File repoPath) {
         final DependencySubstitution replacements = new DependencySubstitution(buildSubstitutionMap(line), buildForceMap(line));
         Set<String> processedDependencies = new HashSet<>();
         for (String dependency : line.getArgList()) {
-            DependencyDownloader sdistDownloader = new SdistDownloader(
-                dependency, repoPath, replacements, line.hasOption("latest"), line.hasOption("pre"),
-                line.hasOption("lenient"));
-            sdistDownloader.getProcessedDependencies().addAll(processedDependencies);
-            sdistDownloader.download();
-            processedDependencies.addAll(sdistDownloader.getProcessedDependencies());
+            DependencyDownloader artifactDownloader;
+
+            if (dependency.split(":").length == 2) {
+                artifactDownloader = new SdistDownloader(dependency, repoPath, replacements, line.hasOption("latest"),
+                    line.hasOption("pre"), line.hasOption("lenient"));
+            } else if (dependency.split(":").length == 3) {
+                artifactDownloader = new WheelsDownloader(dependency, repoPath, line.hasOption("lenient"));
+            } else {
+                String errMsg = "Unable to parse the dependency "
+                    + dependency
+                    + ".\nThe format of dependency should be either <module>:<revision> for source distribution "
+                    + "or <module>:<revision>:<classifier> for Wheels.";
+
+                if (line.hasOption("lenient")) {
+                    logger.error(errMsg);
+                    continue;
+                }
+                throw new RuntimeException(errMsg);
+            }
+
+            artifactDownloader.getProcessedDependencies().addAll(processedDependencies);
+            artifactDownloader.download();
+            processedDependencies.addAll(artifactDownloader.getProcessedDependencies());
         }
     }
 
@@ -109,6 +109,7 @@ public class ImporterCLI {
                 sub.put(split[0], split[1]);
             }
         }
+
         return sub;
     }
 
@@ -118,17 +119,6 @@ public class ImporterCLI {
             .numberOfArgs(1)
             .argName("file")
             .desc("location of the ivy repo")
-            .build();
-
-        Option wheel = Option.builder()
-            .longOpt("wheel")
-            .desc("get wheel package instead of sdist pacakge")
-            .build();
-
-        Option classifier = Option.builder()
-            .longOpt("classifier")
-            .numberOfArgs(1)
-            .desc("classifier of the archives")
             .build();
 
         Option replacement = Option.builder()
@@ -173,8 +163,6 @@ public class ImporterCLI {
         Options options = new Options();
         options.addOption(replacement);
         options.addOption(repo);
-        options.addOption(wheel);
-        options.addOption(classifier);
         options.addOption(quiet);
         options.addOption(force);
         options.addOption(latest);

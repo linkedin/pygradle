@@ -86,7 +86,7 @@ class IvyFileWriter {
         }
     }
 
-    private def getPublicationsMap() {
+    private getPublicationsMap() {
         def publicationMap = archives.collect { artifact ->
             def ext = artifact.filename.contains(".tar.") ? artifact.filename.find('tar\\..*') : FilenameUtils.getExtension(artifact.filename)
             String filename = artifact.filename - ("." + ext)

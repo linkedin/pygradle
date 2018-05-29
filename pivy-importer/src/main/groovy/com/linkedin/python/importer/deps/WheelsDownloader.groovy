@@ -39,10 +39,10 @@ class WheelsDownloader extends DependencyDownloader {
 
         if (wheelDetails == null) {
             if (lenient) {
-                log.error("Unable to find source dist for $dep")
+                log.error("Unable to find wheels for $dep")
                 return
             }
-            throw new RuntimeException("Unable to find source dist for $dep")
+            throw new RuntimeException("Unable to find wheels for $dep")
         }
 
         def destDir = Paths.get(ivyRepoRoot.absolutePath, "pypi", name, version, classifier).toFile()

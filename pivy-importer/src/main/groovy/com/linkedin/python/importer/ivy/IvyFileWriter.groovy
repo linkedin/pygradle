@@ -38,12 +38,14 @@ class IvyFileWriter {
     }
 
     @SuppressWarnings("SpaceAroundClosureArrow")
-    def writeIvyFile(File destDir, Map<String, List<String>> dependencies = null) {
+    def writeIvyFile(File destDir, Map<String, List<String>> dependenciesMap) {
         def writer = new StringWriter()
         def xml = new MarkupBuilder(writer)
         xml.setDoubleQuotes(true)
 
-        def pub = getPublicationsMap()
+        def ext = artifact.filename.contains(".tar.") ? artifact.filename.find('tar\\..*') : FilenameUtils.getExtension(artifact.filename)
+        String filename = artifact.filename - ("." + ext)
+        def pub = getPublicationsMap(filename, ext)
 
         if (!(pub.conf == 'default' )) {
             pub.conf = 'default'
@@ -52,7 +54,7 @@ class IvyFileWriter {
         xml.'ivy-module'(version: "2.0", 'xmlns:e': "http://ant.apache.org/ivy/extra", 'xmlns:m': "http://ant.apache.org/ivy/maven") {
             info(organisation: getOrganisation(), module: name, revision: version)
             configurations {
-                def configurations = new HashSet<>(dependencies.keySet())
+                def configurations = new HashSet<>(dependenciesMap.keySet())
                 configurations.add("source")
                 configurations.each {
                     def map = [name: it, description: 'auto generated configuration for ' + it]
@@ -66,7 +68,7 @@ class IvyFileWriter {
                 artifact(pub)
             }
             dependencies(defaultconfmapping: "*->default") {
-                dependencies.each { config, deps ->
+                dependenciesMap.each { config, deps ->
                     deps.each { dep ->
                         def (name, version) = dep.split(':')
                         dependency(org: 'pypi', name: name, rev: version, conf: config)
@@ -80,19 +82,16 @@ class IvyFileWriter {
         if (packageType == SdistDownloader.SOURCE_DIST_PACKAGE_TYPE) {
             new File(destDir, "${name}-${version}.ivy").text = ivyText
         } else if (packageType == WheelsDownloader.BINARY_DIST_PACKAGE_TYPE) {
-            new File(destDir, "${name}-${version}-${getClassifier()}.ivy").text = ivyText
+            new File(destDir, "${name}-${version}-${getClassifier(filename)}.ivy").text = ivyText
         }
     }
 
-    private Map<String, String> getPublicationsMap() {
-        def ext = artifact.filename.contains(".tar.") ? artifact.filename.find('tar\\..*') : FilenameUtils.getExtension(artifact.filename)
-        String filename = artifact.filename - ("." + ext)
-
+    private Map<String, String> getPublicationsMap(String filename, String ext) {
         def source = 'sdist' == artifact.packageType
         def map = [name: name, ext: ext, conf: source ? 'source' : 'default', type: ext == 'whl' ? 'zip' : ext]
 
         if (filename.indexOf(version) + version.length() + 1 < filename.length()) {
-            map['m:classifier'] = getClassifier()
+            map['m:classifier'] = getClassifier(filename)
         }
 
         return map

@@ -50,6 +50,6 @@ class WheelsDownloader extends DependencyDownloader {
 
         downloadArtifact(destDir, wheelDetails.url)
 
-        new IvyFileWriter(name, version, BINARY_DIST_PACKAGE_TYPE, wheelDetails).writeIvyFile(destDir)
+        new IvyFileWriter(name, version, BINARY_DIST_PACKAGE_TYPE, wheelDetails).writeIvyFile(destDir, [:])
     }
 }

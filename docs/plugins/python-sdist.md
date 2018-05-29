@@ -14,8 +14,8 @@ plugins {
 
 ## Artifacts
 
-The `com.linkedin.python-sdist` plugin should create a single archives from the build.
-The archives will be named <project name>-<project version>.tar.gz and will be created in the subproject's directory in the dist directory.
+The `com.linkedin.python-sdist` plugin should create a single artifact from the build.
+The artifact will be named <project name>-<project version>.tar.gz and will be created in the subproject's directory in the dist directory.
 
 ```
 <project dir>

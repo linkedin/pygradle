@@ -24,7 +24,7 @@ Python community is emitting Ivy metadata, we'll need to find an alternative to
 PyPI.
 
 LinkedIn uses [Artifactory](https://www.jfrog.com/artifactory/) to host
-artifacts. Artifactory is well suited for a number of archives hosting purposes
+artifacts. Artifactory is well suited for a number of artifact hosting purposes
 and comes with many plugins that you can install. One of these plugins is a
 PyPI-compatible interface. Although not needed for the purposes of PyGradle,
 it's a nifty interface for making open source and internal Python projects play
@@ -42,7 +42,7 @@ ecosystem.
 ### Artifactory
 
 LinkedIn's [public Artifactory instance](https://linkedin.jfrog.io/linkedin/webapp/#/artifacts/browse/tree/General/pypi-external)
-is an example of an archives hosting server that has examples of both types of
+is an example of an artifact hosting server that has examples of both types of
 artifacts: those that we've mirrored and enhanced with Ivy metadata, and those
 that we've published using PyGradle.
 
@@ -66,7 +66,7 @@ started.
 Observant readers will realize that mirroring and enhancing open source
 artifacts could be very tedious. It is. So, we've built tooling to make this
 easier: [pivy-importer](pivy-importer.md) helps create Ivy metadata for a given
-project that is suitable for publication to your archives hosting server of
+project that is suitable for publication to your artifact hosting server of
 choice.
 
 Please note, pivy-importer is a tool provided as-is, and was only used for
@@ -142,7 +142,7 @@ particular project or enterprise. Gradle makes this easy.
 We suggest that you customize PyGradle by wrapping it within your own plugins.
 
 Wrapping PyGradle within your own plugins gives you a good way to do
-things like register your archives hosting server with all of your projects. It
+things like register your artifact hosting server with all of your projects. It
 also gives you the ability to do things like marry PyGradle with your
 enterprise's proprietary way of managing project name or version. It could even
 be used to leverage entirely new metadata formats.

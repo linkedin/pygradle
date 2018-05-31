@@ -88,7 +88,7 @@ class IvyFileWriter {
             def ext = artifact.filename.contains(".tar.") ? artifact.filename.find('tar\\..*') : FilenameUtils.getExtension(artifact.filename)
             String filename = artifact.filename - ("." + ext)
             def source = SdistDownloader.SOURCE_DIST_PACKAGE_TYPE == artifact.packageType
-            def map = [name: name, ext: ext, conf: source ? 'source' : 'default', type: ext == 'whl' ? 'zip' : ext]
+            def map = [name: name, ext: ext, conf: source ? 'source' : 'default', type: ext]
 
             if (filename.indexOf(version) + version.length() + 1 < filename.length()) {
                 map['m:classifier'] = getClassifier(filename)

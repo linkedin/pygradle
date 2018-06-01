@@ -27,11 +27,11 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.StringWriter;
 
-class CheckStyleXmlReporter {
+public class CheckStyleXmlReporter {
 
     private final FileStyleViolationsContainer violationContainer;
 
-    CheckStyleXmlReporter(FileStyleViolationsContainer container) {
+    public CheckStyleXmlReporter(FileStyleViolationsContainer container) {
         this.violationContainer = container;
     }
 

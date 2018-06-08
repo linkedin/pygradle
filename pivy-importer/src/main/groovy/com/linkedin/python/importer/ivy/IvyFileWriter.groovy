@@ -18,21 +18,16 @@ package com.linkedin.python.importer.ivy
 import com.linkedin.python.importer.pypi.VersionEntry
 import com.linkedin.python.importer.deps.SdistDownloader
 import com.linkedin.python.importer.deps.WheelsDownloader
+import groovy.transform.TupleConstructor
 import groovy.xml.MarkupBuilder
 import org.apache.commons.io.FilenameUtils
 
+@TupleConstructor
 class IvyFileWriter {
     final String name
     final String version
     final String packageType
     final List<VersionEntry> archives
-
-    IvyFileWriter(String name, String version, String packageType, List<VersionEntry> archives) {
-        this.name = name
-        this.version = version
-        this.packageType = packageType
-        this.archives = archives
-    }
 
     @SuppressWarnings("SpaceAroundClosureArrow")
     def writeIvyFile(File destDir, Map<String, List<String>> dependenciesMap, String classifier=null) {

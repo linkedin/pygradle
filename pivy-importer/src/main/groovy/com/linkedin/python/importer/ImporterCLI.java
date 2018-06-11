@@ -91,7 +91,7 @@ public class ImporterCLI {
                     logger.error(errMsg);
                     continue;
                 }
-                throw new RuntimeException(errMsg);
+                throw new IllegalArgumentException(errMsg);
             }
 
             artifactDownloader.getProcessedDependencies().addAll(processedDependencies);

@@ -41,7 +41,6 @@ class SdistDownloader extends DependencyDownloader {
 
     @Override
     def downloadDependency(String dep) {
-        log.info("Pulling in $dep")
         def (String name, String version) = dep.split(":")
 
         def projectDetails = cache.getDetails(name)
@@ -57,6 +56,8 @@ class SdistDownloader extends DependencyDownloader {
         }
 
         name = IvyFileWriter.getActualModuleName(sdistDetails.filename, version)
+        dep = name + dep.substring(name.length())
+        log.info("Pulling in $dep")
 
         def destDir = Paths.get(ivyRepoRoot.absolutePath, SOURCE_DIST_ORG, name, version).toFile()
         destDir.mkdirs()

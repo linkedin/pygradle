@@ -24,7 +24,7 @@ import org.apache.commons.io.FilenameUtils
 
 @TupleConstructor
 class IvyFileWriter {
-    final String name
+    String name
     final String version
     final String packageType
     final List<VersionEntry> archives
@@ -82,6 +82,7 @@ class IvyFileWriter {
         def publicationMap = archives.collect { artifact ->
             def ext = artifact.filename.contains(".tar.") ? artifact.filename.find('tar\\..*') : FilenameUtils.getExtension(artifact.filename)
             String filename = artifact.filename - ("." + ext)
+            this.name = getActualModuleName(filename, version)
             def source = SdistDownloader.SOURCE_DIST_PACKAGE_TYPE == artifact.packageType
             def map = [name: name, ext: ext, conf: source ? 'source' : 'default', type: ext]
 
@@ -96,6 +97,10 @@ class IvyFileWriter {
 
     private String getClassifier(String filename) {
         return filename.substring(filename.indexOf(version) + version.length() + 1)
+    }
+
+    static String getActualModuleName(String filename, String revision) {
+        return filename.substring(0, filename.indexOf(revision) - 1)
     }
 
     private String getOrganisation() {

@@ -56,6 +56,8 @@ class SdistDownloader extends DependencyDownloader {
             throw new RuntimeException("Unable to find source dist for $dep")
         }
 
+        name = IvyFileWriter.getActualModuleName(sdistDetails.filename, version)
+
         def destDir = Paths.get(ivyRepoRoot.absolutePath, SOURCE_DIST_ORG, name, version).toFile()
         destDir.mkdirs()
 

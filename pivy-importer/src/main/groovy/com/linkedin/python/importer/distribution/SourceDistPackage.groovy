@@ -89,18 +89,18 @@ class SourceDistPackage {
                  * in the default section now too.
                  */
                 List<String> lineWithMarker = line.split(';')
-                log.debug("Split({}) {}", line, lineWithMarker)
+                log.debug("Split line into lineWithMarker ({}) {}", line, lineWithMarker)
 
                 List<String> conditions = lineWithMarker[0].split(',')
-                log.debug("Split({}) {}", lineWithMarker[0], conditions)
+                log.debug("Split lineWithMarker[0] into conditions ({}) {}", lineWithMarker[0], conditions)
 
-                String packageName = conditions[0].split(/!=|==|[><]=?/)[0]
+                String packageName = conditions[0].split(/~=|!=|==|[><]=?/)[0]
                 VersionRange range = new VersionRange('', false, '', false)
                 List<String> excluded = []
 
                 for (String condition : conditions) {
-                    List<String> parts = condition.split(/!=|==|[><]=?/)
-                    log.debug("Split({}) {}", condition, parts)
+                    List<String> parts = condition.split(/~=|!=|==|[><]=?/)
+                    log.debug("Split condition into parts ({}) {}", condition, parts)
 
                     if (parts.size() > 1) {
                         String v = parts[1]
@@ -127,6 +127,15 @@ class SourceDistPackage {
                                 range.startVersion = v
                                 range.includeEnd = true
                                 range.endVersion = v
+                                break
+                            case '~=':
+                                range.includeStart = true
+                                range.startVersion = v
+                                range.includeEnd = true
+                                List<String> endVersion = v.tokenize('.').init()
+                                endVersion.push('99999')
+                                range.endVersion = endVersion.join('.')
+                                log.debug("Expecting versions of {} between {} and {} to be compatible with {}", parts[0], range.startVersion, range.endVersion, v)
                                 break
                             default:
                                 throw new RuntimeException("Unrecognizable package version condition ${condition}")

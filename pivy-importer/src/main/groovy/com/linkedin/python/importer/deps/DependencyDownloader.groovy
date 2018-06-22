@@ -17,6 +17,7 @@ package com.linkedin.python.importer.deps
 
 import com.linkedin.python.importer.pypi.PypiApiCache
 import com.linkedin.python.importer.util.ProxyDetector
+import com.sun.xml.internal.ws.api.streaming.XMLStreamReaderFactory
 import groovy.util.logging.Slf4j
 import org.apache.commons.io.FilenameUtils
 import org.apache.http.client.fluent.Request
@@ -26,12 +27,22 @@ abstract class DependencyDownloader {
     Queue<String> dependencies = [] as Queue
     Set<String> processedDependencies = [] as Set
     PypiApiCache cache = new PypiApiCache()
+
     File ivyRepoRoot
     boolean lenient
+    boolean latestVersions
+    boolean allowPreReleases
+    DependencySubstitution dependencySubstitution
 
-    protected DependencyDownloader(String project, File ivyRepoRoot, boolean lenient) {
+    protected DependencyDownloader(String project, File ivyRepoRoot, boolean lenient, boolean latestVersions,
+                                   boolean allowPreReleases, DependencySubstitution dependencySubstitution) {
+
         this.ivyRepoRoot = ivyRepoRoot
         this.lenient = lenient
+        this.latestVersions = latestVersions
+        this.allowPreReleases = allowPreReleases
+        this.dependencySubstitution = dependencySubstitution
+
         dependencies.add(project)
     }
 

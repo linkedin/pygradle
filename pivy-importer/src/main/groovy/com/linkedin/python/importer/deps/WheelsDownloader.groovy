@@ -15,6 +15,7 @@
  */
 package com.linkedin.python.importer.deps
 
+import com.linkedin.python.importer.distribution.WheelsPackage
 import com.linkedin.python.importer.ivy.IvyFileWriter
 
 import groovy.util.logging.Slf4j
@@ -25,8 +26,10 @@ class WheelsDownloader extends DependencyDownloader {
     static final String BINARY_DIST_PACKAGE_TYPE = "bdist_wheel"
     static final String BINARY_DIST_ORG = "wheel"
 
-    WheelsDownloader(String project, File ivyRepoRoot, boolean lenient) {
-        super(project, ivyRepoRoot, lenient)
+    WheelsDownloader(String project, File ivyRepoRoot, DependencySubstitution dependencySubstitution,
+                     boolean latestVersions, boolean allowPreReleases, boolean lenient) {
+
+        super(project, ivyRepoRoot, lenient, latestVersions, allowPreReleases, dependencySubstitution)
     }
 
     @Override
@@ -49,8 +52,14 @@ class WheelsDownloader extends DependencyDownloader {
         def destDir = Paths.get(ivyRepoRoot.absolutePath, BINARY_DIST_ORG, name, version, classifier).toFile()
         destDir.mkdirs()
 
-        downloadArtifact(destDir, wheelDetails.url)
+        def wheelArtifact = downloadArtifact(destDir, wheelDetails.url)
+        def packageDependencies = new WheelsPackage(wheelArtifact, cache, dependencySubstitution,
+            latestVersions, allowPreReleases).dependencies
 
-        new IvyFileWriter(name, version, BINARY_DIST_PACKAGE_TYPE, [wheelDetails]).writeIvyFile(destDir, ['default':[]], classifier)
+        new IvyFileWriter(name, version, BINARY_DIST_PACKAGE_TYPE, [wheelDetails]).writeIvyFile(destDir, packageDependencies)
+
+        packageDependencies.each { key, value ->
+            dependencies.addAll(value)
+        }
     }
 }

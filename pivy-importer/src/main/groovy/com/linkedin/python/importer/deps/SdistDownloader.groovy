@@ -26,17 +26,10 @@ class SdistDownloader extends DependencyDownloader {
     static final String SOURCE_DIST_PACKAGE_TYPE = "sdist"
     static final String SOURCE_DIST_ORG = "pypi"
 
-    DependencySubstitution dependencySubstitution
-    boolean latestVersions
-    boolean allowPreReleases
-
     SdistDownloader(String project, File ivyRepoRoot, DependencySubstitution dependencySubstitution,
                     boolean latestVersions, boolean allowPreReleases, boolean lenient) {
 
-        super(project, ivyRepoRoot, lenient)
-        this.dependencySubstitution = dependencySubstitution
-        this.latestVersions = latestVersions
-        this.allowPreReleases = allowPreReleases
+        super(project, ivyRepoRoot, lenient, latestVersions, allowPreReleases, dependencySubstitution)
     }
 
     @Override
@@ -59,8 +52,8 @@ class SdistDownloader extends DependencyDownloader {
         def destDir = Paths.get(ivyRepoRoot.absolutePath, SOURCE_DIST_ORG, name, version).toFile()
         destDir.mkdirs()
 
-        def artifact = downloadArtifact(destDir, sdistDetails.url)
-        def packageDependencies = new SourceDistPackage(artifact, cache, dependencySubstitution,
+        def sdistArtifact = downloadArtifact(destDir, sdistDetails.url)
+        def packageDependencies = new SourceDistPackage(sdistArtifact, cache, dependencySubstitution,
             latestVersions, allowPreReleases).dependencies
 
         new IvyFileWriter(name, version, SOURCE_DIST_PACKAGE_TYPE, [sdistDetails]).writeIvyFile(destDir, packageDependencies)

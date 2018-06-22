@@ -80,7 +80,8 @@ public class ImporterCLI {
                 artifactDownloader = new SdistDownloader(dependency, repoPath, replacements, line.hasOption("latest"),
                     line.hasOption("pre"), line.hasOption("lenient"));
             } else if (dependency.split(":").length == 3) {
-                artifactDownloader = new WheelsDownloader(dependency, repoPath, line.hasOption("lenient"));
+                artifactDownloader = new WheelsDownloader(dependency, repoPath, replacements, line.hasOption("latest"),
+                    line.hasOption("pre"), line.hasOption("lenient"));
             } else {
                 String errMsg = "Unable to parse the dependency "
                     + dependency

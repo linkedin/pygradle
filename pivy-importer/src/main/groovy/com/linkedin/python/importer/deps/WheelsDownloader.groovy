@@ -15,6 +15,7 @@
  */
 package com.linkedin.python.importer.deps
 
+import com.linkedin.python.importer.ImporterCLI
 import com.linkedin.python.importer.distribution.WheelsPackage
 import com.linkedin.python.importer.ivy.IvyFileWriter
 
@@ -37,9 +38,17 @@ class WheelsDownloader extends DependencyDownloader {
         log.info("Pulling in $dep")
         def (String name, String version, String classifier) = dep.split(":")
 
-        def projectDetails = cache.getDetails(name)
+        def projectDetails = cache.getDetails(name, lenient)
+        // project name is illegal
+        if (projectDetails == null) {
+            return
+        }
+
         version = projectDetails.maybeFixVersion(version)
-        def wheelDetails = projectDetails.findVersion(version).find { it.filename == "${name}-${version}-${classifier}.whl" }
+
+        def wheelDetails = projectDetails
+                            .findVersion(version)
+                            .find { it.filename == "${name}-${version}-${classifier}.whl" }
 
         if (wheelDetails == null) {
             if (lenient) {
@@ -54,12 +63,20 @@ class WheelsDownloader extends DependencyDownloader {
 
         def wheelArtifact = downloadArtifact(destDir, wheelDetails.url)
         def packageDependencies = new WheelsPackage(wheelArtifact, cache, dependencySubstitution,
-            latestVersions, allowPreReleases).dependencies
+            latestVersions, allowPreReleases, lenient).dependencies
 
-        new IvyFileWriter(name, version, BINARY_DIST_PACKAGE_TYPE, [wheelDetails]).writeIvyFile(destDir, packageDependencies)
+        log.debug("The dependencies of package $project: is ${packageDependencies.toString()}")
+        new IvyFileWriter(name, version, BINARY_DIST_PACKAGE_TYPE, [wheelDetails])
+            .writeIvyFile(destDir, packageDependencies, classifier)
 
         packageDependencies.each { key, value ->
-            dependencies.addAll(value)
+            List<String> sdistDependencies = value
+            for (String sdist : sdistDependencies) {
+                DependencyDownloader sdistDownloader = new SdistDownloader(sdist, ivyRepoRoot,
+                    dependencySubstitution, latestVersions, allowPreReleases, lenient)
+
+                ImporterCLI.pullDownPackageAndDependencies(sdistDownloader)
+            }
         }
     }
 }

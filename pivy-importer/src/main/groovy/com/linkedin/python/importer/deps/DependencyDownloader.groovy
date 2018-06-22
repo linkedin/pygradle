@@ -28,6 +28,7 @@ abstract class DependencyDownloader {
     Set<String> processedDependencies = [] as Set
     PypiApiCache cache = new PypiApiCache()
 
+    String project
     File ivyRepoRoot
     boolean lenient
     boolean latestVersions

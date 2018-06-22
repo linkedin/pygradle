@@ -18,6 +18,7 @@ package com.linkedin.python.importer.pypi
 import com.linkedin.python.importer.util.ProxyDetector
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
+import org.apache.http.client.HttpResponseException
 import org.apache.http.client.fluent.Request
 
 
@@ -26,8 +27,17 @@ class PypiApiCache {
 
     Map<String, ProjectDetails> cache = [:].withDefault { String name -> new ProjectDetails(downloadMetadata(name)) }
 
-    ProjectDetails getDetails(String project) {
-        return cache.get(project)
+    ProjectDetails getDetails(String project, boolean lenient) {
+        try {
+            return cache.get(project)
+        } catch(HttpResponseException httpResponseException) {
+            if (lenient) {
+                log.error("Package ${project} has an illegal name, " +
+                    "we are not able to find it on PyPI (https://pypi.org/pypi/$project/json)")
+                return null
+            }
+            throw httpResponseException
+        }
     }
 
     static private Map<String, Object> downloadMetadata(String dependency) {

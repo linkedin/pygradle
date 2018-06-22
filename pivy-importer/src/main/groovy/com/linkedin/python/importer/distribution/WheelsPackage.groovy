@@ -12,9 +12,10 @@ class WheelsPackage extends PythonPackage {
                   PypiApiCache pypiApiCache,
                   DependencySubstitution dependencySubstitution,
                   boolean latestVersions,
-                  boolean allowPreReleases) {
+                  boolean allowPreReleases,
+                  boolean lenient) {
 
-        super(packageFile, pypiApiCache, dependencySubstitution, latestVersions, allowPreReleases)
+        super(packageFile, pypiApiCache, dependencySubstitution, latestVersions, allowPreReleases, lenient)
     }
 
     /**
@@ -29,7 +30,7 @@ class WheelsPackage extends PythonPackage {
         try {
             dependenciesMap = parseRuntimeRequiresFromMetadataJson(runtimeRequiresFromMetadataJson)
         } catch(Exception e) {
-            log.info("Failed to parse Json Metadata for package ${packageFile.name}: ${e.message}. " +
+            log.error("Failed to parse Json Metadata for package ${packageFile.name}: ${e.message} " +
                 "Parsing METADATA text file instead.")
             dependenciesMap = parseDistRequiresFromMetadataText(metadataText)
         }
@@ -39,23 +40,26 @@ class WheelsPackage extends PythonPackage {
 
     private Map<String, List<String>> parseRuntimeRequiresFromMetadataJson(Map<String, List<String>> requires) {
         def dependenciesMap = [:]
-        log.debug("requires: {}", requires)
 
         requires.each { key, value ->
-            String configuration = key
+            String config = key
             List<String> requiresList = value
 
-            if (dependenciesMap.containsKey(configuration)) {
-                dependenciesMap[configuration] = []
+            if (!dependenciesMap.containsKey(config)) {
+                dependenciesMap[config] = []
             }
 
+            log.debug("The requires of configuration $key: ${requiresList.toString()}")
             for (String require : requiresList) {
                 require = require.replaceAll(/[()]/, "")
                 String dependency = parseDependencyFromRequire(require)
-                dependenciesMap[configuration] << dependency
+                if (dependency != null) {
+                    dependenciesMap[config] << dependency
+                }
             }
         }
 
+        log.debug("The dependencies of package ${packageFile.name}: ${dependenciesMap.toString()}")
         return dependenciesMap
     }
 
@@ -79,6 +83,9 @@ class WheelsPackage extends PythonPackage {
 
         addRuntimeRequiresFromRequiresMap(runtimeRequiresMap, run_requires)
         addRuntimeRequiresFromRequiresMap(runtimeRequiresMap, meta_requires)
+
+        log.debug("The runtime requires of package ${packageFile.name}: ${runtimeRequiresMap.toString()}")
+        return runtimeRequiresMap
     }
 
     /**
@@ -86,7 +93,7 @@ class WheelsPackage extends PythonPackage {
      * @return Json package metadata, otherwise empty String if not found Json metadata
      */
     private getJsonMetadata() {
-        String jsonMetadataEntry = moduleName + ".dist-info/metadata.json"
+        String jsonMetadataEntry = moduleName + '-' + version + ".dist-info/metadata.json"
         String metadata = explodeZipForTargetEntry(jsonMetadataEntry)
         if (metadata == "") {
             return null
@@ -94,7 +101,7 @@ class WheelsPackage extends PythonPackage {
 
         def jsonSlurper = new JsonSlurper()
         def jsonMetadata = jsonSlurper.parseText(metadata)
-        log.debug("Json metadata: $jsonMetadata")
+        log.debug("Json metadata of package ${packageFile.name}: $jsonMetadata")
 
         return jsonMetadata
     }
@@ -106,24 +113,24 @@ class WheelsPackage extends PythonPackage {
      */
     private static void addRuntimeRequiresFromRequiresMap(Map<String, List<String>> runtimeRequiresMap, def requires) {
         for (def require_map : requires) {
-            String configuration = require_map["extra"] ? require_map["extra"] : "default"
-            if (runtimeRequiresMap[configuration] == null) {
-                runtimeRequiresMap[configuration] = []
+            String config = require_map["extra"] ?: "default"
+
+            if (runtimeRequiresMap[config] == null) {
+                runtimeRequiresMap[config] = []
             }
-            for (def requiresList : require_map["requires"]) {
-                runtimeRequiresMap[configuration].addAll((List) requiresList)
-            }
+            runtimeRequiresMap[config].addAll((List) require_map["requires"])
         }
     }
 
     private Map<String, List<String>> parseDistRequiresFromMetadataText(String requires) {
         def dependenciesMap = [:]
-        log.debug("requires: {}", requires)
+        log.debug("Runtime requires of package ${packageFile.name} from Metadata text: {}", requires)
+
         def config = 'default'
         dependenciesMap[config] = []
         requires.eachLine { line ->
             if (line.startsWith("Requires-Dist:")) {
-                line = line.replaceAll(/[()]/, "")
+                line = line.replaceAll(/[()]/, "").substring("Requires-Dist:".length())
 
                 // there is package named extras, see https://pypi.org/project/extras/
                 config = line.substring(line.lastIndexOf("extra") + "extra".length())
@@ -133,7 +140,10 @@ class WheelsPackage extends PythonPackage {
                     dependenciesMap[config] = []
                 }
 
-                dependenciesMap[config] << parseDependencyFromRequire(line)
+                String dependency = parseDependencyFromRequire(line)
+                if (dependency != null) {
+                    dependenciesMap[config] << dependency
+                }
             }
         }
 
@@ -141,7 +151,7 @@ class WheelsPackage extends PythonPackage {
     }
 
     private String getMetadataText() {
-        String metadataTextEntry = moduleName + ".dist-info/METADATA"
+        String metadataTextEntry = moduleName + '-' + version + ".dist-info/METADATA"
         return explodeZipForTargetEntry(metadataTextEntry)
     }
 }

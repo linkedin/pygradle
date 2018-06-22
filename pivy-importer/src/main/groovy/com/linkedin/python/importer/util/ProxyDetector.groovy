@@ -24,7 +24,7 @@ class ProxyDetector {
     private final static String HTTP_PROXY_HOST="http.proxyHost"
     private final static String HTTP_PROXY_PORT="http.proxyPort"
 
-    public static maybeGetHttpProxy() {
+    static maybeGetHttpProxy() {
         int proxyPort=-1
 
         def proxyPortString = System.getProperty(HTTP_PROXY_PORT)

@@ -72,7 +72,6 @@ public class ImporterCLI {
 
     private static void importPackages(CommandLine line, File repoPath) {
         final DependencySubstitution replacements = new DependencySubstitution(buildSubstitutionMap(line), buildForceMap(line));
-        Set<String> processedDependencies = new HashSet<>();
         for (String dependency : line.getArgList()) {
             DependencyDownloader artifactDownloader;
 
@@ -95,10 +94,15 @@ public class ImporterCLI {
                 throw new IllegalArgumentException(errMsg);
             }
 
-            artifactDownloader.getProcessedDependencies().addAll(processedDependencies);
-            artifactDownloader.download();
-            processedDependencies.addAll(artifactDownloader.getProcessedDependencies());
+            pullDownPackageAndDependencies(artifactDownloader);
         }
+    }
+
+    public static void pullDownPackageAndDependencies(DependencyDownloader artifactDownloader) {
+        Set<String> processedDependencies = new HashSet<>();
+        artifactDownloader.getProcessedDependencies().addAll(processedDependencies);
+        artifactDownloader.download();
+        processedDependencies.addAll(artifactDownloader.getProcessedDependencies());
     }
 
     private static Map<String, String> buildForceMap(CommandLine line) {

@@ -38,6 +38,7 @@ abstract class DependencyDownloader {
     protected DependencyDownloader(String project, File ivyRepoRoot, boolean lenient, boolean latestVersions,
                                    boolean allowPreReleases, DependencySubstitution dependencySubstitution) {
 
+        this.project = project
         this.ivyRepoRoot = ivyRepoRoot
         this.lenient = lenient
         this.latestVersions = latestVersions

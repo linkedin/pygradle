@@ -1,23 +1,11 @@
 package com.linkedin.python.importer.distribution
 
-import com.linkedin.python.importer.deps.DependencySubstitution
-import com.linkedin.python.importer.pypi.PypiApiCache
 import groovy.json.JsonSlurper
+import groovy.transform.InheritConstructors
 import groovy.util.logging.Slf4j
 
-@Slf4j
+@Slf4j @InheritConstructors
 class WheelsPackage extends PythonPackage {
-
-    WheelsPackage(File packageFile,
-                  PypiApiCache pypiApiCache,
-                  DependencySubstitution dependencySubstitution,
-                  boolean latestVersions,
-                  boolean allowPreReleases,
-                  boolean lenient) {
-
-        super(packageFile, pypiApiCache, dependencySubstitution, latestVersions, allowPreReleases, lenient)
-    }
-
     /**
      * Get all the dependencies from package metadata. Json metadata is preferred since Version 2.0 of metadata
      * is migrated to JSON representation. See details at https://legacy.python.org/dev/peps/pep-0426/#abstract.

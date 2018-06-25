@@ -72,15 +72,16 @@ public class ImporterCLI {
 
     private static void importPackages(CommandLine line, File repoPath) {
         final DependencySubstitution replacements = new DependencySubstitution(buildSubstitutionMap(line), buildForceMap(line));
+        Set<String> processedDependencies = new HashSet<>();
         for (String dependency : line.getArgList()) {
             DependencyDownloader artifactDownloader;
 
             if (dependency.split(":").length == 2) {
-                artifactDownloader = new SdistDownloader(dependency, repoPath, replacements, line.hasOption("latest"),
-                    line.hasOption("pre"), line.hasOption("lenient"));
+                artifactDownloader = new SdistDownloader(dependency, repoPath, replacements, processedDependencies,
+                    line.hasOption("latest"), line.hasOption("pre"), line.hasOption("lenient"));
             } else if (dependency.split(":").length == 3) {
-                artifactDownloader = new WheelsDownloader(dependency, repoPath, replacements, line.hasOption("latest"),
-                    line.hasOption("pre"), line.hasOption("lenient"));
+                artifactDownloader = new WheelsDownloader(dependency, repoPath, replacements, processedDependencies,
+                    line.hasOption("latest"), line.hasOption("pre"), line.hasOption("lenient"));
             } else {
                 String errMsg = "Unable to parse the dependency "
                     + dependency
@@ -94,12 +95,11 @@ public class ImporterCLI {
                 throw new IllegalArgumentException(errMsg);
             }
 
-            pullDownPackageAndDependencies(artifactDownloader);
+            artifactDownloader.download();
         }
     }
 
-    public static void pullDownPackageAndDependencies(DependencyDownloader artifactDownloader) {
-        Set<String> processedDependencies = new HashSet<>();
+    public static void pullDownPackageAndDependencies(Set<String> processedDependencies, DependencyDownloader artifactDownloader) {
         artifactDownloader.getProcessedDependencies().addAll(processedDependencies);
         artifactDownloader.download();
         processedDependencies.addAll(artifactDownloader.getProcessedDependencies());

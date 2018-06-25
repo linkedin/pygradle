@@ -28,8 +28,8 @@ class WheelsDownloader extends DependencyDownloader {
     static final String BINARY_DIST_ORG = "wheel"
 
     WheelsDownloader(String project, File ivyRepoRoot, DependencySubstitution dependencySubstitution,
-                     boolean latestVersions, boolean allowPreReleases, boolean lenient) {
-        super(project, ivyRepoRoot, lenient, latestVersions, allowPreReleases, dependencySubstitution)
+                     Set<String> processedDependencies, boolean latestVersions, boolean allowPreReleases, boolean lenient) {
+        super(project, ivyRepoRoot, dependencySubstitution, processedDependencies, latestVersions, allowPreReleases, lenient)
     }
 
     @Override
@@ -72,9 +72,9 @@ class WheelsDownloader extends DependencyDownloader {
             List<String> sdistDependencies = value
             for (String sdist : sdistDependencies) {
                 DependencyDownloader sdistDownloader = new SdistDownloader(sdist, ivyRepoRoot,
-                    dependencySubstitution, latestVersions, allowPreReleases, lenient)
+                    dependencySubstitution, processedDependencies, latestVersions, allowPreReleases, lenient)
 
-                ImporterCLI.pullDownPackageAndDependencies(sdistDownloader)
+                ImporterCLI.pullDownPackageAndDependencies(processedDependencies, sdistDownloader)
             }
         }
     }

@@ -24,25 +24,27 @@ import org.apache.http.client.fluent.Request
 @Slf4j
 abstract class DependencyDownloader {
     Queue<String> dependencies = [] as Queue
-    Set<String> processedDependencies = [] as Set
     PypiApiCache cache = new PypiApiCache()
 
     String project
     File ivyRepoRoot
-    boolean lenient
+    DependencySubstitution dependencySubstitution
+    Set<String> processedDependencies
     boolean latestVersions
     boolean allowPreReleases
-    DependencySubstitution dependencySubstitution
+    boolean lenient
 
-    protected DependencyDownloader(String project, File ivyRepoRoot, boolean lenient, boolean latestVersions,
-                                   boolean allowPreReleases, DependencySubstitution dependencySubstitution) {
+    DependencyDownloader(String project, File ivyRepoRoot, DependencySubstitution dependencySubstitution,
+                         Set<String> processedDependencies, boolean latestVersions, boolean allowPreReleases,
+                         boolean lenient) {
 
         this.project = project
         this.ivyRepoRoot = ivyRepoRoot
-        this.lenient = lenient
+        this.dependencySubstitution = dependencySubstitution
+        this.processedDependencies = processedDependencies
         this.latestVersions = latestVersions
         this.allowPreReleases = allowPreReleases
-        this.dependencySubstitution = dependencySubstitution
+        this.lenient = lenient
 
         dependencies.add(project)
     }

@@ -1,11 +1,9 @@
 package com.linkedin.python.importer.distribution
 
 import com.linkedin.python.importer.deps.DependencySubstitution
-import com.linkedin.python.importer.pypi.ProjectDetails
 import com.linkedin.python.importer.pypi.PypiApiCache
 import com.linkedin.python.importer.pypi.VersionRange
 import groovy.util.logging.Slf4j
-import org.apache.http.client.HttpResponseException
 
 import java.util.zip.ZipFile
 

@@ -17,19 +17,19 @@ package com.linkedin.python.importer.deps
 
 import com.linkedin.python.importer.distribution.SourceDistPackage
 import com.linkedin.python.importer.ivy.IvyFileWriter
-
+import groovy.transform.InheritConstructors
 import groovy.util.logging.Slf4j
 import java.nio.file.Paths
 
 @Slf4j
+@InheritConstructors
 class SdistDownloader extends DependencyDownloader {
     static final String SOURCE_DIST_PACKAGE_TYPE = "sdist"
     static final String SOURCE_DIST_ORG = "pypi"
 
     SdistDownloader(String project, File ivyRepoRoot, DependencySubstitution dependencySubstitution,
-                    boolean latestVersions, boolean allowPreReleases, boolean lenient) {
-
-        super(project, ivyRepoRoot, lenient, latestVersions, allowPreReleases, dependencySubstitution)
+                    Set<String> processedDependencies, boolean latestVersions, boolean allowPreReleases, boolean lenient) {
+        super(project, ivyRepoRoot, dependencySubstitution, processedDependencies, latestVersions, allowPreReleases, lenient)
     }
 
     @Override

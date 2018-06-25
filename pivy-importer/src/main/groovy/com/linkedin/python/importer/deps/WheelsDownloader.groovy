@@ -29,7 +29,6 @@ class WheelsDownloader extends DependencyDownloader {
 
     WheelsDownloader(String project, File ivyRepoRoot, DependencySubstitution dependencySubstitution,
                      boolean latestVersions, boolean allowPreReleases, boolean lenient) {
-
         super(project, ivyRepoRoot, lenient, latestVersions, allowPreReleases, dependencySubstitution)
     }
 
@@ -39,7 +38,7 @@ class WheelsDownloader extends DependencyDownloader {
         def (String name, String version, String classifier) = dep.split(":")
 
         def projectDetails = cache.getDetails(name, lenient)
-        // project name is illegal
+        // project name is illegal, which means we can't find any information about this project on PyPI
         if (projectDetails == null) {
             return
         }

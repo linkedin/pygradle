@@ -38,7 +38,7 @@ class SdistDownloader extends DependencyDownloader {
         def (String name, String version) = dep.split(":")
 
         def projectDetails = cache.getDetails(name, lenient)
-        // project name is illegal
+        // project name is illegal, which means we can't find any information about this project on PyPI
         if (projectDetails == null) {
             return
         }

@@ -127,7 +127,7 @@ abstract class PythonPackage {
 
         def projectDetails = pypiApiCache.getDetails(moduleName, lenient)
 
-        // if the module name is illegal and we are not able to find it on PyPI
+        // project name is illegal, which means we can't find any information about this project on PyPI
         if (projectDetails == null) {
             return null
         }

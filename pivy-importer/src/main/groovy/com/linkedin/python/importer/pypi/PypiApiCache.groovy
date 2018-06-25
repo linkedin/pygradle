@@ -31,12 +31,13 @@ class PypiApiCache {
         try {
             return cache.get(project)
         } catch(HttpResponseException httpResponseException) {
+            String msg = "Package ${project} has an illegal module name, " +
+                "we are not able to find it on PyPI (https://pypi.org/pypi/$project/json)"
             if (lenient) {
-                log.error("Package ${project} has an illegal name, " +
-                    "we are not able to find it on PyPI (https://pypi.org/pypi/$project/json)")
+                log.error(msg)
                 return null
             }
-            throw httpResponseException
+            throw new IllegalArgumentException("$msg. ${httpResponseException.message}")
         }
     }
 

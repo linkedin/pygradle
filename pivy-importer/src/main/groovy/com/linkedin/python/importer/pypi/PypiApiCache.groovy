@@ -34,7 +34,7 @@ class PypiApiCache {
             String msg = "Package ${project} has an illegal module name, " +
                 "we are not able to find it on PyPI (https://pypi.org/pypi/$project/json)"
             if (lenient) {
-                log.error(msg)
+                log.error("$msg. ${httpResponseException.message}")
                 return null
             }
             throw new IllegalArgumentException("$msg. ${httpResponseException.message}")

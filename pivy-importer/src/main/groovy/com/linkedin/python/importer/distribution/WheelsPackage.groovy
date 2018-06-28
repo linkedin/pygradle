@@ -18,7 +18,7 @@ class WheelsPackage extends PythonPackage {
         try {
             dependenciesMap = parseRuntimeRequiresFromMetadataJson(runtimeRequiresFromMetadataJson)
         } catch(Exception e) {
-            log.error("Failed to parse Json Metadata for package ${packageFile.name}: ${e.message} " +
+            log.debug("Failed to parse Json Metadata for package ${packageFile.name}: ${e.message} " +
                 "Parsing METADATA text file instead.")
             dependenciesMap = parseDistRequiresFromMetadataText(metadataText)
         }

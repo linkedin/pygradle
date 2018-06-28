@@ -17,10 +17,10 @@ package com.linkedin.gradle.python.plugin;
 
 import com.linkedin.gradle.python.tasks.FindAbiForCurrentPythonTask;
 import com.linkedin.gradle.python.tasks.ParallelWheelGenerationTask;
+import com.linkedin.gradle.python.tasks.supports.SupportsWheelCache;
 import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.wheel.FileBackedWheelCache;
 import com.linkedin.gradle.python.wheel.SupportedWheelFormats;
-import com.linkedin.gradle.python.tasks.supports.SupportsWheelCache;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurationContainer;
@@ -37,6 +37,7 @@ import static com.linkedin.gradle.python.util.StandardTextValues.CONFIGURATION_S
 import static com.linkedin.gradle.python.util.StandardTextValues.CONFIGURATION_TEST;
 import static com.linkedin.gradle.python.util.StandardTextValues.CONFIGURATION_VENV;
 import static com.linkedin.gradle.python.util.StandardTextValues.CONFIGURATION_WHEEL;
+import static com.linkedin.gradle.python.util.StandardTextValues.TASK_INSTALL_SETUP_REQS;
 import static com.linkedin.gradle.python.util.StandardTextValues.TASK_VENV_CREATE;
 
 public class WheelFirstPlugin implements Plugin<Project> {
@@ -72,12 +73,14 @@ public class WheelFirstPlugin implements Plugin<Project> {
                 it.setWheelCache(wheelCache);
                 it.setCacheDir(cacheDir);
                 it.dependsOn(tasks.getByName(TASK_VENV_CREATE.getValue()));
+                it.dependsOn(tasks.getByName(TASK_INSTALL_SETUP_REQS.getValue()));
             });
 
             tasks.withType(SupportsWheelCache.class, it -> {
                 it.setWheelCache(wheelCache);
 
-                if (!Objects.equals(it.getName(), TASK_VENV_CREATE.getValue())) {
+                if (!Objects.equals(it.getName(), TASK_VENV_CREATE.getValue())
+                    && !Objects.equals(it.getName(), TASK_INSTALL_SETUP_REQS.getValue())) {
                     it.dependsOn(parallelWheelTask);
                 }
             });

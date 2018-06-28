@@ -1,0 +1,130 @@
+{
+    "info": {
+        "author": "Tim Golden",
+        "author_email": "mail@timgolden.me.uk",
+        "bugtrack_url": null,
+        "classifiers": [],
+        "description": "*****************\nPython WMI Module\n*****************\n\nWhat is it?\n===========\n\nWindows Management Instrumentation (WMI) is Microsoft's implementation of\nWeb-Based Enterprise Management (WBEM), an industry initiative to provide\na Common Information Model (CIM) for pretty much any information about a\ncomputer system.\n\nThe Python WMI module is a lightweight wrapper on top of the pywin32\nextensions, and hides some of the messy plumbing needed to get Python to\ntalk to the WMI API. It's pure Python and should work with any version of\nPython from 2.1 onwards (list comprehensions) and any recent version of\npywin32.\n\n\nWhere do I get it?\n==================\n\nhttp://timgolden.me.uk/python/wmi/index.html\n\n\nCopyright & License?\n====================\n\n(c) Tim Golden <mail@timgolden.me.uk> 5th June 2003\nLicensed under the (GPL-compatible) MIT License:\nhttp://www.opensource.org/licenses/mit-license.php\n\n\nHow do I install it?\n====================\n\nWhen all's said and done, it's just a module. But for those\nwho like setup programs::\n\n  python setup.py install\n\nIt's also pip/easy_install-able\n\n\nHow do I use it?\n================\n\nThere's a tutorial here: http://timgolden.me.uk/python/wmi/tutorial.html,\nand some examples at: http://timgolden.me.uk/python/wmi/cookbook.html\nbut as a quick taster, try this, to show all stopped services::\n\n  import wmi\n\n  c = wmi.WMI ()\n  for s in c.Win32_Service ():\n    if s.State == 'Stopped':\n      print s.Caption, s.State\n\n\nPrerequisites\n=============\n\nIf you're running a recent Python (2.1+) on a recent Windows (2k, 2k3, XP)\nand you have Mark Hammond's win32 extensions installed, you're probably\nup-and-running already. Otherwise...\n\nWindows\n-------\nIf you're running Win9x / NT4 you'll need to get WMI support\nfrom Microsoft. Microsoft URLs change quite often, so I suggest you\ndo this: http://www.google.com/search?q=wmi+downloads\n\nPython\n------\nhttp://www.python.org/ (just in case you didn't know)\n\npywin32 (was win32all)\n----------------------\nhttp://starship.python.net/crew/mhammond/win32/Downloads.html\nSpecifically, builds 154/155 fixed a problem which affected the WMI\nmoniker construction. You can still work without this fix, but some\nmore complex monikers will fail.\n\nmakepy\n------\n(NB my own experience over several systems is that this\nstep isn't necessary. However, if you have problems...)\nYou may have to compile makepy support for some typelibs. The following\nare reported to be significant:\n\nMicrosoft WMI Scripting Library\nWMI ADSI Extension Type Library\nWMICntl Type Library\n\nIf you've not done this before, start the PythonWin environment, select\nTools > Com Makepy utility from the menu, select the library by name, and\nclick [OK].",
+        "description_content_type": null,
+        "docs_url": null,
+        "download_url": "UNKNOWN",
+        "downloads": {
+            "last_day": -1,
+            "last_month": -1,
+            "last_week": -1
+        },
+        "home_page": "http://timgolden.me.uk/python/wmi.html",
+        "keywords": null,
+        "license": "http://www.opensource.org/licenses/mit-license.php",
+        "maintainer": null,
+        "maintainer_email": null,
+        "name": "WMI",
+        "package_url": "https://pypi.org/project/WMI/",
+        "platform": "UNKNOWN",
+        "project_url": "https://pypi.org/project/WMI/",
+        "release_url": "https://pypi.org/project/WMI/1.4.9/",
+        "requires_dist": null,
+        "requires_python": null,
+        "summary": "Windows Management Instrumentation",
+        "version": "1.4.9"
+    },
+    "last_serial": 802735,
+    "releases": {
+        "1.4.8": [{
+            "comment_text": "",
+            "digests": {
+                "md5": "d360cbf8c68bd17dac622bf1e531c125",
+                "sha256": "e9d7fb0278b0a8365d363fcbeb63832ad3991441d89e06f6d7b48d435af6ee26"
+            },
+            "downloads": -1,
+            "filename": "WMI-1.4.8.win32.exe",
+            "has_sig": false,
+            "md5_digest": "d360cbf8c68bd17dac622bf1e531c125",
+            "packagetype": "bdist_wininst",
+            "python_version": "any",
+            "size": 221726,
+            "upload_time": "2011-04-12T16:46:10",
+            "url": "https://files.pythonhosted.org/packages/e8/b4/cd81e6120b077e8f6fa28d71d0eedc2e46ffd5a2549a4318868b841d6292/WMI-1.4.8.win32.exe"
+        }, {
+            "comment_text": "",
+            "digests": {
+                "md5": "32deb54b8268ec26587a36e5fcb791ac",
+                "sha256": "15beee6238f366496840f6c8e584216a876578a89e9a0f73a9d4630e7e216c32"
+            },
+            "downloads": -1,
+            "filename": "WMI-1.4.8.zip",
+            "has_sig": false,
+            "md5_digest": "32deb54b8268ec26587a36e5fcb791ac",
+            "packagetype": "sdist",
+            "python_version": "source",
+            "size": 25674,
+            "upload_time": "2011-04-12T16:46:10",
+            "url": "https://files.pythonhosted.org/packages/f7/50/082055d3a6fe0afdfa23ad142c15fc91c016b6039395f160b4301b905766/WMI-1.4.8.zip"
+        }
+        ],
+        "1.4.9": [{
+            "comment_text": "",
+            "digests": {
+                "md5": "31ef47dc10ff13a81a0cb8e6a98a0819",
+                "sha256": "b1c57a5c7e27596736026ec7dd9a7c5318dad8248e7638f40c60c33cb33ac935"
+            },
+            "downloads": -1,
+            "filename": "WMI-1.4.9.win32.exe",
+            "has_sig": false,
+            "md5_digest": "31ef47dc10ff13a81a0cb8e6a98a0819",
+            "packagetype": "bdist_wininst",
+            "python_version": "any",
+            "size": 225679,
+            "upload_time": "2011-04-13T10:41:22",
+            "url": "https://files.pythonhosted.org/packages/f6/6b/3c15ef280e2a6244ff0635f763b86fdc113654afc1192fcea8a0109f47f8/WMI-1.4.9.win32.exe"
+        }, {
+            "comment_text": "",
+            "digests": {
+                "md5": "e883e155ed5a63b742686816ec762053",
+                "sha256": "192ccfad3d7bb3ef43116d753f4d5cf85c0a6b738f832cc131e928fd93cdd400"
+            },
+            "downloads": -1,
+            "filename": "WMI-1.4.9.zip",
+            "has_sig": false,
+            "md5_digest": "e883e155ed5a63b742686816ec762053",
+            "packagetype": "sdist",
+            "python_version": "source",
+            "size": 26942,
+            "upload_time": "2011-04-13T10:41:21",
+            "url": "https://files.pythonhosted.org/packages/03/2d/cbf13257c0115bef37b6b743758411cec70c565405cbd08d0f7059bc715f/WMI-1.4.9.zip"
+        }
+        ]
+    },
+    "urls": [{
+        "comment_text": "",
+        "digests": {
+            "md5": "31ef47dc10ff13a81a0cb8e6a98a0819",
+            "sha256": "b1c57a5c7e27596736026ec7dd9a7c5318dad8248e7638f40c60c33cb33ac935"
+        },
+        "downloads": -1,
+        "filename": "WMI-1.4.9.win32.exe",
+        "has_sig": false,
+        "md5_digest": "31ef47dc10ff13a81a0cb8e6a98a0819",
+        "packagetype": "bdist_wininst",
+        "python_version": "any",
+        "size": 225679,
+        "upload_time": "2011-04-13T10:41:22",
+        "url": "https://files.pythonhosted.org/packages/f6/6b/3c15ef280e2a6244ff0635f763b86fdc113654afc1192fcea8a0109f47f8/WMI-1.4.9.win32.exe"
+    }, {
+        "comment_text": "",
+        "digests": {
+            "md5": "e883e155ed5a63b742686816ec762053",
+            "sha256": "192ccfad3d7bb3ef43116d753f4d5cf85c0a6b738f832cc131e928fd93cdd400"
+        },
+        "downloads": -1,
+        "filename": "WMI-1.4.9.zip",
+        "has_sig": false,
+        "md5_digest": "e883e155ed5a63b742686816ec762053",
+        "packagetype": "sdist",
+        "python_version": "source",
+        "size": 26942,
+        "upload_time": "2011-04-13T10:41:21",
+        "url": "https://files.pythonhosted.org/packages/03/2d/cbf13257c0115bef37b6b743758411cec70c565405cbd08d0f7059bc715f/WMI-1.4.9.zip"
+    }
+    ]
+}

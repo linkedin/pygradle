@@ -104,5 +104,4 @@ class SourceDistPackage extends PythonPackage {
         }
         return new TarArchiveInputStream(compressorInputStream)
     }
-
 }

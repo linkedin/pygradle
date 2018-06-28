@@ -32,6 +32,16 @@ class WheelsDownloader extends DependencyDownloader {
         super(project, ivyRepoRoot, dependencySubstitution, processedDependencies, latestVersions, allowPreReleases, lenient)
     }
 
+    /**
+     * The module names in Wheel artifact names are using "_" to replace "-", eg., python-submit,
+     * its wheel artifact is python_subunit-1.3.0-py2.py3-none-any.whl.
+     * @param name
+     * @return
+     */
+    static String translateNameToWheelFormat(String name) {
+        return name.replaceAll("-", "_")
+    }
+
     @Override
     def downloadDependency(String dep) {
         log.info("Pulling in $dep")
@@ -47,7 +57,7 @@ class WheelsDownloader extends DependencyDownloader {
 
         def wheelDetails = projectDetails
                             .findVersion(version)
-                            .find { it.filename == "${name}-${version}-${classifier}.whl" }
+                            .find { it.filename == "${translateNameToWheelFormat(name)}-${version}-${classifier}.whl" }
 
         if (wheelDetails == null) {
             if (lenient) {

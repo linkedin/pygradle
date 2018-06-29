@@ -44,9 +44,9 @@ class WheelsDownloader extends DependencyDownloader {
 
     @Override
     def downloadDependency(String dep) {
-        log.info("Pulling in $dep")
         def (String name, String version, String classifier) = dep.split(":")
 
+        name = translateNameToWheelFormat(name)
         def projectDetails = cache.getDetails(name, lenient)
         // project name is illegal, which means we can't find any information about this project on PyPI
         if (projectDetails == null) {
@@ -54,10 +54,9 @@ class WheelsDownloader extends DependencyDownloader {
         }
 
         version = projectDetails.maybeFixVersion(version)
-
         def wheelDetails = projectDetails
                             .findVersion(version)
-                            .find { it.filename == "${translateNameToWheelFormat(name)}-${version}-${classifier}.whl" }
+                            .find { it.filename.equalsIgnoreCase("${name}-${version}-${classifier}.whl") }
 
         if (wheelDetails == null) {
             if (lenient) {
@@ -66,6 +65,10 @@ class WheelsDownloader extends DependencyDownloader {
             }
             throw new RuntimeException("Unable to find wheels for $dep")
         }
+
+        // make sure the module name has the same letter case as PyPI
+        name = IvyFileWriter.getActualModuleNameFromFilename(wheelDetails.filename, version)
+        log.info("Pulling in $name:$version:$classifier")
 
         def destDir = Paths.get(ivyRepoRoot.absolutePath, BINARY_DIST_ORG, name, version, classifier).toFile()
         destDir.mkdirs()

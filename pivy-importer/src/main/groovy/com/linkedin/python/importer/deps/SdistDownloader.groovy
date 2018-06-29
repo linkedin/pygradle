@@ -34,7 +34,6 @@ class SdistDownloader extends DependencyDownloader {
 
     @Override
     def downloadDependency(String dep) {
-        log.info("Pulling in $dep")
         def (String name, String version) = dep.split(":")
 
         def projectDetails = cache.getDetails(name, lenient)
@@ -53,6 +52,10 @@ class SdistDownloader extends DependencyDownloader {
             }
             throw new RuntimeException("Unable to find source dist for $dep")
         }
+
+        // make sure the module name has the right letter case as PyPI
+        name = IvyFileWriter.getActualModuleNameFromFilename(sdistDetails.filename, version)
+        log.info("Pulling in $name:$version")
 
         def destDir = Paths.get(ivyRepoRoot.absolutePath, SOURCE_DIST_ORG, name, version).toFile()
         destDir.mkdirs()

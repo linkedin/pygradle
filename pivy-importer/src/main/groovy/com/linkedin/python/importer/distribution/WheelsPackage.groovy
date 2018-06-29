@@ -121,8 +121,11 @@ class WheelsPackage extends PythonPackage {
                 line = line.replaceAll(/[()]/, "").substring("Requires-Dist:".length())
 
                 // there is package named extras, see https://pypi.org/project/extras/
-                config = line.substring(line.lastIndexOf("extra") + "extra".length())
-                    .replaceAll(/['=\s]/, "")
+                int indexOfLastExtra = line.lastIndexOf("extra")
+                if (indexOfLastExtra != -1) {
+                    config = line.substring(indexOfLastExtra + "extra".length())
+                        .replaceAll(/['=\s]/, "")
+                }
 
                 if (!dependenciesMap.containsKey(config)) {
                     dependenciesMap[config] = []

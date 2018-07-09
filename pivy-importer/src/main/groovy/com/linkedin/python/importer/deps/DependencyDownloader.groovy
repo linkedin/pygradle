@@ -90,4 +90,14 @@ abstract class DependencyDownloader {
 
         return contents
     }
+
+    /**
+     * Get the actual module name from artifact name, which has the correct letter case.
+     * @param filename the filename of artifact
+     * @param revision module version
+     * @return actual module name, which is from PyPI
+     */
+    static String getActualModuleNameFromFilename(String filename, String revision) {
+        return filename.substring(0, filename.indexOf(revision) - 1)
+    }
 }

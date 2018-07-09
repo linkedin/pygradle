@@ -59,7 +59,7 @@ class SourceDistPackage extends PythonPackage {
         return dependenciesMap
     }
 
-    private String getRequiresTextFile() {
+    protected String getRequiresTextFile() {
         if (packageFile.absolutePath.contains('.tar.') || packageFile.absolutePath.endsWith('.tgz')) {
             return explodeTarForRequiresText()
         } else {

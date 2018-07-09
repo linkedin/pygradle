@@ -53,15 +53,15 @@ class SdistDownloader extends DependencyDownloader {
             throw new RuntimeException("Unable to find source dist for $dep")
         }
 
-        // make sure the module name has the right letter case as PyPI
-        name = IvyFileWriter.getActualModuleNameFromFilename(sdistDetails.filename, version)
+        // make sure the module name has the right letter case and dash or underscore as PyPI
+        name = getActualModuleNameFromFilename(sdistDetails.filename, version)
         log.info("Pulling in $name:$version")
 
         def destDir = Paths.get(ivyRepoRoot.absolutePath, SOURCE_DIST_ORG, name, version).toFile()
         destDir.mkdirs()
 
         def sdistArtifact = downloadArtifact(destDir, sdistDetails.url)
-        def packageDependencies = new SourceDistPackage(sdistArtifact, cache, dependencySubstitution,
+        def packageDependencies = new SourceDistPackage(name, version, sdistArtifact, cache, dependencySubstitution,
             latestVersions, allowPreReleases, lenient).dependencies
 
         new IvyFileWriter(name, version, SOURCE_DIST_PACKAGE_TYPE, [sdistDetails]).writeIvyFile(destDir, packageDependencies)

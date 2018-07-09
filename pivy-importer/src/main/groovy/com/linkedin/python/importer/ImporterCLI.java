@@ -44,7 +44,6 @@ public class ImporterCLI {
     }
 
     public static void main(String[] args) throws Exception {
-
         Options options = createOptions();
 
         CommandLineParser parser = new DefaultParser();
@@ -109,7 +108,6 @@ public class ImporterCLI {
         Map<String, String> sub = new LinkedHashMap<>();
         if (line.hasOption("force")) {
             for (String it : Arrays.asList(line.getOptionValues("force"))) {
-                System.out.println(it);
                 String[] split = it.split(":");
                 sub.put(split[0], split[1]);
             }
@@ -181,7 +179,6 @@ public class ImporterCLI {
         Map<String, String> sub = new LinkedHashMap<>();
         if (line.hasOption("replace")) {
             for (String it : Arrays.asList(line.getOptionValues("replace"))) {
-                System.out.println(it);
                 String[] split = it.split("=");
                 sub.put(split[0], split[1]);
             }

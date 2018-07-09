@@ -67,14 +67,14 @@ class WheelsDownloader extends DependencyDownloader {
         }
 
         // make sure the module name has the same letter case as PyPI
-        name = IvyFileWriter.getActualModuleNameFromFilename(wheelDetails.filename, version)
+        name = getActualModuleNameFromFilename(wheelDetails.filename, version)
         log.info("Pulling in $name:$version:$classifier")
 
         def destDir = Paths.get(ivyRepoRoot.absolutePath, BINARY_DIST_ORG, name, version, classifier).toFile()
         destDir.mkdirs()
 
         def wheelArtifact = downloadArtifact(destDir, wheelDetails.url)
-        def packageDependencies = new WheelsPackage(wheelArtifact, cache, dependencySubstitution,
+        def packageDependencies = new WheelsPackage(name, version, wheelArtifact, cache, dependencySubstitution,
             latestVersions, allowPreReleases, lenient).dependencies
 
         log.debug("The dependencies of package $project: is ${packageDependencies.toString()}")

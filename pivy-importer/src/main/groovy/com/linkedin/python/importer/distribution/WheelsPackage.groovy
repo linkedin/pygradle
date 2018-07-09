@@ -57,7 +57,7 @@ class WheelsPackage extends PythonPackage {
      * @param jsonMetadata
      * @return
      */
-    private Map<String, List<String>> getRuntimeRequiresFromMetadataJson() {
+    protected Map<String, List<String>> getRuntimeRequiresFromMetadataJson() {
         def jsonMetadata = getJsonMetadata()
 
         if (jsonMetadata == null) {
@@ -141,7 +141,7 @@ class WheelsPackage extends PythonPackage {
         return dependenciesMap
     }
 
-    private String getMetadataText() {
+    protected String getMetadataText() {
         String metadataTextEntry = moduleName + '-' + version + ".dist-info/METADATA"
         return explodeZipForTargetEntry(metadataTextEntry)
     }

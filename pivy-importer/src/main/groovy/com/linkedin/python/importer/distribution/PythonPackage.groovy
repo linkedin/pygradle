@@ -9,6 +9,8 @@ import java.util.zip.ZipFile
 
 @Slf4j
 abstract class PythonPackage {
+    protected final String moduleName
+    protected final String version
     protected final File packageFile
     protected final PypiApiCache pypiApiCache
     protected final DependencySubstitution dependencySubstitution
@@ -17,12 +19,16 @@ abstract class PythonPackage {
     protected final boolean lenient
 
     PythonPackage(
+        String moduleName,
+        String version,
         File packageFile,
         PypiApiCache pypiApiCache,
         DependencySubstitution dependencySubstitution,
         boolean latestVersions,
         boolean allowPreReleases,
         boolean lenient) {
+            this.moduleName = moduleName
+            this.version = version
             this.dependencySubstitution = dependencySubstitution
             this.pypiApiCache = pypiApiCache
             this.packageFile = packageFile
@@ -41,14 +47,6 @@ abstract class PythonPackage {
             return file.getInputStream(entry).text
         }
         return ''
-    }
-
-    protected String getModuleName() {
-        return packageFile.name.split('-')[0]
-    }
-
-    protected String getVersion() {
-        return packageFile.name.split('-')[1]
     }
 
     protected String parseDependencyFromRequire(String require) {

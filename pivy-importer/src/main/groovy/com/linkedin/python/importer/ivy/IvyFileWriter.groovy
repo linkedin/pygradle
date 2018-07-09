@@ -84,7 +84,6 @@ class IvyFileWriter {
         def publicationMap = archives.collect { artifact ->
             def ext = artifact.filename.contains(".tar.") ? artifact.filename.find('tar\\..*') : FilenameUtils.getExtension(artifact.filename)
             String filename = artifact.filename - ("." + ext)
-            this.name = getActualModuleNameFromFilename(filename, version)
             def source = SdistDownloader.SOURCE_DIST_PACKAGE_TYPE == artifact.packageType
             def map = [name: name, ext: ext, conf: source ? 'source' : 'default', type: ext]
 
@@ -99,16 +98,6 @@ class IvyFileWriter {
 
     private String getClassifierFromFilename(String filename) {
         return filename.substring(filename.indexOf(version) + version.length() + 1)
-    }
-
-    /**
-     * Get the actual module name from artifact name, which has the correct letter case.
-     * @param filename the filename of artifact
-     * @param revision module version
-     * @return actual module name, which is from PyPI
-     */
-    static String getActualModuleNameFromFilename(String filename, String revision) {
-        return filename.substring(0, filename.indexOf(revision) - 1)
     }
 
     private String getOrganisation() {

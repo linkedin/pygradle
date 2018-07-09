@@ -1,7 +1,3 @@
-import com.linkedin.gradle.build.DistributeTask
-import org.gradle.api.logging.configuration.ConsoleOutput
-
-apply plugin: 'com.jfrog.artifactory'
 apply plugin: 'version'
 apply plugin: 'idea'
 
@@ -68,28 +64,9 @@ subprojects {
     */
 }
 
-artifactoryPublish.skip = true
-artifactory {
-    contextUrl = 'https://linkedin.jfrog.io/linkedin'
-    publish {
-        repoKey = 'pygradle'
-        username = System.getenv('ARTIFACTORY_USER') ?: ""
-        password = System.getenv('ARTIFACTORY_KEY') ?: ""
-
-        defaults {
-            publications ('standardjava')
-        }
-    }
-    clientConfig.setIncludeEnvVars(false)
-}
-
-task distributeBuild(type: DistributeTask) {
-    dependsOn ':artifactoryPublish', ':pivy-importer:artifactoryPublish', ':pygradle-plugin:artifactoryPublish'
-}
-
 idea {
     project {
-        jdkName = '1.7'
-        languageLevel = '1.7'
+        jdkName = '1.8'
+        languageLevel = '1.8'
     }
 }

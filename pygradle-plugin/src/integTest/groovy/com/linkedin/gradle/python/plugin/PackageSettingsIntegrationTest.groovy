@@ -74,7 +74,7 @@ class PackageSettingsIntegrationTest extends Specification {
         println result.output
 
         then: "we can observe the environment for 'foo' provided a few lines after its install is logged"
-        def match = result.output.find(/Installing foo[\s\S]+?Environment for[^\n]+: \{[^}]+\}/)
+        def match = result.output.find(/Installing foo[\s\S]+?Environment for[^\n]+: \{.+\}\s*\n/)
         match != null
         match.findAll('Installing ').size() == 1
         match.contains('CPPFLAGS=-I/some/custom/path/include')
@@ -347,7 +347,7 @@ class PackageSettingsIntegrationTest extends Specification {
         println result.output
 
         then: "we can observe the environment for 'foo' provided a few lines after its build is logged"
-        def match = result.output.find(/Installing foo\S* wheel[\s\S]+?Environment for[^\n]+: \{[^}]+\}/)
+        def match = result.output.find(/Installing foo\S* wheel[\s\S]+?Environment for[^\n]+: \{.+\}\s*\n/)
         match != null
         match.findAll('Installing ').size() == 1
         match.contains('CPPFLAGS=-I/some/custom/path/include')

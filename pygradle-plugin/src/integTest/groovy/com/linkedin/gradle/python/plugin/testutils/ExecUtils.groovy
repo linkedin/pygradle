@@ -26,6 +26,10 @@ import java.nio.file.Path
 class ExecUtils {
 
     static String run(Path path) {
+        return run(path, new String[0])
+    }
+
+    static String run(Path path, String... args) {
 
         ByteArrayOutputStream os = new ByteArrayOutputStream()
         def executor = new DefaultExecutor()
@@ -34,6 +38,7 @@ class ExecUtils {
         def cmd = OperatingSystem.current().isWindows() ? "python ${path.toString()}" : path.toString()
 
         def commandLine = CommandLine.parse(cmd)
+        commandLine.addArguments(args)
 
         try {
             executor.execute(commandLine)

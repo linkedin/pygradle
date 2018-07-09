@@ -33,9 +33,10 @@ class ParallelWheelsIntegrationTest extends Specification {
 
     @Rule
     final DefaultProjectLayoutRule testProjectDir = new DefaultProjectLayoutRule()
+
     @IgnoreIf({ OperatingSystem.current() == OperatingSystem.WINDOWS })
     def "can build thin pex"() {
-        testProjectDir
+
         given:
         testProjectDir.buildFile << """\
         | plugins {
@@ -92,5 +93,48 @@ class ParallelWheelsIntegrationTest extends Specification {
 
         then:
         out.toString() == "Hello World${System.getProperty("line.separator")}".toString()
+
+        when:
+        result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withArguments('parallelWheels', '--stacktrace', '--info')
+            .withPluginClasspath()
+            .build()
+        println result.output
+
+        then:
+        result.task(':foo:parallelWheels').outcome == TaskOutcome.SKIPPED
+    }
+
+    @IgnoreIf({ OperatingSystem.current() == OperatingSystem.WINDOWS })
+    def "installs setup requires for parallelWheels task"() {
+        given:
+        testProjectDir.buildFile << """\
+        | plugins {
+        |     id 'com.linkedin.python'
+        | }
+        | apply plugin: com.linkedin.gradle.python.plugin.WheelFirstPlugin
+        |
+        | version = '1.0.0'
+        | ${ PyGradleTestBuilder.createRepoClosure() }
+        """.stripMargin().stripIndent()
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withArguments('parallelWheels', '--stacktrace', '--info')
+            .withPluginClasspath()
+            .build()
+        println result.output
+
+        then:
+        Path venvPath = testProjectDir.root.toPath().resolve(Paths.get('foo', 'build', 'venv'))
+
+        def output = ExecUtils.run(venvPath.resolve("bin/pip"), "freeze", "--all")
+        println(output)
+        // Note: These versions will change over time
+        output.contains("wheel==0.29.0")
+        output.contains("pip==9.0.3")
+        output.contains("setuptools==33.1.1")
     }
 }

@@ -25,6 +25,7 @@ import com.linkedin.gradle.python.util.internal.TaskTimer;
 import com.linkedin.gradle.python.wheel.WheelCache;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
@@ -41,6 +42,7 @@ import org.gradle.process.ExecResult;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
@@ -49,6 +51,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.linkedin.gradle.python.util.StandardTextValues.CONFIGURATION_SETUP_REQS;
 
 public class ParallelWheelGenerationTask extends DefaultTask implements SupportsPackageInfoSettings {
 
@@ -65,6 +70,35 @@ public class ParallelWheelGenerationTask extends DefaultTask implements Supports
     private AtomicInteger counter = new AtomicInteger();
 
     private PackageSettings<PackageInfo> packageSettings;
+
+    public ParallelWheelGenerationTask() {
+        onlyIf(task -> {
+            ByteArrayOutputStream stdOut = new ByteArrayOutputStream();
+            getProject().exec(execSpec -> {
+                execSpec.setExecutable(getPythonDetails().getVirtualEnvironment().getPip());
+                execSpec.args("freeze", "--all");
+                execSpec.setStandardOutput(stdOut);
+            });
+
+            Configuration requiredDependencies = getProject().getConfigurations()
+                .getByName(CONFIGURATION_SETUP_REQS.getValue());
+
+            Set<String> setupRequiresDependencies = requiredDependencies.getIncoming().getDependencies().stream()
+                .flatMap(it -> Stream.of(it.getName(), it.getName().replace("-", "_")))
+                .collect(Collectors.toSet());
+
+            Set<String> extraDependencies = Arrays.stream(stdOut.toString().trim().split(System.lineSeparator()))
+                .filter(it -> it.contains("==")).map(it -> it.split("==")[0])
+                .filter(it -> !setupRequiresDependencies.contains(it))
+                .collect(Collectors.toSet());
+
+            if (!extraDependencies.isEmpty()) {
+                logger.info("Extra dependencies found ({}). Skipping parallel wheel building.", extraDependencies);
+            }
+
+            return extraDependencies.isEmpty();
+        });
+    }
 
     @TaskAction
     public void buildWheels() {

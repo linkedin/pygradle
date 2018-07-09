@@ -4,7 +4,7 @@ jobs:
         docker:
             - image: openjdk:8-jdk
         environment:
-            GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m -XX:+HeapDumpOnOutOfMemoryError"'
+            JVM_OPTS: -Xmx3200m
         steps:
             - run:
                 name: Prepair System
@@ -44,7 +44,7 @@ jobs:
         docker:
             - image: openjdk:8-jdk
         environment:
-            GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m -XX:+HeapDumpOnOutOfMemoryError"'
+            JVM_OPTS: -Xmx3200m
         steps:
             - restore_cache:
                 keys: artifact-download-cache

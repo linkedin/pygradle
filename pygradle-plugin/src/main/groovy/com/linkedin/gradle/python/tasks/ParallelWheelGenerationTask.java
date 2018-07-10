@@ -75,8 +75,8 @@ public class ParallelWheelGenerationTask extends DefaultTask implements Supports
         onlyIf(task -> {
             ByteArrayOutputStream stdOut = new ByteArrayOutputStream();
             getProject().exec(execSpec -> {
-                execSpec.setExecutable(getPythonDetails().getVirtualEnvironment().getPip());
-                execSpec.args("freeze", "--all");
+                execSpec.setExecutable(getPythonDetails().getVirtualEnvInterpreter());
+                execSpec.args(getPythonDetails().getVirtualEnvironment().getPip(), "freeze", "--all");
                 execSpec.setStandardOutput(stdOut);
             });
 

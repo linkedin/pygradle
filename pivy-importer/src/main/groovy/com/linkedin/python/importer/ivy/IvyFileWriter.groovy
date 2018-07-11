@@ -88,7 +88,7 @@ class IvyFileWriter {
             def map = [name: name, ext: ext, conf: source ? 'source' : 'default', type: ext]
 
             if (filename.indexOf(version) + version.length() + 1 < filename.length()) {
-                map['m:classifier'] = getClassifierFromFilename(filename)
+                map['m:classifier'] = getClassifier(filename)
             }
             return map
         }
@@ -96,7 +96,7 @@ class IvyFileWriter {
         return publicationMap
     }
 
-    private String getClassifierFromFilename(String filename) {
+    private String getClassifier(String filename) {
         return filename.substring(filename.indexOf(version) + version.length() + 1)
     }
 

@@ -24,7 +24,7 @@ import org.apache.commons.io.FilenameUtils
 
 @TupleConstructor
 class IvyFileWriter {
-    String name
+    final String name
     final String version
     final String packageType
     final List<VersionEntry> archives

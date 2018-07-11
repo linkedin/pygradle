@@ -63,7 +63,7 @@ jobs:
                     - ~/.gradle
             - run:
                 name: Create artifacts
-                command: ./gradlew publish --console plain -Prelease=true
+                command: ./gradlew publishToMavenLocal --console plain -Prelease=true
 
             - run:
                 name: Publish Artifacts

@@ -46,13 +46,19 @@ jobs:
         environment:
             JVM_OPTS: -Xmx3200m
         steps:
+            - checkout
+            
             - restore_cache:
-                keys: artifact-download-cache
+                keys: 
+                  - artifact-download-cache-{{ .Revision }}
+                  - artifact-download-cache-
+            
             - run:
                 name: Get Dependencies
                 command: ./gradlew downloadDependencies --console plain
+            
             - save_cache:
-                key: artifact-download-cache
+                key: artifact-download-cache-{{ .Revision }}
                 paths:
                     - ~/.gradle
             - run:

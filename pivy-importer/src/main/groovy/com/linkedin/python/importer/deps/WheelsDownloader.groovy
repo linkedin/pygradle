@@ -15,6 +15,8 @@
  */
 package com.linkedin.python.importer.deps
 
+import com.linkedin.python.importer.ImporterCLI
+import com.linkedin.python.importer.distribution.WheelsPackage
 import com.linkedin.python.importer.ivy.IvyFileWriter
 
 import groovy.util.logging.Slf4j
@@ -25,18 +27,36 @@ class WheelsDownloader extends DependencyDownloader {
     static final String BINARY_DIST_PACKAGE_TYPE = "bdist_wheel"
     static final String BINARY_DIST_ORG = "wheel"
 
-    WheelsDownloader(String project, File ivyRepoRoot, boolean lenient) {
-        super(project, ivyRepoRoot, lenient)
+    WheelsDownloader(String project, File ivyRepoRoot, DependencySubstitution dependencySubstitution,
+                     Set<String> processedDependencies, boolean latestVersions, boolean allowPreReleases, boolean lenient) {
+        super(project, ivyRepoRoot, dependencySubstitution, processedDependencies, latestVersions, allowPreReleases, lenient)
+    }
+
+    /**
+     * The module names in Wheel artifact names are using "_" to replace "-", eg., python-submit,
+     * its wheel artifact is python_subunit-1.3.0-py2.py3-none-any.whl.
+     * @param name
+     * @return
+     */
+    static String translateNameToWheelFormat(String name) {
+        return name.replaceAll("-", "_")
     }
 
     @Override
     def downloadDependency(String dep) {
-        log.info("Pulling in $dep")
         def (String name, String version, String classifier) = dep.split(":")
 
-        def projectDetails = cache.getDetails(name)
+        name = translateNameToWheelFormat(name)
+        def projectDetails = cache.getDetails(name, lenient)
+        // project name is illegal, which means we can't find any information about this project on PyPI
+        if (projectDetails == null) {
+            return
+        }
+
         version = projectDetails.maybeFixVersion(version)
-        def wheelDetails = projectDetails.findVersion(version).find { it.filename == "${name}-${version}-${classifier}.whl" }
+        def wheelDetails = projectDetails
+                            .findVersion(version)
+                            .find { it.filename.equalsIgnoreCase("${name}-${version}-${classifier}.whl") }
 
         if (wheelDetails == null) {
             if (lenient) {
@@ -46,11 +66,29 @@ class WheelsDownloader extends DependencyDownloader {
             throw new RuntimeException("Unable to find wheels for $dep")
         }
 
+        // make sure the module name has the same letter case as PyPI
+        name = getActualModuleNameFromFilename(wheelDetails.filename, version)
+        log.info("Pulling in $name:$version:$classifier")
+
         def destDir = Paths.get(ivyRepoRoot.absolutePath, BINARY_DIST_ORG, name, version, classifier).toFile()
         destDir.mkdirs()
 
-        downloadArtifact(destDir, wheelDetails.url)
+        def wheelArtifact = downloadArtifact(destDir, wheelDetails.url)
+        def packageDependencies = new WheelsPackage(name, version, wheelArtifact, cache, dependencySubstitution,
+            latestVersions, allowPreReleases, lenient).dependencies
 
-        new IvyFileWriter(name, version, BINARY_DIST_PACKAGE_TYPE, [wheelDetails]).writeIvyFile(destDir, ['default':[]], classifier)
+        log.debug("The dependencies of package $project: is ${packageDependencies.toString()}")
+        new IvyFileWriter(name, version, BINARY_DIST_PACKAGE_TYPE, [wheelDetails])
+            .writeIvyFile(destDir, packageDependencies, classifier)
+
+        packageDependencies.each { key, value ->
+            List<String> sdistDependencies = value
+            for (String sdist : sdistDependencies) {
+                DependencyDownloader sdistDownloader = new SdistDownloader(sdist, ivyRepoRoot,
+                    dependencySubstitution, processedDependencies, latestVersions, allowPreReleases, lenient)
+
+                ImporterCLI.pullDownPackageAndDependencies(processedDependencies, sdistDownloader)
+            }
+        }
     }
 }

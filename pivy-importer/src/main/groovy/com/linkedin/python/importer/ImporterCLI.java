@@ -44,7 +44,6 @@ public class ImporterCLI {
     }
 
     public static void main(String[] args) throws Exception {
-
         Options options = createOptions();
 
         CommandLineParser parser = new DefaultParser();
@@ -77,10 +76,11 @@ public class ImporterCLI {
             DependencyDownloader artifactDownloader;
 
             if (dependency.split(":").length == 2) {
-                artifactDownloader = new SdistDownloader(dependency, repoPath, replacements, line.hasOption("latest"),
-                    line.hasOption("pre"), line.hasOption("lenient"));
+                artifactDownloader = new SdistDownloader(dependency, repoPath, replacements, processedDependencies,
+                    line.hasOption("latest"), line.hasOption("pre"), line.hasOption("lenient"));
             } else if (dependency.split(":").length == 3) {
-                artifactDownloader = new WheelsDownloader(dependency, repoPath, line.hasOption("lenient"));
+                artifactDownloader = new WheelsDownloader(dependency, repoPath, replacements, processedDependencies,
+                    line.hasOption("latest"), line.hasOption("pre"), line.hasOption("lenient"));
             } else {
                 String errMsg = "Unable to parse the dependency "
                     + dependency
@@ -94,17 +94,20 @@ public class ImporterCLI {
                 throw new IllegalArgumentException(errMsg);
             }
 
-            artifactDownloader.getProcessedDependencies().addAll(processedDependencies);
             artifactDownloader.download();
-            processedDependencies.addAll(artifactDownloader.getProcessedDependencies());
         }
+    }
+
+    public static void pullDownPackageAndDependencies(Set<String> processedDependencies, DependencyDownloader artifactDownloader) {
+        artifactDownloader.getProcessedDependencies().addAll(processedDependencies);
+        artifactDownloader.download();
+        processedDependencies.addAll(artifactDownloader.getProcessedDependencies());
     }
 
     private static Map<String, String> buildForceMap(CommandLine line) {
         Map<String, String> sub = new LinkedHashMap<>();
         if (line.hasOption("force")) {
             for (String it : Arrays.asList(line.getOptionValues("force"))) {
-                System.out.println(it);
                 String[] split = it.split(":");
                 sub.put(split[0], split[1]);
             }
@@ -176,7 +179,6 @@ public class ImporterCLI {
         Map<String, String> sub = new LinkedHashMap<>();
         if (line.hasOption("replace")) {
             for (String it : Arrays.asList(line.getOptionValues("replace"))) {
-                System.out.println(it);
                 String[] split = it.split("=");
                 sub.put(split[0], split[1]);
             }

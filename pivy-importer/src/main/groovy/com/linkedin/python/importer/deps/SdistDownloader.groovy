@@ -17,34 +17,31 @@ package com.linkedin.python.importer.deps
 
 import com.linkedin.python.importer.distribution.SourceDistPackage
 import com.linkedin.python.importer.ivy.IvyFileWriter
-
+import groovy.transform.InheritConstructors
 import groovy.util.logging.Slf4j
 import java.nio.file.Paths
 
 @Slf4j
+@InheritConstructors
 class SdistDownloader extends DependencyDownloader {
     static final String SOURCE_DIST_PACKAGE_TYPE = "sdist"
     static final String SOURCE_DIST_ORG = "pypi"
 
-    DependencySubstitution dependencySubstitution
-    boolean latestVersions
-    boolean allowPreReleases
-
     SdistDownloader(String project, File ivyRepoRoot, DependencySubstitution dependencySubstitution,
-                    boolean latestVersions, boolean allowPreReleases, boolean lenient) {
-
-        super(project, ivyRepoRoot, lenient)
-        this.dependencySubstitution = dependencySubstitution
-        this.latestVersions = latestVersions
-        this.allowPreReleases = allowPreReleases
+                    Set<String> processedDependencies, boolean latestVersions, boolean allowPreReleases, boolean lenient) {
+        super(project, ivyRepoRoot, dependencySubstitution, processedDependencies, latestVersions, allowPreReleases, lenient)
     }
 
     @Override
     def downloadDependency(String dep) {
-        log.info("Pulling in $dep")
         def (String name, String version) = dep.split(":")
 
-        def projectDetails = cache.getDetails(name)
+        def projectDetails = cache.getDetails(name, lenient)
+        // project name is illegal, which means we can't find any information about this project on PyPI
+        if (projectDetails == null) {
+            return
+        }
+
         version = projectDetails.maybeFixVersion(version)
         def sdistDetails = projectDetails.findVersion(version).find { it.packageType == SOURCE_DIST_PACKAGE_TYPE }
 
@@ -56,12 +53,16 @@ class SdistDownloader extends DependencyDownloader {
             throw new RuntimeException("Unable to find source dist for $dep")
         }
 
+        // make sure the module name has the right letter case and dash or underscore as PyPI
+        name = getActualModuleNameFromFilename(sdistDetails.filename, version)
+        log.info("Pulling in $name:$version")
+
         def destDir = Paths.get(ivyRepoRoot.absolutePath, SOURCE_DIST_ORG, name, version).toFile()
         destDir.mkdirs()
 
-        def artifact = downloadArtifact(destDir, sdistDetails.url)
-        def packageDependencies = new SourceDistPackage(artifact, cache, dependencySubstitution,
-            latestVersions, allowPreReleases).dependencies
+        def sdistArtifact = downloadArtifact(destDir, sdistDetails.url)
+        def packageDependencies = new SourceDistPackage(name, version, sdistArtifact, cache, dependencySubstitution,
+            latestVersions, allowPreReleases, lenient).dependencies
 
         new IvyFileWriter(name, version, SOURCE_DIST_PACKAGE_TYPE, [sdistDetails]).writeIvyFile(destDir, packageDependencies)
 

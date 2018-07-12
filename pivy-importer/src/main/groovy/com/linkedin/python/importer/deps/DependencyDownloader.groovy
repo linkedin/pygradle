@@ -24,14 +24,28 @@ import org.apache.http.client.fluent.Request
 @Slf4j
 abstract class DependencyDownloader {
     Queue<String> dependencies = [] as Queue
-    Set<String> processedDependencies = [] as Set
     PypiApiCache cache = new PypiApiCache()
+
+    String project
     File ivyRepoRoot
+    DependencySubstitution dependencySubstitution
+    Set<String> processedDependencies
+    boolean latestVersions
+    boolean allowPreReleases
     boolean lenient
 
-    protected DependencyDownloader(String project, File ivyRepoRoot, boolean lenient) {
+    DependencyDownloader(String project, File ivyRepoRoot, DependencySubstitution dependencySubstitution,
+                         Set<String> processedDependencies, boolean latestVersions, boolean allowPreReleases,
+                         boolean lenient) {
+
+        this.project = project
         this.ivyRepoRoot = ivyRepoRoot
+        this.dependencySubstitution = dependencySubstitution
+        this.processedDependencies = processedDependencies
+        this.latestVersions = latestVersions
+        this.allowPreReleases = allowPreReleases
         this.lenient = lenient
+
         dependencies.add(project)
     }
 
@@ -75,5 +89,15 @@ abstract class DependencyDownloader {
         }
 
         return contents
+    }
+
+    /**
+     * Get the actual module name from artifact name, which has the correct letter case.
+     * @param filename the filename of artifact
+     * @param revision module version
+     * @return actual module name, which is from PyPI
+     */
+    static String getActualModuleNameFromFilename(String filename, String revision) {
+        return filename.substring(0, filename.indexOf(revision) - 1)
     }
 }

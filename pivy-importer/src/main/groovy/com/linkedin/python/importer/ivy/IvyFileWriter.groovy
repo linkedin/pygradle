@@ -42,6 +42,8 @@ class IvyFileWriter {
         }
 
         xml.'ivy-module'(version: "2.0", 'xmlns:e': "http://ant.apache.org/ivy/extra", 'xmlns:m': "http://ant.apache.org/ivy/maven") {
+            // fix the issue MarkupBuilder escapes ">" into "&gt"
+            setEscapeAttributes(false)
             info(organisation: getOrganisation(), module: name, revision: version)
             configurations {
                 def configurations = new HashSet<>(dependenciesMap.keySet())

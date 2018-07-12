@@ -104,7 +104,6 @@ abstract class PythonPackage {
                         range.includeEnd = true
                         range.endVersion = v
                         break
-                    // TODO: This fix is from chrisbrake:master https://github.com/linkedin/pygradle/pull/232/files
                     case '~=':
                         range.includeStart = true
                         range.startVersion = v

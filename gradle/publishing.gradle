@@ -1,6 +1,5 @@
 apply plugin: 'maven-publish'
 apply plugin: 'ivy-publish'
-apply plugin: 'com.jfrog.artifactory'
 
 task sourceJar(type: Jar) {
     classifier = 'sources'
@@ -62,6 +61,3 @@ publishing {
       }
     }
 }
-
-artifactoryPublish.dependsOn assemble
-artifactoryPublish.dependsOn publishToMavenLocal

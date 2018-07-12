@@ -1,0 +1,87 @@
+version: 2
+jobs:
+    build:
+        docker:
+            - image: openjdk:8-jdk
+        environment:
+            JVM_OPTS: -Xmx3200m
+        steps:
+            - run:
+                name: Prepair System
+                command: |
+                    apt-get update && apt-get -y upgrade
+                    apt-get install -y python2.7 python3.5
+
+            - checkout
+
+            - restore_cache:
+                keys: 
+                  - artifact-download-cache-{{ .Revision }}
+                  - artifact-download-cache-
+            - run:
+                name: Get Dependencies
+                command: ./gradlew downloadDependencies --console plain
+            - save_cache:
+                key: artifact-download-cache-{{ .Revision }}
+                paths:
+                    - ~/.gradle
+            - run:
+                name: Run Build
+                command: ./gradlew build --console plain
+
+            - run:
+                name: Save test results
+                command: |
+                    mkdir -p ~/junit/
+                    find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/junit/ \;
+                when: always
+            - store_test_results:
+                path: ~/junit
+            - store_artifacts:
+                path: ~/junit
+
+    deploy:
+        docker:
+            - image: openjdk:8-jdk
+        environment:
+            JVM_OPTS: -Xmx3200m
+        steps:
+            - checkout
+            
+            - restore_cache:
+                keys: 
+                  - artifact-download-cache-{{ .Revision }}
+                  - artifact-download-cache-
+            
+            - run:
+                name: Get Dependencies
+                command: ./gradlew downloadDependencies --console plain
+            
+            - save_cache:
+                key: artifact-download-cache-{{ .Revision }}
+                paths:
+                    - ~/.gradle
+            - run:
+                name: Create artifacts
+                command: ./gradlew publishToMavenLocal --console plain -Prelease=true
+
+            - run:
+                name: Publish Artifacts
+                command: |
+                    wget https://github.com/ethankhall/release-manager/releases/download/v0.1.9/release-manager-linux -O ~/release-manager
+                    chmod +x ~/release-manager
+                    export BUILD_NUMER=$(date +%s)
+                    ~/release-manager github release-and-bump -v
+                    ~/release-manager artifactory publish --build-number=$BUILD_NUMER --artifactory-token=$ARTIFACTORY_KEY ~/.m2/repository
+                    ~/release-manager artifactory distribute --build-number=$BUILD_NUMER --artifactory-token=$ARTIFACTORY_KEY
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - build
+      - deploy:
+          requires:
+            - build
+          filters:
+            branches:
+                only: master

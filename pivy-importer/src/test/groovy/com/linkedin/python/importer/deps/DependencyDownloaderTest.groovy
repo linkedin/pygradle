@@ -1,12 +1,9 @@
 package com.linkedin.python.importer.deps
 
-import com.linkedin.python.importer.ivy.IvyFileWriter
 import groovy.transform.InheritConstructors
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
-
-import static org.junit.Assert.assertTrue
 
 @InheritConstructors
 class TestDependencyDownloader extends DependencyDownloader {
@@ -29,9 +26,6 @@ class DependencyDownloaderTest extends Specification {
         String testProject = "targetProject:1.1.1"
         DependencySubstitution testDependencySubstitution = new DependencySubstitution([:], [:])
         Set<String> testProcessedDependencies = new HashSet<>()
-        boolean testLatestVersions = true
-        boolean testAllowPreReleases = false
-        boolean testLenient = true
 
         when:
         TestDependencyDownloader dependencyDownloader =
@@ -42,7 +36,7 @@ class DependencyDownloaderTest extends Specification {
                 testProcessedDependencies)
 
         then:
-        assertTrue(dependencyDownloader.dependencies.contains(testProject))
+        assert dependencyDownloader.dependencies.contains(testProject)
     }
 
     def "download all the dependencies"() {
@@ -65,8 +59,8 @@ class DependencyDownloaderTest extends Specification {
         dependencyDownloader.download(testLatestVersions, testAllowPreReleases, testLenient)
 
         then:
-        assertTrue(dependencyDownloader.dependencies.isEmpty())
-        assertTrue(dependencyDownloader.processedDependencies.contains(testProject))
+        assert dependencyDownloader.dependencies.isEmpty()
+        assert dependencyDownloader.processedDependencies.contains(testProject)
     }
 
     def "get actual module name from filename"() {
@@ -100,7 +94,8 @@ class DependencyDownloaderTest extends Specification {
         testSdistFilename = "psycopg2_binary-2.7.5-cp34-cp34m-macosx_10_6_intel.macosx_10_9_intel.macosx_10_9_x86_64.macosx_10_10_intel.macosx_10_10_x86_64.whl"
         actualModuleName = DependencyDownloader.getActualModuleNameFromFilename(testSdistFilename, "2.7.5")
         expectedModuleName = "psycopg2_binary"
+
         then:
-        actualModuleName == expectedModuleName
+        assert actualModuleName == expectedModuleName
     }
 }

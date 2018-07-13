@@ -11,7 +11,7 @@ class TestPythonPackage extends PythonPackage {
     Map<String, List<String>> getDependencies(boolean latestVersions,
                                               boolean allowPreReleases,
                                               boolean lenient) {
-        return new HashMap<String, List<String>>()
+        return [:]
     }
 }
 

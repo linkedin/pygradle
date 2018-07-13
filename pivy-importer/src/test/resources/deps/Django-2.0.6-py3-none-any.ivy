@@ -11,7 +11,7 @@
   </publications>
   <dependencies defaultconfmapping="*->default">
     <dependency org="pypi" name="argon2_cffi" rev="18.1.0" conf="argon2" />
-    <dependency org="pypi" name="pytz" rev="2018.5" conf="default" />
     <dependency org="pypi" name="bcrypt" rev="3.1.4" conf="bcrypt" />
+    <dependency org="pypi" name="pytz" rev="2018.5" conf="default" />
   </dependencies>
 </ivy-module>

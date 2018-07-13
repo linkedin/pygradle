@@ -1,7 +1,6 @@
 package com.linkedin.python.importer.deps
 
 import spock.lang.Specification
-import static org.junit.Assert.assertEquals
 
 class DependencySubstitutionTest extends Specification {
     def "replace dependency from replacementMap and forceMap"() {
@@ -17,24 +16,24 @@ class DependencySubstitutionTest extends Specification {
         String dependency2 = "module2:originalVersion2"
         String result = testDependencySubstitution.maybeReplace(dependency2)
         then:
-        assertEquals("module2:replacedVersion2", result)
+        assert "module2:replacedVersion2" == result
 
         when:
         String dependency3 = "module3:originalVersion3"
         result = testDependencySubstitution.maybeReplace(dependency3)
         then:
-        assertEquals("module3:forceVersion3", result)
+        assert "module3:forceVersion3" == result
 
         when:
         String dependency4 = "module4:originalVersion5"
         result = testDependencySubstitution.maybeReplace(dependency4)
         then:
-        assertEquals("module4:forceVersion4", result)
+        assert "module4:forceVersion4" == result
 
         when:
         String dependency5 = "module5:originalVersion5"
         result = testDependencySubstitution.maybeReplace(dependency5)
         then:
-        assertEquals("module5:originalVersion5", result)
+        assert "module5:originalVersion5" == result
     }
 }

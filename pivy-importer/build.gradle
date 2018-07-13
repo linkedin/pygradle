@@ -85,7 +85,7 @@ task importRequiredDependencies(type: JavaExec) { task ->
 
 license {
     header rootProject.file('codequality/HEADER')
-    exclude '**/*.template'
+    includes(["**/*.java", "**/*.groovy"])
 }
 
 licenseReport {

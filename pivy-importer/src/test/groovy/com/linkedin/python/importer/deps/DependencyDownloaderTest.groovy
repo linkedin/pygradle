@@ -11,7 +11,7 @@ import static org.junit.Assert.assertTrue
 @InheritConstructors
 class TestDependencyDownloader extends DependencyDownloader {
     @Override
-    String downloadDependency(String dep) {
+    String downloadDependency(String dep, boolean latestVersions, boolean allowPreReleases, boolean lenient) {
         return "Successfully download dependency in unittest scenario!"
     }
 }
@@ -39,11 +39,7 @@ class DependencyDownloaderTest extends Specification {
                 testProject,
                 testIvyRepoRoot,
                 testDependencySubstitution,
-                testProcessedDependencies,
-                testLatestVersions,
-                testAllowPreReleases,
-                testLenient
-            )
+                testProcessedDependencies)
 
         then:
         assertTrue(dependencyDownloader.dependencies.contains(testProject))
@@ -63,13 +59,10 @@ class DependencyDownloaderTest extends Specification {
                 testIvyRepoRoot,
                 testDependencySubstitution,
                 testProcessedDependencies,
-                testLatestVersions,
-                testAllowPreReleases,
-                testLenient
             )
 
         when:
-        dependencyDownloader.download()
+        dependencyDownloader.download(testLatestVersions, testAllowPreReleases, testLenient)
 
         then:
         assertTrue(dependencyDownloader.dependencies.isEmpty())

@@ -76,11 +76,9 @@ public class ImporterCLI {
             DependencyDownloader artifactDownloader;
 
             if (dependency.split(":").length == 2) {
-                artifactDownloader = new SdistDownloader(dependency, repoPath, replacements, processedDependencies,
-                    line.hasOption("latest"), line.hasOption("pre"), line.hasOption("lenient"));
+                artifactDownloader = new SdistDownloader(dependency, repoPath, replacements, processedDependencies);
             } else if (dependency.split(":").length == 3) {
-                artifactDownloader = new WheelsDownloader(dependency, repoPath, replacements, processedDependencies,
-                    line.hasOption("latest"), line.hasOption("pre"), line.hasOption("lenient"));
+                artifactDownloader = new WheelsDownloader(dependency, repoPath, replacements, processedDependencies);
             } else {
                 String errMsg = "Unable to parse the dependency "
                     + dependency
@@ -94,13 +92,18 @@ public class ImporterCLI {
                 throw new IllegalArgumentException(errMsg);
             }
 
-            artifactDownloader.download();
+            artifactDownloader.download(line.hasOption("latest"), line.hasOption("pre"), line.hasOption("lenient"));
         }
     }
 
-    public static void pullDownPackageAndDependencies(Set<String> processedDependencies, DependencyDownloader artifactDownloader) {
+    public static void pullDownPackageAndDependencies(Set<String> processedDependencies,
+                                                      DependencyDownloader artifactDownloader,
+                                                      boolean latestVersions,
+                                                      boolean allowPreReleases,
+                                                      boolean lenient) {
+
         artifactDownloader.getProcessedDependencies().addAll(processedDependencies);
-        artifactDownloader.download();
+        artifactDownloader.download(latestVersions, allowPreReleases, lenient);
         processedDependencies.addAll(artifactDownloader.getProcessedDependencies());
     }
 

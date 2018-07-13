@@ -14,30 +14,23 @@ abstract class PythonPackage {
     protected final File packageFile
     protected final PypiApiCache pypiApiCache
     protected final DependencySubstitution dependencySubstitution
-    protected final boolean latestVersions
-    protected final boolean allowPreReleases
-    protected final boolean lenient
 
-    PythonPackage(
+    protected PythonPackage(
         String moduleName,
         String version,
         File packageFile,
         PypiApiCache pypiApiCache,
-        DependencySubstitution dependencySubstitution,
-        boolean latestVersions,
-        boolean allowPreReleases,
-        boolean lenient) {
+        DependencySubstitution dependencySubstitution) {
             this.moduleName = moduleName
             this.version = version
             this.dependencySubstitution = dependencySubstitution
             this.pypiApiCache = pypiApiCache
             this.packageFile = packageFile
-            this.latestVersions = latestVersions
-            this.allowPreReleases = allowPreReleases
-            this.lenient = lenient
     }
 
-    abstract Map<String, List<String>> getDependencies()
+    abstract Map<String, List<String>> getDependencies(boolean latestVersions,
+                                                       boolean allowPreReleases,
+                                                       boolean lenient)
 
     protected String explodeZipForTargetEntry(String entryName) {
         def file = new ZipFile(packageFile)
@@ -49,12 +42,23 @@ abstract class PythonPackage {
         return ''
     }
 
-    protected String parseDependencyFromRequire(String require) {
-        if (require.contains('[')) {
-            require = require.replaceAll(/\[.*?]/, '')
+    protected String parseDependencyFromRequire(String rawRequire,
+                                                boolean latestVersions,
+                                                boolean allowPreReleases,
+                                                boolean lenient) {
+
+        String removeSquareRequire
+        if (rawRequire.contains('[')) {
+            removeSquareRequire = rawRequire.replaceAll(/\[.*?]/, '')
+        } else {
+            removeSquareRequire = rawRequire
         }
-        if (require.contains(' ')) {
-            require = require.replaceAll(' ', '')
+
+        String require
+        if (removeSquareRequire.contains(' ')) {
+            require = rawRequire.replaceAll(' ', '')
+        } else {
+            require = removeSquareRequire
         }
 
         /*

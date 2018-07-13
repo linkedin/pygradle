@@ -15,7 +15,7 @@ class WheelsPackageTest extends Specification {
         PypiApiCache testPypiApiCache = new PypiApiCache()
 
         testWheelsPackage = new WheelsPackage("Django", "2.0.6", testPackageFile,
-            testPypiApiCache, testDependencySubstitution, true, false, true)
+            testPypiApiCache, testDependencySubstitution)
     }
 
     def "test getting runtime requires from metadata Json file"() {

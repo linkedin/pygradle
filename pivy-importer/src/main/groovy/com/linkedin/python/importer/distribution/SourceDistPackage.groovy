@@ -24,12 +24,18 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 @Slf4j @InheritConstructors
 class SourceDistPackage extends PythonPackage {
     @Override
-    Map<String, List<String>> getDependencies() {
-        return parseRequiresText(getRequiresTextFile())
+    Map<String, List<String>> getDependencies(boolean latestVersions,
+                                              boolean allowPreReleases,
+                                              boolean lenient) {
+
+        return parseRequiresText(getRequiresTextFile(), latestVersions, allowPreReleases, lenient)
     }
 
     @SuppressWarnings("ParameterReassignment")
-    private Map<String, List<String>> parseRequiresText(String requires) {
+    private Map<String, List<String>> parseRequiresText(String requires,
+                                                        boolean latestVersions,
+                                                        boolean allowPreReleases,
+                                                        boolean lenient) {
         def dependenciesMap = [:]
         log.debug("requires: {}", requires)
         def config = 'default'
@@ -49,7 +55,7 @@ class SourceDistPackage extends PythonPackage {
                     dependenciesMap[config] = []
                 }
             } else {
-                String dependency = parseDependencyFromRequire(line)
+                String dependency = parseDependencyFromRequire(line, latestVersions, allowPreReleases, lenient)
                 if (dependency != null) {
                     dependenciesMap[config] << dependency
                 }

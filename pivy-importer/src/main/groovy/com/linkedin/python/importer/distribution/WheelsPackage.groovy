@@ -12,21 +12,28 @@ class WheelsPackage extends PythonPackage {
      * @return a Map whose key is configuration and value is dependencies List
      */
     @Override
-    Map<String, List<String>> getDependencies() {
+    Map<String, List<String>> getDependencies(boolean latestVersions,
+                                              boolean allowPreReleases,
+                                              boolean lenient) {
         Map<String, List<String>> dependenciesMap
 
         try {
-            dependenciesMap = parseRuntimeRequiresFromMetadataJson(runtimeRequiresFromMetadataJson)
+            dependenciesMap = parseRuntimeRequiresFromMetadataJson(runtimeRequiresFromMetadataJson, latestVersions, allowPreReleases, lenient)
         } catch(Exception e) {
             log.debug("Failed to parse Json Metadata for package ${packageFile.name}: ${e.message} " +
                 "Parsing METADATA text file instead.")
-            dependenciesMap = parseDistRequiresFromMetadataText(metadataText)
+            dependenciesMap = parseDistRequiresFromMetadataText(metadataText, latestVersions, allowPreReleases, lenient)
         }
 
         return dependenciesMap
     }
 
-    private Map<String, List<String>> parseRuntimeRequiresFromMetadataJson(Map<String, List<String>> requires) {
+    private Map<String, List<String>> parseRuntimeRequiresFromMetadataJson(
+        Map<String, List<String>> requires,
+        boolean latestVersions,
+        boolean allowPreReleases,
+        boolean lenient) {
+
         def dependenciesMap = [:]
 
         requires.each { key, value ->
@@ -40,7 +47,7 @@ class WheelsPackage extends PythonPackage {
             log.debug("The requires of configuration $key: ${requiresList.toString()}")
             for (String require : requiresList) {
                 require = require.replaceAll(/[()]/, "")
-                String dependency = parseDependencyFromRequire(require)
+                String dependency = parseDependencyFromRequire(require, latestVersions, allowPreReleases, lenient)
                 if (dependency != null) {
                     dependenciesMap[config] << dependency
                 }
@@ -66,11 +73,11 @@ class WheelsPackage extends PythonPackage {
 
         Map<String, List<String>> runtimeRequiresMap = [:]
 
-        def run_requires = jsonMetadata["run_requires"]
-        def meta_requires = jsonMetadata["meta_requires"]
+        def runRequires = jsonMetadata["run_requires"]
+        def metaRequires = jsonMetadata["meta_requires"]
 
-        addRuntimeRequiresFromRequiresMap(runtimeRequiresMap, run_requires)
-        addRuntimeRequiresFromRequiresMap(runtimeRequiresMap, meta_requires)
+        addRuntimeRequiresFromRequiresMap(runtimeRequiresMap, runRequires)
+        addRuntimeRequiresFromRequiresMap(runtimeRequiresMap, metaRequires)
 
         log.debug("The runtime requires of package ${packageFile.name}: ${runtimeRequiresMap.toString()}")
         return runtimeRequiresMap
@@ -99,7 +106,8 @@ class WheelsPackage extends PythonPackage {
      * @param runtimeRequires
      * @param requires
      */
-    private static void addRuntimeRequiresFromRequiresMap(Map<String, List<String>> runtimeRequiresMap, def requires) {
+    private static void addRuntimeRequiresFromRequiresMap(Map<String, List<String>> runtimeRequiresMap,
+                                                          def requires) {
         for (def require_map : requires) {
             String config = require_map["extra"] ?: "default"
 
@@ -110,7 +118,10 @@ class WheelsPackage extends PythonPackage {
         }
     }
 
-    private Map<String, List<String>> parseDistRequiresFromMetadataText(String requires) {
+    private Map<String, List<String>> parseDistRequiresFromMetadataText(String requires,
+                                                                        boolean latestVersions,
+                                                                        boolean allowPreReleases,
+                                                                        boolean lenient) {
         def dependenciesMap = [:]
         log.debug("Runtime requires of package ${packageFile.name} from Metadata text: {}", requires)
 
@@ -118,12 +129,12 @@ class WheelsPackage extends PythonPackage {
         dependenciesMap[config] = []
         requires.eachLine { line ->
             if (line.startsWith("Requires-Dist:")) {
-                line = line.replaceAll(/[()]/, "").substring("Requires-Dist:".length())
+                String newLine = line.replaceAll(/[()]/, "").substring("Requires-Dist:".length())
 
                 // there is package named extras, see https://pypi.org/project/extras/
-                int indexOfLastExtra = line.lastIndexOf("extra")
+                int indexOfLastExtra = newLine.lastIndexOf("extra")
                 if (indexOfLastExtra != -1) {
-                    config = line.substring(indexOfLastExtra + "extra".length())
+                    config = newLine.substring(indexOfLastExtra + "extra".length())
                         .replaceAll(/['=\s]/, "")
                 }
 
@@ -131,7 +142,7 @@ class WheelsPackage extends PythonPackage {
                     dependenciesMap[config] = []
                 }
 
-                String dependency = parseDependencyFromRequire(line)
+                String dependency = parseDependencyFromRequire(newLine, latestVersions, allowPreReleases, lenient)
                 if (dependency != null) {
                     dependenciesMap[config] << dependency
                 }

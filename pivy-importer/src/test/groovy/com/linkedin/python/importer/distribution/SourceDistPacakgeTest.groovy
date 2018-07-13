@@ -15,7 +15,7 @@ class SourceDistPacakgeTest extends Specification {
         PypiApiCache testPypiApiCache = new PypiApiCache()
 
         testSourceDistPackage = new SourceDistPackage("python-dateutil", "2.7.3", testPackageFile,
-            testPypiApiCache, testDependencySubstitution, true, false, true)
+            testPypiApiCache, testDependencySubstitution)
     }
 
     def "test parse requires text"() {

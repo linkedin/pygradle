@@ -17,23 +17,25 @@ package com.linkedin.python.importer.deps
 
 import com.linkedin.python.importer.distribution.SourceDistPackage
 import com.linkedin.python.importer.ivy.IvyFileWriter
-import groovy.transform.InheritConstructors
 import groovy.util.logging.Slf4j
 import java.nio.file.Paths
 
 @Slf4j
-@InheritConstructors
 class SdistDownloader extends DependencyDownloader {
     static final String SOURCE_DIST_PACKAGE_TYPE = "sdist"
     static final String SOURCE_DIST_ORG = "pypi"
 
-    SdistDownloader(String project, File ivyRepoRoot, DependencySubstitution dependencySubstitution,
-                    Set<String> processedDependencies, boolean latestVersions, boolean allowPreReleases, boolean lenient) {
-        super(project, ivyRepoRoot, dependencySubstitution, processedDependencies, latestVersions, allowPreReleases, lenient)
+    SdistDownloader(
+        String project,
+        File ivyRepoRoot,
+        DependencySubstitution dependencySubstitution,
+        Set<String> processedDependencies) {
+
+        super(project, ivyRepoRoot, dependencySubstitution, processedDependencies)
     }
 
     @Override
-    def downloadDependency(String dep) {
+    def downloadDependency(String dep, boolean latestVersions, boolean allowPreReleases, boolean lenient) {
         def (String name, String version) = dep.split(":")
 
         def projectDetails = cache.getDetails(name, lenient)
@@ -61,8 +63,7 @@ class SdistDownloader extends DependencyDownloader {
         destDir.mkdirs()
 
         def sdistArtifact = downloadArtifact(destDir, sdistDetails.url)
-        def packageDependencies = new SourceDistPackage(name, version, sdistArtifact, cache, dependencySubstitution,
-            latestVersions, allowPreReleases, lenient).dependencies
+        def packageDependencies = new SourceDistPackage(name, version, sdistArtifact, cache, dependencySubstitution).getDependencies(latestVersions, allowPreReleases, lenient)
 
         new IvyFileWriter(name, version, SOURCE_DIST_PACKAGE_TYPE, [sdistDetails]).writeIvyFile(destDir, packageDependencies)
 

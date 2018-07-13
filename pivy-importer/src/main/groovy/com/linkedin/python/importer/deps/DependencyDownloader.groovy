@@ -30,37 +30,32 @@ abstract class DependencyDownloader {
     File ivyRepoRoot
     DependencySubstitution dependencySubstitution
     Set<String> processedDependencies
-    boolean latestVersions
-    boolean allowPreReleases
-    boolean lenient
 
-    DependencyDownloader(String project, File ivyRepoRoot, DependencySubstitution dependencySubstitution,
-                         Set<String> processedDependencies, boolean latestVersions, boolean allowPreReleases,
-                         boolean lenient) {
+    protected DependencyDownloader(
+        String project,
+        File ivyRepoRoot,
+        DependencySubstitution dependencySubstitution,
+        Set<String> processedDependencies) {
 
         this.project = project
         this.ivyRepoRoot = ivyRepoRoot
         this.dependencySubstitution = dependencySubstitution
         this.processedDependencies = processedDependencies
-        this.latestVersions = latestVersions
-        this.allowPreReleases = allowPreReleases
-        this.lenient = lenient
-
         dependencies.add(project)
     }
 
-    def download() {
+    def download(boolean latestVersions, boolean allowPreReleases, boolean lenient) {
         while (!dependencies.isEmpty()) {
             def dep = dependencies.poll()
             if (dep in processedDependencies) {
                 continue
             }
-            downloadDependency(dep)
+            downloadDependency(dep, latestVersions, allowPreReleases, lenient)
             processedDependencies.add(dep)
         }
     }
 
-    abstract downloadDependency(String dep)
+    abstract downloadDependency(String dep, boolean latestVersions, boolean allowPreReleases, boolean lenient)
 
     protected static File downloadArtifact(File destDir, String url) {
 

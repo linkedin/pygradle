@@ -27,9 +27,13 @@ class WheelsDownloader extends DependencyDownloader {
     static final String BINARY_DIST_PACKAGE_TYPE = "bdist_wheel"
     static final String BINARY_DIST_ORG = "wheel"
 
-    WheelsDownloader(String project, File ivyRepoRoot, DependencySubstitution dependencySubstitution,
-                     Set<String> processedDependencies, boolean latestVersions, boolean allowPreReleases, boolean lenient) {
-        super(project, ivyRepoRoot, dependencySubstitution, processedDependencies, latestVersions, allowPreReleases, lenient)
+    WheelsDownloader(
+        String project,
+        File ivyRepoRoot,
+        DependencySubstitution dependencySubstitution,
+        Set<String> processedDependencies) {
+
+        super(project, ivyRepoRoot, dependencySubstitution, processedDependencies)
     }
 
     /**
@@ -43,7 +47,7 @@ class WheelsDownloader extends DependencyDownloader {
     }
 
     @Override
-    def downloadDependency(String dep) {
+    def downloadDependency(String dep, boolean latestVersions, boolean allowPreReleases, boolean lenient) {
         def (String name, String version, String classifier) = dep.split(":")
 
         name = translateNameToWheelFormat(name)
@@ -74,8 +78,7 @@ class WheelsDownloader extends DependencyDownloader {
         destDir.mkdirs()
 
         def wheelArtifact = downloadArtifact(destDir, wheelDetails.url)
-        def packageDependencies = new WheelsPackage(name, version, wheelArtifact, cache, dependencySubstitution,
-            latestVersions, allowPreReleases, lenient).dependencies
+        def packageDependencies = new WheelsPackage(name, version, wheelArtifact, cache, dependencySubstitution).getDependencies(latestVersions, allowPreReleases, lenient)
 
         log.debug("The dependencies of package $project: is ${packageDependencies.toString()}")
         new IvyFileWriter(name, version, BINARY_DIST_PACKAGE_TYPE, [wheelDetails])
@@ -85,9 +88,9 @@ class WheelsDownloader extends DependencyDownloader {
             List<String> sdistDependencies = value
             for (String sdist : sdistDependencies) {
                 DependencyDownloader sdistDownloader = new SdistDownloader(sdist, ivyRepoRoot,
-                    dependencySubstitution, processedDependencies, latestVersions, allowPreReleases, lenient)
+                    dependencySubstitution, processedDependencies)
 
-                ImporterCLI.pullDownPackageAndDependencies(processedDependencies, sdistDownloader)
+                ImporterCLI.pullDownPackageAndDependencies(processedDependencies, sdistDownloader, latestVersions, allowPreReleases, lenient)
             }
         }
     }

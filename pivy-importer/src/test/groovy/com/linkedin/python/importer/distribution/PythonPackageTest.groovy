@@ -8,7 +8,9 @@ import spock.lang.Specification
 @InheritConstructors
 class TestPythonPackage extends PythonPackage {
     @Override
-    Map<String, List<String>> getDependencies() {
+    Map<String, List<String>> getDependencies(boolean latestVersions,
+                                              boolean allowPreReleases,
+                                              boolean lenient) {
         return new HashMap<String, List<String>>()
     }
 }
@@ -24,7 +26,7 @@ class PythonPackageTest extends Specification {
         PypiApiCache testPypiApiCache = new PypiApiCache()
 
         testPythonPackage = new TestPythonPackage("WMI", "1.4.8", testPackageFile,
-            testPypiApiCache, testDependencySubstitution, true, false, true)
+            testPypiApiCache, testDependencySubstitution)
     }
 
     def "test explode zip for target entry"() {
@@ -32,8 +34,8 @@ class PythonPackageTest extends Specification {
         String testFileName = "PKG-INFO"
         String testEntryName = "WMI-1.4.8/$testFileName"
         when:
-        String actualText = testPythonPackage.explodeZipForTargetEntry(testEntryName)
-        String expectedText = new File(testDirectory, "$testFileName").getText()
+        String actualText = testPythonPackage.explodeZipForTargetEntry(testEntryName).replaceAll(System.lineSeparator(), "\n")
+        String expectedText = new File(testDirectory, "$testFileName").text
         then:
         actualText == expectedText
     }

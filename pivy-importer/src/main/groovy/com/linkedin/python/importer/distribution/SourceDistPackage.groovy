@@ -15,161 +15,57 @@
  */
 package com.linkedin.python.importer.distribution
 
-import java.util.zip.ZipFile
-
+import groovy.transform.InheritConstructors
 import groovy.util.logging.Slf4j
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 
-import com.linkedin.python.importer.deps.DependencySubstitution
-import com.linkedin.python.importer.pypi.PypiApiCache
-import com.linkedin.python.importer.pypi.VersionRange
+@Slf4j @InheritConstructors
+class SourceDistPackage extends PythonPackage {
+    @Override
+    Map<String, List<String>> getDependencies(boolean latestVersions,
+                                              boolean allowPreReleases,
+                                              boolean lenient) {
 
-@Slf4j
-class SourceDistPackage {
-
-    private final File packageFile
-    private final PypiApiCache pypiApiCache
-    private final DependencySubstitution dependencySubstitution
-    private final boolean latestVersions
-    private final boolean allowPreReleases
-
-    SourceDistPackage(
-            File packageFile,
-            PypiApiCache pypiApiCache,
-            DependencySubstitution dependencySubstitution,
-            boolean latestVersions,
-            boolean allowPreReleases) {
-        this.dependencySubstitution = dependencySubstitution
-        this.pypiApiCache = pypiApiCache
-        this.packageFile = packageFile
-        this.latestVersions = latestVersions
-        this.allowPreReleases = allowPreReleases
-    }
-
-    Map<String, List<String>> getDependencies() {
-        return parseRequiresText(getRequiresTextFile())
+        return parseRequiresText(getRequiresTextFile(), latestVersions, allowPreReleases, lenient)
     }
 
     @SuppressWarnings("ParameterReassignment")
-    private Map<String, List<String>> parseRequiresText(String requires) {
-        def dependencies = [:]
+    private Map<String, List<String>> parseRequiresText(String requires,
+                                                        boolean latestVersions,
+                                                        boolean allowPreReleases,
+                                                        boolean lenient) {
+        def dependenciesMap = [:]
         log.debug("requires: {}", requires)
-        def configuration = 'default'
-        dependencies[configuration] = []
+        def config = 'default'
+        dependenciesMap[config] = []
         requires.eachLine { line ->
             if (line.isEmpty()) {
                 return
             }
             def configMatcher = line =~ /^\[(.*?)]$/
             if (configMatcher.matches()) {
-                configuration = configMatcher.group(1).split(":")[0]
-                if (configuration.isEmpty()) {
-                    configuration = 'default'
+                config = configMatcher.group(1).split(":")[0]
+                if (config.isEmpty()) {
+                    config = 'default'
                 }
-                log.debug("New config {}", configuration)
-                if (!dependencies.containsKey(configuration)) {
-                    dependencies[configuration] = []
+                log.debug("New config {}", config)
+                if (!dependenciesMap.containsKey(config)) {
+                    dependenciesMap[config] = []
                 }
             } else {
-
-                if (line.contains('[')) {
-                    line = line.replaceAll(/\[.*?]/, '')
+                String dependency = parseDependencyFromRequire(line, latestVersions, allowPreReleases, lenient)
+                if (dependency != null) {
+                    dependenciesMap[config] << dependency
                 }
-                if (line.contains(' ')) {
-                    line = line.replaceAll(' ', '')
-                }
-
-                /*
-                 * Newer versions of setuptools allow use of markers in
-                 * install_requires. Previously they were allowed only
-                 * in extras_require and appeared only in separate config
-                 * section in the metadata. We need to parse for markers
-                 * in the default section now too.
-                 */
-                List<String> lineWithMarker = line.split(';')
-                log.debug("Split line into lineWithMarker ({}) {}", line, lineWithMarker)
-
-                List<String> conditions = lineWithMarker[0].split(',')
-                log.debug("Split lineWithMarker[0] into conditions ({}) {}", lineWithMarker[0], conditions)
-
-                String packageName = conditions[0].split(/~=|!=|==|[><]=?/)[0]
-                VersionRange range = new VersionRange('', false, '', false)
-                List<String> excluded = []
-
-                for (String condition : conditions) {
-                    List<String> parts = condition.split(/~=|!=|==|[><]=?/)
-                    log.debug("Split condition into parts ({}) {}", condition, parts)
-
-                    if (parts.size() > 1) {
-                        String v = parts[1]
-                        String operator = condition[parts[0].size()..-(parts[1].size() + 1)]
-
-                        switch (operator) {
-                            case '>=':
-                                range.includeStart = true
-                                /* FALL THROUGH */
-                            case '>':
-                                range.startVersion = v
-                                break
-                            case '<=':
-                                range.includeEnd = true
-                                /* FALL THROUGH */
-                            case '<':
-                                range.endVersion = v
-                                break
-                            case '!=':
-                                excluded.add(v)
-                                break
-                            case '==':
-                                range.includeStart = true
-                                range.startVersion = v
-                                range.includeEnd = true
-                                range.endVersion = v
-                                break
-                            case '~=':
-                                range.includeStart = true
-                                range.startVersion = v
-                                range.includeEnd = true
-                                List<String> endVersion = v.tokenize('.').init()
-                                endVersion.push('99999')
-                                range.endVersion = endVersion.join('.')
-                                log.debug("Expecting versions of {} between {} and {} to be compatible with {}", parts[0], range.startVersion, range.endVersion, v)
-                                break
-                            default:
-                                throw new RuntimeException("Unrecognizable package version condition ${condition}")
-                        }
-                    }
-                }
-
-                def projectDetails = pypiApiCache.getDetails(packageName)
-                String name = projectDetails.getName()
-                String version
-                if (range.startVersion == '' && range.endVersion == '') {
-                    // No specific version requested. Get the latest stable.
-                    if (allowPreReleases) {
-                        version = projectDetails.getLatestVersion()
-                    } else {
-                        range.endVersion = projectDetails.getLatestVersion()
-                        version = projectDetails.getHighestVersionInRange(range, excluded, allowPreReleases)
-                    }
-                } else if (latestVersions) {
-                    version = projectDetails.getHighestVersionInRange(range, excluded, allowPreReleases)
-                } else {
-                    version = projectDetails.getLowestVersionInRange(range, excluded, allowPreReleases)
-                }
-
-                (name, version) = dependencySubstitution.maybeReplace(name + ':' + version).split(':')
-                version = projectDetails.maybeFixVersion(version)
-                dependencies[configuration] << name + ':' + version
             }
         }
 
-        return dependencies
+        return dependenciesMap
     }
 
-    private String getRequiresTextFile() {
+    protected String getRequiresTextFile() {
         if (packageFile.absolutePath.contains('.tar.') || packageFile.absolutePath.endsWith('.tgz')) {
             return explodeTarForRequiresText()
         } else {
@@ -178,12 +74,8 @@ class SourceDistPackage {
     }
 
     private String explodeZipForRequiresText() {
-        def file = new ZipFile(packageFile)
-        def entry = file.getEntry('.egg-info/requires.txt')
-        if (entry) {
-            return file.getInputStream(entry).text
-        }
-        return ''
+        String requiresTextEntry = moduleName + '.egg-info/requires.txt'
+        return explodeZipForTargetEntry(requiresTextEntry)
     }
 
     private String explodeTarForRequiresText() {
@@ -218,5 +110,4 @@ class SourceDistPackage {
         }
         return new TarArchiveInputStream(compressorInputStream)
     }
-
 }

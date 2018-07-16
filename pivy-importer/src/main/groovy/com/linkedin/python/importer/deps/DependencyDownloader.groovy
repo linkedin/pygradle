@@ -15,82 +15,49 @@
  */
 package com.linkedin.python.importer.deps
 
-import com.linkedin.python.importer.distribution.SourceDistPackage
-import com.linkedin.python.importer.ivy.IvyFileWriter
 import com.linkedin.python.importer.pypi.PypiApiCache
 import com.linkedin.python.importer.util.ProxyDetector
 import groovy.util.logging.Slf4j
 import org.apache.commons.io.FilenameUtils
 import org.apache.http.client.fluent.Request
 
-import java.nio.file.Paths
-
 @Slf4j
-class DependencyDownloader {
-
-
+abstract class DependencyDownloader {
     Queue<String> dependencies = [] as Queue
-    Set<String> processedDependencies = [] as Set
     PypiApiCache cache = new PypiApiCache()
+
+    String project
     File ivyRepoRoot
     DependencySubstitution dependencySubstitution
-    boolean latestVersions
-    boolean allowPreReleases
-    boolean lenient
+    Set<String> processedDependencies
 
-    DependencyDownloader(String project, File ivyRepoRoot, DependencySubstitution dependencySubstitution,
-                         boolean latestVersions, boolean allowPreReleases, boolean lenient) {
-        this.dependencySubstitution = dependencySubstitution
+    protected DependencyDownloader(
+        String project,
+        File ivyRepoRoot,
+        DependencySubstitution dependencySubstitution,
+        Set<String> processedDependencies) {
+
+        this.project = project
         this.ivyRepoRoot = ivyRepoRoot
-        this.latestVersions = latestVersions
-        this.allowPreReleases = allowPreReleases
-        this.lenient = lenient
+        this.dependencySubstitution = dependencySubstitution
+        this.processedDependencies = processedDependencies
         dependencies.add(project)
     }
 
-    def download() {
+    def download(boolean latestVersions, boolean allowPreReleases, boolean lenient) {
         while (!dependencies.isEmpty()) {
             def dep = dependencies.poll()
             if (dep in processedDependencies) {
                 continue
             }
-            downloadDependency(dep)
+            downloadDependency(dep, latestVersions, allowPreReleases, lenient)
             processedDependencies.add(dep)
         }
     }
 
-    def downloadDependency(String dep) {
-        log.info("Pulling in $dep")
-        def (name, version) = dep.split(":")
+    abstract downloadDependency(String dep, boolean latestVersions, boolean allowPreReleases, boolean lenient)
 
-        def projectDetails = cache.getDetails(name)
-        version = projectDetails.maybeFixVersion(version)
-        def sdistDetails = projectDetails.findVersion(version).find { it.packageType == 'sdist' }
-
-        if (sdistDetails == null) {
-            if (lenient) {
-                log.error("Unable to find source dist for $dep")
-                return
-            }
-            throw new RuntimeException("Unable to find source dist for $dep")
-        }
-
-        def destDir = Paths.get(ivyRepoRoot.absolutePath, "pypi", name, version).toFile()
-
-        destDir.mkdirs()
-
-        def artifact = downloadArtifact(destDir, sdistDetails.url)
-        def packageDependencies = new SourceDistPackage(artifact, cache, dependencySubstitution,
-            latestVersions, allowPreReleases).dependencies
-
-        new IvyFileWriter(name, version, [sdistDetails], packageDependencies).writeIvyFile(destDir)
-
-        packageDependencies.each { key, value ->
-            dependencies.addAll(value)
-        }
-    }
-
-    static File downloadArtifact(File destDir, String url) {
+    protected static File downloadArtifact(File destDir, String url) {
 
         def filename = FilenameUtils.getName(new URL(url).getPath())
         def contents = new File(destDir, filename)
@@ -117,5 +84,15 @@ class DependencyDownloader {
         }
 
         return contents
+    }
+
+    /**
+     * Get the actual module name from artifact name, which has the correct letter case.
+     * @param filename the filename of artifact
+     * @param revision module version
+     * @return actual module name, which is from PyPI
+     */
+    static String getActualModuleNameFromFilename(String filename, String revision) {
+        return filename.substring(0, filename.indexOf(revision) - 1)
     }
 }

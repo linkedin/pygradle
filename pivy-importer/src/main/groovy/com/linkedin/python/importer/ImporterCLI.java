@@ -17,6 +17,8 @@ package com.linkedin.python.importer;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import com.linkedin.python.importer.deps.SdistDownloader;
+import com.linkedin.python.importer.deps.WheelsDownloader;
 import com.linkedin.python.importer.deps.DependencyDownloader;
 import com.linkedin.python.importer.deps.DependencySubstitution;
 import org.apache.commons.cli.CommandLine;
@@ -42,7 +44,6 @@ public class ImporterCLI {
     }
 
     public static void main(String[] args) throws Exception {
-
         Options options = createOptions();
 
         CommandLineParser parser = new DefaultParser();
@@ -57,7 +58,6 @@ public class ImporterCLI {
             throw new RuntimeException("Unable to continue, no repository location given on the command line (use the --repo switch)");
         }
         final File repoPath = new File(line.getOptionValue("repo"));
-        final DependencySubstitution replacements = new DependencySubstitution(buildSubstitutionMap(line), buildForceMap(line));
 
         repoPath.mkdirs();
 
@@ -65,29 +65,57 @@ public class ImporterCLI {
             throw new RuntimeException("Unable to continue, " + repoPath.getAbsolutePath() + " does not exist, or is not a directory");
         }
 
+        importPackages(line, repoPath);
+        logger.info("Execution Finished!");
+    }
 
+    private static void importPackages(CommandLine line, File repoPath) {
+        final DependencySubstitution replacements = new DependencySubstitution(buildSubstitutionMap(line), buildForceMap(line));
         Set<String> processedDependencies = new HashSet<>();
         for (String dependency : line.getArgList()) {
-            DependencyDownloader dependencyDownloader = new DependencyDownloader(
-                    dependency, repoPath, replacements, line.hasOption("latest"), line.hasOption("pre"),
-                    line.hasOption("lenient"));
-            dependencyDownloader.getProcessedDependencies().addAll(processedDependencies);
-            dependencyDownloader.download();
-            processedDependencies.addAll(dependencyDownloader.getProcessedDependencies());
-        }
+            DependencyDownloader artifactDownloader;
 
-        logger.info("Execution Finished!");
+            if (dependency.split(":").length == 2) {
+                artifactDownloader = new SdistDownloader(dependency, repoPath, replacements, processedDependencies);
+            } else if (dependency.split(":").length == 3) {
+                artifactDownloader = new WheelsDownloader(dependency, repoPath, replacements, processedDependencies);
+            } else {
+                String errMsg = "Unable to parse the dependency "
+                    + dependency
+                    + ".\nThe format of dependency should be either <module>:<revision> for source distribution "
+                    + "or <module>:<revision>:<classifier> for Wheels.";
+
+                if (line.hasOption("lenient")) {
+                    logger.error(errMsg);
+                    continue;
+                }
+                throw new IllegalArgumentException(errMsg);
+            }
+
+            artifactDownloader.download(line.hasOption("latest"), line.hasOption("pre"), line.hasOption("lenient"));
+        }
+    }
+
+    public static void pullDownPackageAndDependencies(Set<String> processedDependencies,
+                                                      DependencyDownloader artifactDownloader,
+                                                      boolean latestVersions,
+                                                      boolean allowPreReleases,
+                                                      boolean lenient) {
+
+        artifactDownloader.getProcessedDependencies().addAll(processedDependencies);
+        artifactDownloader.download(latestVersions, allowPreReleases, lenient);
+        processedDependencies.addAll(artifactDownloader.getProcessedDependencies());
     }
 
     private static Map<String, String> buildForceMap(CommandLine line) {
         Map<String, String> sub = new LinkedHashMap<>();
         if (line.hasOption("force")) {
             for (String it : Arrays.asList(line.getOptionValues("force"))) {
-                System.out.println(it);
                 String[] split = it.split(":");
                 sub.put(split[0], split[1]);
             }
         }
+
         return sub;
     }
 
@@ -154,13 +182,10 @@ public class ImporterCLI {
         Map<String, String> sub = new LinkedHashMap<>();
         if (line.hasOption("replace")) {
             for (String it : Arrays.asList(line.getOptionValues("replace"))) {
-                System.out.println(it);
                 String[] split = it.split("=");
                 sub.put(split[0], split[1]);
             }
         }
         return sub;
-
     }
-
 }

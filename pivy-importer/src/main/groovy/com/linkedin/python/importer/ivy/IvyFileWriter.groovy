@@ -16,49 +16,37 @@
 package com.linkedin.python.importer.ivy
 
 import com.linkedin.python.importer.pypi.VersionEntry
+import com.linkedin.python.importer.deps.SdistDownloader
+import com.linkedin.python.importer.deps.WheelsDownloader
 import groovy.transform.TupleConstructor
 import groovy.xml.MarkupBuilder
 import org.apache.commons.io.FilenameUtils
 
 @TupleConstructor
 class IvyFileWriter {
-
     final String name
     final String version
+    final String packageType
     final List<VersionEntry> archives
-    final Map<String, List<String>> dependencies
 
     @SuppressWarnings("SpaceAroundClosureArrow")
-    def writeIvyFile(File destDir) {
-
+    def writeIvyFile(File destDir, Map<String, List<String>> dependenciesMap, String classifier=null) {
         def writer = new StringWriter()
         def xml = new MarkupBuilder(writer)
         xml.setDoubleQuotes(true)
 
-        def pub = archives.collect { artifact ->
-            def ext = artifact.filename.contains(".tar.") ? artifact.filename.find('tar\\..*') : FilenameUtils.getExtension(artifact.filename)
-            String filename = artifact.filename - ("." + ext)
-
-            def source = 'sdist' == artifact.packageType
-
-            def map = [name: name, ext: ext, conf: source ? 'source' : 'default', type: ext == 'whl' ? 'zip' : ext]
-
-            if (filename.indexOf(version) + version.length() + 1 < filename.length()) {
-                def classifier = filename.substring(filename.indexOf(version) + version.length() + 1)
-                map['m:classifier'] = classifier
-            }
-
-            return map
-        }
+        def pub = getPublicationsMap()
 
         if (!(pub.any { it.conf == 'default' })) {
             pub.first().conf = 'default'
         }
 
         xml.'ivy-module'(version: "2.0", 'xmlns:e': "http://ant.apache.org/ivy/extra", 'xmlns:m': "http://ant.apache.org/ivy/maven") {
-            info(organisation: "pypi", module: name, revision: version)
+            // fix the issue MarkupBuilder escapes ">" into "&gt"
+            setEscapeAttributes(false)
+            info(organisation: getOrganisation(), module: name, revision: version)
             configurations {
-                def configurations = new HashSet<>(dependencies.keySet())
+                def configurations = new HashSet<>(dependenciesMap.keySet())
                 configurations.add("source")
                 configurations.each {
                     def map = [name: it, description: 'auto generated configuration for ' + it]
@@ -74,7 +62,7 @@ class IvyFileWriter {
                 }
             }
             dependencies(defaultconfmapping: "*->default") {
-                dependencies.each { config, deps ->
+                dependenciesMap.each { config, deps ->
                     deps.each { dep ->
                         def (name, version) = dep.split(':')
                         dependency(org: 'pypi', name: name, rev: version, conf: config)
@@ -85,6 +73,44 @@ class IvyFileWriter {
 
         def ivyText = writer.toString()
 
-        new File(destDir, "${name}-${version}.ivy").text = ivyText
+        if (packageType == SdistDownloader.SOURCE_DIST_PACKAGE_TYPE) {
+            new File(destDir, "${name}-${version}.ivy").text = ivyText
+        } else if (packageType == WheelsDownloader.BINARY_DIST_PACKAGE_TYPE) {
+            new File(destDir, "${name}-${version}-${classifier}.ivy").text = ivyText
+        }
+    }
+
+    private getPublicationsMap() {
+        def publicationMap = archives.collect { artifact ->
+            def ext = artifact.filename.contains(".tar.") ? artifact.filename.find('tar\\..*') : FilenameUtils.getExtension(artifact.filename)
+            String filename = artifact.filename - ("." + ext)
+            def source = SdistDownloader.SOURCE_DIST_PACKAGE_TYPE == artifact.packageType
+            def map = [name: name, ext: ext, conf: source ? 'source' : 'default', type: ext]
+
+            if (filename.indexOf(version) + version.length() + 1 < filename.length()) {
+                map['m:classifier'] = getClassifier(filename)
+            }
+            return map
+        }
+
+        return publicationMap
+    }
+
+    private String getClassifier(String filename) {
+        return filename.substring(filename.indexOf(version) + version.length() + 1)
+    }
+
+    private String getOrganisation() {
+        String organisation
+
+        if (packageType == SdistDownloader.SOURCE_DIST_PACKAGE_TYPE) {
+            organisation = SdistDownloader.SOURCE_DIST_ORG
+        } else if (packageType == WheelsDownloader.BINARY_DIST_PACKAGE_TYPE) {
+            organisation = WheelsDownloader.BINARY_DIST_ORG
+        } else {
+            throw new RuntimeException("Package type $packageType is not supported yet.")
+        }
+
+        return organisation
     }
 }

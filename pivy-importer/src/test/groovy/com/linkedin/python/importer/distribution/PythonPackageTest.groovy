@@ -50,7 +50,7 @@ class PythonPackageTest extends Specification {
         String testEntryName = "WMI-1.4.8/$testFileName"
         when:
         String actualText = testPythonPackage.explodeZipForTargetEntry(testEntryName).replaceAll("\r\n", "\n")
-        String expectedText = new File(testDirectory, "$testFileName").text.replaceAll("\r\n", "\n")
+        String expectedText = new File(testDirectory, "$testFileName").text
         then:
         actualText == expectedText
     }

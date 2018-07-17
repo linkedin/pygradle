@@ -21,7 +21,7 @@ import java.io.File;
 
 public class PythonDetailsTestDouble extends PythonDetails {
 
-    private PythonVersion version = new PythonVersion("3.4");
+    private PythonVersion version = new PythonVersion("3.6");
 
     public PythonDetailsTestDouble(Project project, File venvDir) {
         super(project, venvDir);

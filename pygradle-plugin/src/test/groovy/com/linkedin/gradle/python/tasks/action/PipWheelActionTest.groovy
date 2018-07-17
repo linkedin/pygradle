@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.tasks.action.pip
+package com.linkedin.gradle.python.tasks.action
 
 import com.linkedin.gradle.python.exception.PipExecutionException
 import com.linkedin.gradle.python.extension.PythonDetailsTestDouble
 import com.linkedin.gradle.python.extension.VirtualEnvironment
 import com.linkedin.gradle.python.extension.WheelExtension
+import com.linkedin.gradle.python.tasks.action.pip.PipActionHelpers
+import com.linkedin.gradle.python.tasks.action.pip.PipWheelAction
 import com.linkedin.gradle.python.tasks.exec.ExternalExecTestDouble
 import com.linkedin.gradle.python.util.DefaultEnvironmentMerger
 import com.linkedin.gradle.python.util.PackageSettings
@@ -30,6 +32,7 @@ import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
 import static com.linkedin.gradle.python.tasks.action.pip.PipActionHelpers.packageInGradleCache
+
 
 class PipWheelActionTest extends Specification {
 
@@ -74,7 +77,7 @@ class PipWheelActionTest extends Specification {
 
     def 'wheel install uses build options'() {
         Map<String, List<String>> override = ['setuptools': ['--build-option', '--disable-something']]
-        def settings = new PipActionHelpers.BuildOptionsPackageSettings(temporaryFolder, override)
+        def settings = new PipActionHelpers.BuildOptionPackageSettings(temporaryFolder, override)
         def execSpec = Mock(ExecSpec)
         def action = createPipWheelAction(settings, execSpec)
 

@@ -153,9 +153,9 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider, Suppo
                 } else {
                     try {
                         pipInstallAction.installPackage(packageInfo, args)
-                    } catch (PipExecutionException pee) {
-                        lastInstallMessage = pee.pipText
-                        throw pee
+                    } catch (PipExecutionException e) {
+                        lastInstallMessage = e.pipText
+                        throw e
                     }
                 }
                 timer.stop()

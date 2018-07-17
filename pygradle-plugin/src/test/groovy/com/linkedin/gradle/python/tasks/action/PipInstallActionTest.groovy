@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.tasks.action.pip
+package com.linkedin.gradle.python.tasks.action
 
 import com.linkedin.gradle.python.exception.PipExecutionException
 import com.linkedin.gradle.python.extension.PythonDetailsTestDouble
 import com.linkedin.gradle.python.extension.VirtualEnvironment
+import com.linkedin.gradle.python.tasks.action.pip.PipActionHelpers
+import com.linkedin.gradle.python.tasks.action.pip.PipInstallAction
 import com.linkedin.gradle.python.tasks.exec.ExternalExecTestDouble
 import com.linkedin.gradle.python.util.DefaultEnvironmentMerger
 import com.linkedin.gradle.python.util.PackageSettings
@@ -64,10 +66,10 @@ class PipInstallActionTest extends Specification {
         1 * execSpec.commandLine(_) >> { List<List<String>> args ->
             println args
             def it = args[0]
-            def idx = it.indexOf('--dummy-global-option')
+            def idx = it.indexOf('--global-option')
             assert idx != -1
             assert it[2] == 'install'
-            assert it[idx - 1] == '--global-option'
+            assert it[idx + 1] == '--dummy-global-option'
         }
     }
 

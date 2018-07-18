@@ -13,14 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.tasks.action
+package com.linkedin.gradle.python.tasks.action.pip
 
 import com.linkedin.gradle.python.exception.PipExecutionException
 import com.linkedin.gradle.python.extension.PythonDetailsTestDouble
 import com.linkedin.gradle.python.extension.VirtualEnvironment
 import com.linkedin.gradle.python.extension.WheelExtension
-import com.linkedin.gradle.python.tasks.action.pip.PipActionHelpers
-import com.linkedin.gradle.python.tasks.action.pip.PipWheelAction
 import com.linkedin.gradle.python.tasks.exec.ExternalExecTestDouble
 import com.linkedin.gradle.python.util.DefaultEnvironmentMerger
 import com.linkedin.gradle.python.util.PackageSettings

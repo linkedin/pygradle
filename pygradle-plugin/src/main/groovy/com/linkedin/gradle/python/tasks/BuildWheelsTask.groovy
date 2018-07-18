@@ -16,14 +16,22 @@
 package com.linkedin.gradle.python.tasks
 
 import com.linkedin.gradle.python.PythonExtension
+import com.linkedin.gradle.python.exception.PipExecutionException
 import com.linkedin.gradle.python.extension.PythonDetails
 import com.linkedin.gradle.python.extension.WheelExtension
+import com.linkedin.gradle.python.plugin.PythonHelpers
 import com.linkedin.gradle.python.tasks.action.pip.PipWheelAction
 import com.linkedin.gradle.python.tasks.exec.ExternalExec
 import com.linkedin.gradle.python.tasks.exec.ProjectExternalExec
+import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider
 import com.linkedin.gradle.python.tasks.supports.SupportsPackageInfoSettings
 import com.linkedin.gradle.python.tasks.supports.SupportsWheelCache
-import com.linkedin.gradle.python.util.*
+import com.linkedin.gradle.python.util.DefaultEnvironmentMerger
+import com.linkedin.gradle.python.util.DependencyOrder
+import com.linkedin.gradle.python.util.EnvironmentMerger
+import com.linkedin.gradle.python.util.ExtensionUtils
+import com.linkedin.gradle.python.util.PackageInfo
+import com.linkedin.gradle.python.util.PackageSettings
 import com.linkedin.gradle.python.util.internal.TaskTimer
 import com.linkedin.gradle.python.wheel.EmptyWheelCache
 import com.linkedin.gradle.python.wheel.WheelCache
@@ -39,7 +47,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.internal.logging.progress.ProgressLogger
 import org.gradle.internal.logging.progress.ProgressLoggerFactory
 
-class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, SupportsPackageInfoSettings {
+class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, SupportsPackageInfoSettings, FailureReasonProvider {
 
     @Input
     WheelCache wheelCache = new EmptyWheelCache()
@@ -61,6 +69,7 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, Support
 
     EnvironmentMerger environmentMerger = new DefaultEnvironmentMerger()
     ExternalExec externalExec = new ProjectExternalExec(getProject())
+    private String lastInstallMessage = null
 
     public BuildWheelsTask() {
         getOutputs().doNotCacheIf('When package packageExcludeFilter is set', new Spec<Task>() {
@@ -147,12 +156,23 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, Support
         def numberOfInstallables = installables.size()
         installables.each { File installable ->
             def packageInfo = PackageInfo.fromPath(installable)
-            def shortHand = packageInfo.version ? "${ packageInfo.name }-${ packageInfo.version }" : packageInfo.name
+            def shortHand = packageInfo.toShortHand()
 
             def clock = taskTimer.start(shortHand)
-            progressLogger.progress("Preparing wheel $shortHand (${ ++counter } of $numberOfInstallables)")
+            progressLogger.progress("Preparing wheel $shortHand (${++counter} of $numberOfInstallables)")
 
-            wheelAction.buildWheel(packageInfo, args)
+            if (packageExcludeFilter != null && packageExcludeFilter.isSatisfiedBy(packageInfo)) {
+                if (PythonHelpers.isPlainOrVerbose(project)) {
+                    logger.lifecycle("Skipping {} - Excluded", packageInfo.toShortHand())
+                }
+            } else {
+                try {
+                    wheelAction.buildWheel(packageInfo, args)
+                } catch (PipExecutionException e) {
+                    lastInstallMessage = e.pipText
+                    throw e
+                }
+            }
 
             clock.stop()
         }
@@ -160,5 +180,10 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, Support
         progressLogger.completed()
 
         new File(project.buildDir, getName() + "-task-runtime-report.txt").text = taskTimer.buildReport()
+    }
+
+    @Override
+    String getReason() {
+        return lastInstallMessage
     }
 }

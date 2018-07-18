@@ -24,6 +24,7 @@ import com.linkedin.gradle.python.tasks.exec.ExternalExecTestDouble
 import com.linkedin.gradle.python.util.DefaultEnvironmentMerger
 import com.linkedin.gradle.python.util.PackageSettings
 import com.linkedin.gradle.python.wheel.EmptyWheelCache
+import com.linkedin.gradle.python.wheel.WheelCache
 import org.gradle.process.ExecSpec
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Rule
@@ -37,7 +38,7 @@ class PipInstallActionTest extends Specification {
     @Rule
     TemporaryFolder temporaryFolder
 
-    def "pip install uses environment"() {
+    def "uses environment"() {
         setup:
         def override = [foo: ['CPPFLAGS': '-I/some/custom/path/include',
                               'LDFLAGS' : '-L/some/custom/path/lib -Wl,-rpath,/some/custom/path/lib']
@@ -53,7 +54,7 @@ class PipInstallActionTest extends Specification {
         1 * execSpec.environment(['CPPFLAGS': '-I/some/custom/path/include', 'LDFLAGS': '-L/some/custom/path/lib -Wl,-rpath,/some/custom/path/lib'])
     }
 
-    def 'pip install uses global options'() {
+    def 'uses global options'() {
         Map<String, List<String>> override = ['setuptools': ['--global-option', '--dummy-global-option']]
         def settings = new PipActionHelpers.GlobalOptionOverridePackageSettings(temporaryFolder, override)
         def execSpec = Mock(ExecSpec)
@@ -73,7 +74,7 @@ class PipInstallActionTest extends Specification {
         }
     }
 
-    def 'pip install uses install options'() {
+    def 'uses install options'() {
         Map<String, List<String>> override = ['setuptools': ['--install-option', '--ignore=E123,E234']]
         def settings = new PipActionHelpers.InstallOptionOverridePackageSettings(temporaryFolder, override)
         def execSpec = Mock(ExecSpec)
@@ -93,7 +94,7 @@ class PipInstallActionTest extends Specification {
         }
     }
 
-    def "pip install uses supported language versions"() {
+    def "uses supported language versions"() {
         Map<String, List<String>> override = ['setuptools': ['2.8']]
         def settings = new PipActionHelpers.SupportedLanguageVersionOverridePackageSettings(temporaryFolder, override)
         def execSpec = Mock(ExecSpec)
@@ -107,11 +108,12 @@ class PipInstallActionTest extends Specification {
         e.message == 'Package setuptools works only with Python versions: [2.8]'
     }
 
-    def 'pip install requires source rebuild'() {
+    def 'requires source rebuild'() {
         List<String> override = ['pyflakes']
         def settings = new PipActionHelpers.RequiresRebuildOverridePackageSettings(temporaryFolder, override)
         def execSpec = Mock(ExecSpec)
-        def pipInstallAction = createPipInstallAction(settings, execSpec)
+        def mockWheelCache = Mock(WheelCache)
+        def pipInstallAction = createPipInstallAction(settings, execSpec, mockWheelCache)
 
         when:
         pipInstallAction.installPackage(packageInGradleCache("pyflakes-1.0.0.tar.gz"), [])
@@ -125,9 +127,15 @@ class PipInstallActionTest extends Specification {
             assert it[2] == 'install'
             assert it[idx + 1] == '--ignore-installed'
         }
+
+        0 * mockWheelCache._
     }
 
     private PipInstallAction createPipInstallAction(PackageSettings settings, ExecSpec execSpec) {
+        return createPipInstallAction(settings, execSpec, new EmptyWheelCache())
+    }
+
+    private PipInstallAction createPipInstallAction(PackageSettings settings, ExecSpec execSpec, WheelCache wheelCache) {
         def project = new ProjectBuilder().withProjectDir(temporaryFolder.root).build()
         def binDir = temporaryFolder.newFolder('build', 'venv', VirtualEnvironment.getPythonApplicationDirectory())
         VirtualEnvironment.findExecutable(binDir.toPath(), "pip").toFile().createNewFile()
@@ -135,6 +143,6 @@ class PipInstallActionTest extends Specification {
         def details = new PythonDetailsTestDouble(project, binDir.parentFile)
         return new PipInstallAction(settings, project, new ExternalExecTestDouble(execSpec),
             ['CPPFLAGS': 'bogus', 'LDFLAGS': 'bogus'],
-            details, new EmptyWheelCache(), new DefaultEnvironmentMerger())
+            details, wheelCache, new DefaultEnvironmentMerger())
     }
 }

@@ -96,10 +96,10 @@ class PipActionHelpers {
         }
     }
 
-    static class BuildOptionPackageSettings extends DefaultPackageSettings {
+    static class BuildOptionOverridePackageSetting extends DefaultPackageSettings {
         private final Map<String, List<String>> envOverride
 
-        BuildOptionPackageSettings(TemporaryFolder temporaryFolder, Map<String, List<String>> envOverride) {
+        BuildOptionOverridePackageSetting(TemporaryFolder temporaryFolder, Map<String, List<String>> envOverride) {
             super(temporaryFolder.root)
             this.envOverride = envOverride
         }

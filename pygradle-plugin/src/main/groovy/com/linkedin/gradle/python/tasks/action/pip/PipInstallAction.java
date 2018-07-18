@@ -125,8 +125,13 @@ public class PipInstallAction extends AbstractPipAction {
         commandLine.addAll(getGlobalOptions(packageInfo));
         commandLine.addAll(getInstallOptions(packageInfo));
 
-        Optional<File> cachedWheel = wheelCache.findWheel(packageInfo.getName(), packageInfo.getVersion(), pythonDetails);
-        if (!packageSettings.requiresSourceBuild(packageInfo) && cachedWheel.isPresent()) {
+        Optional<File> cachedWheel = Optional.empty();
+
+        if (!packageSettings.requiresSourceBuild(packageInfo)) {
+            cachedWheel = wheelCache.findWheel(packageInfo.getName(), packageInfo.getVersion(), pythonDetails);
+        }
+
+        if (cachedWheel.isPresent()) {
             if (PythonHelpers.isPlainOrVerbose(project)) {
                 logger.lifecycle("{} from wheel: {}", packageInfo.toShortHand(), cachedWheel.get().getAbsolutePath());
             }

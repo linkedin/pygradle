@@ -24,7 +24,9 @@ import com.linkedin.gradle.python.util.PackageInfo;
 import com.linkedin.gradle.python.util.PackageSettings;
 import com.linkedin.gradle.python.wheel.WheelCache;
 import org.gradle.api.Project;
+import org.gradle.process.ExecResult;
 
+import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +67,16 @@ abstract class AbstractPipAction {
             && !supportedVersions.contains(pythonVersion.getPythonMajorMinor())) {
             throw PipExecutionException.unsupportedPythonVersion(packageInfo, supportedVersions);
         }
+    }
+
+    ExecResult execCommand(Map<String, String> mergedEnv, List<String> commandLine, OutputStream stream) {
+        return externalExec.exec(execSpec -> {
+            execSpec.environment(mergedEnv);
+            execSpec.commandLine(commandLine);
+            execSpec.setStandardOutput(stream);
+            execSpec.setErrorOutput(stream);
+            execSpec.setIgnoreExitValue(true);
+        });
     }
 
     /**

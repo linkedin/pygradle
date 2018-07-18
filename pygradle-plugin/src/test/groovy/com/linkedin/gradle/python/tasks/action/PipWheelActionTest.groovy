@@ -117,6 +117,9 @@ class PipWheelActionTest extends Specification {
         def wheelCacheMock = Mock(WheelCache)
         def action = createPipWheelAction(settings, execSpec, wheelCacheMock)
 
+        def wheelCache = temporaryFolder.newFolder('build', 'wheel-cache')
+        new File(wheelCache, "pyflakes-1.6.0-py2.py3-none-any.whl").createNewFile()
+
         when:
         action.buildWheel(packageInGradleCache("pyflakes-1.0.0.tar.gz"), [])
 
@@ -130,6 +133,40 @@ class PipWheelActionTest extends Specification {
             assert !it.any { entry -> entry == '--ignore-installed' }
         }
         0 * wheelCacheMock._
+    }
+
+    def 'will skip if package is installed in project wheel cache'() {
+        def settings = new PipActionHelpers.RequiresRebuildOverridePackageSettings(temporaryFolder, [])
+        def execSpec = Mock(ExecSpec)
+        def action = createPipWheelAction(settings, execSpec)
+
+        def wheelCache = temporaryFolder.newFolder('build', 'wheel-cache')
+        new File(wheelCache, "pyflakes-1.6.0-py2.py3-none-any.whl").createNewFile()
+
+        when:
+        action.buildWheel(packageInGradleCache("pyflakes-1.6.0.tar.gz"), [])
+
+        then:
+        0 * execSpec._
+    }
+
+    def 'will use pre-built wheel when available in global cache'() {
+        def settings = new PipActionHelpers.RequiresRebuildOverridePackageSettings(temporaryFolder, [])
+        def execSpec = Mock(ExecSpec)
+        def wheelCacheMock = Mock(WheelCache)
+        def action = createPipWheelAction(settings, execSpec, wheelCacheMock)
+
+        def fakeWheel = temporaryFolder.newFile('pyflakes-1.6.0-py2.py3-none-any.whl')
+
+        assert !new File(temporaryFolder.root, "build/wheel-cache/pyflakes-1.6.0-py2.py3-none-any.whl").exists()
+
+        when:
+        action.buildWheel(packageInGradleCache("pyflakes-1.6.0.tar.gz"), [])
+
+        then:
+        0 * execSpec._
+        1 * wheelCacheMock.findWheel(_, _, _) >> Optional.of(fakeWheel)
+        new File(temporaryFolder.root, "build/wheel-cache/pyflakes-1.6.0-py2.py3-none-any.whl").exists()
     }
 
     private PipWheelAction createPipWheelAction(PackageSettings settings, ExecSpec execSpec) {

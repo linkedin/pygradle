@@ -99,13 +99,8 @@ public class PipWheelAction extends AbstractPipAction {
         List<String> commandLine = makeCommandLine(packageInfo, extraArgs);
 
         OutputStream stream = new ByteArrayOutputStream();
-        ExecResult installResult = externalExec.exec(execSpec -> {
-            execSpec.environment(mergedEnv);
-            execSpec.commandLine(commandLine);
-            execSpec.setStandardOutput(stream);
-            execSpec.setErrorOutput(stream);
-            execSpec.setIgnoreExitValue(true);
-        });
+
+        ExecResult installResult = execCommand(mergedEnv, commandLine, stream);
 
         if (installResult.getExitValue() != 0) {
             logger.error("Error installing package using `{}`", commandLine);

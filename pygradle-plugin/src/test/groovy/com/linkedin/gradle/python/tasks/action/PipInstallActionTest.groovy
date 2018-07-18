@@ -115,6 +115,14 @@ class PipInstallActionTest extends Specification {
         def mockWheelCache = Mock(WheelCache)
         def pipInstallAction = createPipInstallAction(settings, execSpec, mockWheelCache)
 
+        def eggFile = pipInstallAction.sitePackagesPath.resolve("pyflakes-1.6.0-py3.6.egg-info").toFile()
+        eggFile.parentFile.mkdirs()
+        eggFile.createNewFile()
+
+        def distInfo = pipInstallAction.sitePackagesPath.resolve("pyflakes-1.6.0.dist-info").toFile()
+        distInfo.parentFile.mkdirs()
+        distInfo.createNewFile()
+
         when:
         pipInstallAction.installPackage(packageInGradleCache("pyflakes-1.0.0.tar.gz"), [])
 
@@ -129,6 +137,38 @@ class PipInstallActionTest extends Specification {
         }
 
         0 * mockWheelCache._
+    }
+
+    def 'will skip if package (egg) is installed'() {
+        def settings = new PipActionHelpers.RequiresRebuildOverridePackageSettings(temporaryFolder, [])
+        def execSpec = Mock(ExecSpec)
+        def action = createPipInstallAction(settings, execSpec)
+
+        def eggFile = action.sitePackagesPath.resolve("pyflakes-1.6.0-py3.6.egg-info").toFile()
+        eggFile.parentFile.mkdirs()
+        eggFile.createNewFile()
+
+        when:
+        action.installPackage(packageInGradleCache("pyflakes-1.6.0.tar.gz"), [])
+
+        then:
+        0 * execSpec._
+    }
+
+    def 'will skip if package (dist-info) is installed'() {
+        def settings = new PipActionHelpers.RequiresRebuildOverridePackageSettings(temporaryFolder, [])
+        def execSpec = Mock(ExecSpec)
+        def action = createPipInstallAction(settings, execSpec)
+
+        def eggFile = action.sitePackagesPath.resolve("pyflakes-1.6.0.dist-info").toFile()
+        eggFile.parentFile.mkdirs()
+        eggFile.createNewFile()
+
+        when:
+        action.installPackage(packageInGradleCache("pyflakes-1.6.0.tar.gz"), [])
+
+        then:
+        0 * execSpec._
     }
 
     private PipInstallAction createPipInstallAction(PackageSettings settings, ExecSpec execSpec) {

@@ -93,13 +93,7 @@ public class PipInstallAction extends AbstractPipAction {
         }
 
         OutputStream stream = new ByteArrayOutputStream();
-        ExecResult installResult = externalExec.exec(execSpec -> {
-            execSpec.environment(mergedEnv);
-            execSpec.commandLine(commandLine);
-            execSpec.setStandardOutput(stream);
-            execSpec.setErrorOutput(stream);
-            execSpec.setIgnoreExitValue(true);
-        });
+        ExecResult installResult = execCommand(mergedEnv, commandLine, stream);
 
         String message = stream.toString().trim();
         if (installResult.getExitValue() != 0) {

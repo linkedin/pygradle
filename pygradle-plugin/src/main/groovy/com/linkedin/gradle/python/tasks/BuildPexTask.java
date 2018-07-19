@@ -28,6 +28,7 @@ import org.apache.commons.io.FileUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.TaskAction;
 
@@ -115,6 +116,7 @@ public class BuildPexTask extends DefaultTask implements FailureReasonProvider {
     }
 
     @Override
+    @Internal
     public String getReason() {
         return container.getCommandOutput();
     }

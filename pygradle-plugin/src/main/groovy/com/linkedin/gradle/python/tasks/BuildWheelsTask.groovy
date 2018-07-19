@@ -42,6 +42,7 @@ import org.gradle.api.file.FileCollection
 import org.gradle.api.specs.Spec
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.internal.logging.progress.ProgressLogger
@@ -66,9 +67,15 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, Support
     @Optional
     Map<String, String> environment
 
+    @Internal
     PackageSettings<PackageInfo> packageSettings
+
+    @Internal
     EnvironmentMerger environmentMerger = new DefaultEnvironmentMerger()
+
+    @Internal
     ExternalExec externalExec = new ProjectExternalExec(getProject())
+
     String lastInstallMessage = null
 
     @TaskAction

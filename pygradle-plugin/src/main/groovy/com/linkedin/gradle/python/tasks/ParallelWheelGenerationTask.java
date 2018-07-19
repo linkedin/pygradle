@@ -73,6 +73,7 @@ public class ParallelWheelGenerationTask extends DefaultTask implements Supports
     private AtomicInteger counter = new AtomicInteger();
 
     private PackageSettings<PackageInfo> packageSettings;
+    private Spec<PackageInfo> packageFilter;
 
     public ParallelWheelGenerationTask() {
         onlyIf(task -> {
@@ -102,8 +103,6 @@ public class ParallelWheelGenerationTask extends DefaultTask implements Supports
             return extraDependencies.isEmpty();
         });
     }
-
-    private Spec<PackageInfo> packageFilter;
 
     @TaskAction
     public void buildWheels() {

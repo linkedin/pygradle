@@ -29,7 +29,6 @@ import com.linkedin.gradle.python.tasks.supports.SupportsDistutilsCfg;
 import com.linkedin.gradle.python.tasks.supports.SupportsPackageFiltering;
 import com.linkedin.gradle.python.tasks.supports.SupportsPackageInfoSettings;
 import com.linkedin.gradle.python.tasks.supports.SupportsWheelCache;
-import com.linkedin.gradle.python.tasks.supports.WithoutPrebuiltWheels;
 import com.linkedin.gradle.python.util.DefaultEnvironmentMerger;
 import com.linkedin.gradle.python.util.DependencyOrder;
 import com.linkedin.gradle.python.util.EnvironmentMerger;
@@ -73,7 +72,6 @@ import static com.linkedin.gradle.python.util.StandardTextValues.CONFIGURATION_S
  * will allow {@link PythonExtension} to be updated by the project and be complete
  * when its used in the tasks.
  */
-@WithoutPrebuiltWheels
 abstract public class AbstractPythonInfrastructureDefaultTask extends DefaultTask implements FailureReasonProvider,
     SupportsPackageInfoSettings, SupportsDistutilsCfg, SupportsPackageFiltering, SupportsWheelCache, ProvidesVenv {
 

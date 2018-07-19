@@ -63,6 +63,7 @@ public class PythonPlugin implements Plugin<Project> {
 
         EditablePythonAbiContainer supportedWheelFormats =
             ExtensionUtils.maybeCreate(settings, EditablePythonAbiContainer.class.getName(), DefaultPythonAbiContainer.class);
+
         project.getTasks().withType(ProvidesVenv.class, it -> it.setEditablePythonAbiContainer(supportedWheelFormats));
 
         project.getPlugins().apply("base");

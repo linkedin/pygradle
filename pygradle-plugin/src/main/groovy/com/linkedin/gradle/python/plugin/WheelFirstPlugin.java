@@ -18,7 +18,6 @@ package com.linkedin.gradle.python.plugin;
 import com.linkedin.gradle.python.tasks.ParallelWheelGenerationTask;
 import com.linkedin.gradle.python.tasks.provides.ProvidesVenv;
 import com.linkedin.gradle.python.tasks.supports.SupportsWheelCache;
-import com.linkedin.gradle.python.tasks.supports.WithoutPrebuiltWheels;
 import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.wheel.EditablePythonAbiContainer;
 import com.linkedin.gradle.python.wheel.FileBackedWheelCache;
@@ -72,15 +71,14 @@ public class WheelFirstPlugin implements Plugin<Project> {
                 it.dependsOn(tasks.getByName(TASK_INSTALL_SETUP_REQS.getValue()));
             });
 
-            tasks.withType(SupportsWheelCache.class, it -> {
-                it.setWheelCache(wheelCache);
 
-                if (!Objects.equals(it.getName(), TASK_VENV_CREATE.getValue())
-                    && !Objects.equals(it.getName(), TASK_INSTALL_SETUP_REQS.getValue())
-                    && !it.getClass().isAnnotationPresent(WithoutPrebuiltWheels.class)) {
-                    it.dependsOn(parallelWheelTask);
-                }
-            });
+            tasks.matching(it ->
+                it instanceof SupportsWheelCache
+                    && !(it instanceof ProvidesVenv)
+                    && !Objects.equals(it.getName(), TASK_INSTALL_SETUP_REQS.getValue()))
+                .all(it -> it.dependsOn(parallelWheelTask));
+
+            tasks.withType(SupportsWheelCache.class, it -> it.setWheelCache(wheelCache));
         });
     }
 }

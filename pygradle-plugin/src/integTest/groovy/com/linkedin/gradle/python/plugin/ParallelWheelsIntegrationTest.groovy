@@ -91,7 +91,7 @@ class ParallelWheelsIntegrationTest extends Specification {
         println out
 
         then:
-        out.toString() == "Hello World${System.getProperty("line.separator")}".toString()
+        out.toString() == "Hello World${ System.getProperty("line.separator") }".toString()
 
         when:
         println "======================="
@@ -105,7 +105,7 @@ class ParallelWheelsIntegrationTest extends Specification {
         println result.output
 
         then:
-        result.task(':foo:parallelWheels').outcome == TaskOutcome.SKIPPED
+        result.task(':foo:parallelWheels') == null //the task isn't part of the graph
     }
 
     @IgnoreIf({ OperatingSystem.current() == OperatingSystem.WINDOWS })
@@ -138,8 +138,7 @@ class ParallelWheelsIntegrationTest extends Specification {
         output.contains("wheel==0.29.0")
         output.contains("pip==9.0.3")
         output.contains("setuptools==33.1.1")
-        result.task(':foo:flake8').outcome == TaskOutcome.SUCCESS
-        result.task(':foo:findPythonAbi') == null
+        result.task(':foo:findPythonAbi') == null //task was removed and is no longer needed
         result.task(':foo:parallelWheels').outcome == TaskOutcome.SUCCESS
 
         when:
@@ -154,6 +153,6 @@ class ParallelWheelsIntegrationTest extends Specification {
 
         then:
         result.task(':foo:pytest').outcome == TaskOutcome.SUCCESS  //using pytest sense it will always require deps
-        result.task(':foo:parallelWheels').outcome == TaskOutcome.SKIPPED
+        result.task(':foo:parallelWheels').outcome == TaskOutcome.SUCCESS //the task isn't part of the graph
     }
 }

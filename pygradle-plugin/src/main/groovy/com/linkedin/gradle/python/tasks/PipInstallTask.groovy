@@ -127,7 +127,7 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider, Suppo
         TaskTimer taskTimer = new TaskTimer()
         def baseEnvironment = environmentMerger.mergeEnvironments([extension.pythonEnvironment, environment])
         def pipInstallAction = new PipInstallAction(packageSettings, project, externalExec,
-            baseEnvironment, pythonDetails, wheelCache, environmentMerger)
+            baseEnvironment, pythonDetails, wheelCache, environmentMerger, packageExcludeFilter)
 
         int counter = 0
         def installableFiles = DependencyOrder.getConfigurationFiles(installFileCollection, sorted)
@@ -139,18 +139,13 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider, Suppo
                 def timer = taskTimer.start(shortHand)
                 progressLogger.progress("Installing ${ shortHand } (${ ++counter } of ${ installableFiles.size() })")
 
-                if (packageExcludeFilter != null && packageExcludeFilter.isSatisfiedBy(packageInfo)) {
-                    if (PythonHelpers.isPlainOrVerbose(project)) {
-                        logger.lifecycle("Skipping {} - Excluded", shortHand)
-                    }
-                } else {
-                    try {
-                        pipInstallAction.installPackage(packageInfo, args)
-                    } catch (PipExecutionException e) {
-                        lastInstallMessage = e.pipText
-                        throw e
-                    }
+                try {
+                    pipInstallAction.execute(packageInfo, args)
+                } catch (PipExecutionException e) {
+                    lastInstallMessage = e.pipText
+                    throw e
                 }
+
                 timer.stop()
             }
         }

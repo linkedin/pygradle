@@ -146,7 +146,7 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, Support
 
         def baseEnvironment = environmentMerger.mergeEnvironments([pythonExtension.pythonEnvironment, environment])
         def wheelAction = new PipWheelAction(packageSettings, project, externalExec, baseEnvironment,
-            pythonDetails, wheelCache, environmentMerger, wheelExtension)
+            pythonDetails, wheelCache, environmentMerger, wheelExtension, packageExcludeFilter)
 
         def taskTimer = new TaskTimer()
 
@@ -159,17 +159,11 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, Support
             def clock = taskTimer.start(shortHand)
             progressLogger.progress("Preparing wheel $shortHand (${++counter} of $numberOfInstallables)")
 
-            if (packageExcludeFilter != null && packageExcludeFilter.isSatisfiedBy(packageInfo)) {
-                if (PythonHelpers.isPlainOrVerbose(project)) {
-                    logger.lifecycle("Skipping {} - Excluded", packageInfo.toShortHand())
-                }
-            } else {
-                try {
-                    wheelAction.buildWheel(packageInfo, args)
-                } catch (PipExecutionException e) {
-                    lastInstallMessage = e.pipText
-                    throw e
-                }
+            try {
+                wheelAction.execute(packageInfo, args)
+            } catch (PipExecutionException e) {
+                lastInstallMessage = e.pipText
+                throw e
             }
             clock.stop()
         }

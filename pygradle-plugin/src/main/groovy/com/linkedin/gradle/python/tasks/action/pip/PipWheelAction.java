@@ -29,12 +29,14 @@ import org.gradle.api.Project;
 import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
+import org.gradle.api.specs.Spec;
 import org.gradle.process.ExecResult;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -53,12 +55,20 @@ public class PipWheelAction extends AbstractPipAction {
                           PythonDetails pythonDetails,
                           WheelCache wheelCache,
                           EnvironmentMerger environmentMerger,
-                          WheelExtension wheelExtension) {
-        super(packageSettings, project, externalExec, baseEnvironment, pythonDetails, wheelCache, environmentMerger);
+                          WheelExtension wheelExtension,
+                          Spec<PackageInfo> packageExcludeFilter) {
+        super(packageSettings, project, externalExec, baseEnvironment, pythonDetails, wheelCache,
+            environmentMerger, packageExcludeFilter);
         this.wheelExtension = wheelExtension;
     }
 
-    public void buildWheel(PackageInfo packageInfo, List<String> extraArgs) throws IOException {
+    @Override
+    Logger getLogger() {
+        return logger;
+    }
+
+    @Override
+    void doPipOperation(PackageInfo packageInfo, List<String> extraArgs) {
         throwIfPythonVersionIsNotSupported(packageInfo);
 
         /*
@@ -70,7 +80,13 @@ public class PipWheelAction extends AbstractPipAction {
             Optional<File> wheel = wheelCache.findWheel(packageInfo.getName(), packageInfo.getVersion(), pythonDetails);
             if (wheel.isPresent()) {
                 File wheelFile = wheel.get();
-                FileUtils.copyFile(wheelFile, new File(wheelExtension.getWheelCache(), wheelFile.getName()));
+
+                try {
+                    FileUtils.copyFile(wheelFile, new File(wheelExtension.getWheelCache(), wheelFile.getName()));
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+
                 if (PythonHelpers.isPlainOrVerbose(project)) {
                     logger.lifecycle("Skipping {}, in wheel cache {}", packageInfo.toShortHand(), wheelFile);
                 }

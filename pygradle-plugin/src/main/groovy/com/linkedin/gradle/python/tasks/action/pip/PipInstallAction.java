@@ -27,6 +27,7 @@ import com.linkedin.gradle.python.wheel.WheelCache;
 import org.gradle.api.Project;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
+import org.gradle.api.specs.Spec;
 import org.gradle.process.ExecResult;
 
 import java.io.ByteArrayOutputStream;
@@ -50,8 +51,9 @@ public class PipInstallAction extends AbstractPipAction {
                             Project project,
                             ExternalExec externalExec, Map<String, String> baseEnvironment,
                             PythonDetails pythonDetails,
-                            WheelCache wheelCache, EnvironmentMerger environmentMerger) {
-        super(packageSettings, project, externalExec, baseEnvironment, pythonDetails, wheelCache, environmentMerger);
+                            WheelCache wheelCache, EnvironmentMerger environmentMerger,
+                            Spec<PackageInfo> packageExcludeFilter) {
+        super(packageSettings, project, externalExec, baseEnvironment, pythonDetails, wheelCache, environmentMerger, packageExcludeFilter);
         this.sitePackagesPath = findSitePackages(pythonDetails);
     }
 
@@ -64,7 +66,13 @@ public class PipInstallAction extends AbstractPipAction {
         }
     }
 
-    public void installPackage(PackageInfo packageInfo, List<String> extraArgs) {
+    @Override
+    Logger getLogger() {
+        return logger;
+    }
+
+    @Override
+    void doPipOperation(PackageInfo packageInfo, List<String> extraArgs) {
         throwIfPythonVersionIsNotSupported(packageInfo);
 
         String pyVersion = pythonDetails.getPythonVersion().getPythonMajorMinor();

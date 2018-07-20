@@ -16,6 +16,7 @@
 package com.linkedin.gradle.python.tasks;
 
 import com.linkedin.gradle.python.PythonExtension;
+import com.linkedin.gradle.python.exception.PipExecutionException;
 import com.linkedin.gradle.python.extension.PythonDetails;
 import com.linkedin.gradle.python.plugin.PythonHelpers;
 import com.linkedin.gradle.python.tasks.action.CreateVirtualEnvAction;
@@ -79,7 +80,7 @@ abstract public class AbstractPythonInfrastructureDefaultTask extends DefaultTas
 
     private List<String> arguments = new ArrayList<>();
     private PythonExtension pythonExtension;
-    private String output;
+    private String lastMessage;
 
     @Input
     @Optional
@@ -158,8 +159,7 @@ abstract public class AbstractPythonInfrastructureDefaultTask extends DefaultTas
             configureExecution(execSpec);
         });
 
-        output = container.getCommandOutput();
-
+        lastMessage = container.getCommandOutput();
         processResults(result);
     }
 
@@ -177,7 +177,7 @@ abstract public class AbstractPythonInfrastructureDefaultTask extends DefaultTas
 
         PipInstallAction pipInstallAction = new PipInstallAction(packageSettings, getProject(),
             externalExec, getPythonExtension().pythonEnvironment,
-            pythonDetails, wheelCache, environmentMerger);
+            pythonDetails, wheelCache, environmentMerger, packageExcludeFilter);
 
         installPackages(pipInstallAction, getProject().getConfigurations().getByName(CONFIGURATION_SETUP_REQS.getValue()));
         installPackages(pipInstallAction, getInstallConfiguration());
@@ -191,7 +191,12 @@ abstract public class AbstractPythonInfrastructureDefaultTask extends DefaultTas
                     log.lifecycle("Skipping {} - Excluded", packageInfo.toShortHand());
                 }
             } else {
-                pipInstallAction.installPackage(packageInfo, Collections.emptyList());
+                try {
+                    pipInstallAction.execute(packageInfo, Collections.emptyList());
+                } catch (PipExecutionException e) {
+                    lastMessage = e.getPipText();
+                    throw e;
+                }
             }
         });
     }
@@ -240,7 +245,7 @@ abstract public class AbstractPythonInfrastructureDefaultTask extends DefaultTas
     @Internal
     @Override
     public String getReason() {
-        return output;
+        return lastMessage;
     }
 
     @Override

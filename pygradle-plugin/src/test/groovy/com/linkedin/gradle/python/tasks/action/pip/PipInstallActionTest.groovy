@@ -183,6 +183,6 @@ class PipInstallActionTest extends Specification {
         def details = new PythonDetailsTestDouble(project, binDir.parentFile)
         return new PipInstallAction(settings, project, new ExternalExecTestDouble(execSpec),
             ['CPPFLAGS': 'bogus', 'LDFLAGS': 'bogus'],
-            details, wheelCache, new DefaultEnvironmentMerger())
+            details, wheelCache, new DefaultEnvironmentMerger(), packageExcludeFilter)
     }
 }

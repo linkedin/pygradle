@@ -69,7 +69,7 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, Support
 
     EnvironmentMerger environmentMerger = new DefaultEnvironmentMerger()
     ExternalExec externalExec = new ProjectExternalExec(getProject())
-    private String lastInstallMessage = null
+    String lastInstallMessage = null
 
     public BuildWheelsTask() {
         getOutputs().doNotCacheIf('When package packageExcludeFilter is set', new Spec<Task>() {

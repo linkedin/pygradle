@@ -142,7 +142,7 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask im
             execSpec.args(subArguments);
             // additionalArguments are same as subArguments, but are expected from user's build script
             execSpec.args(additionalArguments);
-            execSpec.setIgnoreExitValue(ignoreExitValue);
+            execSpec.setIgnoreExitValue(true);
 
             container.setOutputs(execSpec);
 
@@ -150,6 +150,10 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask im
         });
 
         output = container.getCommandOutput();
+
+        if (!ignoreExitValue) {
+            result.assertNormalExitValue();
+        }
 
         processResults(result);
     }

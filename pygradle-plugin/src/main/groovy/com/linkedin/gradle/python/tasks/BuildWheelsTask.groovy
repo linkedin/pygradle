@@ -16,9 +16,14 @@
 package com.linkedin.gradle.python.tasks
 
 import com.linkedin.gradle.python.PythonExtension
+import com.linkedin.gradle.python.exception.PipExecutionException
 import com.linkedin.gradle.python.extension.PythonDetails
 import com.linkedin.gradle.python.extension.WheelExtension
 import com.linkedin.gradle.python.plugin.PythonHelpers
+import com.linkedin.gradle.python.tasks.action.pip.PipWheelAction
+import com.linkedin.gradle.python.tasks.exec.ExternalExec
+import com.linkedin.gradle.python.tasks.exec.ProjectExternalExec
+import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider
 import com.linkedin.gradle.python.tasks.supports.SupportsPackageInfoSettings
 import com.linkedin.gradle.python.tasks.supports.SupportsWheelCache
 import com.linkedin.gradle.python.util.DefaultEnvironmentMerger
@@ -30,14 +35,10 @@ import com.linkedin.gradle.python.util.PackageSettings
 import com.linkedin.gradle.python.util.internal.TaskTimer
 import com.linkedin.gradle.python.wheel.EmptyWheelCache
 import com.linkedin.gradle.python.wheel.WheelCache
-import org.apache.commons.io.FileUtils
 import org.gradle.api.DefaultTask
-import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.file.FileCollection
-import org.gradle.api.logging.Logger
-import org.gradle.api.logging.Logging
 import org.gradle.api.specs.Spec
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
@@ -45,12 +46,8 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.internal.logging.progress.ProgressLogger
 import org.gradle.internal.logging.progress.ProgressLoggerFactory
-import org.gradle.process.ExecResult
-import org.gradle.process.ExecSpec
 
-class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, SupportsPackageInfoSettings {
-
-    private static final Logger LOGGER = Logging.getLogger(BuildWheelsTask)
+class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, SupportsPackageInfoSettings, FailureReasonProvider {
 
     @Input
     WheelCache wheelCache = new EmptyWheelCache()
@@ -71,6 +68,8 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, Support
     PackageSettings<PackageInfo> packageSettings
 
     EnvironmentMerger environmentMerger = new DefaultEnvironmentMerger()
+    ExternalExec externalExec = new ProjectExternalExec(getProject())
+    String lastInstallMessage = null
 
     public BuildWheelsTask() {
         getOutputs().doNotCacheIf('When package packageExcludeFilter is set', new Spec<Task>() {
@@ -147,104 +146,32 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, Support
         WheelExtension wheelExtension = ExtensionUtils.getPythonComponentExtension(project, WheelExtension)
         def pythonExtension = ExtensionUtils.getPythonExtension(project)
 
+        def baseEnvironment = environmentMerger.mergeEnvironments([pythonExtension.pythonEnvironment, environment])
+        def wheelAction = new PipWheelAction(packageSettings, project, externalExec, baseEnvironment,
+            pythonDetails, wheelCache, environmentMerger, wheelExtension)
+
         def taskTimer = new TaskTimer()
 
         int counter = 0
         def numberOfInstallables = installables.size()
         installables.each { File installable ->
-            def pyVersion = pythonDetails.getPythonVersion().pythonMajorMinor
             def packageInfo = PackageInfo.fromPath(installable)
-            def shortHand = packageInfo.version ? "${ packageInfo.name }-${ packageInfo.version }" : packageInfo.name
+            def shortHand = packageInfo.toShortHand()
 
             def clock = taskTimer.start(shortHand)
-            progressLogger.progress("Preparing wheel $shortHand (${ ++counter } of $numberOfInstallables)")
+            progressLogger.progress("Preparing wheel $shortHand (${++counter} of $numberOfInstallables)")
 
             if (packageExcludeFilter != null && packageExcludeFilter.isSatisfiedBy(packageInfo)) {
                 if (PythonHelpers.isPlainOrVerbose(project)) {
-                    LOGGER.lifecycle("Skipping {} wheel - Excluded", shortHand)
+                    logger.lifecycle("Skipping {} - Excluded", packageInfo.toShortHand())
                 }
-                return
-            }
-
-            // If supported versions are empty, there are no restrictions.
-            def supportedVersions = packageSettings.getSupportedLanguageVersions(packageInfo)
-            if (supportedVersions != null && !supportedVersions.empty && !supportedVersions.contains(pyVersion)) {
-                throw new GradleException(
-                    "Package ${ packageInfo.name } works only with Python versions: ${ supportedVersions }")
-            }
-
-            /*
-             * Check if a wheel exists for this product already and only build it
-             * if it is missing. We don't care about the wheel details because we
-             * always build these locally.
-             */
-            if (!packageSettings.requiresSourceBuild(packageInfo)) {
-                def wheel = wheelCache.findWheel(packageInfo.name, packageInfo.version, pythonExtension.details)
-                if (wheel.isPresent()) {
-                    File wheelFile = wheel.get()
-                    FileUtils.copyFile(wheelFile, new File(wheelExtension.wheelCache, wheelFile.name))
-                    if (PythonHelpers.isPlainOrVerbose(project)) {
-                        LOGGER.lifecycle("Skipping {}, in wheel cache {}", shortHand, wheelFile)
-                    }
-                    return
-                }
-
-                def tree = project.fileTree(
-                    dir: wheelExtension.wheelCache,
-                    include: "**/${ packageInfo.name.replace('-', '_') }-${ (packageInfo.version ?: 'unspecified').replace('-', '_') }-*.whl")
-
-                if (tree.files.size() >= 1) {
-                    LOGGER.lifecycle("Skipping {} wheel - Installed", shortHand)
-                    return
-                }
-            }
-
-            if (PythonHelpers.isPlainOrVerbose(project)) {
-                LOGGER.lifecycle("Installing {} wheel", shortHand)
-            }
-
-            def stream = new ByteArrayOutputStream()
-
-            def mergedEnv = environmentMerger.mergeEnvironments(
-                [pythonExtension.pythonEnvironment, environment, packageSettings.getEnvironment(packageInfo)])
-
-            def commandLine = [
-                pythonDetails.getVirtualEnvInterpreter().toString(),
-                pythonDetails.getVirtualEnvironment().getPip().toString(),
-                'wheel',
-                '--disable-pip-version-check',
-                '--wheel-dir', wheelExtension.wheelCache.toString(),
-                '--no-deps',
-            ]
-
-            commandLine.addAll(args)
-
-            def globalOptions = packageSettings.getGlobalOptions(packageInfo)
-            if (globalOptions != null) {
-                commandLine.addAll(globalOptions)
-            }
-
-            def buildOptions = packageSettings.getBuildOptions(packageInfo)
-            if (buildOptions != null) {
-                commandLine.addAll(buildOptions)
-            }
-
-            commandLine.add(installable.toString())
-
-            ExecResult installResult = project.exec { ExecSpec execSpec ->
-                execSpec.environment mergedEnv
-                execSpec.commandLine(commandLine)
-                execSpec.standardOutput = stream
-                execSpec.errorOutput = stream
-                execSpec.ignoreExitValue = true
-            }
-
-            if (installResult.exitValue != 0) {
-                LOGGER.error("Error installing package using `{}`", commandLine)
-                LOGGER.error(stream.toString().trim())
-                throw new GradleException("Failed to build wheel for ${ shortHand }. Please see above output for reason, or re-run your build using ``--info`` for additional logging.")
             } else {
-                LOGGER.info(stream.toString().trim())
+                try {
+                    wheelAction.buildWheel(packageInfo, args)
+                } catch (PipExecutionException e) {
+                    lastInstallMessage = e.pipText
+                    throw e
+                }
             }
 
             clock.stop()
@@ -253,5 +180,10 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, Support
         progressLogger.completed()
 
         new File(project.buildDir, getName() + "-task-runtime-report.txt").text = taskTimer.buildReport()
+    }
+
+    @Override
+    String getReason() {
+        return lastInstallMessage
     }
 }

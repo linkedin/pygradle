@@ -17,9 +17,10 @@ package com.linkedin.gradle.python.tasks;
 
 import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.extension.PythonDetails;
+import com.linkedin.gradle.python.tasks.exec.ExternalExec;
+import com.linkedin.gradle.python.tasks.exec.ProjectExternalExec;
 import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider;
 import com.linkedin.gradle.python.tasks.execution.TeeOutputContainer;
-import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.api.file.FileCollection;
@@ -58,6 +59,8 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask im
 
     @Input
     public List<String> additionalArguments = new ArrayList<>();
+
+    ExternalExec externalExec = new ProjectExternalExec(getProject());
 
     @InputFiles
     public FileCollection getSourceFiles() {
@@ -129,27 +132,28 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask im
 
         final TeeOutputContainer container = new TeeOutputContainer(stdOut, errOut);
 
-        ExecResult result = getProject().exec(new Action<ExecSpec>() {
-            @Override
-            public void execute(ExecSpec execSpec) {
-                execSpec.environment(getComponent().pythonEnvironment);
-                execSpec.environment(getComponent().pythonEnvironmentDistgradle);
-                execSpec.commandLine(getPythonDetails().getVirtualEnvInterpreter());
-                // arguments are passed to the python interpreter
-                execSpec.args(arguments);
-                // subArguments are arguments for previous arguments. eg: arguments to py.test like -k
-                execSpec.args(subArguments);
-                // additionalArguments are same as subArguments, but are expected from user's build script
-                execSpec.args(additionalArguments);
-                execSpec.setIgnoreExitValue(ignoreExitValue);
+        ExecResult result = externalExec.exec(execSpec -> {
+            execSpec.environment(getComponent().pythonEnvironment);
+            execSpec.environment(getComponent().pythonEnvironmentDistgradle);
+            execSpec.commandLine(getPythonDetails().getVirtualEnvInterpreter());
+            // arguments are passed to the python interpreter
+            execSpec.args(arguments);
+            // subArguments are arguments for previous arguments. eg: arguments to py.test like -k
+            execSpec.args(subArguments);
+            // additionalArguments are same as subArguments, but are expected from user's build script
+            execSpec.args(additionalArguments);
+            execSpec.setIgnoreExitValue(true);
 
-                container.setOutputs(execSpec);
+            container.setOutputs(execSpec);
 
-                configureExecution(execSpec);
-            }
+            configureExecution(execSpec);
         });
 
         output = container.getCommandOutput();
+
+        if (!ignoreExitValue) {
+            result.assertNormalExitValue();
+        }
 
         processResults(result);
     }

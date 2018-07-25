@@ -53,7 +53,8 @@ public class PipInstallAction extends AbstractPipAction {
                             PythonDetails pythonDetails,
                             WheelCache wheelCache, EnvironmentMerger environmentMerger,
                             Spec<PackageInfo> packageExcludeFilter) {
-        super(packageSettings, project, externalExec, baseEnvironment, pythonDetails, wheelCache, environmentMerger, packageExcludeFilter);
+        super(packageSettings, project, externalExec, baseEnvironment, pythonDetails, wheelCache,
+            environmentMerger, packageExcludeFilter);
         this.sitePackagesPath = findSitePackages(pythonDetails);
     }
 

@@ -152,7 +152,7 @@ abstract public class AbstractPythonInfrastructureDefaultTask extends DefaultTas
             execSpec.commandLine(getPythonDetails().getVirtualEnvInterpreter());
             // arguments are passed to the python interpreter
             execSpec.args(arguments);
-            execSpec.setIgnoreExitValue(ignoreExitValue);
+            execSpec.setIgnoreExitValue(true);
 
             container.setOutputs(execSpec);
 
@@ -160,6 +160,11 @@ abstract public class AbstractPythonInfrastructureDefaultTask extends DefaultTas
         });
 
         lastMessage = container.getCommandOutput();
+
+        if (!ignoreExitValue) {
+            result.assertNormalExitValue();
+        }
+
         processResults(result);
     }
 

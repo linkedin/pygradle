@@ -48,7 +48,7 @@ class PipWheelActionTest extends Specification {
         def action = createPipWheelAction(settings, execSpec)
 
         when:
-        action.buildWheel(packageInGradleCache("foo-1.0.0.tar.gz"), [])
+        action.execute(packageInGradleCache("foo-1.0.0.tar.gz"), [])
 
         then:
         1 * execSpec.environment(['CPPFLAGS': '-I/some/custom/path/include', 'LDFLAGS': '-L/some/custom/path/lib -Wl,-rpath,/some/custom/path/lib'])
@@ -61,7 +61,7 @@ class PipWheelActionTest extends Specification {
         def action = createPipWheelAction(settings, execSpec)
 
         when:
-        action.buildWheel(packageInGradleCache("setuptools-1.0.0.tar.gz"), [])
+        action.execute(packageInGradleCache("setuptools-1.0.0.tar.gz"), [])
 
         then:
         1 * execSpec.commandLine(_) >> { List<List<String>> args ->
@@ -81,7 +81,7 @@ class PipWheelActionTest extends Specification {
         def action = createPipWheelAction(settings, execSpec)
 
         when:
-        action.buildWheel(packageInGradleCache("setuptools-1.0.0.tar.gz"), [])
+        action.execute(packageInGradleCache("setuptools-1.0.0.tar.gz"), [])
 
         then:
         1 * execSpec.commandLine(_) >> { List<List<String>> args ->
@@ -101,7 +101,7 @@ class PipWheelActionTest extends Specification {
         def action = createPipWheelAction(settings, execSpec)
 
         when:
-        action.buildWheel(packageInGradleCache("setuptools-1.0.0.tar.gz"), [])
+        action.execute(packageInGradleCache("setuptools-1.0.0.tar.gz"), [])
 
         then:
         def e = thrown(PipExecutionException)
@@ -119,7 +119,7 @@ class PipWheelActionTest extends Specification {
         new File(wheelCache, "pyflakes-1.6.0-py2.py3-none-any.whl").createNewFile()
 
         when:
-        action.buildWheel(packageInGradleCache("pyflakes-1.0.0.tar.gz"), [])
+        action.execute(packageInGradleCache("pyflakes-1.0.0.tar.gz"), [])
 
         then:
         1 * execSpec.commandLine(_) >> { List<List<String>> args ->
@@ -142,7 +142,7 @@ class PipWheelActionTest extends Specification {
         new File(wheelCache, "pyflakes-1.6.0-py2.py3-none-any.whl").createNewFile()
 
         when:
-        action.buildWheel(packageInGradleCache("pyflakes-1.6.0.tar.gz"), [])
+        action.execute(packageInGradleCache("pyflakes-1.6.0.tar.gz"), [])
 
         then:
         0 * execSpec._
@@ -159,7 +159,7 @@ class PipWheelActionTest extends Specification {
         assert !new File(temporaryFolder.root, "build/wheel-cache/pyflakes-1.6.0-py2.py3-none-any.whl").exists()
 
         when:
-        action.buildWheel(packageInGradleCache("pyflakes-1.6.0.tar.gz"), [])
+        action.execute(packageInGradleCache("pyflakes-1.6.0.tar.gz"), [])
 
         then:
         0 * execSpec._
@@ -180,6 +180,6 @@ class PipWheelActionTest extends Specification {
         return new PipWheelAction(settings, project, new ExternalExecTestDouble(execSpec),
             ['CPPFLAGS': 'bogus', 'LDFLAGS': 'bogus'],
             details, wheelCache, new DefaultEnvironmentMerger(),
-            new WheelExtension(project))
+            new WheelExtension(project), { it -> false })
     }
 }

@@ -117,6 +117,7 @@ class FailureReasonProviderIntegrationTest extends Specification {
             ]
         ]
         expectedErrors.each { task, lines ->
+            println("Checking for errors reported by task $task")
             def taskLines = outputLines
                 .findAll { it.startsWith("#$task>> ") }
                 .collect { it.replace("#$task>> ", '') }

@@ -71,42 +71,12 @@ public class PipWheelAction extends AbstractPipAction {
     void doPipOperation(PackageInfo packageInfo, List<String> extraArgs) {
         throwIfPythonVersionIsNotSupported(packageInfo);
 
-        /*
-         * Check if a wheel exists for this product already and only build it
-         * if it is missing. We don't care about the wheel details because we
-         * always build these locally.
-         */
-        if (!packageSettings.requiresSourceBuild(packageInfo)) {
-            Optional<File> wheel = wheelCache.findWheel(packageInfo.getName(), packageInfo.getVersion(), pythonDetails);
-            if (wheel.isPresent()) {
-                File wheelFile = wheel.get();
-
-                try {
-                    FileUtils.copyFile(wheelFile, new File(wheelExtension.getWheelCache(), wheelFile.getName()));
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e);
-                }
-
-                if (PythonHelpers.isPlainOrVerbose(project)) {
-                    logger.lifecycle("Skipping {}, in wheel cache {}", packageInfo.toShortHand(), wheelFile);
-                }
-                return;
-            }
-
-            ConfigurableFileTree tree = project.fileTree(wheelExtension.getWheelCache(), action -> {
-                String sanitizedName = packageInfo.getName().replace('-', '_');
-                String sanitizedVersion = (packageInfo.getVersion() == null ? "unspecified" : packageInfo.getVersion()).replace('-', '_');
-                action.include("**/" + sanitizedName + "-" + sanitizedVersion + "-*.whl");
-            });
-
-            if (tree.getFiles().size() >= 1) {
-                logger.lifecycle("Skipping {} wheel - Installed", packageInfo.toShortHand());
-                return;
-            }
+        if (!packageSettings.requiresSourceBuild(packageInfo) && doesWheelExist(packageInfo)) {
+            return;
         }
 
         if (PythonHelpers.isPlainOrVerbose(project)) {
-            logger.lifecycle("Installing {} wheel", packageInfo.toShortHand());
+            logger.lifecycle("Building {} wheel", packageInfo.toShortHand());
         }
 
         Map<String, String> mergedEnv = environmentMerger.mergeEnvironments(
@@ -126,6 +96,41 @@ public class PipWheelAction extends AbstractPipAction {
             logger.info(stream.toString().trim());
         }
 
+    }
+
+    /*
+     * Check if a wheel exists for this product already and only build it
+     * if it is missing. We don't care about the wheel details because we
+     * always build these locally.
+     */
+    private boolean doesWheelExist(PackageInfo packageInfo) {
+        Optional<File> wheel = wheelCache.findWheel(packageInfo.getName(), packageInfo.getVersion(), pythonDetails);
+        if (wheel.isPresent()) {
+            File wheelFile = wheel.get();
+
+            try {
+                FileUtils.copyFile(wheelFile, new File(wheelExtension.getWheelCache(), wheelFile.getName()));
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+
+            if (PythonHelpers.isPlainOrVerbose(project)) {
+                logger.lifecycle("Skipping {}, in wheel cache {}", packageInfo.toShortHand(), wheelFile);
+            }
+            return true;
+        }
+
+        ConfigurableFileTree tree = project.fileTree(wheelExtension.getWheelCache(), action -> {
+            String sanitizedName = packageInfo.getName().replace('-', '_');
+            String sanitizedVersion = (packageInfo.getVersion() == null ? "unspecified" : packageInfo.getVersion()).replace('-', '_');
+            action.include("**/" + sanitizedName + "-" + sanitizedVersion + "-*.whl");
+        });
+
+        if (tree.getFiles().size() >= 1) {
+            logger.lifecycle("Skipping {} wheel - Installed", packageInfo.toShortHand());
+            return true;
+        }
+        return false;
     }
 
     private List<String> makeCommandLine(PackageInfo packageInfo, List<String> extraArgs) {

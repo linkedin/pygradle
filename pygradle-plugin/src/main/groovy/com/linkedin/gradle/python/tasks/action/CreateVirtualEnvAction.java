@@ -33,6 +33,7 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.function.Consumer;
 
 public class CreateVirtualEnvAction {
@@ -60,9 +61,9 @@ public class CreateVirtualEnvAction {
                 copySpec.into(packageDir);
                 copySpec.eachFile(it -> {
                     //Remove the virtualenv-<version> from the file.
-                    int idx = it.getPath().indexOf(File.separatorChar);
-                    if (idx > 0 && it.getPath().length() > idx + 1) {
-                        it.setPath(it.getPath().substring(idx + 1));
+                    Path pathInsideTar = Paths.get(it.getPath());
+                    if (pathInsideTar.getNameCount() > 1) {
+                        it.setPath(pathInsideTar.subpath(1, pathInsideTar.getNameCount()).toString());
                     }
                 });
             });

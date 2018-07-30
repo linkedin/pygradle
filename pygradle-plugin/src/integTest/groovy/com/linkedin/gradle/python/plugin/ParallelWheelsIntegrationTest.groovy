@@ -152,7 +152,7 @@ class ParallelWheelsIntegrationTest extends Specification {
         println result.output
 
         then:
-        result.task(':foo:pytest').outcome == TaskOutcome.SUCCESS  //using pytest sense it will always require deps
+        result.task(':foo:pytest').outcome == TaskOutcome.SUCCESS  //using pytest since it will always require deps
         result.task(':foo:parallelWheels').outcome == TaskOutcome.SUCCESS //the task isn't part of the graph
     }
 }

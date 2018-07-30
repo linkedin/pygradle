@@ -30,10 +30,7 @@ class Flake8TaskTest extends Specification {
         def extension = ExtensionUtils.getPythonExtension(project)
         def firstInterpreter = extension.details.systemPythonInterpreter
 
-        when:
-        true
-
-        then:
+        expect:
         flake8Task.getPythonDetails().getSystemPythonInterpreter() == extension.details.systemPythonInterpreter
 
         when:

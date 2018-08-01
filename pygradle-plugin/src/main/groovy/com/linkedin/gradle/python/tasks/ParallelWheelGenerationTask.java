@@ -170,6 +170,7 @@ public class ParallelWheelGenerationTask extends DefaultTask implements Supports
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         ExecResult results = getProject().exec(exec -> {
+            exec.environment(getExtension().pythonEnvironmentDistgradle);
             exec.commandLine(getPythonDetails().getVirtualEnvInterpreter(),
                 getPythonDetails().getVirtualEnvironment().getPip(),
                 "wheel",

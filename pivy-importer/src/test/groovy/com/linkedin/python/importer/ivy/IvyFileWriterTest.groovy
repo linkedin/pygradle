@@ -30,7 +30,7 @@ class IvyFileWriterTest extends Specification {
         testDirectory = new File(getClass().getClassLoader().getResource("deps").getFile())
     }
 
-    def "test writing Ivy file for wheels"() {
+    def "test writing Ivy file for wheel which has runtime dependencies"() {
         given:
         VersionEntry testVersionEntry = new VersionEntry("testURI", "wheel", "Django-2.0.6-py3-none-any.whl")
         IvyFileWriter testIvyFileWriter =  new IvyFileWriter("Django", "2.0.6", "bdist_wheel", [testVersionEntry])

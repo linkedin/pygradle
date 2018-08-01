@@ -21,31 +21,43 @@ import spock.lang.Specification
 
 class WheelsPackageTest extends Specification {
     private File testDirectory
-    private WheelsPackage testWheelsPackage
+    private WheelsPackage testWheelsPackageDjango
+    private WheelsPackage testWheelsPackagePywin
 
     def setup() {
         testDirectory = new File(getClass().getClassLoader().getResource("deps").getFile())
-        File testPackageFile = new File(testDirectory, "Django-2.0.6-py3-none-any.whl")
+        File testPackageFileDjango = new File(testDirectory, "Django-2.0.6-py3-none-any.whl")
+        File testPackageFilePywin32 = new File(testDirectory, "pywin32-223-cp27-cp27m-win_amd64.whl")
         DependencySubstitution testDependencySubstitution = new DependencySubstitution([:], [:])
         PypiApiCache testPypiApiCache = new PypiApiCache()
 
-        testWheelsPackage = new WheelsPackage("Django", "2.0.6", testPackageFile,
+        testWheelsPackageDjango = new WheelsPackage("Django", "2.0.6", testPackageFileDjango,
             testPypiApiCache, testDependencySubstitution)
+
+        testWheelsPackagePywin = new WheelsPackage("pywin32", "223", testPackageFilePywin32, testPypiApiCache, testDependencySubstitution)
     }
 
-    def "test getting runtime requires from metadata Json file"() {
+    def "test getting runtime requires from metadata Json file for wheel package which has runtime dependencies"() {
         when:
-        def actualResult = testWheelsPackage.getRuntimeRequiresFromMetadataJson()
-        String expectedResultString = "[argon2:[argon2-cffi (>=16.1.0)], bcrypt:[bcrypt], default:[pytz]]"
+        def actualResult = testWheelsPackageDjango.getRuntimeRequiresFromMetadataJson()
+        String expectedResultString = "[default:[pytz], argon2:[argon2-cffi (>=16.1.0)], bcrypt:[bcrypt]]"
         then:
         actualResult.toString() == expectedResultString
     }
 
-    def "test getting metadata text file content"() {
+    def "test getting metadata text file content for wheel package which has runtime dependencies"() {
         when:
-        String actualResult = testWheelsPackage.getMetadataText()
+        String actualResult = testWheelsPackageDjango.getMetadataText()
         String expectedResult = new File(testDirectory, "Django-2.0.6-py3-none-any-METADATA").getText()
         then:
         actualResult == expectedResult
+    }
+
+    def "test getting runtime requires from metadata Json file for wheel package which has no runtime dependencies"() {
+        when:
+        def actualResult = testWheelsPackagePywin.getRuntimeRequiresFromMetadataJson()
+        String expectedResultString = "[default:[]]"
+        then:
+        actualResult.toString() == expectedResultString
     }
 }

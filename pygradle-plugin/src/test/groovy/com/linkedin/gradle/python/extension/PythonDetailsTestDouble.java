@@ -15,11 +15,12 @@
  */
 package com.linkedin.gradle.python.extension;
 
+import com.linkedin.gradle.python.extension.internal.DefaultPythonDetails;
 import org.gradle.api.Project;
 
 import java.io.File;
 
-public class PythonDetailsTestDouble extends PythonDetails {
+public class PythonDetailsTestDouble extends DefaultPythonDetails {
 
     private PythonVersion version = new PythonVersion("3.6");
 

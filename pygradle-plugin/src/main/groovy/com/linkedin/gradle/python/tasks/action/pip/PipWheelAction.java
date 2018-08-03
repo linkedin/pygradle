@@ -15,10 +15,10 @@
  */
 package com.linkedin.gradle.python.tasks.action.pip;
 
+import com.linkedin.gradle.python.exception.PipExecutionException;
 import com.linkedin.gradle.python.extension.PythonDetails;
 import com.linkedin.gradle.python.extension.WheelExtension;
 import com.linkedin.gradle.python.plugin.PythonHelpers;
-import com.linkedin.gradle.python.exception.PipExecutionException;
 import com.linkedin.gradle.python.tasks.exec.ExternalExec;
 import com.linkedin.gradle.python.util.EnvironmentMerger;
 import com.linkedin.gradle.python.util.PackageInfo;
@@ -29,12 +29,14 @@ import org.gradle.api.Project;
 import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
+import org.gradle.api.specs.Spec;
 import org.gradle.process.ExecResult;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -53,44 +55,28 @@ public class PipWheelAction extends AbstractPipAction {
                           PythonDetails pythonDetails,
                           WheelCache wheelCache,
                           EnvironmentMerger environmentMerger,
-                          WheelExtension wheelExtension) {
-        super(packageSettings, project, externalExec, baseEnvironment, pythonDetails, wheelCache, environmentMerger);
+                          WheelExtension wheelExtension,
+                          Spec<PackageInfo> packageExcludeFilter) {
+        super(packageSettings, project, externalExec, baseEnvironment, pythonDetails, wheelCache,
+            environmentMerger, packageExcludeFilter);
         this.wheelExtension = wheelExtension;
     }
 
-    public void buildWheel(PackageInfo packageInfo, List<String> extraArgs) throws IOException {
+    @Override
+    Logger getLogger() {
+        return logger;
+    }
+
+    @Override
+    void doPipOperation(PackageInfo packageInfo, List<String> extraArgs) {
         throwIfPythonVersionIsNotSupported(packageInfo);
 
-        /*
-         * Check if a wheel exists for this product already and only build it
-         * if it is missing. We don't care about the wheel details because we
-         * always build these locally.
-         */
-        if (!packageSettings.requiresSourceBuild(packageInfo)) {
-            Optional<File> wheel = wheelCache.findWheel(packageInfo.getName(), packageInfo.getVersion(), pythonDetails);
-            if (wheel.isPresent()) {
-                File wheelFile = wheel.get();
-                FileUtils.copyFile(wheelFile, new File(wheelExtension.getWheelCache(), wheelFile.getName()));
-                if (PythonHelpers.isPlainOrVerbose(project)) {
-                    logger.lifecycle("Skipping {}, in wheel cache {}", packageInfo.toShortHand(), wheelFile);
-                }
-                return;
-            }
-
-            ConfigurableFileTree tree = project.fileTree(wheelExtension.getWheelCache(), action -> {
-                String sanitizedName = packageInfo.getName().replace('-', '_');
-                String sanitizedVersion = (packageInfo.getVersion() == null ? "unspecified" : packageInfo.getVersion()).replace('-', '_');
-                action.include("**/" + sanitizedName + "-" + sanitizedVersion + "-*.whl");
-            });
-
-            if (tree.getFiles().size() >= 1) {
-                logger.lifecycle("Skipping {} wheel - Installed", packageInfo.toShortHand());
-                return;
-            }
+        if (!packageSettings.requiresSourceBuild(packageInfo) && doesWheelExist(packageInfo)) {
+            return;
         }
 
         if (PythonHelpers.isPlainOrVerbose(project)) {
-            logger.lifecycle("Installing {} wheel", packageInfo.toShortHand());
+            logger.lifecycle("Building {} wheel", packageInfo.toShortHand());
         }
 
         Map<String, String> mergedEnv = environmentMerger.mergeEnvironments(
@@ -110,6 +96,41 @@ public class PipWheelAction extends AbstractPipAction {
             logger.info(stream.toString().trim());
         }
 
+    }
+
+    /*
+     * Check if a wheel exists for this product already and only build it
+     * if it is missing. We don't care about the wheel details because we
+     * always build these locally.
+     */
+    private boolean doesWheelExist(PackageInfo packageInfo) {
+        Optional<File> wheel = wheelCache.findWheel(packageInfo.getName(), packageInfo.getVersion(), pythonDetails);
+        if (wheel.isPresent()) {
+            File wheelFile = wheel.get();
+
+            try {
+                FileUtils.copyFile(wheelFile, new File(wheelExtension.getWheelCache(), wheelFile.getName()));
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+
+            if (PythonHelpers.isPlainOrVerbose(project)) {
+                logger.lifecycle("Skipping {}, in wheel cache {}", packageInfo.toShortHand(), wheelFile);
+            }
+            return true;
+        }
+
+        ConfigurableFileTree tree = project.fileTree(wheelExtension.getWheelCache(), action -> {
+            String sanitizedName = packageInfo.getName().replace('-', '_');
+            String sanitizedVersion = (packageInfo.getVersion() == null ? "unspecified" : packageInfo.getVersion()).replace('-', '_');
+            action.include("**/" + sanitizedName + "-" + sanitizedVersion + "-*.whl");
+        });
+
+        if (tree.getFiles().size() >= 1) {
+            logger.lifecycle("Skipping {} wheel - Installed", packageInfo.toShortHand());
+            return true;
+        }
+        return false;
     }
 
     private List<String> makeCommandLine(PackageInfo packageInfo, List<String> extraArgs) {

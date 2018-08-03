@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.wheel;
+package com.linkedin.gradle.python.wheel.internal;
 
+import com.linkedin.gradle.python.wheel.AbiDetails;
+import com.linkedin.gradle.python.wheel.EditablePythonAbiContainer;
+import com.linkedin.gradle.python.wheel.PythonAbiContainer;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 
@@ -24,18 +27,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class SupportedWheelFormats implements Serializable {
+public class DefaultPythonAbiContainer implements EditablePythonAbiContainer, PythonAbiContainer, Serializable {
 
-    private static final Logger logger = Logging.getLogger(SupportedWheelFormats.class);
+    private static final Logger logger = Logging.getLogger(PythonAbiContainer.class);
 
     private List<AbiDetails> supportedAbis = new ArrayList<>();
 
+    @Override
     public void addSupportedAbi(AbiDetails triple) {
         supportedAbis.add(triple);
         logger.debug("Available ABI's: {}", supportedAbis);
     }
 
-    protected boolean matchesSupportedVersion(File pythonExecutable, String pythonTag, String abiTag, String platformTag) {
+    @Override
+    public boolean matchesSupportedVersion(File pythonExecutable, String pythonTag, String abiTag, String platformTag) {
         String[] pythonTags = pythonTag.split("\\.");
         String[] abiTags = abiTag.split("\\.");
         String[] platformTags = platformTag.split("\\.");
@@ -63,7 +68,7 @@ public class SupportedWheelFormats implements Serializable {
 
     @Override
     public String toString() {
-        return "SupportedWheelFormats{"
+        return "PythonAbiContainer{"
             + "supportedAbis=" + supportedAbis
             + '}';
     }

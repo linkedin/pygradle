@@ -19,11 +19,11 @@ import com.linkedin.gradle.python.PythonExtension
 import com.linkedin.gradle.python.exception.PipExecutionException
 import com.linkedin.gradle.python.extension.PythonDetails
 import com.linkedin.gradle.python.extension.WheelExtension
-import com.linkedin.gradle.python.plugin.PythonHelpers
 import com.linkedin.gradle.python.tasks.action.pip.PipWheelAction
 import com.linkedin.gradle.python.tasks.exec.ExternalExec
 import com.linkedin.gradle.python.tasks.exec.ProjectExternalExec
 import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider
+import com.linkedin.gradle.python.tasks.supports.SupportsPackageFiltering
 import com.linkedin.gradle.python.tasks.supports.SupportsPackageInfoSettings
 import com.linkedin.gradle.python.tasks.supports.SupportsWheelCache
 import com.linkedin.gradle.python.util.DefaultEnvironmentMerger
@@ -37,17 +37,18 @@ import com.linkedin.gradle.python.wheel.EmptyWheelCache
 import com.linkedin.gradle.python.wheel.WheelCache
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
-import org.gradle.api.Task
 import org.gradle.api.file.FileCollection
 import org.gradle.api.specs.Spec
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.internal.logging.progress.ProgressLogger
 import org.gradle.internal.logging.progress.ProgressLoggerFactory
 
-class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, SupportsPackageInfoSettings, FailureReasonProvider {
+class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, SupportsPackageInfoSettings,
+    FailureReasonProvider, SupportsPackageFiltering {
 
     @Input
     WheelCache wheelCache = new EmptyWheelCache()
@@ -65,20 +66,16 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, Support
     @Optional
     Map<String, String> environment
 
+    @Internal
     PackageSettings<PackageInfo> packageSettings
 
+    @Internal
     EnvironmentMerger environmentMerger = new DefaultEnvironmentMerger()
-    ExternalExec externalExec = new ProjectExternalExec(getProject())
-    String lastInstallMessage = null
 
-    public BuildWheelsTask() {
-        getOutputs().doNotCacheIf('When package packageExcludeFilter is set', new Spec<Task>() {
-            @Override
-            boolean isSatisfiedBy(Task element) {
-                return ((BuildWheelsTask) element).packageExcludeFilter != null
-            }
-        })
-    }
+    @Internal
+    ExternalExec externalExec = new ProjectExternalExec(getProject())
+
+    String lastInstallMessage = null
 
     @TaskAction
     void buildWheelsTask() {
@@ -148,7 +145,7 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, Support
 
         def baseEnvironment = environmentMerger.mergeEnvironments([pythonExtension.pythonEnvironment, environment])
         def wheelAction = new PipWheelAction(packageSettings, project, externalExec, baseEnvironment,
-            pythonDetails, wheelCache, environmentMerger, wheelExtension)
+            pythonDetails, wheelCache, environmentMerger, wheelExtension, packageExcludeFilter)
 
         def taskTimer = new TaskTimer()
 
@@ -161,19 +158,12 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, Support
             def clock = taskTimer.start(shortHand)
             progressLogger.progress("Preparing wheel $shortHand (${++counter} of $numberOfInstallables)")
 
-            if (packageExcludeFilter != null && packageExcludeFilter.isSatisfiedBy(packageInfo)) {
-                if (PythonHelpers.isPlainOrVerbose(project)) {
-                    logger.lifecycle("Skipping {} - Excluded", packageInfo.toShortHand())
-                }
-            } else {
-                try {
-                    wheelAction.buildWheel(packageInfo, args)
-                } catch (PipExecutionException e) {
-                    lastInstallMessage = e.pipText
-                    throw e
-                }
+            try {
+                wheelAction.execute(packageInfo, args)
+            } catch (PipExecutionException e) {
+                lastInstallMessage = e.pipText
+                throw e
             }
-
             clock.stop()
         }
 

@@ -42,7 +42,7 @@ import java.util.List;
 
 /**
  * This class is used to make sure that the up-to-date logic works. It also allows for lazy evaluation
- * of the sources, which comes from the lazy eval of the getComponent(). It's lazy because its a method call
+ * of the sources, which comes from the lazy eval of the getPythonExtension(). It's lazy because its a method call
  * and will only get executed right before gradle tries to figure out the inputs/outputs. By making it lazy
  * will allow {@link PythonExtension} to be updated by the project and be complete
  * when its used in the tasks.
@@ -53,7 +53,7 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask im
     private List<String> arguments = new ArrayList<>();
     // similar to additionalArguments, but not overridable by user's build script
     private List<String> subArguments = new ArrayList<>();
-    private PythonExtension component;
+    private PythonExtension extension;
     private PythonDetails pythonDetails;
     private String output;
 
@@ -76,12 +76,20 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask im
         return new String[]{"**/*.pyc", "**/*.pyo", "**/__pycache__/", "**/*.egg-info/"};
     }
 
-    @Internal
-    public PythonExtension getComponent() {
-        if (null == component) {
-            component = getProject().getExtensions().getByType(PythonExtension.class);
+    public PythonExtension getPythonExtension() {
+        if (null == extension) {
+            extension = getProject().getExtensions().getByType(PythonExtension.class);
         }
-        return component;
+        return extension;
+    }
+
+    /**
+     * Use {@link AbstractPythonMainSourceDefaultTask#getPythonExtension()} instead.
+     */
+    @Internal
+    @Deprecated
+    public PythonExtension getComponent() {
+        return getPythonExtension();
     }
 
     @Internal

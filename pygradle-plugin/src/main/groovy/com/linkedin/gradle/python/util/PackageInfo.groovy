@@ -103,7 +103,7 @@ class PackageInfo {
 
     @Override
     public String toString() {
-        return name + "-" + version
+        return name + "-" + version + "@" + packageFile
     }
 
     public String toShortHand() {

@@ -15,6 +15,7 @@
  */
 package com.linkedin.gradle.python.wheel
 
+import com.linkedin.gradle.python.wheel.internal.DefaultPythonAbiContainer
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
@@ -26,7 +27,7 @@ class FileBackedWheelCacheTest extends Specification {
 
     def 'can find Sphinx-1.6.3'() {
         def wheelCache = temporaryFolder.newFolder('wheel-cache')
-        def formats = new SupportedWheelFormats()
+        def formats = new DefaultPythonAbiContainer()
         def pythonExec = temporaryFolder.newFile('python')
         formats.addSupportedAbi(new AbiDetails(pythonExec, 'py2', 'none', 'any'))
         FileBackedWheelCache cache = new FileBackedWheelCache(wheelCache, formats)

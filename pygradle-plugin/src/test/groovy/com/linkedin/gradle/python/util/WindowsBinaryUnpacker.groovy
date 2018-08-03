@@ -15,7 +15,7 @@
  */
 package com.linkedin.gradle.python.util
 
-import com.linkedin.gradle.python.extension.PythonDetailsWindowsTest
+import com.linkedin.gradle.python.extension.DefaultPythonDetailsWindowsTest
 
 class WindowsBinaryUnpacker {
     private WindowsBinaryUnpacker() { }
@@ -35,7 +35,7 @@ class WindowsBinaryUnpacker {
     }
 
     public static File buildPythonExec(File destination, PythonVersion version) {
-        def exeRoot = PythonDetailsWindowsTest.getResource("/windows/python/shim/python${version.major}${version.minor}.exe")
+        def exeRoot = DefaultPythonDetailsWindowsTest.getResource("/windows/python/shim/python${version.major}${version.minor}.exe")
 
         new File(destination, "python${version.major}.${version.minor}.exe").withOutputStream { out ->
             out << exeRoot.openStream()

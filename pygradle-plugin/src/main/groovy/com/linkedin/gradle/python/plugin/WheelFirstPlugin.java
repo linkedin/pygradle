@@ -15,12 +15,12 @@
  */
 package com.linkedin.gradle.python.plugin;
 
-import com.linkedin.gradle.python.tasks.FindAbiForCurrentPythonTask;
 import com.linkedin.gradle.python.tasks.ParallelWheelGenerationTask;
+import com.linkedin.gradle.python.tasks.provides.ProvidesVenv;
 import com.linkedin.gradle.python.tasks.supports.SupportsWheelCache;
 import com.linkedin.gradle.python.util.ExtensionUtils;
+import com.linkedin.gradle.python.wheel.EditablePythonAbiContainer;
 import com.linkedin.gradle.python.wheel.FileBackedWheelCache;
-import com.linkedin.gradle.python.wheel.SupportedWheelFormats;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurationContainer;
@@ -49,17 +49,12 @@ public class WheelFirstPlugin implements Plugin<Project> {
 
         project.getPlugins().withType(PythonPlugin.class, plugin -> {
 
-            SupportedWheelFormats supportedWheelFormats = new SupportedWheelFormats();
+            EditablePythonAbiContainer supportedWheelFormats = ExtensionUtils.getEditablePythonAbiContainer(project);
             FileBackedWheelCache wheelCache = new FileBackedWheelCache(cacheDir, supportedWheelFormats);
 
-            FindAbiForCurrentPythonTask abiScript = tasks.create("findPythonAbi", FindAbiForCurrentPythonTask.class, it -> {
-                it.dependsOn(tasks.getByName(TASK_VENV_CREATE.getValue()));
-                it.setSupportedWheelFormat(supportedWheelFormats);
-                it.addPythonDetails(() -> ExtensionUtils.getPythonExtension(project).getDetails());
-            });
+            tasks.withType(ProvidesVenv.class, it -> it.setEditablePythonAbiContainer(supportedWheelFormats));
 
             ParallelWheelGenerationTask parallelWheelTask = tasks.create("parallelWheels", ParallelWheelGenerationTask.class, it -> {
-                it.dependsOn(abiScript);
                 ConfigurationContainer configurations = project.getConfigurations();
                 FileCollection dependencies = configurations.getByName(CONFIGURATION_SETUP_REQS.getValue())
                     .plus(configurations.getByName(CONFIGURATION_BUILD_REQS.getValue()))
@@ -76,14 +71,14 @@ public class WheelFirstPlugin implements Plugin<Project> {
                 it.dependsOn(tasks.getByName(TASK_INSTALL_SETUP_REQS.getValue()));
             });
 
-            tasks.withType(SupportsWheelCache.class, it -> {
-                it.setWheelCache(wheelCache);
 
-                if (!Objects.equals(it.getName(), TASK_VENV_CREATE.getValue())
-                    && !Objects.equals(it.getName(), TASK_INSTALL_SETUP_REQS.getValue())) {
-                    it.dependsOn(parallelWheelTask);
-                }
-            });
+            tasks.matching(it ->
+                it instanceof SupportsWheelCache
+                    && !(it instanceof ProvidesVenv)
+                    && !Objects.equals(it.getName(), TASK_INSTALL_SETUP_REQS.getValue()))
+                .all(it -> it.dependsOn(parallelWheelTask));
+
+            tasks.withType(SupportsWheelCache.class, it -> it.setWheelCache(wheelCache));
         });
     }
 }

@@ -15,6 +15,7 @@
  */
 package com.linkedin.gradle.python.extension
 
+import com.linkedin.gradle.python.extension.internal.DefaultPythonDetails
 import com.linkedin.gradle.python.util.OperatingSystem
 import com.linkedin.gradle.python.util.WindowsBinaryUnpacker
 import org.gradle.testfixtures.ProjectBuilder
@@ -28,7 +29,7 @@ import java.nio.file.Paths
 import static com.linkedin.gradle.python.util.WindowsBinaryUnpacker.buildPythonExec
 
 @Requires({ OperatingSystem.current() == OperatingSystem.WINDOWS })
-class PythonDetailsWindowsTest extends Specification {
+class DefaultPythonDetailsWindowsTest extends Specification {
 
     class CustomTemporaryFolder extends TemporaryFolder {
         protected void after() {
@@ -39,17 +40,17 @@ class PythonDetailsWindowsTest extends Specification {
     @Rule
     CustomTemporaryFolder temporaryFolder = new CustomTemporaryFolder()
     def project = new ProjectBuilder().build()
-    PythonDetails settings
+    DefaultPythonDetails settings
 
     def setup() {
-        settings = new PythonDetails(project)
+        settings = new DefaultPythonDetails(project)
         addExecutables(settings)
-        buildPythonExec(temporaryFolder.newFolder('python3.5.1', VirtualEnvironment.getPythonApplicationDirectory()), WindowsBinaryUnpacker.PythonVersion.PYTHON_35)
+        buildPythonExec(temporaryFolder.newFolder('python3.5.1', PythonDetailsFactory.getPythonApplicationDirectory()), WindowsBinaryUnpacker.PythonVersion.PYTHON_35)
     }
 
-    void addExecutables(PythonDetails details) {
+    void addExecutables(DefaultPythonDetails details) {
         WindowsBinaryUnpacker.PythonVersion.values().each {
-            def folder = temporaryFolder.newFolder("python${it.major}.${it.minor}", VirtualEnvironment.getPythonApplicationDirectory())
+            def folder = temporaryFolder.newFolder("python${ it.major }.${ it.minor }", PythonDetailsFactory.getPythonApplicationDirectory())
             details.prependExecutableDirectory(buildPythonExec(folder, it))
         }
     }
@@ -97,7 +98,7 @@ class PythonDetailsWindowsTest extends Specification {
     def "interpreterPath with systemPython set"() {
         when: "we have old systemPython setting"
         settings.pythonVersion = '2.6'
-        def path = Paths.get(temporaryFolder.getRoot().absolutePath, 'python3.5.1', VirtualEnvironment.getPythonApplicationDirectory(), 'python3.5.exe').toString()
+        def path = Paths.get(temporaryFolder.getRoot().absolutePath, 'python3.5.1', DefaultVirtualEnvironment.getPythonApplicationDirectory(), 'python3.5.exe').toString()
         settings.systemPythonInterpreter = path
         then: "we get that as interpreter path"
         settings.systemPythonInterpreter.absolutePath == path

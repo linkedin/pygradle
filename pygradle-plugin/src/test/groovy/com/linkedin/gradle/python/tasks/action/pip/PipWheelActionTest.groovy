@@ -16,9 +16,10 @@
 package com.linkedin.gradle.python.tasks.action.pip
 
 import com.linkedin.gradle.python.exception.PipExecutionException
+import com.linkedin.gradle.python.extension.PythonDetailsFactory
 import com.linkedin.gradle.python.extension.PythonDetailsTestDouble
-import com.linkedin.gradle.python.extension.VirtualEnvironment
 import com.linkedin.gradle.python.extension.WheelExtension
+import com.linkedin.gradle.python.extension.internal.DefaultVirtualEnvironment
 import com.linkedin.gradle.python.tasks.exec.ExternalExecTestDouble
 import com.linkedin.gradle.python.util.DefaultEnvironmentMerger
 import com.linkedin.gradle.python.util.PackageSettings
@@ -31,7 +32,6 @@ import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
 import static com.linkedin.gradle.python.tasks.action.pip.PipActionHelpers.packageInGradleCache
-
 
 class PipWheelActionTest extends Specification {
 
@@ -48,7 +48,7 @@ class PipWheelActionTest extends Specification {
         def action = createPipWheelAction(settings, execSpec)
 
         when:
-        action.buildWheel(packageInGradleCache("foo-1.0.0.tar.gz"), [])
+        action.execute(packageInGradleCache("foo-1.0.0.tar.gz"), [])
 
         then:
         1 * execSpec.environment(['CPPFLAGS': '-I/some/custom/path/include', 'LDFLAGS': '-L/some/custom/path/lib -Wl,-rpath,/some/custom/path/lib'])
@@ -61,7 +61,7 @@ class PipWheelActionTest extends Specification {
         def action = createPipWheelAction(settings, execSpec)
 
         when:
-        action.buildWheel(packageInGradleCache("setuptools-1.0.0.tar.gz"), [])
+        action.execute(packageInGradleCache("setuptools-1.0.0.tar.gz"), [])
 
         then:
         1 * execSpec.commandLine(_) >> { List<List<String>> args ->
@@ -81,7 +81,7 @@ class PipWheelActionTest extends Specification {
         def action = createPipWheelAction(settings, execSpec)
 
         when:
-        action.buildWheel(packageInGradleCache("setuptools-1.0.0.tar.gz"), [])
+        action.execute(packageInGradleCache("setuptools-1.0.0.tar.gz"), [])
 
         then:
         1 * execSpec.commandLine(_) >> { List<List<String>> args ->
@@ -101,7 +101,7 @@ class PipWheelActionTest extends Specification {
         def action = createPipWheelAction(settings, execSpec)
 
         when:
-        action.buildWheel(packageInGradleCache("setuptools-1.0.0.tar.gz"), [])
+        action.execute(packageInGradleCache("setuptools-1.0.0.tar.gz"), [])
 
         then:
         def e = thrown(PipExecutionException)
@@ -119,7 +119,7 @@ class PipWheelActionTest extends Specification {
         new File(wheelCache, "pyflakes-1.6.0-py2.py3-none-any.whl").createNewFile()
 
         when:
-        action.buildWheel(packageInGradleCache("pyflakes-1.0.0.tar.gz"), [])
+        action.execute(packageInGradleCache("pyflakes-1.0.0.tar.gz"), [])
 
         then:
         1 * execSpec.commandLine(_) >> { List<List<String>> args ->
@@ -142,7 +142,7 @@ class PipWheelActionTest extends Specification {
         new File(wheelCache, "pyflakes-1.6.0-py2.py3-none-any.whl").createNewFile()
 
         when:
-        action.buildWheel(packageInGradleCache("pyflakes-1.6.0.tar.gz"), [])
+        action.execute(packageInGradleCache("pyflakes-1.6.0.tar.gz"), [])
 
         then:
         0 * execSpec._
@@ -159,7 +159,7 @@ class PipWheelActionTest extends Specification {
         assert !new File(temporaryFolder.root, "build/wheel-cache/pyflakes-1.6.0-py2.py3-none-any.whl").exists()
 
         when:
-        action.buildWheel(packageInGradleCache("pyflakes-1.6.0.tar.gz"), [])
+        action.execute(packageInGradleCache("pyflakes-1.6.0.tar.gz"), [])
 
         then:
         0 * execSpec._
@@ -173,13 +173,13 @@ class PipWheelActionTest extends Specification {
 
     private PipWheelAction createPipWheelAction(PackageSettings settings, ExecSpec execSpec, WheelCache wheelCache) {
         def project = new ProjectBuilder().withProjectDir(temporaryFolder.root).build()
-        def binDir = temporaryFolder.newFolder('build', 'venv', VirtualEnvironment.getPythonApplicationDirectory())
-        VirtualEnvironment.findExecutable(binDir.toPath(), "pip").toFile().createNewFile()
-        VirtualEnvironment.findExecutable(binDir.toPath(), "python").toFile().createNewFile()
+        def binDir = temporaryFolder.newFolder('build', 'venv', PythonDetailsFactory.getPythonApplicationDirectory())
+        DefaultVirtualEnvironment.findExecutable(binDir.toPath(), "pip").createNewFile()
+        DefaultVirtualEnvironment.findExecutable(binDir.toPath(), "python").createNewFile()
         def details = new PythonDetailsTestDouble(project, binDir.parentFile)
         return new PipWheelAction(settings, project, new ExternalExecTestDouble(execSpec),
             ['CPPFLAGS': 'bogus', 'LDFLAGS': 'bogus'],
             details, wheelCache, new DefaultEnvironmentMerger(),
-            new WheelExtension(project))
+            new WheelExtension(project), { it -> false })
     }
 }

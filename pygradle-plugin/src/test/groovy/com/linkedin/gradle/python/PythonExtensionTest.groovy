@@ -15,7 +15,7 @@
  */
 package com.linkedin.gradle.python
 
-import com.linkedin.gradle.python.extension.VirtualEnvironment
+import com.linkedin.gradle.python.extension.PythonDetailsFactory
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
@@ -32,7 +32,7 @@ class PythonExtensionTest extends Specification {
         then: "they have venv python PATH + system env PATH"
         !parts.empty
         parts.size() > 1
-        parts[0].endsWith(Paths.get("build", "venv", VirtualEnvironment.getPythonApplicationDirectory()).toString())
+        parts[0].endsWith(Paths.get("build", "venv", PythonDetailsFactory.getPythonApplicationDirectory()).toString())
         parts.containsAll(System.getenv('PATH').tokenize(File.pathSeparator))
     }
 

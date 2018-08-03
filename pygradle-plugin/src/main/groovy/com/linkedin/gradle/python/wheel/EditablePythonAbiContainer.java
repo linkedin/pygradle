@@ -13,23 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.extension;
-
-import java.io.File;
-import java.io.Serializable;
+package com.linkedin.gradle.python.wheel;
 
 /**
- * Description of a virtual environment
+ * Adds an Python ABI to the container
  */
-public interface VirtualEnvironment extends Serializable {
+public interface EditablePythonAbiContainer extends PythonAbiContainer {
 
-    File getPip();
-
-    File getPex();
-
-    File getExecutable(String path);
-
-    File getScript(String path);
-
-    File findExecutable(String path);
+    /**
+     * Adds an Python/ABI group to the container.
+     */
+    void addSupportedAbi(AbiDetails triple);
 }

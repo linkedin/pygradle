@@ -33,7 +33,7 @@ abstract public class AbstractPythonTestSourceDefaultTask extends AbstractPython
 
     @InputFiles
     FileCollection getTestFiles() {
-        ConfigurableFileTree componentFiles = getProject().fileTree(getComponent().testDir);
+        ConfigurableFileTree componentFiles = getProject().fileTree(getPythonExtension().testDir);
         componentFiles.exclude(standardExcludes());
         if (testSource != null) {
             return testSource.plus(componentFiles);

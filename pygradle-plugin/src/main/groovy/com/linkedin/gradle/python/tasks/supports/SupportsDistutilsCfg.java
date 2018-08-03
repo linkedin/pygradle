@@ -13,23 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.extension;
+package com.linkedin.gradle.python.tasks.supports;
 
-import java.io.File;
-import java.io.Serializable;
+import org.gradle.api.Task;
 
 /**
- * Description of a virtual environment
+ * A way to use tasks.withType for tasks that support Distutils mutations
  */
-public interface VirtualEnvironment extends Serializable {
+public interface SupportsDistutilsCfg extends Task {
 
-    File getPip();
+    /**
+     * Set the dist utils text
+     * @param cfg string to be added to the end of the distutils file
+     */
+    void setDistutilsCfg(String cfg);
 
-    File getPex();
-
-    File getExecutable(String path);
-
-    File getScript(String path);
-
-    File findExecutable(String path);
+    /**
+     * @return Get the string to be appended to distutils config file
+     */
+    String getDistutilsCfg();
 }

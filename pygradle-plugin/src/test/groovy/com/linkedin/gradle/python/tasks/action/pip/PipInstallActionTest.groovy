@@ -16,8 +16,9 @@
 package com.linkedin.gradle.python.tasks.action.pip
 
 import com.linkedin.gradle.python.exception.PipExecutionException
+import com.linkedin.gradle.python.extension.PythonDetailsFactory
 import com.linkedin.gradle.python.extension.PythonDetailsTestDouble
-import com.linkedin.gradle.python.extension.VirtualEnvironment
+import com.linkedin.gradle.python.extension.internal.DefaultVirtualEnvironment
 import com.linkedin.gradle.python.tasks.exec.ExternalExecTestDouble
 import com.linkedin.gradle.python.util.DefaultEnvironmentMerger
 import com.linkedin.gradle.python.util.PackageSettings
@@ -46,7 +47,7 @@ class PipInstallActionTest extends Specification {
         def pipInstallAction = createPipInstallAction(settings, execSpec)
 
         when:
-        pipInstallAction.installPackage(packageInGradleCache("foo-1.0.0.tar.gz"), [])
+        pipInstallAction.execute(packageInGradleCache("foo-1.0.0.tar.gz"), [])
 
         then:
         1 * execSpec.environment(['CPPFLAGS': '-I/some/custom/path/include', 'LDFLAGS': '-L/some/custom/path/lib -Wl,-rpath,/some/custom/path/lib'])
@@ -59,7 +60,7 @@ class PipInstallActionTest extends Specification {
         def pipInstallAction = createPipInstallAction(settings, execSpec)
 
         when:
-        pipInstallAction.installPackage(packageInGradleCache("setuptools-1.0.0.tar.gz"), [])
+        pipInstallAction.execute(packageInGradleCache("setuptools-1.0.0.tar.gz"), [])
 
         then:
         1 * execSpec.commandLine(_) >> { List<List<String>> args ->
@@ -79,7 +80,7 @@ class PipInstallActionTest extends Specification {
         def pipInstallAction = createPipInstallAction(settings, execSpec)
 
         when:
-        pipInstallAction.installPackage(packageInGradleCache("setuptools-1.0.0.tar.gz"), [])
+        pipInstallAction.execute(packageInGradleCache("setuptools-1.0.0.tar.gz"), [])
 
         then:
         1 * execSpec.commandLine(_) >> { List<List<String>> args ->
@@ -99,7 +100,7 @@ class PipInstallActionTest extends Specification {
         def pipInstallAction = createPipInstallAction(settings, execSpec)
 
         when:
-        pipInstallAction.installPackage(packageInGradleCache("setuptools-1.0.0.tar.gz"), [])
+        pipInstallAction.execute(packageInGradleCache("setuptools-1.0.0.tar.gz"), [])
 
         then:
         def e = thrown(PipExecutionException)
@@ -122,7 +123,7 @@ class PipInstallActionTest extends Specification {
         distInfo.createNewFile()
 
         when:
-        pipInstallAction.installPackage(packageInGradleCache("pyflakes-1.0.0.tar.gz"), [])
+        pipInstallAction.execute(packageInGradleCache("pyflakes-1.0.0.tar.gz"), [])
 
         then:
         1 * execSpec.commandLine(_) >> { List<List<String>> args ->
@@ -147,7 +148,7 @@ class PipInstallActionTest extends Specification {
         eggFile.createNewFile()
 
         when:
-        action.installPackage(packageInGradleCache("pyflakes-1.6.0.tar.gz"), [])
+        action.execute(packageInGradleCache("pyflakes-1.6.0.tar.gz"), [])
 
         then:
         0 * execSpec._
@@ -163,7 +164,7 @@ class PipInstallActionTest extends Specification {
         eggFile.createNewFile()
 
         when:
-        action.installPackage(packageInGradleCache("pyflakes-1.6.0.tar.gz"), [])
+        action.execute(packageInGradleCache("pyflakes-1.6.0.tar.gz"), [])
 
         then:
         0 * execSpec._
@@ -175,12 +176,13 @@ class PipInstallActionTest extends Specification {
 
     private PipInstallAction createPipInstallAction(PackageSettings settings, ExecSpec execSpec, WheelCache wheelCache) {
         def project = new ProjectBuilder().withProjectDir(temporaryFolder.root).build()
-        def binDir = temporaryFolder.newFolder('build', 'venv', VirtualEnvironment.getPythonApplicationDirectory())
-        VirtualEnvironment.findExecutable(binDir.toPath(), "pip").toFile().createNewFile()
-        VirtualEnvironment.findExecutable(binDir.toPath(), "python").toFile().createNewFile()
+        def binDir = temporaryFolder.newFolder('build', 'venv', PythonDetailsFactory.getPythonApplicationDirectory())
+        DefaultVirtualEnvironment.findExecutable(binDir.toPath(), "pip").createNewFile()
+        DefaultVirtualEnvironment.findExecutable(binDir.toPath(), "python").createNewFile()
+
         def details = new PythonDetailsTestDouble(project, binDir.parentFile)
         return new PipInstallAction(settings, project, new ExternalExecTestDouble(execSpec),
             ['CPPFLAGS': 'bogus', 'LDFLAGS': 'bogus'],
-            details, wheelCache, new DefaultEnvironmentMerger())
+            details, wheelCache, new DefaultEnvironmentMerger(), { it -> false })
     }
 }

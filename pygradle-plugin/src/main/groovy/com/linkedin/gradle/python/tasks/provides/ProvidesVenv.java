@@ -13,23 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.extension;
+package com.linkedin.gradle.python.tasks.provides;
 
-import java.io.File;
-import java.io.Serializable;
+import com.linkedin.gradle.python.wheel.EditablePythonAbiContainer;
+import org.gradle.api.Task;
 
 /**
- * Description of a virtual environment
+ * Marker interface for tasks that make a Venv.
+ *
+ * This is used so that we can track venv's and the Python ABI they support
  */
-public interface VirtualEnvironment extends Serializable {
-
-    File getPip();
-
-    File getPex();
-
-    File getExecutable(String path);
-
-    File getScript(String path);
-
-    File findExecutable(String path);
+public interface ProvidesVenv extends Task {
+    /**
+     * The PythonAbiContainer
+     */
+    void setEditablePythonAbiContainer(EditablePythonAbiContainer editablePythonAbiContainer);
 }

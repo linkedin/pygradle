@@ -18,6 +18,8 @@ package com.linkedin.gradle.python.util
 import org.gradle.api.GradleException
 import spock.lang.Specification
 
+import java.nio.file.Paths
+
 class PackageInfoTest extends Specification {
 
     def 'can parse boring sdist'() {
@@ -93,7 +95,7 @@ class PackageInfoTest extends Specification {
     }
 
     static PackageInfo packageInGradleCache(String name) {
-        return PackageInfo.fromPath(new File("/foo/.gradle/caches/", name))
+        return PackageInfo.fromPath(Paths.get("foo", ".gradle", "caches", name))
     }
 
 }

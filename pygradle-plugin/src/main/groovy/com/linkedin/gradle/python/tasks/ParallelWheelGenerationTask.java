@@ -18,6 +18,7 @@ package com.linkedin.gradle.python.tasks;
 import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.extension.PythonDetails;
 import com.linkedin.gradle.python.plugin.PythonHelpers;
+import com.linkedin.gradle.python.tasks.supports.SupportsPackageFiltering;
 import com.linkedin.gradle.python.tasks.supports.SupportsPackageInfoSettings;
 import com.linkedin.gradle.python.util.PackageInfo;
 import com.linkedin.gradle.python.util.PackageSettings;
@@ -29,6 +30,7 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
+import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
@@ -39,6 +41,7 @@ import org.gradle.internal.logging.progress.ProgressLogger;
 import org.gradle.internal.logging.progress.ProgressLoggerFactory;
 import org.gradle.process.ExecResult;
 
+import javax.annotation.Nullable;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -55,7 +58,7 @@ import java.util.stream.Stream;
 
 import static com.linkedin.gradle.python.util.StandardTextValues.CONFIGURATION_SETUP_REQS;
 
-public class ParallelWheelGenerationTask extends DefaultTask implements SupportsPackageInfoSettings {
+public class ParallelWheelGenerationTask extends DefaultTask implements SupportsPackageInfoSettings, SupportsPackageFiltering {
 
     private static final Logger logger = Logging.getLogger(ParallelWheelGenerationTask.class);
 
@@ -70,6 +73,7 @@ public class ParallelWheelGenerationTask extends DefaultTask implements Supports
     private AtomicInteger counter = new AtomicInteger();
 
     private PackageSettings<PackageInfo> packageSettings;
+    private Spec<PackageInfo> packageFilter;
 
     public ParallelWheelGenerationTask() {
         onlyIf(task -> {
@@ -152,6 +156,13 @@ public class ParallelWheelGenerationTask extends DefaultTask implements Supports
     private void makeWheelFromSdist(PackageInfo packageInfo) {
 
         if (packageInfo.getPackageFile().getName().endsWith(".whl")) {
+            return;
+        }
+
+        if (packageFilter != null && packageFilter.isSatisfiedBy(packageInfo)) {
+            if (PythonHelpers.isPlainOrVerbose(getProject())) {
+                logger.lifecycle("Skipping building {} wheel - Excluded", packageInfo.toShortHand());
+            }
             return;
         }
 
@@ -254,5 +265,16 @@ public class ParallelWheelGenerationTask extends DefaultTask implements Supports
     @Override
     public PackageSettings<PackageInfo> getPackageSettings() {
         return this.packageSettings;
+    }
+
+    @Nullable
+    @Override
+    public Spec<PackageInfo> getPackageExcludeFilter() {
+        return packageFilter;
+    }
+
+    @Override
+    public void setPackageExcludeFilter(Spec<PackageInfo> filter) {
+        packageFilter = filter;
     }
 }

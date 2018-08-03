@@ -15,15 +15,16 @@
  */
 package com.linkedin.gradle.python.extension
 
+import com.linkedin.gradle.python.extension.internal.DefaultPythonDetails
 import org.gradle.api.GradleException
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
 
-class PythonDetailsTest extends Specification {
+class DefaultPythonDetailsTest extends Specification {
 
     def project = new ProjectBuilder().build()
-    def details = new PythonDetails(project)
+    def details = new DefaultPythonDetails(project, new File("/foo/bar/venv"))
 
     /* Most of the work is done by the PythonDefaultVersions class, so see
        that class and tests.  We'd like to be able to completely test

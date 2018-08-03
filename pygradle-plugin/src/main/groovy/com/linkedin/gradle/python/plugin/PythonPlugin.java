@@ -23,10 +23,15 @@ import com.linkedin.gradle.python.tasks.CleanSaveVenvTask;
 import com.linkedin.gradle.python.tasks.GenerateSetupPyTask;
 import com.linkedin.gradle.python.tasks.InstallVirtualEnvironmentTask;
 import com.linkedin.gradle.python.tasks.PinRequirementsTask;
+import com.linkedin.gradle.python.tasks.provides.ProvidesVenv;
+import com.linkedin.gradle.python.tasks.supports.SupportsPackageFiltering;
 import com.linkedin.gradle.python.tasks.supports.SupportsPackageInfoSettings;
 import com.linkedin.gradle.python.util.DefaultPackageSettings;
+import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.util.FileSystemUtils;
 import com.linkedin.gradle.python.util.internal.PyPiRepoUtil;
+import com.linkedin.gradle.python.wheel.EditablePythonAbiContainer;
+import com.linkedin.gradle.python.wheel.internal.DefaultPythonAbiContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
@@ -36,6 +41,7 @@ import java.io.File;
 
 import static com.linkedin.gradle.python.util.StandardTextValues.CONFIGURATION_BOOTSTRAP_REQS;
 import static com.linkedin.gradle.python.util.StandardTextValues.CONFIGURATION_BUILD_REQS;
+import static com.linkedin.gradle.python.util.StandardTextValues.CONFIGURATION_FLAKE8;
 import static com.linkedin.gradle.python.util.StandardTextValues.CONFIGURATION_PYDOCS;
 import static com.linkedin.gradle.python.util.StandardTextValues.CONFIGURATION_PYTHON;
 import static com.linkedin.gradle.python.util.StandardTextValues.CONFIGURATION_SETUP_REQS;
@@ -55,10 +61,20 @@ public class PythonPlugin implements Plugin<Project> {
 
         final PythonExtension settings = project.getExtensions().create("python", PythonExtension.class, project);
 
+        EditablePythonAbiContainer supportedWheelFormats =
+            ExtensionUtils.maybeCreate(settings, EditablePythonAbiContainer.class.getName(), DefaultPythonAbiContainer.class);
+
+        project.getTasks().withType(ProvidesVenv.class, it -> it.setEditablePythonAbiContainer(supportedWheelFormats));
+
         project.getPlugins().apply("base");
 
         createConfigurations(project);
         configureVendedDependencies(project, settings);
+
+        project.getTasks().withType(SupportsPackageFiltering.class, action -> {
+            action.getOutputs().doNotCacheIf("When package packageFilter is set",
+                task -> ((SupportsPackageFiltering) task).getPackageExcludeFilter() != null);
+        });
 
         DefaultPackageSettings packageSettings = new DefaultPackageSettings(project.getProjectDir());
         project.getTasks().withType(SupportsPackageInfoSettings.class, it -> it.setPackageSettings(packageSettings));
@@ -129,11 +145,15 @@ public class PythonPlugin implements Plugin<Project> {
 
         project.getConfigurations().create(CONFIGURATION_BOOTSTRAP_REQS.getValue());
         project.getConfigurations().create(CONFIGURATION_SETUP_REQS.getValue());
-        project.getConfigurations().create(CONFIGURATION_BUILD_REQS.getValue());
+        Configuration buildReq = project.getConfigurations().create(CONFIGURATION_BUILD_REQS.getValue());
         project.getConfigurations().create(CONFIGURATION_PYDOCS.getValue());
         project.getConfigurations().create(CONFIGURATION_TEST.getValue());
         project.getConfigurations().create(CONFIGURATION_VENV.getValue());
+        Configuration flake8 = project.getConfigurations().create(CONFIGURATION_FLAKE8.getValue());
         project.getConfigurations().create(CONFIGURATION_WHEEL.getValue());
+
+        //So flake8 will be installed into the activate-able venv
+        buildReq.extendsFrom(flake8);
     }
 
     /*
@@ -152,7 +172,8 @@ public class PythonPlugin implements Plugin<Project> {
         project.getDependencies().add(CONFIGURATION_SETUP_REQS.getValue(), settings.forcedVersions.get("pip"));
         project.getDependencies().add(CONFIGURATION_SETUP_REQS.getValue(), settings.forcedVersions.get("setuptools-git"));
 
-        project.getDependencies().add(CONFIGURATION_BUILD_REQS.getValue(), settings.forcedVersions.get("flake8"));
+        project.getDependencies().add(CONFIGURATION_FLAKE8.getValue(), settings.forcedVersions.get("flake8"));
+
         project.getDependencies().add(CONFIGURATION_BUILD_REQS.getValue(), settings.forcedVersions.get("Sphinx"));
 
         project.getDependencies().add(CONFIGURATION_TEST.getValue(), settings.forcedVersions.get("pytest"));

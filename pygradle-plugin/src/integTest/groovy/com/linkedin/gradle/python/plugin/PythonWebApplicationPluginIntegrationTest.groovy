@@ -31,6 +31,7 @@ class PythonWebApplicationPluginIntegrationTest extends Specification {
 
     @Rule
     final DefaultProjectLayoutRule testProjectDir = new DefaultProjectLayoutRule()
+
     def "can build web-app"() {
         given:
         testProjectDir.buildFile << """\

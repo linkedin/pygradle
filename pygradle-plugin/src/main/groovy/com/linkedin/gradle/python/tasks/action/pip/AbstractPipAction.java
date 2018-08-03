@@ -15,15 +15,18 @@
  */
 package com.linkedin.gradle.python.tasks.action.pip;
 
+import com.linkedin.gradle.python.exception.PipExecutionException;
 import com.linkedin.gradle.python.extension.PythonDetails;
 import com.linkedin.gradle.python.extension.PythonVersion;
-import com.linkedin.gradle.python.exception.PipExecutionException;
+import com.linkedin.gradle.python.plugin.PythonHelpers;
 import com.linkedin.gradle.python.tasks.exec.ExternalExec;
 import com.linkedin.gradle.python.util.EnvironmentMerger;
 import com.linkedin.gradle.python.util.PackageInfo;
 import com.linkedin.gradle.python.util.PackageSettings;
 import com.linkedin.gradle.python.wheel.WheelCache;
 import org.gradle.api.Project;
+import org.gradle.api.logging.Logger;
+import org.gradle.api.specs.Spec;
 import org.gradle.process.ExecResult;
 
 import java.io.OutputStream;
@@ -41,6 +44,7 @@ abstract class AbstractPipAction {
     final WheelCache wheelCache;
     final EnvironmentMerger environmentMerger;
     final PythonVersion pythonVersion;
+    final Spec<PackageInfo> packageExcludeFilter;
 
     AbstractPipAction(PackageSettings<PackageInfo> packageSettings,
                       Project project,
@@ -48,7 +52,8 @@ abstract class AbstractPipAction {
                       Map<String, String> baseEnvironment,
                       PythonDetails pythonDetails,
                       WheelCache wheelCache,
-                      EnvironmentMerger environmentMerger) {
+                      EnvironmentMerger environmentMerger,
+                      Spec<PackageInfo> packageExcludeFilter) {
         this.packageSettings = packageSettings;
         this.project = project;
         this.externalExec = externalExec;
@@ -57,7 +62,18 @@ abstract class AbstractPipAction {
         this.wheelCache = wheelCache;
         this.environmentMerger = environmentMerger;
         this.pythonVersion = pythonDetails.getPythonVersion();
+        this.packageExcludeFilter = packageExcludeFilter;
+    }
 
+    public void execute(PackageInfo packageInfo, List<String> extraArgs) {
+        if (packageExcludeFilter != null && packageExcludeFilter.isSatisfiedBy(packageInfo)) {
+            if (PythonHelpers.isPlainOrVerbose(project)) {
+                getLogger().lifecycle("Skipping {} - Excluded", packageInfo.toShortHand());
+            }
+            return;
+        }
+
+        doPipOperation(packageInfo, extraArgs);
     }
 
     void throwIfPythonVersionIsNotSupported(PackageInfo packageInfo) {
@@ -114,4 +130,8 @@ abstract class AbstractPipAction {
             return buildOptions;
         }
     }
+
+    abstract void doPipOperation(PackageInfo packageInfo, List<String> extraArgs);
+
+    abstract Logger getLogger();
 }

@@ -13,23 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.extension;
+package com.linkedin.gradle.python.tasks.supports;
 
-import java.io.File;
-import java.io.Serializable;
+import com.linkedin.gradle.python.util.PackageInfo;
+import org.gradle.api.Task;
+import org.gradle.api.specs.Spec;
+
+import javax.annotation.Nullable;
 
 /**
- * Description of a virtual environment
+ * Interface to mark tasks that support package filtering.
  */
-public interface VirtualEnvironment extends Serializable {
+public interface SupportsPackageFiltering extends HasPythonDetails, Task {
 
-    File getPip();
+    /**
+     * @return the filter, may be null.
+     */
+    @Nullable
+    Spec<PackageInfo> getPackageExcludeFilter();
 
-    File getPex();
-
-    File getExecutable(String path);
-
-    File getScript(String path);
-
-    File findExecutable(String path);
+    /**
+     * Set the package filter
+     */
+    void setPackageExcludeFilter(Spec<PackageInfo> filter);
 }

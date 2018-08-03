@@ -35,9 +35,6 @@ class PyGradleWithSlimProjectsTest extends Specification {
     @Rule
     final DefaultBlankProjectLayoutRule testProjectDir = new DefaultBlankProjectLayoutRule()
 
-    def setup() {
-
-    }
 
     def "verify works with blank project with pipconfig"() {
         given:

@@ -20,6 +20,7 @@ import com.linkedin.gradle.python.extension.CliExtension;
 import com.linkedin.gradle.python.extension.DeployableExtension;
 import com.linkedin.gradle.python.extension.PexExtension;
 import com.linkedin.gradle.python.extension.WheelExtension;
+import com.linkedin.gradle.python.wheel.EditablePythonAbiContainer;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.ExtensionContainer;
@@ -82,5 +83,9 @@ public class ExtensionUtils {
 
     public static PythonExtension getPythonExtension(Project project) {
         return project.getExtensions().getByType(PythonExtension.class);
+    }
+
+    public static EditablePythonAbiContainer getEditablePythonAbiContainer(Project project) {
+        return getPythonComponentExtension(project, EditablePythonAbiContainer.class);
     }
 }

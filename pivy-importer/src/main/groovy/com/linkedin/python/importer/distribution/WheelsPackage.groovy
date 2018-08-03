@@ -87,6 +87,7 @@ class WheelsPackage extends PythonPackage {
         }
 
         Map<String, List<String>> runtimeRequiresMap = [:]
+        runtimeRequiresMap['default'] = []
 
         def runRequires = jsonMetadata["run_requires"]
         def metaRequires = jsonMetadata["meta_requires"]

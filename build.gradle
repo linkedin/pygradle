@@ -34,6 +34,10 @@ subprojects {
             }
             task.testLogging.exceptionFormat = 'full'
         }
+        
+        task.minHeapSize = '128m'
+        task.maxHeapSize = '512m'
+        
         task.afterSuite { desc, result ->
             if (!desc.parent) { // will match the outermost suite
                 logger.lifecycle("Task {} results: {} ({} tests, {} successes, {} failures, {} skipped)", task.path,

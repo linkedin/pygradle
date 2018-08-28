@@ -122,7 +122,7 @@ Finally, lets write some Gradle code.
 
     dependencies {
         python 'pypi:requests:2.9.1'
-        test 'pypi:mock:1.0.1'
+        test 'pypi:mock:2.0.0'
     }
 
     repositories {

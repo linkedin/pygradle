@@ -155,17 +155,21 @@ class PexExecSpecAction implements Action<ExecSpec> {
         List<String> requirements = new ArrayList<>();
         for (Map.Entry<String, String> entry : dependencies.entrySet()) {
             /*
-             * Work around the bug in pex.
-             * It does not follow PEP 427 completely: https://www.python.org/dev/peps/pep-0427/
-             * It turns hyphens into underscored for wheel file name in package (distribution) name only,
-             * but it does not do the same for package version.
-             * The pep is quite clear about this:
+             * NOTE: There used to be a workaround for the bug in pex here.
+             * It did not follow PEP 427 completely: https://www.python.org/dev/peps/pep-0427/
+             * It turned hyphens into underscores for wheel file name in package (distribution) name only,
+             * but it did not do the same for package version.
+             * The PEP is quite clear about this:
              *     "Each component of the filename is escaped by replacing runs of non-alphanumeric characters
              *     with an underscore _"
-             * On the other hand, pip handles this correctly, so there's a discrepancy.
-             * Until pex fixes this bug, we have to tell it that version in the file name has underscore.
+             * On the other hand, pip handles this correctly, so there was a discrepancy.
+             * Until pex fixed this bug, we had to tell it that version in the file name has underscore.
+             *
+             * Leaving this comment here in case there's a regression again.
+             * It seems that pex has fixed this between 1.2.13 and 1.4.5.
+             * We used to need `.replace("-", "_"));` instead of `);` at the end below.
              */
-            requirements.add(entry.getKey() + "==" + entry.getValue().replace("-", "_"));
+            requirements.add(entry.getKey() + "==" + entry.getValue());
         }
         return requirements;
     }

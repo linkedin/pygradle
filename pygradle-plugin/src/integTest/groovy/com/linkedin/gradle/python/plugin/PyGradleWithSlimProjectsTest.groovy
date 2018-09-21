@@ -43,7 +43,7 @@ class PyGradleWithSlimProjectsTest extends Specification {
         |     id 'com.linkedin.python'
         | }
         | python{
-        |     pipConfig = ['global':['index-url': 'https://<login>:<password>@your.repo.com/custom/url', 'timeout': '60']]
+        |     pipConfig = ['global':['extra-index-url': 'https://<login>:<password>@your.repo.com/custom/url', 'timeout': '60']]
         | }
         |
         | ${PyGradleTestBuilder.createRepoClosure()}
@@ -77,7 +77,7 @@ class PyGradleWithSlimProjectsTest extends Specification {
         fpip.exists()
         def lines = fpip.readLines()
         lines.get(0) == "[global]"
-        lines.get(1) == "index-url = https://<login>:<password>@your.repo.com/custom/url"
+        lines.get(1) == "extra-index-url = https://<login>:<password>@your.repo.com/custom/url"
         lines.get(2) == "timeout = 60"
 
         // "Build will skip things that it should"
@@ -111,7 +111,7 @@ class PyGradleWithSlimProjectsTest extends Specification {
         |     id 'com.linkedin.python'
         | }
         | python{
-        |     pipConfig = ['global':['index-url': 'https://<login>:<password>@your.repo.com/custom/url', 'timeout': '60']]
+        |     pipConfig = ['global':['extra-index-url': 'https://<login>:<password>@your.repo.com/custom/url', 'timeout': '60']]
         | }
         | ${PyGradleTestBuilder.createRepoClosure()}
         """.stripMargin().stripIndent()

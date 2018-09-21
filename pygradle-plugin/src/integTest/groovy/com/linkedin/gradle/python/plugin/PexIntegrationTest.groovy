@@ -62,9 +62,9 @@ class PexIntegrationTest extends Specification {
 
         Path deployablePath = testProjectDir.root.toPath().resolve(Paths.get('foo', 'build', 'deployable', "bin"))
 
-        then: "it succeeds and the hyphen was converted into underscore for pex command due to pex bug workaround"
+        then: "it succeeds and the hyphen was NOT converted into underscore for snapshot as it did with old pex bug"
 
-        result.output.find("pex [^\n]+ foo==1.0.0_SNAPSHOT")
+        result.output.find("pex [^\n]+ foo==1.0.0-SNAPSHOT")
         result.output.contains("BUILD SUCCESS")
         result.task(':foo:flake8').outcome == TaskOutcome.SUCCESS
         result.task(':foo:installPythonRequirements').outcome == TaskOutcome.SUCCESS

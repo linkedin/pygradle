@@ -137,7 +137,7 @@ class ParallelWheelsIntegrationTest extends Specification {
         // Note: These versions will change over time
         output.contains("wheel==0.31.1")
         output.contains("pip==18.0")
-        output.contains("setuptools==40.4.1")
+        output.contains("setuptools==40.4.3")
         result.task(':foo:findPythonAbi') == null //task was removed and is no longer needed
         result.task(':foo:parallelWheels').outcome == TaskOutcome.SUCCESS
 

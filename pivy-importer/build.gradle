@@ -54,13 +54,13 @@ task importRequiredDependencies(type: JavaExec) { task ->
         'flake8:2.6.2',
         'Flask:0.12.2',
         'pbr:1.8.0',
-        'pex:1.4.6',
+        'pex:1.4.7',
         'pip:18.0',
         'pytest:3.1.2',
         'pytest-cov:2.5.1',
         'pytest-xdist:1.17.1',
         'requests:2.18.1',
-        'setuptools:40.4.1',
+        'setuptools:40.4.3',
         'setuptools-git:1.2',
         'six:1.11.0',
         'Sphinx:1.4.9',
@@ -68,7 +68,7 @@ task importRequiredDependencies(type: JavaExec) { task ->
         'wheel:0.31.1',
     ].join(" ")
     def forceDeps = [
-        'setuptools:40.4.1',
+        'setuptools:40.4.3',
         'wheel:0.31.1',
         'pip:18.0',
     ].join(',')

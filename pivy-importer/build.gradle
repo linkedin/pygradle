@@ -49,6 +49,7 @@ task importRequiredDependencies(type: JavaExec) { task ->
         'setuptools:0.6a2=setuptools:19.1.1',               // candidate for removal
         'setuptools:0.6c1=setuptools:19.1.1',
         'sphinx_rtd_theme:0.1=sphinx_rtd_theme:0.1.1',      // candidate for removal
+        'sphinx_rtd_theme:0.1.0=sphinx_rtd_theme:0.1.1',      // candidate for removal
     ].join(",")
     def packagesToInclude = [
         'flake8:2.6.2',

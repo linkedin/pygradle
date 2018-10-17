@@ -140,10 +140,11 @@ public class DefaultPythonDetails implements PythonDetails, Serializable {
 
     @Override
     public void setPythonVersion(String version) {
-        setPythonVersionNumber(version);
+        String normalizedVersion = setPythonVersionNumber(version);
         OperatingSystem operatingSystem = OperatingSystem.current();
-        pythonInterpreter = operatingSystem.findInPath(searchPath,
-                                                       operatingSystem.getExecutableName(String.format("python%s", pythonVersion)));
+        pythonInterpreter = operatingSystem.findInPath(
+            searchPath,
+            operatingSystem.getExecutableName(String.format("python%s", normalizedVersion)));
         updateFromPythonInterpreter();
     }
 
@@ -151,8 +152,8 @@ public class DefaultPythonDetails implements PythonDetails, Serializable {
        the file system for a Python interpreter.  See
        DefaultPythonDetailsTest.groovy
     */
-    public void setPythonVersionNumber(String version) {
-        pythonVersion = pythonDefaultVersions.normalize(version);
+    public String setPythonVersionNumber(String version) {
+        return pythonDefaultVersions.normalize(version);
     }
 
     public void setPythonInterpreter(PythonVersion pythonVersion, File pythonInterpreter) {

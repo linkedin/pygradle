@@ -152,7 +152,7 @@ public class DefaultPythonDetails implements PythonDetails, Serializable {
        DefaultPythonDetailsTest.groovy
     */
     public void setPythonVersionNumber(String version) {
-        version = pythonDefaultVersions.normalize(version);
+        pythonVersion = pythonDefaultVersions.normalize(version);
     }
 
     public void setPythonInterpreter(PythonVersion pythonVersion, File pythonInterpreter) {

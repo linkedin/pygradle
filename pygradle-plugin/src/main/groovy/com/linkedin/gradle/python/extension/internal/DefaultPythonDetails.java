@@ -140,10 +140,18 @@ public class DefaultPythonDetails implements PythonDetails, Serializable {
 
     @Override
     public void setPythonVersion(String version) {
-        version = pythonDefaultVersions.normalize(version);
+        setPythonVersionNumber(version);
         OperatingSystem operatingSystem = OperatingSystem.current();
         pythonInterpreter = operatingSystem.findInPath(searchPath, operatingSystem.getExecutableName(String.format("python%s", version)));
         updateFromPythonInterpreter();
+    }
+
+    /* This is primarily used for the test suite because it avoids searching
+       the file system for a Python interpreter.  See
+       DefaultPythonDetailsTest.groovy
+    */
+    public void setPythonVersionNumber(String version) {
+        version = pythonDefaultVersions.normalize(version);
     }
 
     public void setPythonInterpreter(PythonVersion pythonVersion, File pythonInterpreter) {

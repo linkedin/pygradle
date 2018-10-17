@@ -142,7 +142,8 @@ public class DefaultPythonDetails implements PythonDetails, Serializable {
     public void setPythonVersion(String version) {
         setPythonVersionNumber(version);
         OperatingSystem operatingSystem = OperatingSystem.current();
-        pythonInterpreter = operatingSystem.findInPath(searchPath, operatingSystem.getExecutableName(String.format("python%s", version)));
+        pythonInterpreter = operatingSystem.findInPath(searchPath,
+                                                       operatingSystem.getExecutableName(String.format("python%s", pythonVersion)));
         updateFromPythonInterpreter();
     }
 

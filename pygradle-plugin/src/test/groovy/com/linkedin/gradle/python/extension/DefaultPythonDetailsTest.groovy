@@ -38,11 +38,35 @@ class DefaultPythonDetailsTest extends Specification {
        It does seem like this one can be tested though.
      */
     def 'test set to unacceptable version'() {
+        given:
+        details.pythonDefaultVersions = new PythonDefaultVersions(['2.7', '3.5', '3.6'])
+
         when:
-        details.setPythonDefaultVersions(new PythonDefaultVersions(['2.7', '3.5', '3.6']))
-        details.setPythonVersion('2.5')
+        details.pythonVersion = '2.5'
 
         then:
         thrown(GradleException)
+    }
+
+    def 'test set to just Python 2'() {
+        given:
+        details.setPythonInterpreter(new PythonVersion("2.7"), new File("/foo/bar/venv/python"))
+
+        when:
+        details.pythonVersionNumber = '2'
+
+        then:
+        details.pythonVersion.toString() == "PythonVersion{version='2.7'}"
+    }
+
+    def 'test set to just Python 3'() {
+        given:
+        details.setPythonInterpreter(new PythonVersion("3.7"), new File("/foo/bar/venv/python"))
+
+        when:
+        details.pythonVersionNumber = '3'
+
+        then:
+        details.pythonVersion.toString() == "PythonVersion{version='3.7'}"
     }
 }

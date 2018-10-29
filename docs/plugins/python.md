@@ -17,7 +17,7 @@ The `com.linkedin.python` plugin adds an extension called `python` to the projec
     details {
         virtualEnvPrompt = "(${project.name})"
         activateLink = project.file("activate") // File you can source to activate the virtual env
-        // pythonVersion = '2.6' // Sets the version of python to use, will search your PATH to get the location
+        // pythonVersion = '2.7' // Sets the version of python to use, will search your PATH to get the location
         // systemPythonInterpreter = file("/path/to/python2.7") // used to force an interpreter to be used to build the venv
     }
 }
@@ -73,7 +73,7 @@ This plugin also enforces a set of allowed Python versions.  If you choose a
 Python version that is not allowed, you will see an error messages such as:
 
 ```
-> Python 3.2 not allowed; choose from [2.6, 2.7, 3.4, 3.5, 3.6]
+> Python 3.2 not allowed; choose from [2.7, 3.4, 3.5, 3.6]
 ```
 
 If you see this error message, you must adjust your `pythonVersion` setting to

@@ -53,12 +53,12 @@ class PipFreezeOutputParserTest extends Specification {
         expect:
         PipFreezeOutputParser.getDependencies(['pbr', 'Babel', 'pep8', 'py', 'setuptools', 'pytest-xdist', 'Jinja2', 'flake8', 'snowballstemmer',
                                                'alabaster', 'sphinx_rtd_theme', 'Pygments', 'pytest-cov', 'pip', 'mccabe', 'docutils', 'coverage', 'pex',
-                                               'six', 'setuptools-git', 'pyflakes', 'pytest', 'wheel', 'imagesize', 'argparse', 'Sphinx', 'colorama',
+                                               'six', 'setuptools-git', 'pyflakes', 'pytest', 'wheel', 'imagesize', 'Sphinx', 'colorama',
                                                'pytz'], freezeOutput) == ['testProject': 'unspecified', 'MP': '1.2.3-TESTSUFFIX']
 
         PipFreezeOutputParser.getDependencies(['pbr', 'Babel', 'pep8', 'py', 'setuptools', 'pytest-xdist', 'Jinja2', 'flake8', 'snowballstemmer',
                                                'alabaster', 'sphinx_rtd_theme', 'Pygments', 'pip', 'mccabe', 'docutils', 'coverage', 'pex',
-                                               'six', 'setuptools-git', 'pyflakes', 'pytest', 'wheel', 'imagesize', 'argparse', 'Sphinx', 'colorama',
+                                               'six', 'setuptools-git', 'pyflakes', 'pytest', 'wheel', 'imagesize', 'Sphinx', 'colorama',
                                                'pytz'], freezeOutput) == ['testProject': 'unspecified', 'MP': '1.2.3-TESTSUFFIX', 'pytest-cov': '2.2.1']
     }
 

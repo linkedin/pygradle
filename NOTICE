@@ -17,7 +17,6 @@ This project uses the following in the plugin:
     Gradle (http://gradle.org) - Apache License 2.0
 
 This project uses the following part of the python environment:
-    argparse (https://github.com/ThomasWaldmann/argparse/) - Python Software Foundation License
     flake8 (https://gitlab.com/pycqa/flake8) - MIT
     pex (https://github.com/pantsbuild/pex) - Apache License 2.0
     pip (https://pip.pypa.io/) - MIT

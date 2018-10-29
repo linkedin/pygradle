@@ -101,7 +101,6 @@ sphinx_rtd_theme:0.1=sphinx_rtd_theme:0.1.1
 08:44:24.514 INFO  c.l.p.i.deps.DependencyDownloader - Pulling in mock:2.0.0
 08:44:24.803 INFO  c.l.p.i.deps.DependencyDownloader - Pulling in py:1.4.29
 08:44:24.821 INFO  c.l.p.i.deps.DependencyDownloader - Pulling in colorama:0.3.7
-08:44:24.832 INFO  c.l.p.i.deps.DependencyDownloader - Pulling in argparse:1.4.0
 08:44:24.844 INFO  c.l.p.i.deps.DependencyDownloader - Pulling in pbr:0.11.0
 08:44:24.858 INFO  c.l.p.i.deps.DependencyDownloader - Pulling in six:1.9.0
 08:44:24.867 INFO  c.l.p.i.deps.DependencyDownloader - Pulling in funcsigs:1.0.0

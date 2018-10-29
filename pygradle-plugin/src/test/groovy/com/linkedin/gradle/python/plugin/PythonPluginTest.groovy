@@ -84,7 +84,7 @@ class PythonPluginTest extends Specification {
         def details = project.getExtensions().getByType(PythonExtension).getDetails()
 
         if (OperatingSystem.current() == OperatingSystem.WINDOWS) {
-            def folder = temporaryFolder.newFolder("python2.6", 'bin')
+            def folder = temporaryFolder.newFolder("python2.7", 'bin')
             details.prependExecutableDirectory(buildPythonExec(folder, WindowsBinaryUnpacker.PythonVersion.PYTHON_26))
         }
 

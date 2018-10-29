@@ -25,7 +25,7 @@ public class PythonWheelDistributionPlugin extends PythonBasePlugin {
     @Override
     public void applyTo(final Project project) {
         // XXX: This needs to be adjusted to work with a build matrix one day. Until
-        // that is ready, we always assume pure Python 2.6 on Linux.
+        // that is ready, we always assume pure Python 2.7 on Linux.
         String version = project.getVersion().toString().replace("-", "_");
         String name = project.getName().replace("-", "_");
         final File wheelArtifact = new File(project.getProjectDir(), "/dist/" + name + "-" + version + "-py2-none-any.whl");

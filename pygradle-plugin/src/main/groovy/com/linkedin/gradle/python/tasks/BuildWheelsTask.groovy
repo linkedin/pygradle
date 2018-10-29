@@ -80,24 +80,6 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, Support
     @TaskAction
     void buildWheelsTask() {
         buildWheels(project, DependencyOrder.getConfigurationFiles(installFileCollection), getPythonDetails())
-
-        /*
-         * If pexDependencies are empty or its wheels are already
-         * installed from python configuration, the call below will
-         * have no effect.
-         */
-        List<File> pexDependencies = []
-
-        /*
-         * In Python <=2.6, argparse is not part of the standard library
-         * and Pex requires it, so we need to include it as a dependency
-         */
-        project.configurations.build.files.each { file ->
-            if (getPythonDetails().pythonVersion.pythonMajorMinor == '2.6' && file.name.contains('argparse')) {
-                pexDependencies.add(file)
-            }
-        }
-        buildWheels(project, pexDependencies.sort(), getPythonDetails())
     }
 
     /**

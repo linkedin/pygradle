@@ -85,7 +85,7 @@ class PythonPluginTest extends Specification {
 
         if (OperatingSystem.current() == OperatingSystem.WINDOWS) {
             def folder = temporaryFolder.newFolder("python2.7", 'bin')
-            details.prependExecutableDirectory(buildPythonExec(folder, WindowsBinaryUnpacker.PythonVersion.PYTHON_26))
+            details.prependExecutableDirectory(buildPythonExec(folder, WindowsBinaryUnpacker.PythonVersion.PYTHON_27))
         }
 
         then:

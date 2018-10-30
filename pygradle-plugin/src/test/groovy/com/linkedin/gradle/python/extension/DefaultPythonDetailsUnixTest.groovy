@@ -82,6 +82,15 @@ class DefaultPythonDetailsUnixTest extends Specification {
         details.getSystemPythonInterpreter().path.endsWith("3.5")
     }
 
+    @Requires({ new File('/usr/bin/python2.7').exists() && new File('/usr/bin/python3.6').exists() })
+    def "interpreterPath with systemPython set"() {
+        when: "we have old systemPython setting"
+        details.pythonVersion = '2.7'
+        details.systemPythonInterpreter = '/usr/bin/python3.6'
+        then: "we get that as interpreter path"
+        details.systemPythonInterpreter.absolutePath == '/usr/bin/python3.6'
+    }
+
     def "interpreterPath with nonsense interpreterVersion"() {
         when: "we request a nonsense version and try to get the interpreter path"
         details.pythonVersion = 'x.y'

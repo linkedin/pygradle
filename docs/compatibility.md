@@ -18,7 +18,7 @@ We're eager to review pull requests from our Windows user base!
 
 ## Python
 
-pygradle currently supports Python 2.7, and 3.4 - 3.7.
+pygradle currently supports Python 2.7, and 3.5 - 3.7.
 
 ### Caveats
 

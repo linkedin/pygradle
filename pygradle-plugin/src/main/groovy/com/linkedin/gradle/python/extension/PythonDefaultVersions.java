@@ -34,8 +34,8 @@ public class PythonDefaultVersions implements Serializable {
     }
 
     public PythonDefaultVersions(Collection<String> allowedVersions) {
-        defaultPython2Version = "2.6";
-        defaultPython3Version = "3.5";
+        defaultPython2Version = "2.7";
+        defaultPython3Version = "3.7";
         this.allowedVersions = allowedVersions;
     }
 

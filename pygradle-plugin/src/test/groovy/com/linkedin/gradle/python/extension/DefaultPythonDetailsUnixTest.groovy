@@ -66,12 +66,12 @@ class DefaultPythonDetailsUnixTest extends Specification {
         thrown(RuntimeException)
     }
 
-    @Requires({ new File('/usr/bin/python2.6').exists() })
+    @Requires({ new File('/usr/bin/python2.7').exists() })
     def "interpreterPath with major only 2 interpreterVersion"() {
         when: "we request only the major version 2"
         details.pythonVersion = '2'
         then: "we get the default major version 2 cleanpython or the system default if cleanptyhon is not installed"
-        details.getSystemPythonInterpreter().path.endsWith("2.6")
+        details.getSystemPythonInterpreter().path.endsWith("2.7")
     }
 
     @Requires({ new File('/usr/bin/python3.5').exists() })
@@ -82,13 +82,13 @@ class DefaultPythonDetailsUnixTest extends Specification {
         details.getSystemPythonInterpreter().path.endsWith("3.5")
     }
 
-    @Requires({ new File('/usr/bin/python2.7').exists() && new File('/usr/bin/python2.6').exists() })
+    @Requires({ new File('/usr/bin/python2.7').exists() && new File('/usr/bin/python3.6').exists() })
     def "interpreterPath with systemPython set"() {
         when: "we have old systemPython setting"
-        details.pythonVersion = '2.6'
-        details.systemPythonInterpreter = '/usr/bin/python2.7'
+        details.pythonVersion = '2.7'
+        details.systemPythonInterpreter = '/usr/bin/python3.6'
         then: "we get that as interpreter path"
-        details.systemPythonInterpreter.absolutePath == '/usr/bin/python2.7'
+        details.systemPythonInterpreter.absolutePath == '/usr/bin/python3.6'
     }
 
     def "interpreterPath with nonsense interpreterVersion"() {

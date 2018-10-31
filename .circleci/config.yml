@@ -15,7 +15,7 @@ jobs:
             - checkout
 
             - restore_cache:
-                keys: 
+                keys:
                   - artifact-download-cache-{{ .Revision }}
                   - artifact-download-cache-
             - run:
@@ -47,16 +47,16 @@ jobs:
             JVM_OPTS: -Xmx2048m
         steps:
             - checkout
-            
+
             - restore_cache:
-                keys: 
+                keys:
                   - artifact-download-cache-{{ .Revision }}
                   - artifact-download-cache-
-            
+
             - run:
                 name: Get Dependencies
                 command: ./gradlew downloadDependencies --console plain
-            
+
             - save_cache:
                 key: artifact-download-cache-{{ .Revision }}
                 paths:

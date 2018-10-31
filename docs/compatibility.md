@@ -2,11 +2,11 @@
 
 ## Linux
 
-There aren't any known compatability issues on Linux.
+There aren't any known compatibility issues on Linux.
 
 ## OS X
 
-There aren't any known compatability issues on OS X.
+There aren't any known compatibility issues on OS X.
 
 ## Windows
 
@@ -15,6 +15,10 @@ offically supported on Windows, while it seems to work properly we cannot
 guarantee it.
 
 We're eager to review pull requests from our Windows user base!
+
+## Python
+
+pygradle currently supports Python 2.7, and 3.5 - 3.7.
 
 ### Caveats
 

@@ -29,8 +29,8 @@ class PythonDefaultVersionsTest extends Specification {
         where:
         a       || b
         '1.5.2' || '1.5.2'
-        '2'     || '2.6'
-        '3'     || '3.5'
+        '2'     || '2.7'
+        '3'     || '3.7'
     }
 
     @Unroll
@@ -53,8 +53,8 @@ class PythonDefaultVersionsTest extends Specification {
         a     || b
         '3.5' || '3.5'
         '2.7' || '2.7'
-        '3'   || '3.5'
-        '2'   || '2.6'
+        '3'   || '3.7'
+        '2'   || '2.7'
     }
 
     @Unroll
@@ -88,7 +88,7 @@ class PythonDefaultVersionsTest extends Specification {
     @Unroll
     def 'test acceptable #a normalizes to #b with whitelist #c'() {
         expect:
-        new PythonDefaultVersions('2.6', '3.5', c).normalize(a) == b
+        new PythonDefaultVersions('2.7', '3.5', c).normalize(a) == b
 
         where:
         a     | c                            || b
@@ -99,7 +99,7 @@ class PythonDefaultVersionsTest extends Specification {
     @Unroll
     def 'test unacceptable #a with whitelist #b'() {
         when:
-        new PythonDefaultVersions('2.6', '3.5', b).normalize(a)
+        new PythonDefaultVersions('2.7', '3.5', b).normalize(a)
 
         then:
         def e = thrown(GradleException)

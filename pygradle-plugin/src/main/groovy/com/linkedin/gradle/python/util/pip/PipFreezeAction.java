@@ -26,7 +26,6 @@ import java.io.File;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 
@@ -46,11 +45,6 @@ public class PipFreezeAction {
         developmentDependencies.addAll(configurationToSet(project, StandardTextValues.CONFIGURATION_TEST.getValue()));
 
         developmentDependencies.removeAll(configurationToSet(project, StandardTextValues.CONFIGURATION_PYTHON.getValue()));
-
-        if (Objects.equals(settings.getDetails().getPythonVersion().getPythonMajorMinor(), "2.6")
-            && developmentDependencies.contains("argparse")) {
-            developmentDependencies.remove("argparse");
-        }
 
         final ByteArrayOutputStream requirements = new ByteArrayOutputStream();
 

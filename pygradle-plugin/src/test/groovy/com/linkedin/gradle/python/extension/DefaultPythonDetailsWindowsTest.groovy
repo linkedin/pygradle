@@ -84,8 +84,8 @@ class DefaultPythonDetailsWindowsTest extends Specification {
     def "interpreterPath with major only 2 interpreterVersion"() {
         when: "we request only the major version 2"
         settings.pythonVersion = '2'
-        then: "we get the default major version 2 cleanpython or the system default if cleanptyhon is not installed"
-        settings.getSystemPythonInterpreter().path.endsWith("2.6.exe")
+        then: "we get the default major version 2 cleanpython or the system default if cleanpython is not installed"
+        settings.getSystemPythonInterpreter().path.endsWith("2.7.exe")
     }
 
     def "interpreterPath with major only 3 interpreterVersion"() {
@@ -97,8 +97,9 @@ class DefaultPythonDetailsWindowsTest extends Specification {
 
     def "interpreterPath with systemPython set"() {
         when: "we have old systemPython setting"
-        settings.pythonVersion = '2.6'
-        def path = Paths.get(temporaryFolder.getRoot().absolutePath, 'python3.5.1', DefaultVirtualEnvironment.getPythonApplicationDirectory(), 'python3.5.exe').toString()
+        settings.pythonVersion = '2.7'
+        def path = Paths.get(temporaryFolder.getRoot().absolutePath, 'python3.5.1',
+                             DefaultVirtualEnvironment.getPythonApplicationDirectory(), 'python3.5.exe').toString()
         settings.systemPythonInterpreter = path
         then: "we get that as interpreter path"
         settings.systemPythonInterpreter.absolutePath == path

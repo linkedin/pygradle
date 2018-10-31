@@ -41,13 +41,6 @@ public class PythonPexDistributionPlugin extends PythonBasePlugin {
         ExtensionUtils.maybeCreateWheelExtension(project);
         final DeployableExtension deployableExtension = ExtensionUtils.maybeCreateDeployableExtension(project);
 
-        project.afterEvaluate(ignored -> {
-            if (settings.getDetails().getPythonVersion().getPythonMajorMinor().equals("2.6")) {
-                project.getDependencies().add(StandardTextValues.CONFIGURATION_BUILD_REQS.getValue(),
-                    extension.forcedVersions.get("argparse"));
-            }
-        });
-
         project.getDependencies().add(StandardTextValues.CONFIGURATION_BUILD_REQS.getValue(),
             extension.forcedVersions.get("pex"));
 

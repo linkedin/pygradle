@@ -21,9 +21,10 @@ class WindowsBinaryUnpacker {
     private WindowsBinaryUnpacker() { }
 
     enum PythonVersion {
-        PYTHON_26(2, 6),
         PYTHON_27(2, 7),
-        PYTHON_35(3, 5)
+        PYTHON_35(3, 5),
+        PYTHON_36(3, 6),
+        PYTHON_37(3, 7),
 
         final int major
         final int minor

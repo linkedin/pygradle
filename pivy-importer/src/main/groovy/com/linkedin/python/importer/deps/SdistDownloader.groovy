@@ -35,7 +35,9 @@ class SdistDownloader extends DependencyDownloader {
     }
 
     @Override
-    def downloadDependency(String dep, boolean latestVersions, boolean allowPreReleases, boolean lenient) {
+    def downloadDependency(
+        String dep, boolean latestVersions, boolean allowPreReleases, boolean fetchExtras, boolean lenient) {
+
         def (String name, String version) = dep.split(":")
 
         def projectDetails = cache.getDetails(name, lenient)
@@ -63,9 +65,11 @@ class SdistDownloader extends DependencyDownloader {
         destDir.mkdirs()
 
         def sdistArtifact = downloadArtifact(destDir, sdistDetails.url)
-        def packageDependencies = new SourceDistPackage(name, version, sdistArtifact, cache, dependencySubstitution).getDependencies(latestVersions, allowPreReleases, lenient)
+        def packageDependencies = new SourceDistPackage(name, version, sdistArtifact, cache, dependencySubstitution)
+            .getDependencies(latestVersions, allowPreReleases, fetchExtras, lenient)
 
-        new IvyFileWriter(name, version, SOURCE_DIST_PACKAGE_TYPE, [sdistDetails]).writeIvyFile(destDir, packageDependencies)
+        new IvyFileWriter(name, version, SOURCE_DIST_PACKAGE_TYPE, [sdistDetails])
+            .writeIvyFile(destDir, packageDependencies)
 
         packageDependencies.each { key, value ->
             dependencies.addAll(value)

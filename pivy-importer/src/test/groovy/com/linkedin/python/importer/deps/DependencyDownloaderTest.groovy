@@ -23,7 +23,8 @@ import spock.lang.Specification
 @InheritConstructors
 class TestDependencyDownloader extends DependencyDownloader {
     @Override
-    String downloadDependency(String dep, boolean latestVersions, boolean allowPreReleases, boolean lenient) {
+    String downloadDependency(
+            String dep, boolean latestVersions, boolean allowPreReleases, boolean fetchExtras, boolean lenient) {
         return "Successfully download dependency in unittest scenario!"
     }
 }
@@ -61,6 +62,7 @@ class DependencyDownloaderTest extends Specification {
         Set<String> testProcessedDependencies = new HashSet<>()
         boolean testLatestVersions = true
         boolean testAllowPreReleases = false
+        boolean testFetchExtras = false
         boolean testLenient = true
         TestDependencyDownloader dependencyDownloader =
             new TestDependencyDownloader(
@@ -71,7 +73,7 @@ class DependencyDownloaderTest extends Specification {
             )
 
         when:
-        dependencyDownloader.download(testLatestVersions, testAllowPreReleases, testLenient)
+        dependencyDownloader.download(testLatestVersions, testAllowPreReleases, testFetchExtras, testLenient)
 
         then:
         assert dependencyDownloader.dependencies.isEmpty()

@@ -47,7 +47,9 @@ class WheelsDownloader extends DependencyDownloader {
     }
 
     @Override
-    def downloadDependency(String dep, boolean latestVersions, boolean allowPreReleases, boolean lenient) {
+    def downloadDependency(
+            String dep, boolean latestVersions, boolean allowPreReleases, boolean fetchExtras, boolean lenient) {
+
         def (String name, String version, String classifier) = dep.split(":")
 
         name = translateNameToWheelFormat(name)
@@ -78,7 +80,8 @@ class WheelsDownloader extends DependencyDownloader {
         destDir.mkdirs()
 
         def wheelArtifact = downloadArtifact(destDir, wheelDetails.url)
-        def packageDependencies = new WheelsPackage(name, version, wheelArtifact, cache, dependencySubstitution).getDependencies(latestVersions, allowPreReleases, lenient)
+        def packageDependencies = new WheelsPackage(name, version, wheelArtifact, cache, dependencySubstitution)
+            .getDependencies(latestVersions, allowPreReleases, fetchExtras, lenient)
 
         log.debug("The dependencies of package $project: is ${packageDependencies.toString()}")
         new IvyFileWriter(name, version, BINARY_DIST_PACKAGE_TYPE, [wheelDetails])
@@ -87,10 +90,11 @@ class WheelsDownloader extends DependencyDownloader {
         packageDependencies.each { key, value ->
             List<String> sdistDependencies = value
             for (String sdist : sdistDependencies) {
-                DependencyDownloader sdistDownloader = new SdistDownloader(sdist, ivyRepoRoot,
-                    dependencySubstitution, processedDependencies)
+                DependencyDownloader sdistDownloader = new SdistDownloader(
+                    sdist, ivyRepoRoot, dependencySubstitution, processedDependencies)
 
-                ImporterCLI.pullDownPackageAndDependencies(processedDependencies, sdistDownloader, latestVersions, allowPreReleases, lenient)
+                ImporterCLI.pullDownPackageAndDependencies(
+                    processedDependencies, sdistDownloader, latestVersions, allowPreReleases, fetchExtras, lenient)
             }
         }
     }

@@ -63,17 +63,17 @@ class PythonExtension {
 
     /** A way to define forced versions of libraries */
     public Map<String, Map<String, String>> forcedVersions = [
-        'flake8'        : ['group': 'pypi', 'name': 'flake8', 'version': '2.6.2'],
-        'pex'           : ['group': 'pypi', 'name': 'pex', 'version': '1.4.7'],
-        'pip'           : ['group': 'pypi', 'name': 'pip', 'version': '18.0'],
-        'pytest'        : ['group': 'pypi', 'name': 'pytest', 'version': '3.1.2'],
-        'pytest-cov'    : ['group': 'pypi', 'name': 'pytest-cov', 'version': '2.5.1'],
-        'pytest-xdist'  : ['group': 'pypi', 'name': 'pytest-xdist', 'version': '1.17.1'],
-        'setuptools'    : ['group': 'pypi', 'name': 'setuptools', 'version': '40.4.3'],
+        'flake8'        : ['group': 'pypi', 'name': 'flake8', 'version': '3.6.0'],
+        'pex'           : ['group': 'pypi', 'name': 'pex', 'version': '1.5.2'],
+        'pip'           : ['group': 'pypi', 'name': 'pip', 'version': '18.1'],
+        'pytest'        : ['group': 'pypi', 'name': 'pytest', 'version': '3.10.0'],
+        'pytest-cov'    : ['group': 'pypi', 'name': 'pytest-cov', 'version': '2.6.0'],
+        'pytest-xdist'  : ['group': 'pypi', 'name': 'pytest-xdist', 'version': '1.24.0'],
+        'setuptools'    : ['group': 'pypi', 'name': 'setuptools', 'version': '40.5.0'],
         'setuptools-git': ['group': 'pypi', 'name': 'setuptools-git', 'version': '1.2'],
         'six'           : ['group': 'pypi', 'name': 'six', 'version': '1.11.0'],
-        'Sphinx'        : ['group': 'pypi', 'name': 'Sphinx', 'version': '1.4.9'],
-        'virtualenv'    : ['group': 'pypi', 'name': 'virtualenv', 'version': '16.0.0'],
+        'Sphinx'        : ['group': 'pypi', 'name': 'Sphinx', 'version': '1.8.1'],
+        'virtualenv'    : ['group': 'pypi', 'name': 'virtualenv', 'version': '16.1.0'],
         'wheel'         : ['group': 'pypi', 'name': 'wheel', 'version': '0.31.1'],
     ]
 

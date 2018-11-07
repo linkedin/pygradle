@@ -1,7 +1,7 @@
 # pivy-importer
 
-The pivy-importer is a Java application that can be used to pull libraries from pypi into an Ivy format. It has
-several features that you may find useful in dealing with pypi projects.
+The pivy-importer is a Java application that can be used to pull libraries from PyPI into an Ivy format. It has several
+features that you may find useful in dealing with pypi projects.
 
 ## Getting the Jar
 
@@ -9,17 +9,17 @@ several features that you may find useful in dealing with pypi projects.
 
 We publish the importer into bintray. You can find all the copies at https://bintray.com/linkedin/maven/pivy-importer.
 
-At the time of writing this doc, the current version is 0.6.17, so the jar you would want to download is
-https://dl.bintray.com/linkedin/maven/com/linkedin/pygradle/pivy-importer/0.6.17/pivy-importer-0.6.17-all.jar .
-This artifact has all dependencies bundled together to make a nice CLI. 
+At the time of writing this doc, the current version is 0.9.1, so the jar you would want to download is
+https://dl.bintray.com/linkedin/maven/com/linkedin/pygradle/pivy-importer/0.9.1/pivy-importer-0.9.1-all.jar .
+This artifact has all dependencies bundled together to make a nice CLI.
 
 ### Building it Locally
 
-To build the pivy-importer you'll need to run `./gradlew build` in the pivy-importer package. This will produce several
-jars in `build/pivy-importer/libs/`. We produce a normal jar that could be used when consuming in other projects and a 
-fat jar, with all the dependencies added into a single executable. This one is the one you would use on the commandline.
-It follows the naming convention `pivy-importer-<VERSION>-all.jar`.
- 
+To build the pivy-importer you'll need to run `../gradlew build` in the pivy-importer package. This will produce several
+jars in `../build/pivy-importer/libs/` (relative to the `pivy-importer` directory). We produce a normal jar that could
+be used when consuming in other projects and a fat jar, with all the dependencies added into a single executable. This
+one is the one you would use on the command line.  It follows the naming convention `pivy-importer-<VERSION>-all.jar`.
+
 ## General Usage
 
 `java -jar pivy-importer-VERSION-all.jar --repo /path/to/destination virtualenv:15.0.1 pip:7.1.2 --replace alabaster:0.7=alabaster:0.7.1,pytz:0a=pytz:2016.4,Babel:0.8=Babel:1.0,sphinx_rtd_theme:0.1=sphinx_rtd_theme:0.1.1`
@@ -37,14 +37,17 @@ For a complete usage example please review the build.gradle file for the pivy-im
 
 ## Replacement
 
-In some cases it's useful to replace dependencies with another one to deal with how Pip does dependency resolution. 
-To enable this feature you need to add the option `--replace` followed by a list of arguments in the form 
-oldName:oldVersion=newName:newVersion (`alabaster:0.7=alabaster:0.7.1`). You can provide multiple 
+In some cases it's useful to replace dependencies with another one to deal with how Pip does dependency resolution.
+To enable this feature you need to add the option `--replace` followed by a list of arguments in the form
+`oldName:oldVersion=newName:newVersion` (`alabaster:0.7=alabaster:0.7.1`). You can provide multiple
 replacements by joining them with a comma.
- 
+
 ## Usage in Gradle
 
-To be able to consume the artifacts produced by the pivy-importer, you'll have to define a [repository](https://docs.gradle.org/current/userguide/dependency_management.html#sec:repositories) in Gradle. We use a specific format for the repository that you'll have to define. Here is an example definition in Gradle. You would add this to your project's build.gradle.
+To be able to consume the artifacts produced by the pivy-importer, you'll have to define a
+[repository](https://docs.gradle.org/current/userguide/dependency_management.html#sec:repositories) in Gradle. We use a
+specific format for the repository that you'll have to define. Here is an example definition in Gradle. You would add
+this to your project's build.gradle.
 
 ```
 repositories {
@@ -66,28 +69,28 @@ repositories {
 If you run:
 
 ```
-wget https://dl.bintray.com/linkedin/maven/com/linkedin/pygradle/pivy-importer/0.6.17/pivy-importer-0.6.17-all.jar
+wget https://dl.bintray.com/linkedin/maven/com/linkedin/pygradle/pivy-importer/0.9.1/pivy-importer-0.9.1-all.jar
 mkdir repo
-java -jar pivy-importer-0.6.17-all.jar --repo repo virtualenv:15.0.1 pip:7.1.2 --replace alabaster:0.7=alabaster:0.7.1,pytz:0a=pytz:2016.4,Babel:0.8=Babel:1.0,sphinx_rtd_theme:0.1=sphinx_rtd_theme:0.1.1
+java -jar pivy-importer-0.9.1-all.jar --repo repo virtualenv:15.0.1 pip:7.1.2 --replace alabaster:0.7=alabaster:0.7.1,pytz:0a=pytz:2016.4,Babel:0.8=Babel:1.0,sphinx_rtd_theme:0.1=sphinx_rtd_theme:0.1.1
 ```
 
 You should see something like:
 ```
---2016-09-09 08:44:21--  https://dl.bintray.com/linkedin/maven/com/linkedin/pygradle/pivy-importer/0.6.17/pivy-importer-0.6.17-all.jar
+--2016-09-09 08:44:21--  https://dl.bintray.com/linkedin/maven/com/linkedin/pygradle/pivy-importer/0.9.1/pivy-importer-0.9.1-all.jar
 Resolving dl.bintray.com... 75.126.118.188, 108.168.243.150
 Connecting to dl.bintray.com|75.126.118.188|:443... connected.
 HTTP request sent, awaiting response... 302
-Location: https://akamai.bintray.com/97/976b1f4893fddf7404cfd758b3c4f4a8824b0cc73ba3d6c224d434eac92a064b?__gda__=exp=1473436581~hmac=40097ee25e4c89d511edbc85b88876932cae126a046f57b9ca8fe1a86525d649&response-content-disposition=attachment%3Bfilename%3D%22pivy-importer-0.6.17-all.jar%22&response-content-type=application%2Foctet-stream&requestInfo=U2FsdGVkX1_pGSnRSogFWs1rzKkDVqglZy09ajLVG-4bOSodkYsBy9CQcsdzILMmmImVodQXE68y9OX4hg9qdtVHjEc3YfrrpKbPC4Fr-vLhH7woFp_JiRj0HXU_igQQ1p78B8BimxuW01cGd8V6eTvRWL7srKgo3T4LDbSak4U [following]
---2016-09-09 08:44:21--  https://akamai.bintray.com/97/976b1f4893fddf7404cfd758b3c4f4a8824b0cc73ba3d6c224d434eac92a064b?__gda__=exp=1473436581~hmac=40097ee25e4c89d511edbc85b88876932cae126a046f57b9ca8fe1a86525d649&response-content-disposition=attachment%3Bfilename%3D%22pivy-importer-0.6.17-all.jar%22&response-content-type=application%2Foctet-stream&requestInfo=U2FsdGVkX1_pGSnRSogFWs1rzKkDVqglZy09ajLVG-4bOSodkYsBy9CQcsdzILMmmImVodQXE68y9OX4hg9qdtVHjEc3YfrrpKbPC4Fr-vLhH7woFp_JiRj0HXU_igQQ1p78B8BimxuW01cGd8V6eTvRWL7srKgo3T4LDbSak4U
+Location: https://akamai.bintray.com/97/976b1f4893fddf7404cfd758b3c4f4a8824b0cc73ba3d6c224d434eac92a064b?__gda__=exp=1473436581~hmac=40097ee25e4c89d511edbc85b88876932cae126a046f57b9ca8fe1a86525d649&response-content-disposition=attachment%3Bfilename%3D%22pivy-importer-0.9.1-all.jar%22&response-content-type=application%2Foctet-stream&requestInfo=U2FsdGVkX1_pGSnRSogFWs1rzKkDVqglZy09ajLVG-4bOSodkYsBy9CQcsdzILMmmImVodQXE68y9OX4hg9qdtVHjEc3YfrrpKbPC4Fr-vLhH7woFp_JiRj0HXU_igQQ1p78B8BimxuW01cGd8V6eTvRWL7srKgo3T4LDbSak4U [following]
+--2016-09-09 08:44:21--  https://akamai.bintray.com/97/976b1f4893fddf7404cfd758b3c4f4a8824b0cc73ba3d6c224d434eac92a064b?__gda__=exp=1473436581~hmac=40097ee25e4c89d511edbc85b88876932cae126a046f57b9ca8fe1a86525d649&response-content-disposition=attachment%3Bfilename%3D%22pivy-importer-0.9.1-all.jar%22&response-content-type=application%2Foctet-stream&requestInfo=U2FsdGVkX1_pGSnRSogFWs1rzKkDVqglZy09ajLVG-4bOSodkYsBy9CQcsdzILMmmImVodQXE68y9OX4hg9qdtVHjEc3YfrrpKbPC4Fr-vLhH7woFp_JiRj0HXU_igQQ1p78B8BimxuW01cGd8V6eTvRWL7srKgo3T4LDbSak4U
 Resolving akamai.bintray.com... 23.38.227.203
 Connecting to akamai.bintray.com|23.38.227.203|:443... connected.
 HTTP request sent, awaiting response... 200 OK
 Length: 9916558 (9.5M) [application/octet-stream]
-Saving to: 'pivy-importer-0.6.17-all.jar'
+Saving to: 'pivy-importer-0.9.1-all.jar'
 
-pivy-importer-0.6.17-all.jar                                                               100%[========================================================================================================================================================================================================================================>]   9.46M  14.6MB/s    in 0.6s
+pivy-importer-0.9.1-all.jar                                                               100%[========================================================================================================================================================================================================================================>]   9.46M  14.6MB/s    in 0.6s
 
-2016-09-09 08:44:23 (14.6 MB/s) - 'pivy-importer-0.6.17-all.jar' saved [9916558/9916558]
+2016-09-09 08:44:23 (14.6 MB/s) - 'pivy-importer-0.9.1-all.jar' saved [9916558/9916558]
 
 alabaster:0.7=alabaster:0.7.1
 pytz:0a=pytz:2016.4

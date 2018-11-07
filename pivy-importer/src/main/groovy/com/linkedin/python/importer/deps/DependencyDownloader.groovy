@@ -44,18 +44,19 @@ abstract class DependencyDownloader {
         dependencies.add(project)
     }
 
-    def download(boolean latestVersions, boolean allowPreReleases, boolean lenient) {
+    def download(boolean latestVersions, boolean allowPreReleases, boolean fetchExtras, boolean lenient) {
         while (!dependencies.isEmpty()) {
             def dep = dependencies.poll()
             if (dep in processedDependencies) {
                 continue
             }
-            downloadDependency(dep, latestVersions, allowPreReleases, lenient)
+            downloadDependency(dep, latestVersions, allowPreReleases, fetchExtras, lenient)
             processedDependencies.add(dep)
         }
     }
 
-    abstract downloadDependency(String dep, boolean latestVersions, boolean allowPreReleases, boolean lenient)
+    abstract downloadDependency(
+        String dep, boolean latestVersions, boolean allowPreReleases, boolean fetchExtras, boolean lenient)
 
     protected static File downloadArtifact(File destDir, String url) {
 

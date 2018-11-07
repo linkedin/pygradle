@@ -26,20 +26,23 @@ class SourceDistPackage extends PythonPackage {
     @Override
     Map<String, List<String>> getDependencies(boolean latestVersions,
                                               boolean allowPreReleases,
+                                              boolean fetchExtras,
                                               boolean lenient) {
 
-        return parseRequiresText(getRequiresTextFile(), latestVersions, allowPreReleases, lenient)
+        return parseRequiresText(getRequiresTextFile(), latestVersions, allowPreReleases, fetchExtras, lenient)
     }
 
     @SuppressWarnings("ParameterReassignment")
     private Map<String, List<String>> parseRequiresText(String requires,
                                                         boolean latestVersions,
                                                         boolean allowPreReleases,
+                                                        boolean fetchExtras,
                                                         boolean lenient) {
         def dependenciesMap = [:]
         log.debug("requires: {}", requires)
         def config = 'default'
         dependenciesMap[config] = []
+        boolean inExtra = false
         requires.eachLine { line ->
             if (line.isEmpty()) {
                 return
@@ -49,17 +52,28 @@ class SourceDistPackage extends PythonPackage {
                 config = configMatcher.group(1).split(":")[0]
                 if (config.isEmpty()) {
                     config = 'default'
+                    inExtra = false
+                } else {
+                    inExtra = true
                 }
                 log.debug("New config {}", config)
+                if (inExtra && !fetchExtras) {
+                    return
+                }
                 if (!dependenciesMap.containsKey(config)) {
                     dependenciesMap[config] = []
                 }
             } else {
+                if (inExtra && !fetchExtras) {
+                    return
+                }
                 String dependency = parseDependencyFromRequire(line, latestVersions, allowPreReleases, lenient)
                 if (dependency != null) {
                     dependenciesMap[config] << dependency
                 }
             }
+            // make IDE happy by having all execution paths in the closure return
+            return
         }
 
         return dependenciesMap

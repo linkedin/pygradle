@@ -54,6 +54,11 @@ public class ImporterCLI {
             root.setLevel(Level.WARN);
         }
 
+        if (line.hasOption("debug")) {
+            Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+            root.setLevel(Level.DEBUG);
+        }
+
         if (!line.hasOption("repo")) {
             throw new RuntimeException("Unable to continue, no repository location given on the command line (use the --repo switch)");
         }
@@ -92,7 +97,12 @@ public class ImporterCLI {
                 throw new IllegalArgumentException(errMsg);
             }
 
-            artifactDownloader.download(line.hasOption("latest"), line.hasOption("pre"), line.hasOption("lenient"));
+            artifactDownloader.download(
+                line.hasOption("latest"),
+                line.hasOption("pre"),
+                line.hasOption("extras"),
+                line.hasOption("lenient")
+            );
         }
     }
 
@@ -100,10 +110,11 @@ public class ImporterCLI {
                                                       DependencyDownloader artifactDownloader,
                                                       boolean latestVersions,
                                                       boolean allowPreReleases,
+                                                      boolean fetchExtras,
                                                       boolean lenient) {
 
         artifactDownloader.getProcessedDependencies().addAll(processedDependencies);
-        artifactDownloader.download(latestVersions, allowPreReleases, lenient);
+        artifactDownloader.download(latestVersions, allowPreReleases, fetchExtras, lenient);
         processedDependencies.addAll(artifactDownloader.getProcessedDependencies());
     }
 
@@ -141,6 +152,12 @@ public class ImporterCLI {
             .desc("Sets logging level to WARN")
             .build();
 
+        Option debug = Option.builder()
+            .longOpt("debug")
+            .numberOfArgs(0)
+            .desc("Sets logging level to DEBUG")
+            .build();
+
         Option force = Option.builder()
             .longOpt("force")
             .numberOfArgs(Option.UNLIMITED_VALUES)
@@ -160,6 +177,12 @@ public class ImporterCLI {
             .desc("Allows pre-releases (alpha, beta, release candidates)")
             .build();
 
+        Option extras = Option.builder()
+            .longOpt("extras")
+            .numberOfArgs(0)
+            .desc("Gets extra dependencies for each dependency")
+            .build();
+
         Option lenient = Option.builder()
             .longOpt("lenient")
             .numberOfArgs(0)
@@ -170,9 +193,11 @@ public class ImporterCLI {
         options.addOption(replacement);
         options.addOption(repo);
         options.addOption(quiet);
+        options.addOption(debug);
         options.addOption(force);
         options.addOption(latest);
         options.addOption(pre);
+        options.addOption(extras);
         options.addOption(lenient);
 
         return options;

@@ -45,6 +45,7 @@ abstract class PythonPackage {
 
     abstract Map<String, List<String>> getDependencies(boolean latestVersions,
                                                        boolean allowPreReleases,
+                                                       boolean fetchExtras,
                                                        boolean lenient)
 
     protected String explodeZipForTargetEntry(String entryName) {

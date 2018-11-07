@@ -44,7 +44,7 @@ class PythonSerializableTest extends Specification {
         |apply plugin: com.linkedin.gradle.python.plugin.WheelFirstPlugin
         |
         |dependencies {
-        |    python 'pypi:requests:2.18.1'
+        |    python 'pypi:requests:2.20.0'
         |}
         |
         |

@@ -76,12 +76,11 @@ public class CreateVirtualEnvAction {
         OutputStream outputStream = new ByteArrayOutputStream();
         ExecResult execResult = project.exec(execSpec -> {
             container.setOutputs(execSpec);
-            // For virtualenv >= 16.1
+            // For virtualenv >= 16.1, use and invoke via `-m virtualenv` below.
             // execSpec.environment("PYTHONPATH", new File(packageDir, "src"));
-            execSpec.environment("PYTHONPATH", packageDir);
             execSpec.commandLine(
                 pythonDetails.getSystemPythonInterpreter(),
-                "-m", "virtualenv",
+                new File(packageDir, "virtualenv.py"),
                 "--never-download",
                 "--python", pythonDetails.getSystemPythonInterpreter(),
                 "--prompt", pythonDetails.getVirtualEnvPrompt(),

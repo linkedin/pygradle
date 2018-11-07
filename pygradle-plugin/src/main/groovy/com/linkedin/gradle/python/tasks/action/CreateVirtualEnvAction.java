@@ -60,7 +60,7 @@ public class CreateVirtualEnvAction {
                 copySpec.from(project.tarTree(file.getPath()));
                 copySpec.into(packageDir);
                 copySpec.eachFile(it -> {
-                    //Remove the virtualenv-<version> from the file.
+                    // Remove the virtualenv-<version> from the file.
                     Path pathInsideTar = Paths.get(it.getPath());
                     if (pathInsideTar.getNameCount() > 1) {
                         it.setPath(pathInsideTar.subpath(1, pathInsideTar.getNameCount()).toString());
@@ -76,6 +76,8 @@ public class CreateVirtualEnvAction {
         OutputStream outputStream = new ByteArrayOutputStream();
         ExecResult execResult = project.exec(execSpec -> {
             container.setOutputs(execSpec);
+            // For virtualenv >= 16.1, use and invoke via `-m virtualenv` below.
+            // execSpec.environment("PYTHONPATH", new File(packageDir, "src"));
             execSpec.commandLine(
                 pythonDetails.getSystemPythonInterpreter(),
                 new File(packageDir, "virtualenv.py"),

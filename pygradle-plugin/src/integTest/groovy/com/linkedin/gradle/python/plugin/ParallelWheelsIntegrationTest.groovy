@@ -134,10 +134,9 @@ class ParallelWheelsIntegrationTest extends Specification {
 
         def output = ExecUtils.run(venvPath.resolve("bin/pip"), "freeze", "--all")
         println(output)
-        // Note: These versions will change over time
-        output.contains("wheel==0.31.1")
-        output.contains("pip==18.0")
-        output.contains("setuptools==40.4.3")
+        output.contains("wheel==")
+        output.contains("pip==")
+        output.contains("setuptools==")
         result.task(':foo:findPythonAbi') == null //task was removed and is no longer needed
         result.task(':foo:parallelWheels').outcome == TaskOutcome.SUCCESS
 

@@ -25,16 +25,45 @@ class FileBackedWheelCacheTest extends Specification {
     @Rule
     TemporaryFolder temporaryFolder
 
-    def 'can find Sphinx-1.6.3'() {
+    def "can find Sphinx-1.6.3"() {
+        setup:
         def wheelCache = temporaryFolder.newFolder('wheel-cache')
-        def formats = new DefaultPythonAbiContainer()
         def pythonExec = temporaryFolder.newFile('python')
+        def formats = new DefaultPythonAbiContainer()
         formats.addSupportedAbi(new AbiDetails(pythonExec, 'py2', 'none', 'any'))
         FileBackedWheelCache cache = new FileBackedWheelCache(wheelCache, formats)
-
         new File(wheelCache, 'Sphinx-1.6.3-py2.py3-none-any.whl').createNewFile()
 
         expect:
         cache.findWheel('Sphinx', '1.6.3', pythonExec).isPresent()
+    }
+
+    def "does not accept partially matching version"() {
+        setup: "we have a package with the same version prefix but not matching exactly"
+        def wheelCache = temporaryFolder.newFolder('wheel-cache')
+        def pythonExec = temporaryFolder.newFile('python')
+        def formats = new DefaultPythonAbiContainer()
+        formats.addSupportedAbi(new AbiDetails(pythonExec, 'py2', 'none', 'any'))
+        FileBackedWheelCache cache = new FileBackedWheelCache(wheelCache, formats)
+        new File(wheelCache, 'my_special_package-0.0.20-py2.py3-none-any.whl').createNewFile()
+
+        expect: "the partial match between 0.0.2 and 0.0.20 does not find the wheel"
+        !cache.findWheel('my-special-package', '0.0.2', pythonExec).isPresent()
+    }
+
+    def "finds the exact matching version"() {
+        setup: "we have an exact and partial match"
+        def wheelCache = temporaryFolder.newFolder('wheel-cache')
+        def pythonExec = temporaryFolder.newFile('python')
+        def formats = new DefaultPythonAbiContainer()
+        formats.addSupportedAbi(new AbiDetails(pythonExec, 'py2', 'none', 'any'))
+        FileBackedWheelCache cache = new FileBackedWheelCache(wheelCache, formats)
+        new File(wheelCache, 'my_special_package-0.0.30-py2.py3-none-any.whl').createNewFile()
+        new File(wheelCache, 'my_special_package-0.0.3-py2.py3-none-any.whl').createNewFile()
+
+        expect: "we find the wheel"
+        cache.findWheel('my-special-package', '0.0.3', pythonExec).isPresent()
+        cache.findWheel('my-special-package', '0.0.3', pythonExec)
+            .get().toPath().getFileName().toString() == 'my_special_package-0.0.3-py2.py3-none-any.whl'
     }
 }

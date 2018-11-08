@@ -64,7 +64,18 @@ public class FileBackedWheelCache implements WheelCache, Serializable {
             return Optional.empty();
         }
 
-        String wheelPrefix = library.replace("-", "_") + "-" + version;
+        /*
+         * NOTE: Careful here! The prefix *must* end with a hyphen.
+         * Otherwise 0.0.2 version will match 0.0.20.
+         * Both name and version of the package must replace hyphen with underscore.
+         * See PEP 427: https://www.python.org/dev/peps/pep-0427/
+         */
+        String wheelPrefix = (
+                library.replace("-", "_")
+                + "-"
+                + version.replace("-", "_")
+                + "-"
+        );
         logger.info("Searching for {} {} with prefix {}", library, version, wheelPrefix);
         File[] files = cacheDir.listFiles((dir, name) -> name.startsWith(wheelPrefix) && name.endsWith(".whl"));
 

@@ -44,7 +44,6 @@ public class PythonPexDistributionPlugin extends PythonBasePlugin {
         project.getDependencies().add(StandardTextValues.CONFIGURATION_BUILD_REQS.getValue(),
             extension.forcedVersions.get("pex"));
 
-
         /*
          * Build wheels.
          *

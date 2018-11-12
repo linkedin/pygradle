@@ -16,10 +16,12 @@
 package com.linkedin.gradle.python.plugin.internal;
 
 import com.linkedin.gradle.python.PythonExtension;
+import com.linkedin.gradle.python.extension.MypyExtension;
 import com.linkedin.gradle.python.tasks.AbstractPythonMainSourceDefaultTask;
 import com.linkedin.gradle.python.tasks.AbstractPythonTestSourceDefaultTask;
 import com.linkedin.gradle.python.tasks.CheckStyleGeneratorTask;
 import com.linkedin.gradle.python.tasks.Flake8Task;
+import com.linkedin.gradle.python.tasks.MypyTask;
 import com.linkedin.gradle.python.tasks.PyCoverageTask;
 import com.linkedin.gradle.python.tasks.PyTestTask;
 import com.linkedin.gradle.python.util.ExtensionUtils;
@@ -32,6 +34,7 @@ import static com.linkedin.gradle.python.util.StandardTextValues.TASK_COVERAGE;
 import static com.linkedin.gradle.python.util.StandardTextValues.TASK_FLAKE;
 import static com.linkedin.gradle.python.util.StandardTextValues.TASK_INSTALL_BUILD_REQS;
 import static com.linkedin.gradle.python.util.StandardTextValues.TASK_INSTALL_PROJECT;
+import static com.linkedin.gradle.python.util.StandardTextValues.TASK_MYPY;
 import static com.linkedin.gradle.python.util.StandardTextValues.TASK_PYTEST;
 
 public class ValidationPlugin implements Plugin<Project> {
@@ -79,6 +82,15 @@ public class ValidationPlugin implements Plugin<Project> {
          */
         project.getTasks().create(TASK_FLAKE.getValue(), Flake8Task.class,
             task -> task.onlyIf(it -> project.file(settings.srcDir).exists() || project.file(settings.testDir).exists()));
+
+        /*
+         * Run mypy.
+         *
+         * This uses the mypy.ini file if present to configure mypy.
+         */
+        MypyExtension mypy = ExtensionUtils.maybeCreate(project, "mypy", MypyExtension.class);
+        project.getTasks().create(TASK_MYPY.getValue(), MypyTask.class,
+            task -> task.onlyIf(it -> project.file(settings.srcDir).exists() && mypy.isRun()));
 
         /*
          * Create checkstyle styled report from flake

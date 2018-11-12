@@ -16,8 +16,8 @@
 package com.linkedin.gradle.python.util;
 
 /**
- * CodeNarc is complaining that some classes exceed 350 lines.  TO fall into compliance with CodeNarc, the standard values
- * are being moved to this enum.  Its an Enum rather than an interface because according to CodeNarc, interfaces of nothing
+ * CodeNarc is complaining that some classes exceed 350 lines.  To fall into compliance with CodeNarc, the standard values
+ * are being moved to this enum.  It's an Enum rather than an interface because according to CodeNarc, interfaces of nothing
  * but constants is now taboo.
  */
 public enum StandardTextValues {
@@ -42,6 +42,7 @@ public enum StandardTextValues {
     TASK_INSTALL_PROJECT("installProject"),
     TASK_INSTALL_PYTHON_REQS("installPythonRequirements"),
     TASK_INSTALL_TEST_REQS("installTestRequirements"),
+    TASK_MYPY("mypy"),
     TASK_PACKAGE_DOCS("packageDocs"),
     TASK_PACKAGE_JSON_DOCS("packageJsonDocs"),
     TASK_PYTEST("pytest"),

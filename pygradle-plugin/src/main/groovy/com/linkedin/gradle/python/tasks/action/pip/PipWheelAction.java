@@ -127,7 +127,9 @@ public class PipWheelAction extends AbstractPipAction {
         });
 
         if (tree.getFiles().size() >= 1) {
-            logger.lifecycle("Skipping {} wheel - Installed", packageInfo.toShortHand());
+            if (PythonHelpers.isPlainOrVerbose(project)) {
+                logger.lifecycle("Skipping {} wheel - Installed", packageInfo.toShortHand());
+            }
             return true;
         }
         return false;

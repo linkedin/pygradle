@@ -42,7 +42,7 @@ public enum StandardTextValues {
     TASK_INSTALL_PROJECT("installProject"),
     TASK_INSTALL_PYTHON_REQS("installPythonRequirements"),
     TASK_INSTALL_TEST_REQS("installTestRequirements"),
-    TASK_MYPY("mypy"),
+    TASK_MYPY("runMypy"),
     TASK_PACKAGE_DOCS("packageDocs"),
     TASK_PACKAGE_JSON_DOCS("packageJsonDocs"),
     TASK_PYTEST("pytest"),

@@ -92,6 +92,10 @@ public class ValidationPlugin implements Plugin<Project> {
         project.getTasks().create(TASK_MYPY.getValue(), MypyTask.class,
             task -> task.onlyIf(it -> project.file(settings.srcDir).exists() && mypy.isRun()));
 
+        // Make task "check" depend on mypy task
+        project.getTasks().getByName(TASK_CHECK.getValue())
+            .dependsOn(project.getTasks().getByName(TASK_MYPY.getValue()));
+
         /*
          * Create checkstyle styled report from flake
          */

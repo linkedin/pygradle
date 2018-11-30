@@ -58,7 +58,7 @@ class ProbeVenvInfoAction {
         byte[] buffer = new byte[wheelApiResource.available()];
         wheelApiResource.read(buffer);
 
-        File probeDir = new File(project.getBuildDir(), "prob-venv");
+        File probeDir = new File(project.getBuildDir(), "probe-venv");
         probeDir.mkdirs();
 
         OutputStream outStream = new FileOutputStream(getPythonFileForSupportedWheels(probeDir));

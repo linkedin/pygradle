@@ -17,6 +17,7 @@ package com.linkedin.gradle.python.plugin.internal;
 
 import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.extension.MypyExtension;
+import com.linkedin.gradle.python.extension.CoverageExtension;
 import com.linkedin.gradle.python.tasks.AbstractPythonMainSourceDefaultTask;
 import com.linkedin.gradle.python.tasks.AbstractPythonTestSourceDefaultTask;
 import com.linkedin.gradle.python.tasks.CheckStyleGeneratorTask;
@@ -72,8 +73,13 @@ public class ValidationPlugin implements Plugin<Project> {
          *
          * This uses the ``setup.cfg`` if present to configure py.test.
          */
+        CoverageExtension cov = ExtensionUtils.maybeCreate(project, "coverage", CoverageExtension.class);
         project.getTasks().create(TASK_COVERAGE.getValue(), PyCoverageTask.class,
-            task -> task.onlyIf(it -> project.file(settings.testDir).exists()));
+            task -> task.onlyIf(it -> project.file(settings.testDir).exists() && cov.isRun()));
+
+        // Make task "check" depend on coverage task.
+        project.getTasks().getByName(TASK_CHECK.getValue())
+            .dependsOn(project.getTasks().getByName(TASK_COVERAGE.getValue()));
 
         /*
          * Run flake8.
@@ -92,7 +98,7 @@ public class ValidationPlugin implements Plugin<Project> {
         project.getTasks().create(TASK_MYPY.getValue(), MypyTask.class,
             task -> task.onlyIf(it -> project.file(settings.srcDir).exists() && mypy.isRun()));
 
-        // Make task "check" depend on mypy task
+        // Make task "check" depend on mypy task.
         project.getTasks().getByName(TASK_CHECK.getValue())
             .dependsOn(project.getTasks().getByName(TASK_MYPY.getValue()));
 

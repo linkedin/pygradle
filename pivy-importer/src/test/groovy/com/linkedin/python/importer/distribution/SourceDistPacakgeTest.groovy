@@ -16,7 +16,7 @@
 package com.linkedin.python.importer.distribution
 
 import com.linkedin.python.importer.deps.DependencySubstitution
-import com.linkedin.python.importer.pypi.PypiApiCache
+import com.linkedin.python.importer.pypi.cache.PypiApiCache
 import spock.lang.Specification
 
 class SourceDistPacakgeTest extends Specification {

@@ -17,7 +17,9 @@ package com.linkedin.python.importer.deps
 
 import com.linkedin.python.importer.distribution.SourceDistPackage
 import com.linkedin.python.importer.ivy.IvyFileWriter
+import com.linkedin.python.importer.pypi.cache.ApiCache
 import groovy.util.logging.Slf4j
+
 import java.nio.file.Paths
 
 @Slf4j
@@ -25,13 +27,9 @@ class SdistDownloader extends DependencyDownloader {
     static final String SOURCE_DIST_PACKAGE_TYPE = "sdist"
     static final String SOURCE_DIST_ORG = "pypi"
 
-    SdistDownloader(
-        String project,
-        File ivyRepoRoot,
-        DependencySubstitution dependencySubstitution,
-        Set<String> processedDependencies) {
-
-        super(project, ivyRepoRoot, dependencySubstitution, processedDependencies)
+    SdistDownloader(String project, File ivyRepoRoot, DependencySubstitution dependencySubstitution,
+                    Set<String> processedDependencies, ApiCache cache) {
+        super(project, ivyRepoRoot, dependencySubstitution, processedDependencies, cache)
     }
 
     @Override
@@ -40,7 +38,7 @@ class SdistDownloader extends DependencyDownloader {
 
         def (String name, String version) = dep.split(":")
 
-        def projectDetails = cache.getDetails(name, lenient)
+        def projectDetails = cache.getDetails(name)
         // project name is illegal, which means we can't find any information about this project on PyPI
         if (projectDetails == null) {
             return
@@ -64,7 +62,7 @@ class SdistDownloader extends DependencyDownloader {
         def destDir = Paths.get(ivyRepoRoot.absolutePath, SOURCE_DIST_ORG, name, version).toFile()
         destDir.mkdirs()
 
-        def sdistArtifact = downloadArtifact(destDir, sdistDetails.url)
+        def sdistArtifact = pypiClient.downloadArtifact(destDir, sdistDetails.url)
         def packageDependencies = new SourceDistPackage(name, version, sdistArtifact, cache, dependencySubstitution)
             .getDependencies(latestVersions, allowPreReleases, fetchExtras, lenient)
 

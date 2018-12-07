@@ -16,8 +16,8 @@
 package com.linkedin.python.importer.distribution
 
 import com.linkedin.python.importer.deps.DependencySubstitution
-import com.linkedin.python.importer.pypi.PypiApiCache
 import com.linkedin.python.importer.pypi.VersionRange
+import com.linkedin.python.importer.pypi.cache.ApiCache
 import groovy.util.logging.Slf4j
 
 import java.util.zip.ZipFile
@@ -27,20 +27,20 @@ abstract class PythonPackage {
     protected final String moduleName
     protected final String version
     protected final File packageFile
-    protected final PypiApiCache pypiApiCache
+    protected final ApiCache pypiApiCache
     protected final DependencySubstitution dependencySubstitution
 
     protected PythonPackage(
         String moduleName,
         String version,
         File packageFile,
-        PypiApiCache pypiApiCache,
+        ApiCache pypiApiCache,
         DependencySubstitution dependencySubstitution) {
-            this.moduleName = moduleName
-            this.version = version
-            this.dependencySubstitution = dependencySubstitution
-            this.pypiApiCache = pypiApiCache
-            this.packageFile = packageFile
+        this.moduleName = moduleName
+        this.version = version
+        this.dependencySubstitution = dependencySubstitution
+        this.pypiApiCache = pypiApiCache
+        this.packageFile = packageFile
     }
 
     abstract Map<String, List<String>> getDependencies(boolean latestVersions,
@@ -60,8 +60,7 @@ abstract class PythonPackage {
 
     protected String parseDependencyFromRequire(String rawRequire,
                                                 boolean latestVersions,
-                                                boolean allowPreReleases,
-                                                boolean lenient) {
+                                                boolean allowPreReleases) {
 
         String removeSquareRequire
         if (rawRequire.contains('[')) {
@@ -140,7 +139,7 @@ abstract class PythonPackage {
             }
         }
 
-        def projectDetails = pypiApiCache.getDetails(moduleName, lenient)
+        def projectDetails = pypiApiCache.getDetails(moduleName)
 
         // project name is illegal, which means we can't find any information about this project on PyPI
         if (projectDetails == null) {

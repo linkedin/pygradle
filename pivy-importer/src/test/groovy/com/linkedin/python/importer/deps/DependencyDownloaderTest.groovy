@@ -15,6 +15,8 @@
  */
 package com.linkedin.python.importer.deps
 
+import com.linkedin.python.importer.pypi.cache.ApiCache
+import com.linkedin.python.importer.pypi.cache.PypiApiCache
 import groovy.transform.InheritConstructors
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
@@ -42,6 +44,7 @@ class DependencyDownloaderTest extends Specification {
         String testProject = "targetProject:1.1.1"
         DependencySubstitution testDependencySubstitution = new DependencySubstitution([:], [:])
         Set<String> testProcessedDependencies = new HashSet<>()
+        ApiCache cache = new PypiApiCache()
 
         when:
         TestDependencyDownloader dependencyDownloader =
@@ -49,7 +52,8 @@ class DependencyDownloaderTest extends Specification {
                 testProject,
                 testIvyRepoRoot,
                 testDependencySubstitution,
-                testProcessedDependencies)
+                testProcessedDependencies,
+                cache)
 
         then:
         assert dependencyDownloader.dependencies.contains(testProject)
@@ -60,6 +64,8 @@ class DependencyDownloaderTest extends Specification {
         String testProject = "targetProject:1.1.1"
         DependencySubstitution testDependencySubstitution = new DependencySubstitution([:], [:])
         Set<String> testProcessedDependencies = new HashSet<>()
+        ApiCache cache = new PypiApiCache()
+
         boolean testLatestVersions = true
         boolean testAllowPreReleases = false
         boolean testFetchExtras = false
@@ -70,6 +76,7 @@ class DependencyDownloaderTest extends Specification {
                 testIvyRepoRoot,
                 testDependencySubstitution,
                 testProcessedDependencies,
+                cache
             )
 
         when:

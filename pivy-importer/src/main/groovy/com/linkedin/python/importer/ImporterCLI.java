@@ -17,10 +17,12 @@ package com.linkedin.python.importer;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import com.linkedin.python.importer.deps.SdistDownloader;
-import com.linkedin.python.importer.deps.WheelsDownloader;
 import com.linkedin.python.importer.deps.DependencyDownloader;
 import com.linkedin.python.importer.deps.DependencySubstitution;
+import com.linkedin.python.importer.deps.SdistDownloader;
+import com.linkedin.python.importer.deps.WheelsDownloader;
+import com.linkedin.python.importer.pypi.cache.ApiCache;
+import com.linkedin.python.importer.pypi.cache.ApiCaches;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -29,7 +31,6 @@ import org.apache.commons.cli.Options;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -60,50 +61,20 @@ public class ImporterCLI {
         }
 
         if (!line.hasOption("repo")) {
-            throw new RuntimeException("Unable to continue, no repository location given on the command line (use the --repo switch)");
+            throw new RuntimeException("Unable to continue, no repository location given on the command line (use the"
+                + " --repo switch)");
         }
         final File repoPath = new File(line.getOptionValue("repo"));
 
         repoPath.mkdirs();
 
         if (!repoPath.exists() || !repoPath.isDirectory()) {
-            throw new RuntimeException("Unable to continue, " + repoPath.getAbsolutePath() + " does not exist, or is not a directory");
+            throw new RuntimeException("Unable to continue, " + repoPath.getAbsolutePath() + " does not exist, or is "
+                + "not a directory");
         }
 
         importPackages(line, repoPath);
         logger.info("Execution Finished!");
-    }
-
-    private static void importPackages(CommandLine line, File repoPath) {
-        final DependencySubstitution replacements = new DependencySubstitution(buildSubstitutionMap(line), buildForceMap(line));
-        Set<String> processedDependencies = new HashSet<>();
-        for (String dependency : line.getArgList()) {
-            DependencyDownloader artifactDownloader;
-
-            if (dependency.split(":").length == 2) {
-                artifactDownloader = new SdistDownloader(dependency, repoPath, replacements, processedDependencies);
-            } else if (dependency.split(":").length == 3) {
-                artifactDownloader = new WheelsDownloader(dependency, repoPath, replacements, processedDependencies);
-            } else {
-                String errMsg = "Unable to parse the dependency "
-                    + dependency
-                    + ".\nThe format of dependency should be either <module>:<revision> for source distribution "
-                    + "or <module>:<revision>:<classifier> for Wheels.";
-
-                if (line.hasOption("lenient")) {
-                    logger.error(errMsg);
-                    continue;
-                }
-                throw new IllegalArgumentException(errMsg);
-            }
-
-            artifactDownloader.download(
-                line.hasOption("latest"),
-                line.hasOption("pre"),
-                line.hasOption("extras"),
-                line.hasOption("lenient")
-            );
-        }
     }
 
     public static void pullDownPackageAndDependencies(Set<String> processedDependencies,
@@ -118,10 +89,45 @@ public class ImporterCLI {
         processedDependencies.addAll(artifactDownloader.getProcessedDependencies());
     }
 
+    private static void importPackages(CommandLine line, File repoPath) {
+        final DependencySubstitution replacements = new DependencySubstitution(buildSubstitutionMap(line),
+            buildForceMap(line));
+        Set<String> processedDependencies = new HashSet<>();
+        ApiCache cache = ApiCaches.create(line.hasOption("lenient"));
+
+        for (String dependency : line.getArgList()) {
+            DependencyDownloader downloader;
+
+            if (dependency.split(":").length == 2) {
+                downloader = new SdistDownloader(dependency, repoPath, replacements, processedDependencies, cache);
+            } else if (dependency.split(":").length == 3) {
+                downloader = new WheelsDownloader(dependency, repoPath, replacements, processedDependencies, cache);
+            } else {
+                String errMsg = "Unable to parse the dependency "
+                    + dependency
+                    + ".\nThe format of dependency should be either <module>:<revision> for source distribution "
+                    + "or <module>:<revision>:<classifier> for Wheels.";
+
+                if (line.hasOption("lenient")) {
+                    logger.error(errMsg);
+                    continue;
+                }
+                throw new IllegalArgumentException(errMsg);
+            }
+
+            downloader.download(
+                line.hasOption("latest"),
+                line.hasOption("pre"),
+                line.hasOption("extras"),
+                line.hasOption("lenient")
+            );
+        }
+    }
+
     private static Map<String, String> buildForceMap(CommandLine line) {
         Map<String, String> sub = new LinkedHashMap<>();
         if (line.hasOption("force")) {
-            for (String it : Arrays.asList(line.getOptionValues("force"))) {
+            for (String it : line.getOptionValues("force")) {
                 String[] split = it.split(":");
                 sub.put(split[0], split[1]);
             }
@@ -203,10 +209,10 @@ public class ImporterCLI {
         return options;
     }
 
-    public static Map<String, String> buildSubstitutionMap(CommandLine line) {
+    private static Map<String, String> buildSubstitutionMap(CommandLine line) {
         Map<String, String> sub = new LinkedHashMap<>();
         if (line.hasOption("replace")) {
-            for (String it : Arrays.asList(line.getOptionValues("replace"))) {
+            for (String it : line.getOptionValues("replace")) {
                 String[] split = it.split("=");
                 sub.put(split[0], split[1]);
             }

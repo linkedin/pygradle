@@ -35,12 +35,12 @@ class WheelsPackage extends PythonPackage {
 
         try {
             dependenciesMap = parseRuntimeRequiresFromMetadataJson(
-                runtimeRequiresFromMetadataJson, latestVersions, allowPreReleases, fetchExtras, lenient)
+                runtimeRequiresFromMetadataJson, latestVersions, allowPreReleases, fetchExtras)
         } catch(Exception e) {
             log.debug("Failed to parse Json Metadata for package ${packageFile.name}: ${e.message} " +
                 "Parsing METADATA text file instead.")
             dependenciesMap = parseDistRequiresFromMetadataText(
-                metadataText, latestVersions, allowPreReleases, fetchExtras, lenient)
+                metadataText, latestVersions, allowPreReleases, fetchExtras)
         }
 
         return dependenciesMap
@@ -50,8 +50,7 @@ class WheelsPackage extends PythonPackage {
         Map<String, List<String>> requires,
         boolean latestVersions,
         boolean allowPreReleases,
-        boolean fetchExtras,
-        boolean lenient) {
+        boolean fetchExtras) {
 
         def dependenciesMap = [:]
 
@@ -70,7 +69,7 @@ class WheelsPackage extends PythonPackage {
             log.debug("The requires of configuration $key: ${requiresList.toString()}")
             for (String require : requiresList) {
                 require = require.replaceAll(/[()]/, "")
-                String dependency = parseDependencyFromRequire(require, latestVersions, allowPreReleases, lenient)
+                String dependency = parseDependencyFromRequire(require, latestVersions, allowPreReleases)
                 if (dependency != null) {
                     dependenciesMap[config] << dependency
                 }
@@ -145,8 +144,7 @@ class WheelsPackage extends PythonPackage {
     private Map<String, List<String>> parseDistRequiresFromMetadataText(String requires,
                                                                         boolean latestVersions,
                                                                         boolean allowPreReleases,
-                                                                        boolean fetchExtras,
-                                                                        boolean lenient) {
+                                                                        boolean fetchExtras) {
         def dependenciesMap = [:]
         log.debug("Runtime requires of package ${packageFile.name} from Metadata text: {}", requires)
 
@@ -170,7 +168,7 @@ class WheelsPackage extends PythonPackage {
                     dependenciesMap[config] = []
                 }
 
-                String dependency = parseDependencyFromRequire(newLine, latestVersions, allowPreReleases, lenient)
+                String dependency = parseDependencyFromRequire(newLine, latestVersions, allowPreReleases)
                 if (dependency != null) {
                     dependenciesMap[config] << dependency
                 }

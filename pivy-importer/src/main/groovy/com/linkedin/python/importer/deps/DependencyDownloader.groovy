@@ -15,77 +15,48 @@
  */
 package com.linkedin.python.importer.deps
 
-import com.linkedin.python.importer.pypi.PypiApiCache
-import com.linkedin.python.importer.util.ProxyDetector
+import com.linkedin.python.importer.PypiClient
+import com.linkedin.python.importer.pypi.cache.ApiCache
 import groovy.util.logging.Slf4j
-import org.apache.commons.io.FilenameUtils
-import org.apache.http.client.fluent.Request
 
 @Slf4j
 abstract class DependencyDownloader {
     Queue<String> dependencies = [] as Queue
-    PypiApiCache cache = new PypiApiCache()
-
+    PypiClient pypiClient = new PypiClient()
     String project
     File ivyRepoRoot
     DependencySubstitution dependencySubstitution
     Set<String> processedDependencies
+    ApiCache cache
 
     protected DependencyDownloader(
         String project,
         File ivyRepoRoot,
         DependencySubstitution dependencySubstitution,
-        Set<String> processedDependencies) {
+        Set<String> processedDependencies,
+        ApiCache cache) {
 
         this.project = project
         this.ivyRepoRoot = ivyRepoRoot
         this.dependencySubstitution = dependencySubstitution
         this.processedDependencies = processedDependencies
+        this.cache = cache
         dependencies.add(project)
     }
 
     def download(boolean latestVersions, boolean allowPreReleases, boolean fetchExtras, boolean lenient) {
         while (!dependencies.isEmpty()) {
-            def dep = dependencies.poll()
-            if (dep in processedDependencies) {
+            def dependency = dependencies.poll()
+            if (dependency in processedDependencies) {
                 continue
             }
-            downloadDependency(dep, latestVersions, allowPreReleases, fetchExtras, lenient)
-            processedDependencies.add(dep)
+            downloadDependency(dependency, latestVersions, allowPreReleases, fetchExtras, lenient)
+            processedDependencies.add(dependency)
         }
     }
 
     abstract downloadDependency(
         String dep, boolean latestVersions, boolean allowPreReleases, boolean fetchExtras, boolean lenient)
-
-    protected static File downloadArtifact(File destDir, String url) {
-
-        def filename = FilenameUtils.getName(new URL(url).getPath())
-        def contents = new File(destDir, filename)
-
-        if (!contents.exists()) {
-            def proxy = ProxyDetector.maybeGetHttpProxy()
-
-            def builder = Request.Get(url)
-            if (null != proxy) {
-                builder = builder.viaProxy(proxy)
-            }
-
-            for (int i = 0; i < 3; i++) {
-                try {
-                    builder.connectTimeout(5000)
-                        .socketTimeout(5000)
-                        .execute()
-                        .saveContent(contents)
-                    break
-                } catch (SocketTimeoutException ignored) {
-                    Thread.sleep(1000)
-                }
-            }
-        }
-
-        return contents
-    }
 
     /**
      * Get the actual module name from artifact name, which has the correct letter case.

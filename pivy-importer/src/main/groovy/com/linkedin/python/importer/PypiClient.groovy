@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2016 LinkedIn Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,35 +13,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.python.importer.pypi
+package com.linkedin.python.importer
 
 import com.linkedin.python.importer.util.ProxyDetector
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
-import org.apache.http.client.HttpResponseException
+import org.apache.commons.io.FilenameUtils
 import org.apache.http.client.fluent.Request
 
-
 @Slf4j
-class PypiApiCache {
+class PypiClient {
 
-    Map<String, ProjectDetails> cache = [:].withDefault { String name -> new ProjectDetails(downloadMetadata(name)) }
+    File downloadArtifact(File destDir, String url) {
 
-    ProjectDetails getDetails(String project, boolean lenient) {
-        try {
-            return cache.get(project)
-        } catch(HttpResponseException httpResponseException) {
-            String msg = "Package ${project} has an illegal module name, " +
-                "we are not able to find it on PyPI (https://pypi.org/pypi/$project/json)"
-            if (lenient) {
-                log.error("$msg. ${httpResponseException.message}")
-                return null
+        def filename = FilenameUtils.getName(new URL(url).getPath())
+        def contents = new File(destDir, filename)
+
+        if (!contents.exists()) {
+            def proxy = ProxyDetector.maybeGetHttpProxy()
+
+            def builder = Request.Get(url)
+            if (null != proxy) {
+                builder = builder.viaProxy(proxy)
             }
-            throw new IllegalArgumentException("$msg. ${httpResponseException.message}")
+
+            for (int i = 0; i < 3; i++) {
+                try {
+                    builder.connectTimeout(5000)
+                        .socketTimeout(5000)
+                        .execute()
+                        .saveContent(contents)
+                    break
+                } catch (SocketTimeoutException ignored) {
+                    Thread.sleep(1000)
+                }
+            }
         }
+
+        return contents
     }
 
-    static private Map<String, Object> downloadMetadata(String dependency) {
+    Map<String, Object> downloadMetadata(String dependency) {
         def url = "https://pypi.org/pypi/$dependency/json"
         log.debug("Metadata url: {}", url)
         def proxy = ProxyDetector.maybeGetHttpProxy()

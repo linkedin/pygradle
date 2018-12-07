@@ -29,15 +29,14 @@ class SourceDistPackage extends PythonPackage {
                                               boolean fetchExtras,
                                               boolean lenient) {
 
-        return parseRequiresText(getRequiresTextFile(), latestVersions, allowPreReleases, fetchExtras, lenient)
+        return parseRequiresText(getRequiresTextFile(), latestVersions, allowPreReleases, fetchExtras)
     }
 
     @SuppressWarnings("ParameterReassignment")
     private Map<String, List<String>> parseRequiresText(String requires,
                                                         boolean latestVersions,
                                                         boolean allowPreReleases,
-                                                        boolean fetchExtras,
-                                                        boolean lenient) {
+                                                        boolean fetchExtras) {
         def dependenciesMap = [:]
         log.debug("requires: {}", requires)
         def config = 'default'
@@ -67,7 +66,7 @@ class SourceDistPackage extends PythonPackage {
                 if (inExtra && !fetchExtras) {
                     return
                 }
-                String dependency = parseDependencyFromRequire(line, latestVersions, allowPreReleases, lenient)
+                String dependency = parseDependencyFromRequire(line, latestVersions, allowPreReleases)
                 if (dependency != null) {
                     dependenciesMap[config] << dependency
                 }

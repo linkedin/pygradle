@@ -75,13 +75,13 @@ public class ValidationPlugin implements Plugin<Project> {
          */
         CoverageExtension cov = ExtensionUtils.maybeCreate(project, "coverage", CoverageExtension.class);
         project.getTasks().create(TASK_COVERAGE.getValue(), PyCoverageTask.class,
-            task -> task.onlyIf(it -> project.file(settings.testDir).exists() &&
+            task -> task.onlyIf(it -> project.file(settings.testDir).exists()
                                 /* The test suite and other environments run
                                  * the coverage task explicitly, so check
                                  * whether the flag is set *or* its been
                                  * explicitly invoked.
                                  */
-                                (cov.isRun() || project.getGradle().getStartParameter().getTaskNames().contains("coverage"))
+                                && (cov.isRun() || project.getGradle().getStartParameter().getTaskNames().contains("coverage"))
                                 ));
 
         // Make task "check" depend on coverage task.

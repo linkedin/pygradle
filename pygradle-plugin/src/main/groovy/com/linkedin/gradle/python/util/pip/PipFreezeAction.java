@@ -48,12 +48,18 @@ public class PipFreezeAction {
 
         final ByteArrayOutputStream requirements = new ByteArrayOutputStream();
 
+        /*
+         * NOTE: It is very important to provide "--all" in the list of arguments
+         * to "pip freeze". Otherwise, setuptools, wheel, or pip would not be included
+         * even if required by runtime configuration "python".
+         */
         project.exec(execSpec -> {
             execSpec.environment(settings.getEnvironment());
             execSpec.commandLine(
                 settings.getDetails().getVirtualEnvInterpreter(),
                 settings.getDetails().getVirtualEnvironment().getPip(),
                 "freeze",
+                "--all",
                 "--disable-pip-version-check"
             );
             execSpec.setStandardOutput(requirements);

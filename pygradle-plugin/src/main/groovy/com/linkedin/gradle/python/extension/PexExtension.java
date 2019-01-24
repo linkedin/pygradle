@@ -15,13 +15,17 @@
  */
 package com.linkedin.gradle.python.extension;
 
+import com.linkedin.gradle.python.PythonExtension;
+import com.linkedin.gradle.python.tasks.BuildPexTask;
+import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.util.OperatingSystem;
+import com.linkedin.gradle.python.util.StandardTextValues;
 import org.gradle.api.Project;
 
 import java.io.File;
 
 
-public class PexExtension implements ZipappExtension {
+public class PexExtension implements ContainerExtension, ZipappExtension {
     private File cache;
     // Default to fat zipapps on Windows, since our wrappers are fairly POSIX specific.
     private boolean isFat = OperatingSystem.current().isWindows();
@@ -92,5 +96,18 @@ public class PexExtension implements ZipappExtension {
 
     public void setCache(File cache) {
         this.cache = cache;
+    }
+
+    public void prepareExtension(Project project) {
+        final PythonExtension extension = ExtensionUtils.getPythonExtension(project);
+
+        ExtensionUtils.maybeCreatePexExtension(project);
+        project.getDependencies().add(StandardTextValues.CONFIGURATION_BUILD_REQS.getValue(),
+            extension.forcedVersions.get("pex"));
+    }
+
+    public void addBuildTask(Project project) {
+        project.getTasks().create(TASK_BUILD_CONTAINER, BuildPexTask.class,
+            task -> task.dependsOn(project.getTasks().getByName(ContainerExtension.TASK_BUILD_PROJECT_WHEEL)));
     }
 }

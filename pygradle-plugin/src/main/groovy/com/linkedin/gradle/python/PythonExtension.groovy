@@ -15,6 +15,8 @@
  */
 package com.linkedin.gradle.python
 
+import com.linkedin.gradle.python.extension.ContainerExtension
+import com.linkedin.gradle.python.extension.PexExtension
 import com.linkedin.gradle.python.extension.PythonDetails
 import com.linkedin.gradle.python.extension.PythonDetailsFactory
 import org.gradle.api.GradleException
@@ -92,7 +94,9 @@ class PythonExtension {
         def applicationDirectory = PythonDetailsFactory.getPythonApplicationDirectory()
 
         pythonEnvironment = [
-            'PATH': "${ -> details.virtualEnv.toPath().resolve(applicationDirectory).toAbsolutePath().toString() }" + File.pathSeparator + System.getenv('PATH'),]
+            'PATH': "${ -> details.virtualEnv.toPath().resolve(applicationDirectory).toAbsolutePath().toString() }"
+                    + File.pathSeparator
+                    + System.getenv('PATH'),]
 
         pythonEnvironmentDistgradle = ['PYGRADLE_PROJECT_NAME'   : project.name,
                                        'PYGRADLE_PROJECT_VERSION': "${ -> project.version }",]
@@ -131,6 +135,14 @@ class PythonExtension {
 
     public PythonDetails getDetails() {
         return details
+    }
+
+    /* Extension for handling the actual containerization of the application
+     * (e.g. pex, shiv, etc.).  Current global default is pex
+     */
+    public ContainerExtension getContainerExtension(project) {
+        // XXX Hard coded for now - we need to figure out the right UI.
+        return new PexExtension(project)
     }
 
     /**

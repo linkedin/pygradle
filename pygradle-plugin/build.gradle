@@ -88,7 +88,7 @@ gradlePlugin {
 
         pythonPexPlugins {
             id = 'com.linkedin.python-pex'
-            implementationClass = 'com.linkedin.gradle.python.plugin.PythonPexDistributionPlugin'
+            implementationClass = 'com.linkedin.gradle.python.plugin.PythonContainerPlugin'
         }
 
         pythonSdistPlugins {

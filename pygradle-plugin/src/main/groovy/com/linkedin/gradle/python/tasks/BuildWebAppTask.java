@@ -15,13 +15,15 @@
  */
 package com.linkedin.gradle.python.tasks;
 
+import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.extension.PexExtension;
 import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.util.PexFileUtil;
 import com.linkedin.gradle.python.util.entrypoint.EntryPointWriter;
 import com.linkedin.gradle.python.util.internal.pex.FatPexGenerator;
-import com.linkedin.gradle.python.util.internal.pex.ThinPexGenerator;
-import org.apache.commons.io.IOUtils;
+import com.linkedin.gradle.python.util.internal.zipapp.DefaultTemplateProviderOptions;
+import com.linkedin.gradle.python.util.zipapp.DefaultWebappEntryPointTemplateProvider;
+import com.linkedin.gradle.python.util.zipapp.EntryPointTemplateProvider;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.Input;
@@ -41,6 +43,7 @@ public class BuildWebAppTask extends DefaultTask {
     private File executable;
     private String entryPoint;
     private List<String> pexOptions = new ArrayList<>();
+    private EntryPointTemplateProvider templateProvider = new DefaultWebappEntryPointTemplateProvider();
 
     @Input
     @Optional
@@ -65,18 +68,22 @@ public class BuildWebAppTask extends DefaultTask {
     @TaskAction
     public void buildWebapp() throws IOException, ClassNotFoundException {
         Project project = getProject();
-        PexExtension pexExtension = ExtensionUtils.getPythonComponentExtension(project, PexExtension.class);
+        PexExtension extension = ExtensionUtils.getPythonComponentExtension(project, PexExtension.class);
+        PythonExtension pythonExtension = ExtensionUtils.getPythonExtension(project);
 
-        if (pexExtension.isFat()) {
+        if (extension.isFat()) {
             new FatPexGenerator(project, pexOptions).buildEntryPoint(
                 PexFileUtil.createFatPexFilename(executable.getName()), entryPoint, null);
         } else {
-            HashMap<String, String> options = new HashMap<>();
-            options.put("entryPoint", entryPoint);
-            options.put("realPex", PexFileUtil.createThinPexFilename(project.getName()));
-            String template = IOUtils.toString(
-                ThinPexGenerator.class.getResourceAsStream("/templates/pex_non_cli_entrypoint.sh.template"));
-            new EntryPointWriter(project, template).writeEntryPoint(executable, options);
+            HashMap<String, String> substitutions = new HashMap<>();
+            substitutions.put("entryPoint", entryPoint);
+            substitutions.put("realPex", PexFileUtil.createThinPexFilename(project.getName()));
+            substitutions.put("toolName", project.getName());
+            String template = templateProvider.retrieveTemplate(
+                // Use the shell wrapper for web applications.
+                new DefaultTemplateProviderOptions(project, pythonExtension, entryPoint),
+                false);
+            new EntryPointWriter(project, template).writeEntryPoint(executable, substitutions);
         }
     }
 
@@ -87,4 +94,15 @@ public class BuildWebAppTask extends DefaultTask {
     public void setEntryPoint(String entryPoint) {
         this.entryPoint = entryPoint;
     }
+
+    @Input
+    @Optional
+    public EntryPointTemplateProvider getTemplateProvider() {
+        return templateProvider;
+    }
+
+    public void setTemplateProvider(EntryPointTemplateProvider templateProvider) {
+        this.templateProvider = templateProvider;
+    }
+
 }

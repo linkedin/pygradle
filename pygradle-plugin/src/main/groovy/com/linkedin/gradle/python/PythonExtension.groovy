@@ -15,8 +15,10 @@
  */
 package com.linkedin.gradle.python
 
+import com.linkedin.gradle.python.extension.PexExtension
 import com.linkedin.gradle.python.extension.PythonDetails
 import com.linkedin.gradle.python.extension.PythonDetailsFactory
+import com.linkedin.gradle.python.util.ApplicationContainer
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 
@@ -80,6 +82,28 @@ class PythonExtension {
     /* Container of the details related to the venv/python instance */
     private final PythonDetails details
 
+    /*
+     * "Application container" defines the format for bundling the application
+     * into a single file distribution.  Examples include pex, shiv, and xar.
+     * Not all plugins using this extension support such containers, but for
+     * u/i purposes, it's convenient to add this here.  This allows the
+     * following in a build.gradle file:
+     *
+     * python {
+     *     container = "shiv"
+     * }
+     *
+     * These will simply be ignored in extension clients that don't need it.
+     *
+     * Downstream consumers can extend the map between container short names
+     * appropriate for the build.gradle UI, and the container class
+     * this maps to.  They can also set the default container, which allows
+     * them e.g. to choose shivs over pexes.
+     */
+    public Map<String, ApplicationContainer> containers
+    String container
+    ApplicationContainer defaultContainer
+
     PythonExtension(Project project) {
         this.details = PythonDetailsFactory.makePythonDetails(project, null)
         docsDir = Paths.get(project.projectDir.absolutePath, "docs").toFile().path
@@ -92,10 +116,18 @@ class PythonExtension {
         def applicationDirectory = PythonDetailsFactory.getPythonApplicationDirectory()
 
         pythonEnvironment = [
-            'PATH': "${ -> details.virtualEnv.toPath().resolve(applicationDirectory).toAbsolutePath().toString() }" + File.pathSeparator + System.getenv('PATH'),]
+            'PATH': "${ -> details.virtualEnv.toPath().resolve(applicationDirectory).toAbsolutePath().toString() }"
+                    + File.pathSeparator
+                    + System.getenv('PATH'),
+        ]
 
-        pythonEnvironmentDistgradle = ['PYGRADLE_PROJECT_NAME'   : project.name,
-                                       'PYGRADLE_PROJECT_VERSION': "${ -> project.version }",]
+        pythonEnvironmentDistgradle = [
+            'PYGRADLE_PROJECT_NAME'   : project.name,
+            'PYGRADLE_PROJECT_VERSION': "${ -> project.version }",
+        ]
+
+        defaultContainer = new PexExtension(project)
+        containers = [pex: defaultContainer]
 
         /*
          * NOTE: Do lots of sanity checking and validation here.
@@ -154,5 +186,16 @@ class PythonExtension {
 
     void setPinnedFile(File pinnedFile) {
         this.pinnedFile = pinnedFile
+    }
+
+    /*
+     * Use this as the programmatic API for getting the current container extension.
+     */
+    ApplicationContainer getApplicationContainer() {
+        // Why am I doing it this way?  Because if the container isn't set
+        // (i.e. it is null) I want to return the default container.  But if
+        // it's set to a bogus value, I want it to return the null so the
+        // caller will know they have a bogus value.
+        return container == null ? defaultContainer : containers.get(container)
     }
 }

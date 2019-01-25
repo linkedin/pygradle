@@ -35,7 +35,7 @@ public class PythonContainerPlugin extends PythonBasePlugin {
         ExtensionUtils.maybeCreateWheelExtension(project);
 
         final DeployableExtension deployableExtension = ExtensionUtils.maybeCreateDeployableExtension(project);
-        final ContainerExtension containerExtension = pythonExtension.getContainerExtension(project);
+        final ContainerExtension containerExtension = pythonExtension.getContainerExtension();
 
         containerExtension.prepareExtension(project);
 

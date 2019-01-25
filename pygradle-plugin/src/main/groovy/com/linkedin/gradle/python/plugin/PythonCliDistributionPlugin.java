@@ -22,7 +22,7 @@ import com.linkedin.gradle.python.util.StandardTextValues;
 import org.gradle.api.Project;
 
 
-public class PythonCliDistributionPlugin extends PythonBasePlugin {
+public class PythonCliDistributionPlugin extends PythonContainerPlugin {
 
     public static final String TASK_GENERATE_COMPLETIONS = "generateCompletions";
 
@@ -38,5 +38,4 @@ public class PythonCliDistributionPlugin extends PythonBasePlugin {
         project.getTasks().getByName(ContainerExtension.TASK_BUILD_CONTAINER)
             .dependsOn(project.getTasks().getByName(TASK_GENERATE_COMPLETIONS));
     }
-
 }

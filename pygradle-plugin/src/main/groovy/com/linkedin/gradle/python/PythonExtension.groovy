@@ -82,6 +82,10 @@ class PythonExtension {
     /* Container of the details related to the venv/python instance */
     private final PythonDetails details
 
+    /** Must be set by individual plugins. */
+    private ContainerExtension containerExtension
+    private final ContainerExtension defaultContainerExtension
+
     PythonExtension(Project project) {
         this.details = PythonDetailsFactory.makePythonDetails(project, null)
         docsDir = Paths.get(project.projectDir.absolutePath, "docs").toFile().path
@@ -100,6 +104,8 @@ class PythonExtension {
 
         pythonEnvironmentDistgradle = ['PYGRADLE_PROJECT_NAME'   : project.name,
                                        'PYGRADLE_PROJECT_VERSION': "${ -> project.version }",]
+
+        defaultContainerExtension = new PexExtension(project)
 
         /*
          * NOTE: Do lots of sanity checking and validation here.
@@ -137,14 +143,6 @@ class PythonExtension {
         return details
     }
 
-    /* Extension for handling the actual containerization of the application
-     * (e.g. pex, shiv, etc.).  Current global default is pex
-     */
-    public ContainerExtension getContainerExtension(project) {
-        // XXX Hard coded for now - we need to figure out the right UI.
-        return new PexExtension(project)
-    }
-
     /**
      * Configures the {@link PythonDetails} for the project.
      *
@@ -166,5 +164,17 @@ class PythonExtension {
 
     void setPinnedFile(File pinnedFile) {
         this.pinnedFile = pinnedFile
+    }
+
+    ContainerExtension getDefaultContainerExtension() {
+        return new PexExtension()
+    }
+
+    ContainerExtension getContainerExtension() {
+        return containerExtension ?: defaultContainerExtension
+    }
+
+    void setContainerExtension(ContainerExtension extension) {
+        containerExtension = extension
     }
 }

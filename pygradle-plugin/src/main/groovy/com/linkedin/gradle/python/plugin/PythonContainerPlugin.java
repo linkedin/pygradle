@@ -55,7 +55,7 @@ public class PythonContainerPlugin extends PythonBasePlugin {
             task.setEnvironment(pythonExtension.pythonEnvironmentDistgradle);
         });
 
-        containerExtension.addBuildTask(project);
+        containerExtension.addTasks(project);
 
         Tar packageDeployable = project.getTasks().create(ContainerExtension.TASK_PACKAGE_DEPLOYABLE, Tar.class, tar -> {
             tar.setCompression(Compression.GZIP);

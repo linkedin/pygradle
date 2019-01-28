@@ -106,7 +106,7 @@ public class PexExtension implements ContainerExtension, ZipappExtension {
             extension.forcedVersions.get("pex"));
     }
 
-    public void addBuildTask(Project project) {
+    public void addTasks(Project project) {
         project.getTasks().create(TASK_BUILD_CONTAINER, BuildPexTask.class,
             task -> task.dependsOn(project.getTasks().getByName(ContainerExtension.TASK_BUILD_PROJECT_WHEEL)));
     }

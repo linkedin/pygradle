@@ -33,5 +33,5 @@ public interface ContainerExtension {
     /**
      * Add any additional tasks the extension needs.
      */
-    public void addBuildTask(Project project);
+    public void addTasks(Project project);
 }

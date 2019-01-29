@@ -40,20 +40,22 @@ public class PythonContainerPlugin extends PythonBasePlugin {
         containerExtension.prepareExtension(project);
 
         /*
-         * Build wheels.
-         *
-         * We need wheels to build pex files.
+         * Build wheels, first of dependencies, then of the current project.
+         * However, it's possible that we will have multiple containers
+         * (e.g. pex and shiv), so be sure to only build the wheels once.
          */
-        project.getTasks().create(ContainerExtension.TASK_BUILD_WHEELS, BuildWheelsTask.class, task -> {
-            task.dependsOn(project.getTasks().getByName(StandardTextValues.TASK_INSTALL_PROJECT.getValue()));
-            task.setInstallFileCollection(project.getConfigurations().getByName("python"));
-        });
+        if (project.getTasks().withType(BuildWheelsTask.class).size() == 0) {
+            project.getTasks().create(ContainerExtension.TASK_BUILD_WHEELS, BuildWheelsTask.class, task -> {
+                task.dependsOn(project.getTasks().getByName(StandardTextValues.TASK_INSTALL_PROJECT.getValue()));
+                task.setInstallFileCollection(project.getConfigurations().getByName("python"));
+            });
 
-        project.getTasks().create(ContainerExtension.TASK_BUILD_PROJECT_WHEEL, BuildWheelsTask.class, task -> {
-            task.dependsOn(project.getTasks().getByName(ContainerExtension.TASK_BUILD_WHEELS));
-            task.setInstallFileCollection(project.files(project.file(project.getProjectDir())));
-            task.setEnvironment(pythonExtension.pythonEnvironmentDistgradle);
-        });
+            project.getTasks().create(ContainerExtension.TASK_BUILD_PROJECT_WHEEL, BuildWheelsTask.class, task -> {
+                task.dependsOn(project.getTasks().getByName(ContainerExtension.TASK_BUILD_WHEELS));
+                task.setInstallFileCollection(project.files(project.file(project.getProjectDir())));
+                task.setEnvironment(pythonExtension.pythonEnvironmentDistgradle);
+            });
+        }
 
         containerExtension.addTasks(project);
 

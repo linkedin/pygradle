@@ -52,11 +52,9 @@ public class PythonContainerPlugin extends PythonBasePlugin {
             buildWheelsTask.dependsOn(tasks.getByName(StandardTextValues.TASK_INSTALL_PROJECT.getValue()));
             buildWheelsTask.setInstallFileCollection(project.getConfigurations().getByName("python"));
 
-            BuildWheelsTask projectWheelsTask = tasks.create(
-                ContainerExtension.TASK_BUILD_PROJECT_WHEEL, BuildWheelsTask.class, task -> {
-                    task.setInstallFileCollection(project.files(project.file(project.getProjectDir())));
-                    task.setEnvironment(pythonExtension.pythonEnvironmentDistgradle);
-                });
+            BuildWheelsTask projectWheelsTask = tasks.create(ContainerExtension.TASK_BUILD_PROJECT_WHEEL, BuildWheelsTask.class);
+            projectWheelsTask.setInstallFileCollection(project.files(project.file(project.getProjectDir())));
+            projectWheelsTask.setEnvironment(pythonExtension.pythonEnvironmentDistgradle);
             projectWheelsTask.dependsOn(tasks.getByName(ContainerExtension.TASK_BUILD_WHEELS));
         }
 

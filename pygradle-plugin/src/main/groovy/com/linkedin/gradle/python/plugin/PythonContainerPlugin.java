@@ -62,14 +62,14 @@ public class PythonContainerPlugin extends PythonBasePlugin {
 
         containerExtension.addTasks(project);
 
-        Tar packageDeployable = tasks.create(ContainerExtension.TASK_PACKAGE_DEPLOYABLE, Tar.class, tar -> {
-            tar.setCompression(Compression.GZIP);
-            tar.setBaseName(project.getName());
-            tar.setExtension("tar.gz");
-            tar.from(deployableExtension.getDeployableBuildDir());
-        });
-        packageDeployable.dependsOn(tasks.getByName(ContainerExtension.TASK_BUILD_CONTAINER));
+        Tar tar = tasks.create(ContainerExtension.TASK_PACKAGE_DEPLOYABLE, Tar.class);
+        tar.setCompression(Compression.GZIP);
+        tar.setBaseName(project.getName());
+        tar.setExtension("tar.gz");
+        tar.from(deployableExtension.getDeployableBuildDir());
 
-        project.getArtifacts().add(StandardTextValues.CONFIGURATION_DEFAULT.getValue(), packageDeployable);
+        tar.dependsOn(tasks.getByName(ContainerExtension.TASK_BUILD_CONTAINER));
+
+        project.getArtifacts().add(StandardTextValues.CONFIGURATION_DEFAULT.getValue(), tar);
     }
 }

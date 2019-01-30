@@ -48,16 +48,18 @@ public class PythonContainerPlugin extends PythonBasePlugin {
         TaskContainer tasks = project.getTasks();
 
         if (tasks.withType(BuildWheelsTask.class).size() == 0) {
-            tasks.create(ContainerExtension.TASK_BUILD_WHEELS, BuildWheelsTask.class, task -> {
-                task.dependsOn(tasks.getByName(StandardTextValues.TASK_INSTALL_PROJECT.getValue()));
-                task.setInstallFileCollection(project.getConfigurations().getByName("python"));
-            });
+            BuildWheelsTask buildWheelsTask = tasks.create(
+                ContainerExtension.TASK_BUILD_WHEELS, BuildWheelsTask.class, task -> {
+                    task.dependsOn(tasks.getByName(StandardTextValues.TASK_INSTALL_PROJECT.getValue()));
+                    task.setInstallFileCollection(project.getConfigurations().getByName("python"));
+                });
 
-            tasks.create(ContainerExtension.TASK_BUILD_PROJECT_WHEEL, BuildWheelsTask.class, task -> {
-                task.dependsOn(tasks.getByName(ContainerExtension.TASK_BUILD_WHEELS));
-                task.setInstallFileCollection(project.files(project.file(project.getProjectDir())));
-                task.setEnvironment(pythonExtension.pythonEnvironmentDistgradle);
-            });
+            BuildWheelsTask projectWheels = tasks.create(
+                ContainerExtension.TASK_BUILD_PROJECT_WHEEL, BuildWheelsTask.class, task -> {
+                    task.dependsOn(tasks.getByName(ContainerExtension.TASK_BUILD_WHEELS));
+                    task.setInstallFileCollection(project.files(project.file(project.getProjectDir())));
+                    task.setEnvironment(pythonExtension.pythonEnvironmentDistgradle);
+                });
         }
 
         containerExtension.addTasks(project);

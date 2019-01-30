@@ -22,6 +22,7 @@ import com.linkedin.gradle.python.tasks.BuildWheelsTask;
 import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.util.StandardTextValues;
 import org.gradle.api.Project;
+import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.bundling.Compression;
 import org.gradle.api.tasks.bundling.Tar;
 
@@ -44,14 +45,16 @@ public class PythonContainerPlugin extends PythonBasePlugin {
          * However, it's possible that we will have multiple containers
          * (e.g. pex and shiv), so be sure to only build the wheels once.
          */
-        if (project.getTasks().withType(BuildWheelsTask.class).size() == 0) {
-            project.getTasks().create(ContainerExtension.TASK_BUILD_WHEELS, BuildWheelsTask.class, task -> {
-                task.dependsOn(project.getTasks().getByName(StandardTextValues.TASK_INSTALL_PROJECT.getValue()));
+        TaskContainer tasks = project.getTasks();
+
+        if (tasks.withType(BuildWheelsTask.class).size() == 0) {
+            tasks.create(ContainerExtension.TASK_BUILD_WHEELS, BuildWheelsTask.class, task -> {
+                task.dependsOn(tasks.getByName(StandardTextValues.TASK_INSTALL_PROJECT.getValue()));
                 task.setInstallFileCollection(project.getConfigurations().getByName("python"));
             });
 
-            project.getTasks().create(ContainerExtension.TASK_BUILD_PROJECT_WHEEL, BuildWheelsTask.class, task -> {
-                task.dependsOn(project.getTasks().getByName(ContainerExtension.TASK_BUILD_WHEELS));
+            tasks.create(ContainerExtension.TASK_BUILD_PROJECT_WHEEL, BuildWheelsTask.class, task -> {
+                task.dependsOn(tasks.getByName(ContainerExtension.TASK_BUILD_WHEELS));
                 task.setInstallFileCollection(project.files(project.file(project.getProjectDir())));
                 task.setEnvironment(pythonExtension.pythonEnvironmentDistgradle);
             });
@@ -59,13 +62,13 @@ public class PythonContainerPlugin extends PythonBasePlugin {
 
         containerExtension.addTasks(project);
 
-        Tar packageDeployable = project.getTasks().create(ContainerExtension.TASK_PACKAGE_DEPLOYABLE, Tar.class, tar -> {
+        Tar packageDeployable = tasks.create(ContainerExtension.TASK_PACKAGE_DEPLOYABLE, Tar.class, tar -> {
             tar.setCompression(Compression.GZIP);
             tar.setBaseName(project.getName());
             tar.setExtension("tar.gz");
             tar.from(deployableExtension.getDeployableBuildDir());
         });
-        packageDeployable.dependsOn(project.getTasks().getByName(ContainerExtension.TASK_BUILD_CONTAINER));
+        packageDeployable.dependsOn(tasks.getByName(ContainerExtension.TASK_BUILD_CONTAINER));
 
         project.getArtifacts().add(StandardTextValues.CONFIGURATION_DEFAULT.getValue(), packageDeployable);
     }

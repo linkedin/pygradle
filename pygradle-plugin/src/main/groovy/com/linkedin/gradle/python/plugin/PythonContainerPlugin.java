@@ -49,8 +49,8 @@ public class PythonContainerPlugin extends PythonBasePlugin {
 
         if (tasks.withType(BuildWheelsTask.class).size() == 0) {
             BuildWheelsTask buildWheelsTask = tasks.create(ContainerExtension.TASK_BUILD_WHEELS, BuildWheelsTask.class);
-            buildWheelsTask.dependsOn(tasks.getByName(StandardTextValues.TASK_INSTALL_PROJECT.getValue()));
             buildWheelsTask.setInstallFileCollection(project.getConfigurations().getByName("python"));
+            buildWheelsTask.dependsOn(tasks.getByName(StandardTextValues.TASK_INSTALL_PROJECT.getValue()));
 
             BuildWheelsTask projectWheelsTask = tasks.create(ContainerExtension.TASK_BUILD_PROJECT_WHEEL, BuildWheelsTask.class);
             projectWheelsTask.setInstallFileCollection(project.files(project.file(project.getProjectDir())));

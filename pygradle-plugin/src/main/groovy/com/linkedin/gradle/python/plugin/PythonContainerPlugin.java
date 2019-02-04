@@ -64,9 +64,7 @@ public class PythonContainerPlugin extends PythonBasePlugin {
              * extensions having to know too many intimate details about
              * generic Python builds.  E.g. we make the pex task depend on it.
              */
-            tasks.create(ContainerExtension.TASK_BUILD_CONTAINERS, task -> {
-                    System.out.println("FUKNY");
-                });
+            tasks.create(ContainerExtension.TASK_BUILD_CONTAINERS);
         }
 
         containerExtension.makeTasks(project);

@@ -109,8 +109,6 @@ public class PexExtension implements ContainerExtension, ZipappExtension {
     }
 
     public void makeTasks(Project project) {
-        project.getTasks().create(TASK_BUILD_PEX, BuildPexTask.class, task -> {
-                System.out.println("PexExtension");
-            });
+        project.getTasks().create(TASK_BUILD_PEX, BuildPexTask.class);
     }
 }

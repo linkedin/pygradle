@@ -20,10 +20,10 @@ import org.gradle.api.Project;
 
 
 public interface ContainerExtension {
-    public static final String TASK_BUILD_CONTAINER = "buildContainer";
     public static final String TASK_BUILD_PROJECT_WHEEL = "buildProjectWheel";
     public static final String TASK_BUILD_WHEELS = "buildWheels";
     public static final String TASK_PACKAGE_DEPLOYABLE = "packageDeployable";
+    public static final String TASK_BUILD_CONTAINERS = "buildContainers";
 
     /**
      * Prepare the extension by adding dependencies and doing any other necessary initializations.
@@ -31,7 +31,11 @@ public interface ContainerExtension {
     public void prepareExtension(Project project);
 
     /**
-     * Add any additional tasks the extension needs.
+     * Create any additional tasks the extension needs.  Such tasks must
+     * implement the PythonContainerTask interface.  All tasks implementing
+     * this interface will automatically be inserted into the task dependency
+     * graph.  Implementers of this interface should *not* explicitly add
+     * their tasks to the graph.
      */
-    public void addTasks(Project project);
+    public void makeTasks(Project project);
 }

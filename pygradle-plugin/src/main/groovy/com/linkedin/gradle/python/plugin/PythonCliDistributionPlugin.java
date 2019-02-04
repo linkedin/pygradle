@@ -20,6 +20,7 @@ import com.linkedin.gradle.python.tasks.GenerateCompletionsTask;
 import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.util.StandardTextValues;
 import org.gradle.api.Project;
+import org.gradle.api.tasks.TaskContainer;
 
 
 public class PythonCliDistributionPlugin extends PythonContainerPlugin {
@@ -31,11 +32,12 @@ public class PythonCliDistributionPlugin extends PythonContainerPlugin {
         project.getPlugins().apply(PythonContainerPlugin.class);
         ExtensionUtils.maybeCreateCliExtension(project);
 
-        GenerateCompletionsTask completionsTask = project.getTasks().create(
-            TASK_GENERATE_COMPLETIONS, GenerateCompletionsTask.class);
-        completionsTask.dependsOn(project.getTasks().getByName(StandardTextValues.TASK_INSTALL_PROJECT.getValue()));
+        TaskContainer tasks = project.getTasks();
 
-        project.getTasks().getByName(ContainerExtension.TASK_BUILD_CONTAINER)
+        GenerateCompletionsTask completionsTask = tasks.create(TASK_GENERATE_COMPLETIONS, GenerateCompletionsTask.class);
+        completionsTask.dependsOn(tasks.getByName(StandardTextValues.TASK_INSTALL_PROJECT.getValue()));
+
+        tasks.getByName(ContainerExtension.TASK_BUILD_CONTAINERS)
             .dependsOn(project.getTasks().getByName(TASK_GENERATE_COMPLETIONS));
     }
 }

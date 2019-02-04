@@ -26,6 +26,8 @@ import java.io.File;
 
 
 public class PexExtension implements ContainerExtension, ZipappExtension {
+    public static final String TASK_BUILD_PEX = "buildPex";
+
     private File cache;
     // Default to fat zipapps on Windows, since our wrappers are fairly POSIX specific.
     private boolean isFat = OperatingSystem.current().isWindows();
@@ -106,8 +108,9 @@ public class PexExtension implements ContainerExtension, ZipappExtension {
             extension.forcedVersions.get("pex"));
     }
 
-    public void addTasks(Project project) {
-        project.getTasks().create(TASK_BUILD_CONTAINER, BuildPexTask.class,
-            task -> task.dependsOn(project.getTasks().getByName(ContainerExtension.TASK_BUILD_PROJECT_WHEEL)));
+    public void makeTasks(Project project) {
+        project.getTasks().create(TASK_BUILD_PEX, BuildPexTask.class, task -> {
+                System.out.println("PexExtension");
+            });
     }
 }

@@ -90,10 +90,8 @@ public class BuildPexTask extends DefaultTask implements FailureReasonProvider, 
         deployableExtension.getDeployableBuildDir().mkdirs();
 
         if (pexExtension.isFat()) {
-            System.out.println("FAT!");
             new FatPexGenerator(project, pexOptions).buildEntryPoints();
         } else {
-            System.out.println("THIN!");
             new ThinPexGenerator(project, pexOptions, templateProvider, additionalProperties).buildEntryPoints();
         }
     }

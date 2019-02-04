@@ -18,10 +18,12 @@ package com.linkedin.gradle.python.plugin;
 import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.extension.ContainerExtension;
 import com.linkedin.gradle.python.extension.DeployableExtension;
+import com.linkedin.gradle.python.extension.PythonContainerTask;
 import com.linkedin.gradle.python.tasks.BuildWheelsTask;
 import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.util.StandardTextValues;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.bundling.Compression;
 import org.gradle.api.tasks.bundling.Tar;
@@ -56,17 +58,33 @@ public class PythonContainerPlugin extends PythonBasePlugin {
             projectWheelsTask.setInstallFileCollection(project.files(project.file(project.getProjectDir())));
             projectWheelsTask.setEnvironment(pythonExtension.pythonEnvironmentDistgradle);
             projectWheelsTask.dependsOn(tasks.getByName(ContainerExtension.TASK_BUILD_WHEELS));
+
+            /* This is just a lifecycle task which provides a convenient place
+             * to add specific container dependencies on, without those
+             * extensions having to know too many intimate details about
+             * generic Python builds.  E.g. we make the pex task depend on it.
+             */
+            tasks.create(ContainerExtension.TASK_BUILD_CONTAINERS, task -> {
+                    System.out.println("FUKNY");
+                });
         }
 
-        containerExtension.addTasks(project);
+        containerExtension.makeTasks(project);
+
+        Task assemble = tasks.getByName(ContainerExtension.TASK_BUILD_CONTAINERS);
+        Task parent = tasks.getByName(ContainerExtension.TASK_BUILD_PROJECT_WHEEL);
+
+        for (Task task : tasks.withType(PythonContainerTask.class)) {
+            assemble.dependsOn(task);
+            task.dependsOn(parent);
+        }
 
         Tar tar = tasks.create(ContainerExtension.TASK_PACKAGE_DEPLOYABLE, Tar.class);
         tar.setCompression(Compression.GZIP);
         tar.setBaseName(project.getName());
         tar.setExtension("tar.gz");
         tar.from(deployableExtension.getDeployableBuildDir());
-
-        tar.dependsOn(tasks.getByName(ContainerExtension.TASK_BUILD_CONTAINER));
+        tar.dependsOn(assemble);
 
         project.getArtifacts().add(StandardTextValues.CONFIGURATION_DEFAULT.getValue(), tar);
     }

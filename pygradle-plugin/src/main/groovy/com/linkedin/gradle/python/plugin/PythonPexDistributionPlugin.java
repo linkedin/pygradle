@@ -28,6 +28,6 @@ public class PythonPexDistributionPlugin extends PythonContainerPlugin {
 
         /* Explicit is better than implicit. */
         pythonExtension.setContainerExtension(new PexExtension(project));
-        project.getPlugins().apply(PythonContainerPlugin.class);
+        super.applyTo(project);
     }
 }

@@ -17,6 +17,7 @@ package com.linkedin.gradle.python.tasks;
 
 import com.linkedin.gradle.python.extension.DeployableExtension;
 import com.linkedin.gradle.python.extension.PexExtension;
+import com.linkedin.gradle.python.extension.PythonContainerTask;
 import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider;
 import com.linkedin.gradle.python.tasks.execution.TeeOutputContainer;
 import com.linkedin.gradle.python.util.ExtensionUtils;
@@ -56,7 +57,7 @@ import java.util.Map;
  * The pexOptions allow passing of additional options to the pex command, such as '--pre' to allow pre-release packages.
  * This is useful because the default behavior changed in pex-1.2.0 without bumping of major version.
  */
-public class BuildPexTask extends DefaultTask implements FailureReasonProvider {
+public class BuildPexTask extends DefaultTask implements FailureReasonProvider, PythonContainerTask {
 
     private Map<String, String> additionalProperties;
     private EntryPointTemplateProvider templateProvider = new DefaultPexEntryPointTemplateProvider();
@@ -89,8 +90,10 @@ public class BuildPexTask extends DefaultTask implements FailureReasonProvider {
         deployableExtension.getDeployableBuildDir().mkdirs();
 
         if (pexExtension.isFat()) {
+            System.out.println("FAT!");
             new FatPexGenerator(project, pexOptions).buildEntryPoints();
         } else {
+            System.out.println("THIN!");
             new ThinPexGenerator(project, pexOptions, templateProvider, additionalProperties).buildEntryPoints();
         }
     }

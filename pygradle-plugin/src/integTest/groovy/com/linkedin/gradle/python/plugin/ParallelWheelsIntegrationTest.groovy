@@ -75,7 +75,7 @@ class ParallelWheelsIntegrationTest extends Specification {
         result.task(':foo:pytest').outcome == TaskOutcome.SUCCESS
         result.task(':foo:check').outcome == TaskOutcome.SUCCESS
         result.task(':foo:build').outcome == TaskOutcome.SUCCESS
-        result.task(':foo:buildContainer').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:buildContainers').outcome == TaskOutcome.SUCCESS
 
         deployablePath.resolve('hello_world').toFile().exists()
         deployablePath.resolve(PexFileUtil.createThinPexFilename('foo')).toFile().exists()

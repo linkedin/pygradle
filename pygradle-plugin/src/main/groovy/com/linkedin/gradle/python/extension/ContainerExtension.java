@@ -23,7 +23,7 @@ public interface ContainerExtension {
     public static final String TASK_BUILD_PROJECT_WHEEL = "buildProjectWheel";
     public static final String TASK_BUILD_WHEELS = "buildWheels";
     public static final String TASK_PACKAGE_DEPLOYABLE = "packageDeployable";
-    public static final String TASK_BUILD_CONTAINERS = "buildContainers";
+    public static final String TASK_ASSEMBLE_CONTAINERS = "assembleContainers";
 
     /**
      * Prepare the extension by adding dependencies and doing any other necessary initializations.

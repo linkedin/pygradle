@@ -47,7 +47,7 @@ public class PythonWebApplicationPlugin extends PythonBasePlugin {
          */
         project.getTasks().create(TASK_BUILD_WEB_APPLICATION, BuildWebAppTask.class, task -> {
             task.setDescription("Build a web app, by default using gunicorn, but it's configurable.");
-            task.mustRunAfter(ContainerExtension.TASK_BUILD_CONTAINERS);
+            task.mustRunAfter(ContainerExtension.TASK_ASSEMBLE_CONTAINERS);
             task.setExecutable(new File(deployableExtension.getDeployableBinDir(), GUNICORN));
             task.setEntryPoint(GUNICORN_ENTRYPOINT);
         });

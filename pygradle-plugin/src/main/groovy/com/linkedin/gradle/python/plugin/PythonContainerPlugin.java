@@ -49,7 +49,7 @@ public class PythonContainerPlugin extends PythonBasePlugin {
          */
         TaskContainer tasks = project.getTasks();
 
-        if (tasks.findByName(ContainerExtension.TASK_BUILD_CONTAINERS) == null) {
+        if (tasks.findByName(ContainerExtension.TASK_ASSEMBLE_CONTAINERS) == null) {
             BuildWheelsTask buildWheelsTask = tasks.create(ContainerExtension.TASK_BUILD_WHEELS, BuildWheelsTask.class);
             buildWheelsTask.setInstallFileCollection(project.getConfigurations().getByName("python"));
             buildWheelsTask.dependsOn(tasks.getByName(StandardTextValues.TASK_INSTALL_PROJECT.getValue()));
@@ -64,7 +64,7 @@ public class PythonContainerPlugin extends PythonBasePlugin {
              * extensions having to know too many intimate details about
              * generic Python builds.  E.g. we make the pex task depend on it.
              */
-            Task assemble = tasks.create(ContainerExtension.TASK_BUILD_CONTAINERS);
+            Task assemble = tasks.create(ContainerExtension.TASK_ASSEMBLE_CONTAINERS);
 
             Tar tar = tasks.create(ContainerExtension.TASK_PACKAGE_DEPLOYABLE, Tar.class);
             tar.setCompression(Compression.GZIP);
@@ -77,7 +77,7 @@ public class PythonContainerPlugin extends PythonBasePlugin {
 
         containerExtension.makeTasks(project);
 
-        Task assemble = tasks.getByName(ContainerExtension.TASK_BUILD_CONTAINERS);
+        Task assemble = tasks.getByName(ContainerExtension.TASK_ASSEMBLE_CONTAINERS);
         Task parent = tasks.getByName(ContainerExtension.TASK_BUILD_PROJECT_WHEEL);
 
         for (Task task : tasks.withType(PythonContainerTask.class)) {

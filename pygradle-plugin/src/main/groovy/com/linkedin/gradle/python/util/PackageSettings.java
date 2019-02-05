@@ -94,11 +94,19 @@ public interface PackageSettings<T> {
      * Determines if the package requires a build from source.
      * <p>
      * Even if the binary artifact of the package is available,
-     * the package may need a rebuild because of custom build
-     * options or environment.
+     * the package may need a rebuild because of editable current
+     * project or snapshots.
      *
      * @param t package information object
      * @return true when the package needs a rebuild from source
      */
     boolean requiresSourceBuild(T t);
+
+    /**
+     * Checks if the package is customized.
+     *
+     * @param t package information object
+     * @return true when the package is customized
+     */
+    boolean isCustomized(T t);
 }

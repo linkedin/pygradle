@@ -49,7 +49,7 @@ public class PythonContainerPlugin extends PythonBasePlugin {
          */
         TaskContainer tasks = project.getTasks();
 
-        if (tasks.withType(BuildWheelsTask.class).size() == 0) {
+        if (tasks.findByName(ContainerExtension.TASK_BUILD_CONTAINERS) == null) {
             BuildWheelsTask buildWheelsTask = tasks.create(ContainerExtension.TASK_BUILD_WHEELS, BuildWheelsTask.class);
             buildWheelsTask.setInstallFileCollection(project.getConfigurations().getByName("python"));
             buildWheelsTask.dependsOn(tasks.getByName(StandardTextValues.TASK_INSTALL_PROJECT.getValue()));
@@ -64,7 +64,15 @@ public class PythonContainerPlugin extends PythonBasePlugin {
              * extensions having to know too many intimate details about
              * generic Python builds.  E.g. we make the pex task depend on it.
              */
-            tasks.create(ContainerExtension.TASK_BUILD_CONTAINERS);
+            Task assemble = tasks.create(ContainerExtension.TASK_BUILD_CONTAINERS);
+
+            Tar tar = tasks.create(ContainerExtension.TASK_PACKAGE_DEPLOYABLE, Tar.class);
+            tar.setCompression(Compression.GZIP);
+            tar.setBaseName(project.getName());
+            tar.setExtension("tar.gz");
+            tar.from(deployableExtension.getDeployableBuildDir());
+            tar.dependsOn(assemble);
+            project.getArtifacts().add(StandardTextValues.CONFIGURATION_DEFAULT.getValue(), tar);
         }
 
         containerExtension.makeTasks(project);
@@ -76,14 +84,5 @@ public class PythonContainerPlugin extends PythonBasePlugin {
             assemble.dependsOn(task);
             task.dependsOn(parent);
         }
-
-        Tar tar = tasks.create(ContainerExtension.TASK_PACKAGE_DEPLOYABLE, Tar.class);
-        tar.setCompression(Compression.GZIP);
-        tar.setBaseName(project.getName());
-        tar.setExtension("tar.gz");
-        tar.from(deployableExtension.getDeployableBuildDir());
-        tar.dependsOn(assemble);
-
-        project.getArtifacts().add(StandardTextValues.CONFIGURATION_DEFAULT.getValue(), tar);
     }
 }

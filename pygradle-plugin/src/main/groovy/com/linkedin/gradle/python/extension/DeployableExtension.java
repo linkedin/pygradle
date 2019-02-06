@@ -27,6 +27,7 @@ public class DeployableExtension {
     private File deployableEtcDir;
 
     public DeployableExtension(Project project) {
+        System.out.println("DE: " + project.getBuildDir());
         deployableBuildDir = new File(project.getBuildDir(), "deployable");
         deployableBinDir = new File(deployableBuildDir, "bin");
         deployableEtcDir = new File(deployableBuildDir, "etc");

@@ -96,6 +96,12 @@ public class DefaultPackageSettings implements PackageSettings<PackageInfo> {
         return (version != null && version.contains("-"));
     }
 
+    @Override
+    public boolean isCustomized(PackageInfo packageInfo) {
+        // return false by default as no custom build options.
+        return false;
+    }
+
     private boolean isProjectDirectory(PackageInfo packageInfo) {
         File packageDir = packageInfo.getPackageFile();
         String version = packageInfo.getVersion();

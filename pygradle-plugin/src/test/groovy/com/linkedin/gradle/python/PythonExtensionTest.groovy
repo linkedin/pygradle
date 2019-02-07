@@ -15,11 +15,23 @@
  */
 package com.linkedin.gradle.python
 
+import com.linkedin.gradle.python.extension.ContainerExtension
+import com.linkedin.gradle.python.extension.PexExtension
 import com.linkedin.gradle.python.extension.PythonDetailsFactory
+import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
 import java.nio.file.Paths
+
+
+class TestableContainer implements ContainerExtension {
+    public void prepareExtension(Project project) {
+    }
+    public void makeTasks(Project project) {
+    }
+}
+
 
 class PythonExtensionTest extends Specification {
 
@@ -96,4 +108,26 @@ class PythonExtensionTest extends Specification {
         noExceptionThrown()
     }
 
+    def 'play with the container extension'() {
+        def settings = new PythonExtension(project)
+
+        when:
+            settings.container = null
+
+        then:
+            PexExtension.isInstance(settings.containerExtension)
+
+        when:
+            settings.container = 'bogus'
+
+        then:
+            PexExtension.isInstance(settings.containerExtension)
+
+        when:
+            settings.containerExtensions.put('test', new TestableContainer())
+            settings.container = 'test'
+
+        then:
+            TestableContainer.isInstance(settings.containerExtension)
+    }
 }

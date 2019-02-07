@@ -82,9 +82,15 @@ class PythonExtension {
     /* Container of the details related to the venv/python instance */
     private final PythonDetails details
 
-    /** Must be set by individual plugins. */
-    private ContainerExtension containerExtension
-    private final ContainerExtension defaultContainerExtension
+    /* Downstream consumers can extend the map between short names
+     * appropriate for the build.gradle UI, and the container extension class
+     * this maps to.  They can also set the default container extension.  The
+     * build.gradles can set the container extension they want by adding, e.g.
+     * `container = 'shiv'`  to their build.gradle files.
+     */
+    public Map<String, ContainerExtension> containerExtensions
+    String container
+    ContainerExtension defaultContainer
 
     PythonExtension(Project project) {
         this.details = PythonDetailsFactory.makePythonDetails(project, null)
@@ -105,7 +111,8 @@ class PythonExtension {
         pythonEnvironmentDistgradle = ['PYGRADLE_PROJECT_NAME'   : project.name,
                                        'PYGRADLE_PROJECT_VERSION': "${ -> project.version }",]
 
-        defaultContainerExtension = new PexExtension(project)
+        defaultContainer = new PexExtension(project)
+        containerExtensions = [pex: defaultContainer]
 
         /*
          * NOTE: Do lots of sanity checking and validation here.
@@ -166,15 +173,9 @@ class PythonExtension {
         this.pinnedFile = pinnedFile
     }
 
-    ContainerExtension getDefaultContainerExtension() {
-        return new PexExtension()
-    }
-
+    /* Use this as the programmatic API for getting the current container extension.
+     */
     ContainerExtension getContainerExtension() {
-        return containerExtension ?: defaultContainerExtension
-    }
-
-    void setContainerExtension(ContainerExtension extension) {
-        containerExtension = extension
+        return containerExtensions.get(container) ?: defaultContainer
     }
 }

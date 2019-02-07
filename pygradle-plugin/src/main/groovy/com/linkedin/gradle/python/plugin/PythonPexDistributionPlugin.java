@@ -16,7 +16,6 @@
 package com.linkedin.gradle.python.plugin;
 
 import com.linkedin.gradle.python.PythonExtension;
-import com.linkedin.gradle.python.extension.PexExtension;
 import com.linkedin.gradle.python.util.ExtensionUtils;
 import org.gradle.api.Project;
 
@@ -27,7 +26,7 @@ public class PythonPexDistributionPlugin extends PythonContainerPlugin {
         final PythonExtension pythonExtension = ExtensionUtils.getPythonExtension(project);
 
         /* Explicit is better than implicit. */
-        pythonExtension.setContainerExtension(new PexExtension(project));
+        pythonExtension.setContainer("pex");
         super.applyTo(project);
     }
 }

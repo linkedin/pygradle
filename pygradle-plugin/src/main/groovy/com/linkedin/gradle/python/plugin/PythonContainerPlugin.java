@@ -66,8 +66,6 @@ public class PythonContainerPlugin extends PythonBasePlugin {
              */
             Task assemble = tasks.create(ContainerExtension.TASK_ASSEMBLE_CONTAINERS);
 
-            System.out.println("DE: tar " + deployableExtension.getDeployableBuildDir());
-
             Tar tar = tasks.create(ContainerExtension.TASK_PACKAGE_DEPLOYABLE, Tar.class);
             tar.setCompression(Compression.GZIP);
             tar.setBaseName(project.getName());

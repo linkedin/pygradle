@@ -15,7 +15,7 @@
  */
 package com.linkedin.gradle.python.plugin;
 
-import com.linkedin.gradle.python.tasks.ApplicationContainer;
+import com.linkedin.gradle.python.util.ApplicationContainer;
 import com.linkedin.gradle.python.extension.DeployableExtension;
 import com.linkedin.gradle.python.tasks.BuildWebAppTask;
 import com.linkedin.gradle.python.util.ExtensionUtils;

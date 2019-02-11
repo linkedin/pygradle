@@ -15,7 +15,7 @@
  */
 package com.linkedin.gradle.python
 
-import com.linkedin.gradle.python.tasks.ApplicationContainer
+import com.linkedin.gradle.python.util.ApplicationContainer
 import com.linkedin.gradle.python.extension.PexApplication
 import com.linkedin.gradle.python.extension.PythonDetailsFactory
 import org.gradle.api.Project

@@ -20,7 +20,7 @@ import groovy.text.SimpleTemplateEngine;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.Project;
 import com.linkedin.gradle.python.extension.CliExtension;
-import com.linkedin.gradle.python.tasks.ZipappContainer;
+import com.linkedin.gradle.python.util.ZipappContainer;
 
 import java.io.File;
 import java.io.IOException;

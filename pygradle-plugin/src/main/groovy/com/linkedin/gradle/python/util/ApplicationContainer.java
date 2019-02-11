@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.linkedin.gradle.python.tasks;
+package com.linkedin.gradle.python.util;
 
 import org.gradle.api.Project;
 

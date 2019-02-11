@@ -17,7 +17,7 @@ package com.linkedin.gradle.python.extension;
 
 import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.tasks.BuildPexTask;
-import com.linkedin.gradle.python.tasks.ApplicationContainer;
+import com.linkedin.gradle.python.util.ApplicationContainer;
 import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.util.OperatingSystem;
 import com.linkedin.gradle.python.util.StandardTextValues;

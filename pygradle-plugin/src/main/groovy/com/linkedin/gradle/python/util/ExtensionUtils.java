@@ -18,7 +18,6 @@ package com.linkedin.gradle.python.util;
 import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.extension.CliExtension;
 import com.linkedin.gradle.python.extension.DeployableExtension;
-import com.linkedin.gradle.python.extension.PexExtension;
 import com.linkedin.gradle.python.extension.WheelExtension;
 import com.linkedin.gradle.python.wheel.EditablePythonAbiContainer;
 import org.gradle.api.Project;
@@ -47,10 +46,6 @@ public class ExtensionUtils {
 
     public static DeployableExtension maybeCreateDeployableExtension(Project project) {
         return maybeCreate(project, "deployable", DeployableExtension.class, project);
-    }
-
-    public static PexExtension maybeCreatePexExtension(Project project) {
-        return maybeCreate(project, "pex", PexExtension.class, project);
     }
 
     public static WheelExtension maybeCreateWheelExtension(Project project) {

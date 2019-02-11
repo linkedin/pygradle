@@ -15,7 +15,7 @@
  */
 package com.linkedin.gradle.python.tasks;
 
-import com.linkedin.gradle.python.extension.PexExtension;
+import com.linkedin.gradle.python.extension.PexApplication;
 import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.util.PexFileUtil;
 import com.linkedin.gradle.python.util.entrypoint.EntryPointWriter;
@@ -65,7 +65,7 @@ public class BuildWebAppTask extends DefaultTask {
     @TaskAction
     public void buildWebapp() throws IOException, ClassNotFoundException {
         Project project = getProject();
-        PexExtension pexExtension = ExtensionUtils.getPythonComponentExtension(project, PexExtension.class);
+        PexApplication pexExtension = ExtensionUtils.getPythonComponentExtension(project, PexApplication.class);
 
         if (pexExtension.isFat()) {
             new FatPexGenerator(project, pexOptions).buildEntryPoint(

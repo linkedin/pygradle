@@ -15,7 +15,7 @@
  */
 package com.linkedin.gradle.python.plugin;
 
-import com.linkedin.gradle.python.extension.ContainerExtension;
+import com.linkedin.gradle.python.tasks.ApplicationContainer;
 import com.linkedin.gradle.python.tasks.GenerateCompletionsTask;
 import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.util.StandardTextValues;
@@ -37,7 +37,7 @@ public class PythonCliDistributionPlugin extends PythonContainerPlugin {
         GenerateCompletionsTask completionsTask = tasks.create(TASK_GENERATE_COMPLETIONS, GenerateCompletionsTask.class);
         completionsTask.dependsOn(tasks.getByName(StandardTextValues.TASK_INSTALL_PROJECT.getValue()));
 
-        tasks.getByName(ContainerExtension.TASK_ASSEMBLE_CONTAINERS)
+        tasks.getByName(ApplicationContainer.TASK_ASSEMBLE_CONTAINERS)
             .dependsOn(project.getTasks().getByName(TASK_GENERATE_COMPLETIONS));
     }
 }

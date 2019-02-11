@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.extension;
+package com.linkedin.gradle.python.tasks;
 
 
-public interface ZipappExtension {
+public interface ZipappContainer extends ApplicationContainer {
     /**
      * @return when <code>true</code>, then skinny pex's will be used.
      */

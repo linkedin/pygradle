@@ -15,7 +15,7 @@
  */
 package com.linkedin.gradle.python.plugin;
 
-import com.linkedin.gradle.python.extension.ContainerExtension;
+import com.linkedin.gradle.python.tasks.ApplicationContainer;
 import com.linkedin.gradle.python.extension.DeployableExtension;
 import com.linkedin.gradle.python.tasks.BuildWebAppTask;
 import com.linkedin.gradle.python.util.ExtensionUtils;
@@ -47,13 +47,13 @@ public class PythonWebApplicationPlugin extends PythonBasePlugin {
          */
         project.getTasks().create(TASK_BUILD_WEB_APPLICATION, BuildWebAppTask.class, task -> {
             task.setDescription("Build a web app, by default using gunicorn, but it's configurable.");
-            task.mustRunAfter(ContainerExtension.TASK_ASSEMBLE_CONTAINERS);
+            task.mustRunAfter(ApplicationContainer.TASK_ASSEMBLE_CONTAINERS);
             task.setExecutable(new File(deployableExtension.getDeployableBinDir(), GUNICORN));
             task.setEntryPoint(GUNICORN_ENTRYPOINT);
         });
 
         // Make packaging task wait on this task so that gunicorn is packed into the app.
-        project.getTasks().getByName(ContainerExtension.TASK_PACKAGE_DEPLOYABLE)
+        project.getTasks().getByName(ApplicationContainer.TASK_PACKAGE_DEPLOYABLE)
             .dependsOn(project.getTasks().getByName(TASK_BUILD_WEB_APPLICATION));
 
         /*
@@ -65,7 +65,7 @@ public class PythonWebApplicationPlugin extends PythonBasePlugin {
             task.setEnabled(false);
         });
 
-        project.getTasks().getByName(ContainerExtension.TASK_PACKAGE_DEPLOYABLE)
+        project.getTasks().getByName(ApplicationContainer.TASK_PACKAGE_DEPLOYABLE)
             .dependsOn(project.getTasks().getByName(TASK_PACKAGE_WEB_APPLICATION));
     }
 }

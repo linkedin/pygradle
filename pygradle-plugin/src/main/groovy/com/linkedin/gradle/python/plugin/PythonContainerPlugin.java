@@ -16,7 +16,7 @@
 package com.linkedin.gradle.python.plugin;
 
 import com.linkedin.gradle.python.PythonExtension;
-import com.linkedin.gradle.python.extension.ContainerExtension;
+import com.linkedin.gradle.python.tasks.ApplicationContainer;
 import com.linkedin.gradle.python.extension.DeployableExtension;
 import com.linkedin.gradle.python.extension.PythonContainerTask;
 import com.linkedin.gradle.python.tasks.BuildWheelsTask;
@@ -38,9 +38,10 @@ public class PythonContainerPlugin extends PythonBasePlugin {
         ExtensionUtils.maybeCreateWheelExtension(project);
 
         final DeployableExtension deployableExtension = ExtensionUtils.maybeCreateDeployableExtension(project);
-        final ContainerExtension containerExtension = pythonExtension.getContainerExtension();
+        final ApplicationContainer applicationContainer = pythonExtension.getApplicationContainer();
 
-        containerExtension.prepareExtension(project);
+        // in an afterEvaluate?
+        applicationContainer.prepareExtension(project);
 
         /*
          * Build wheels, first of dependencies, then of the current project.
@@ -49,24 +50,24 @@ public class PythonContainerPlugin extends PythonBasePlugin {
          */
         TaskContainer tasks = project.getTasks();
 
-        if (tasks.findByName(ContainerExtension.TASK_ASSEMBLE_CONTAINERS) == null) {
-            BuildWheelsTask buildWheelsTask = tasks.create(ContainerExtension.TASK_BUILD_WHEELS, BuildWheelsTask.class);
+        if (tasks.findByName(ApplicationContainer.TASK_ASSEMBLE_CONTAINERS) == null) {
+            BuildWheelsTask buildWheelsTask = tasks.create(ApplicationContainer.TASK_BUILD_WHEELS, BuildWheelsTask.class);
             buildWheelsTask.setInstallFileCollection(project.getConfigurations().getByName("python"));
             buildWheelsTask.dependsOn(tasks.getByName(StandardTextValues.TASK_INSTALL_PROJECT.getValue()));
 
-            BuildWheelsTask projectWheelsTask = tasks.create(ContainerExtension.TASK_BUILD_PROJECT_WHEEL, BuildWheelsTask.class);
+            BuildWheelsTask projectWheelsTask = tasks.create(ApplicationContainer.TASK_BUILD_PROJECT_WHEEL, BuildWheelsTask.class);
             projectWheelsTask.setInstallFileCollection(project.files(project.file(project.getProjectDir())));
             projectWheelsTask.setEnvironment(pythonExtension.pythonEnvironmentDistgradle);
-            projectWheelsTask.dependsOn(tasks.getByName(ContainerExtension.TASK_BUILD_WHEELS));
+            projectWheelsTask.dependsOn(tasks.getByName(ApplicationContainer.TASK_BUILD_WHEELS));
 
             /* This is just a lifecycle task which provides a convenient place
              * to add specific container dependencies on, without those
              * extensions having to know too many intimate details about
              * generic Python builds.  E.g. we make the pex task depend on it.
              */
-            Task assemble = tasks.create(ContainerExtension.TASK_ASSEMBLE_CONTAINERS);
+            Task assemble = tasks.create(ApplicationContainer.TASK_ASSEMBLE_CONTAINERS);
 
-            Tar tar = tasks.create(ContainerExtension.TASK_PACKAGE_DEPLOYABLE, Tar.class);
+            Tar tar = tasks.create(ApplicationContainer.TASK_PACKAGE_DEPLOYABLE, Tar.class);
             tar.setCompression(Compression.GZIP);
             tar.setBaseName(project.getName());
             tar.setExtension("tar.gz");
@@ -75,10 +76,11 @@ public class PythonContainerPlugin extends PythonBasePlugin {
             project.getArtifacts().add(StandardTextValues.CONFIGURATION_DEFAULT.getValue(), tar);
         }
 
-        containerExtension.makeTasks(project);
+        // in an afterEvaluate?
+        applicationContainer.makeTasks(project);
 
-        Task assemble = tasks.getByName(ContainerExtension.TASK_ASSEMBLE_CONTAINERS);
-        Task parent = tasks.getByName(ContainerExtension.TASK_BUILD_PROJECT_WHEEL);
+        Task assemble = tasks.getByName(ApplicationContainer.TASK_ASSEMBLE_CONTAINERS);
+        Task parent = tasks.getByName(ApplicationContainer.TASK_BUILD_PROJECT_WHEEL);
 
         for (Task task : tasks.withType(PythonContainerTask.class)) {
             assemble.dependsOn(task);

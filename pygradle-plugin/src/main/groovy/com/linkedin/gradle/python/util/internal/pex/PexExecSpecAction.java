@@ -17,7 +17,7 @@ package com.linkedin.gradle.python.util.internal.pex;
 
 import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.extension.DeployableExtension;
-import com.linkedin.gradle.python.extension.PexExtension;
+import com.linkedin.gradle.python.extension.PexApplication;
 import com.linkedin.gradle.python.extension.WheelExtension;
 import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.util.PexFileUtil;
@@ -111,7 +111,7 @@ class PexExecSpecAction implements Action<ExecSpec> {
     public static PexExecSpecAction withEntryPoint(
         Project project, String pexName, String entryPoint, List<String> pexOptions, Map<String, String> dependencies) {
         PythonExtension pythonExtension = ExtensionUtils.getPythonExtension(project);
-        PexExtension pexExtension = ExtensionUtils.getPythonComponentExtension(project, PexExtension.class);
+        PexApplication pexExtension = ExtensionUtils.getPythonComponentExtension(project, PexApplication.class);
         WheelExtension wheelExtension = ExtensionUtils.getPythonComponentExtension(project, WheelExtension.class);
         DeployableExtension deployableExtension = ExtensionUtils.getPythonComponentExtension(project, DeployableExtension.class);
 
@@ -137,7 +137,7 @@ class PexExecSpecAction implements Action<ExecSpec> {
     public static PexExecSpecAction withOutEntryPoint(
         Project project, String pexName, List<String> pexOptions, Map<String, String> dependencies) {
         PythonExtension pythonExtension = ExtensionUtils.getPythonExtension(project);
-        PexExtension pexExtension = ExtensionUtils.getPythonComponentExtension(project, PexExtension.class);
+        PexApplication pexExtension = ExtensionUtils.getPythonComponentExtension(project, PexApplication.class);
         WheelExtension wheelExtension = ExtensionUtils.getPythonComponentExtension(project, WheelExtension.class);
         DeployableExtension deployableExtension = ExtensionUtils.getPythonComponentExtension(project, DeployableExtension.class);
 

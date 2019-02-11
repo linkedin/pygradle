@@ -17,6 +17,7 @@ package com.linkedin.gradle.python.extension;
 
 import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.tasks.BuildPexTask;
+import com.linkedin.gradle.python.tasks.ApplicationContainer;
 import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.util.OperatingSystem;
 import com.linkedin.gradle.python.util.StandardTextValues;
@@ -25,7 +26,7 @@ import org.gradle.api.Project;
 import java.io.File;
 
 
-public class PexExtension implements ContainerExtension, ZipappExtension {
+public class PexApplication implements ApplicationContainer {
     public static final String TASK_BUILD_PEX = "buildPex";
 
     private File cache;
@@ -33,7 +34,7 @@ public class PexExtension implements ContainerExtension, ZipappExtension {
     private boolean isFat = OperatingSystem.current().isWindows();
     private boolean pythonWrapper = true;
 
-    public PexExtension(Project project) {
+    public PexApplication(Project project) {
         this.cache = new File(project.getBuildDir(), "pex-cache");
     }
 
@@ -103,7 +104,7 @@ public class PexExtension implements ContainerExtension, ZipappExtension {
     public void prepareExtension(Project project) {
         final PythonExtension extension = ExtensionUtils.getPythonExtension(project);
 
-        ExtensionUtils.maybeCreatePexExtension(project);
+        ExtensionUtils.maybeCreate(project, "pex", PexApplication.class, project);
         project.getDependencies().add(StandardTextValues.CONFIGURATION_BUILD_REQS.getValue(),
             extension.forcedVersions.get("pex"));
     }

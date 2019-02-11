@@ -15,8 +15,8 @@
  */
 package com.linkedin.gradle.python
 
-import com.linkedin.gradle.python.extension.ContainerExtension
-import com.linkedin.gradle.python.extension.PexExtension
+import com.linkedin.gradle.python.tasks.ApplicationContainer
+import com.linkedin.gradle.python.extension.PexApplication
 import com.linkedin.gradle.python.extension.PythonDetails
 import com.linkedin.gradle.python.extension.PythonDetailsFactory
 import org.gradle.api.GradleException
@@ -82,15 +82,26 @@ class PythonExtension {
     /* Container of the details related to the venv/python instance */
     private final PythonDetails details
 
-    /* Downstream consumers can extend the map between short names
-     * appropriate for the build.gradle UI, and the container extension class
-     * this maps to.  They can also set the default container extension.  The
-     * build.gradles can set the container extension they want by adding, e.g.
-     * `container = 'shiv'`  to their build.gradle files.
+    /* "Application container" defines the format for bundling the application
+     * into a single file distribution.  Examples include pex, shiv, and xar.
+     * Not all plugins using this extension support such containers, but for
+     * u/i purposes, it's convenient to add this here.  This allows the
+     * following in a build.gradle file:
+     *
+     * python {
+     *     container = "shiv"
+     * }
+     *
+     * These will simply be ignored in extension clients that don't need it.
+     *
+     * Downstream consumers can extend the map between container short names
+     * appropriate for the build.gradle UI, and the container class
+     * this maps to.  They can also set the default container, which allows
+     * them e.g. to choose shivs over pexes.
      */
-    public Map<String, ContainerExtension> containerExtensions
+    public Map<String, ApplicationContainer> containers
     String container
-    ContainerExtension defaultContainer
+    ApplicationContainer defaultContainer
 
     PythonExtension(Project project) {
         this.details = PythonDetailsFactory.makePythonDetails(project, null)
@@ -106,13 +117,16 @@ class PythonExtension {
         pythonEnvironment = [
             'PATH': "${ -> details.virtualEnv.toPath().resolve(applicationDirectory).toAbsolutePath().toString() }"
                     + File.pathSeparator
-                    + System.getenv('PATH'),]
+                    + System.getenv('PATH'),
+        ]
 
-        pythonEnvironmentDistgradle = ['PYGRADLE_PROJECT_NAME'   : project.name,
-                                       'PYGRADLE_PROJECT_VERSION': "${ -> project.version }",]
+        pythonEnvironmentDistgradle = [
+            'PYGRADLE_PROJECT_NAME'   : project.name,
+            'PYGRADLE_PROJECT_VERSION': "${ -> project.version }",
+        ]
 
-        defaultContainer = new PexExtension(project)
-        containerExtensions = [pex: defaultContainer]
+        defaultContainer = new PexApplication(project)
+        containers = [pex: defaultContainer]
 
         /*
          * NOTE: Do lots of sanity checking and validation here.
@@ -175,7 +189,7 @@ class PythonExtension {
 
     /* Use this as the programmatic API for getting the current container extension.
      */
-    ContainerExtension getContainerExtension() {
-        return containerExtensions.get(container) ?: defaultContainer
+    ApplicationContainer getApplicationContainer() {
+        return containers.get(container) ?: defaultContainer
     }
 }

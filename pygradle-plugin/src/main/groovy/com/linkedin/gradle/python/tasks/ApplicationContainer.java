@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.linkedin.gradle.python.extension;
+package com.linkedin.gradle.python.tasks;
 
 import org.gradle.api.Project;
 
 
-public interface ContainerExtension {
+public interface ApplicationContainer {
     public static final String TASK_BUILD_PROJECT_WHEEL = "buildProjectWheel";
     public static final String TASK_BUILD_WHEELS = "buildWheels";
     public static final String TASK_PACKAGE_DEPLOYABLE = "packageDeployable";

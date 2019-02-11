@@ -15,8 +15,8 @@
  */
 package com.linkedin.gradle.python
 
-import com.linkedin.gradle.python.extension.ContainerExtension
-import com.linkedin.gradle.python.extension.PexExtension
+import com.linkedin.gradle.python.tasks.ApplicationContainer
+import com.linkedin.gradle.python.extension.PexApplication
 import com.linkedin.gradle.python.extension.PythonDetailsFactory
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
@@ -25,7 +25,7 @@ import spock.lang.Specification
 import java.nio.file.Paths
 
 
-class TestableContainer implements ContainerExtension {
+class TestableApplicationContainer implements ApplicationContainer {
     public void prepareExtension(Project project) {
     }
     public void makeTasks(Project project) {
@@ -115,19 +115,19 @@ class PythonExtensionTest extends Specification {
             settings.container = null
 
         then:
-            PexExtension.isInstance(settings.containerExtension)
+            PexApplication.isInstance(settings.applicationContainer)
 
         when:
             settings.container = 'bogus'
 
         then:
-            PexExtension.isInstance(settings.containerExtension)
+            PexApplication.isInstance(settings.applicationContainer)
 
         when:
-            settings.containerExtensions.put('test', new TestableContainer())
+            settings.containers.put('test', new TestableApplicationContainer())
             settings.container = 'test'
 
         then:
-            TestableContainer.isInstance(settings.containerExtension)
+            TestableApplicationContainer.isInstance(settings.applicationContainer)
     }
 }

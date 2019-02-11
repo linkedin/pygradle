@@ -15,7 +15,7 @@
  */
 package com.linkedin.gradle.python.plugin;
 
-import com.linkedin.gradle.python.extension.ContainerExtension;
+import com.linkedin.gradle.python.tasks.ApplicationContainer;
 import com.linkedin.gradle.python.extension.DeployableExtension;
 import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.util.FileSystemUtils;
@@ -105,7 +105,7 @@ public class PythonFlyerPlugin implements Plugin<Project> {
         });
 
         // Make sure we've copied all the files before running the task: packageDeployable
-        project.getTasks().getByName(ContainerExtension.TASK_PACKAGE_DEPLOYABLE)
+        project.getTasks().getByName(ApplicationContainer.TASK_PACKAGE_DEPLOYABLE)
             .dependsOn(project.getTasks().getByName(TASK_PACKAGE_RESOURCE_FILES));
     }
 }

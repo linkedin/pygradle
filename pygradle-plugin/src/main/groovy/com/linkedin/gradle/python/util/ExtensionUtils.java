@@ -48,6 +48,10 @@ public class ExtensionUtils {
         return maybeCreate(project, "deployable", DeployableExtension.class, project);
     }
 
+    public static PexApplication maybeCreatePexExtension(Project project) {
+        return maybeCreate(project, "pex", PexApplication.class, project);
+    }
+
     public static WheelExtension maybeCreateWheelExtension(Project project) {
         return maybeCreate(project, "wheel", WheelExtension.class, project);
     }

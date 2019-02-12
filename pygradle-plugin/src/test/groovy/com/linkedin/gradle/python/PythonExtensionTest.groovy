@@ -16,7 +16,7 @@
 package com.linkedin.gradle.python
 
 import com.linkedin.gradle.python.util.ApplicationContainer
-import com.linkedin.gradle.python.extension.PexApplication
+import com.linkedin.gradle.python.util.PexApplication
 import com.linkedin.gradle.python.extension.PythonDetailsFactory
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
@@ -26,7 +26,9 @@ import java.nio.file.Paths
 
 
 class TestableApplicationContainer implements ApplicationContainer {
-    public void prepareExtension(Project project) {
+    public void addExtensions(Project project) {
+    }
+    public void addDependencies(Project project) {
     }
     public void makeTasks(Project project) {
     }

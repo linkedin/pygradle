@@ -15,7 +15,7 @@
  */
 package com.linkedin.gradle.python.tasks;
 
-import com.linkedin.gradle.python.extension.PexApplication;
+import com.linkedin.gradle.python.util.PexApplication;
 import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.util.PexFileUtil;
 import com.linkedin.gradle.python.util.entrypoint.EntryPointWriter;

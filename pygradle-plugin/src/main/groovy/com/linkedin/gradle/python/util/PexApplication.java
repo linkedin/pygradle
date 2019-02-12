@@ -13,14 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.extension;
+package com.linkedin.gradle.python.util;
 
 import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.tasks.BuildPexTask;
-import com.linkedin.gradle.python.util.ApplicationContainer;
-import com.linkedin.gradle.python.util.ExtensionUtils;
-import com.linkedin.gradle.python.util.OperatingSystem;
-import com.linkedin.gradle.python.util.StandardTextValues;
 import org.gradle.api.Project;
 
 import java.io.File;
@@ -101,10 +97,13 @@ public class PexApplication implements ApplicationContainer {
         this.cache = cache;
     }
 
-    public void prepareExtension(Project project) {
+    public void addExtensions(Project project) {
+        ExtensionUtils.maybeCreatePexExtension(project);
+    }
+
+    public void addDependencies(Project project) {
         final PythonExtension extension = ExtensionUtils.getPythonExtension(project);
 
-        ExtensionUtils.maybeCreate(project, "pex", PexApplication.class, project);
         project.getDependencies().add(StandardTextValues.CONFIGURATION_BUILD_REQS.getValue(),
             extension.forcedVersions.get("pex"));
     }

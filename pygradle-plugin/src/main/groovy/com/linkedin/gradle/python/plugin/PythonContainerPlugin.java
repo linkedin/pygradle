@@ -40,8 +40,7 @@ public class PythonContainerPlugin extends PythonBasePlugin {
         final DeployableExtension deployableExtension = ExtensionUtils.maybeCreateDeployableExtension(project);
         final ApplicationContainer applicationContainer = pythonExtension.getApplicationContainer();
 
-        // in an afterEvaluate?
-        applicationContainer.prepareExtension(project);
+        applicationContainer.addExtensions(project);
 
         /*
          * Build wheels, first of dependencies, then of the current project.
@@ -76,15 +75,18 @@ public class PythonContainerPlugin extends PythonBasePlugin {
             project.getArtifacts().add(StandardTextValues.CONFIGURATION_DEFAULT.getValue(), tar);
         }
 
-        // in an afterEvaluate?
-        applicationContainer.makeTasks(project);
+        // This must happen after build.gradle file evaluation.
+        project.afterEvaluate(it -> {
+                applicationContainer.addDependencies(project);
+                applicationContainer.makeTasks(project);
 
-        Task assemble = tasks.getByName(ApplicationContainer.TASK_ASSEMBLE_CONTAINERS);
-        Task parent = tasks.getByName(ApplicationContainer.TASK_BUILD_PROJECT_WHEEL);
+                Task assemble = tasks.getByName(ApplicationContainer.TASK_ASSEMBLE_CONTAINERS);
+                Task parent = tasks.getByName(ApplicationContainer.TASK_BUILD_PROJECT_WHEEL);
 
-        for (Task task : tasks.withType(PythonContainerTask.class)) {
-            assemble.dependsOn(task);
-            task.dependsOn(parent);
-        }
+                for (Task task : tasks.withType(PythonContainerTask.class)) {
+                    assemble.dependsOn(task);
+                    task.dependsOn(parent);
+                }
+            });
     }
 }

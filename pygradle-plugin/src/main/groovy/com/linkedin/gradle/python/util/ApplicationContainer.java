@@ -26,16 +26,23 @@ public interface ApplicationContainer {
     public static final String TASK_ASSEMBLE_CONTAINERS = "assembleContainers";
 
     /**
-     * Prepare the extension by adding dependencies and doing any other necessary initializations.
+     * Add any extensions that your container exposes.  This runs when the
+     * plugin is applied.
      */
-    public void prepareExtension(Project project);
+    public void addExtensions(Project project);
+
+    /**
+     * Add any additional dependencies your application container format
+     * needs.  This runs after the project is evaluated.
+     */
+    public void addDependencies(Project project);
 
     /**
      * Create any additional tasks the extension needs.  Such tasks must
      * implement the PythonContainerTask interface.  All tasks implementing
      * this interface will automatically be inserted into the task dependency
      * graph.  Implementers of this interface should *not* explicitly add
-     * their tasks to the graph.
+     * their tasks to the graph.  This runs after the project is evaluated.
      */
     public void makeTasks(Project project);
 }

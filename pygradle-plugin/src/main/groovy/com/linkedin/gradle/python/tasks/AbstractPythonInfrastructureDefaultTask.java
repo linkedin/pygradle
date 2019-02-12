@@ -16,6 +16,7 @@
 package com.linkedin.gradle.python.tasks;
 
 import com.linkedin.gradle.python.PythonExtension;
+import com.linkedin.gradle.python.exception.MissingWheelCacheException;
 import com.linkedin.gradle.python.exception.PipExecutionException;
 import com.linkedin.gradle.python.extension.PythonDetails;
 import com.linkedin.gradle.python.plugin.PythonHelpers;
@@ -197,10 +198,19 @@ abstract public class AbstractPythonInfrastructureDefaultTask extends DefaultTas
                 }
             } else {
                 try {
-                    pipInstallAction.execute(packageInfo, Collections.emptyList());
-                } catch (PipExecutionException e) {
-                    lastMessage = e.getPipText();
-                    throw e;
+                    // TODO: Switch allowBuildingFromSdist to false after wheel cache build and backing storage are done.
+                    pipInstallAction.execute(packageInfo, Collections.emptyList(), true);
+                } catch (MissingWheelCacheException e1) {
+                    try {
+                        // TODO: Make wheel from sdist, store to local cache and global cache if needed.
+                        pipInstallAction.execute(packageInfo, Collections.emptyList(), true);
+                    } catch (PipExecutionException e2) {
+                        lastMessage = e2.getPipText();
+                        throw e2;
+                    }
+                } catch (PipExecutionException e3) {
+                    lastMessage = e3.getPipText();
+                    throw e3;
                 }
             }
         });

@@ -15,6 +15,8 @@
  */
 package com.linkedin.gradle.python.tasks
 
+
+import com.linkedin.gradle.python.exception.MissingWheelCacheException
 import com.linkedin.gradle.python.exception.PipExecutionException
 import com.linkedin.gradle.python.extension.PythonDetails
 import com.linkedin.gradle.python.plugin.PythonHelpers
@@ -140,10 +142,19 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider, Suppo
                 progressLogger.progress("Installing ${ shortHand } (${ ++counter } of ${ installableFiles.size() })")
 
                 try {
-                    pipInstallAction.execute(packageInfo, args)
-                } catch (PipExecutionException e) {
-                    lastInstallMessage = e.pipText
-                    throw e
+                    // TODO: Switch allowBuildingFromSdist to false after wheel cache build and backing storage are done.
+                    pipInstallAction.execute(packageInfo, args, true)
+                } catch (MissingWheelCacheException e1) {
+                    try {
+                        // TODO: Make wheel from sdist, store to local cache and global cache if needed.
+                        pipInstallAction.execute(packageInfo, args, true)
+                    } catch(PipExecutionException e2) {
+                        lastInstallMessage = e2.pipText
+                        throw e2
+                    }
+                } catch (PipExecutionException e3) {
+                    lastInstallMessage = e3.pipText
+                    throw e3
                 }
 
                 timer.stop()

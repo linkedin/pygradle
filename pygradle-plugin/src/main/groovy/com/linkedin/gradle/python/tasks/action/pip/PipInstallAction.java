@@ -15,6 +15,7 @@
  */
 package com.linkedin.gradle.python.tasks.action.pip;
 
+import com.linkedin.gradle.python.exception.MissingWheelCacheException;
 import com.linkedin.gradle.python.extension.PythonDetails;
 import com.linkedin.gradle.python.plugin.PythonHelpers;
 import com.linkedin.gradle.python.exception.PipExecutionException;
@@ -73,7 +74,7 @@ public class PipInstallAction extends AbstractPipAction {
     }
 
     @Override
-    void doPipOperation(PackageInfo packageInfo, List<String> extraArgs) {
+    void doPipOperation(PackageInfo packageInfo, List<String> extraArgs, boolean allowBuildingFromSdist) {
         throwIfPythonVersionIsNotSupported(packageInfo);
 
         String pyVersion = pythonDetails.getPythonVersion().getPythonMajorMinor();
@@ -95,7 +96,7 @@ public class PipInstallAction extends AbstractPipAction {
             Arrays.asList(baseEnvironment, packageSettings.getEnvironment(packageInfo)));
 
 
-        List<String> commandLine = makeCommandLine(packageInfo, extraArgs);
+        List<String> commandLine = makeCommandLine(packageInfo, extraArgs, allowBuildingFromSdist);
 
         if (PythonHelpers.isPlainOrVerbose(project)) {
             logger.lifecycle("Installing {}", packageInfo.toShortHand());
@@ -121,7 +122,7 @@ public class PipInstallAction extends AbstractPipAction {
         }
     }
 
-    private List<String> makeCommandLine(PackageInfo packageInfo, List<String> extraArgs) {
+    private List<String> makeCommandLine(PackageInfo packageInfo, List<String> extraArgs, boolean allowBuildingFromSdist) {
         List<String> commandLine = new ArrayList<>();
         commandLine.addAll(baseInstallArguments());
         commandLine.addAll(extraArgs);
@@ -139,8 +140,10 @@ public class PipInstallAction extends AbstractPipAction {
                 logger.lifecycle("{} from wheel: {}", packageInfo.toShortHand(), cachedWheel.get().getAbsolutePath());
             }
             commandLine.add(cachedWheel.get().getAbsolutePath());
-        } else {
+        } else if (allowBuildingFromSdist) {
             commandLine.add(packageInfo.getPackageFile().getAbsolutePath());
+        } else {
+            throw new MissingWheelCacheException("Unable to find wheel cache!");
         }
         return commandLine;
     }

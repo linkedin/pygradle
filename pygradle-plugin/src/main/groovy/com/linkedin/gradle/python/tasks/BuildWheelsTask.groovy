@@ -141,7 +141,7 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, Support
             progressLogger.progress("Preparing wheel $shortHand (${++counter} of $numberOfInstallables)")
 
             try {
-                wheelAction.execute(packageInfo, args)
+                wheelAction.execute(packageInfo, args, true)
             } catch (PipExecutionException e) {
                 lastInstallMessage = e.pipText
                 throw e

@@ -65,7 +65,7 @@ abstract class AbstractPipAction {
         this.packageExcludeFilter = packageExcludeFilter;
     }
 
-    public void execute(PackageInfo packageInfo, List<String> extraArgs) {
+    public void execute(PackageInfo packageInfo, List<String> extraArgs, boolean allowBuildingFromSdist) {
         if (packageExcludeFilter != null && packageExcludeFilter.isSatisfiedBy(packageInfo)) {
             if (PythonHelpers.isPlainOrVerbose(project)) {
                 getLogger().lifecycle("Skipping {} - Excluded", packageInfo.toShortHand());
@@ -73,7 +73,7 @@ abstract class AbstractPipAction {
             return;
         }
 
-        doPipOperation(packageInfo, extraArgs);
+        doPipOperation(packageInfo, extraArgs, allowBuildingFromSdist);
     }
 
     void throwIfPythonVersionIsNotSupported(PackageInfo packageInfo) {
@@ -131,7 +131,7 @@ abstract class AbstractPipAction {
         }
     }
 
-    abstract void doPipOperation(PackageInfo packageInfo, List<String> extraArgs);
+    abstract void doPipOperation(PackageInfo packageInfo, List<String> extraArgs, boolean allowBuildingFromSdist);
 
     abstract Logger getLogger();
 }

@@ -47,7 +47,7 @@ class PipInstallActionTest extends Specification {
         def pipInstallAction = createPipInstallAction(settings, execSpec)
 
         when:
-        pipInstallAction.execute(packageInGradleCache("foo-1.0.0.tar.gz"), [])
+        pipInstallAction.execute(packageInGradleCache("foo-1.0.0.tar.gz"), [], true)
 
         then:
         1 * execSpec.environment(['CPPFLAGS': '-I/some/custom/path/include', 'LDFLAGS': '-L/some/custom/path/lib -Wl,-rpath,/some/custom/path/lib'])
@@ -60,7 +60,7 @@ class PipInstallActionTest extends Specification {
         def pipInstallAction = createPipInstallAction(settings, execSpec)
 
         when:
-        pipInstallAction.execute(packageInGradleCache("setuptools-1.0.0.tar.gz"), [])
+        pipInstallAction.execute(packageInGradleCache("setuptools-1.0.0.tar.gz"), [], true)
 
         then:
         1 * execSpec.commandLine(_) >> { List<List<String>> args ->
@@ -80,7 +80,7 @@ class PipInstallActionTest extends Specification {
         def pipInstallAction = createPipInstallAction(settings, execSpec)
 
         when:
-        pipInstallAction.execute(packageInGradleCache("setuptools-1.0.0.tar.gz"), [])
+        pipInstallAction.execute(packageInGradleCache("setuptools-1.0.0.tar.gz"), [], true)
 
         then:
         1 * execSpec.commandLine(_) >> { List<List<String>> args ->
@@ -100,7 +100,7 @@ class PipInstallActionTest extends Specification {
         def pipInstallAction = createPipInstallAction(settings, execSpec)
 
         when:
-        pipInstallAction.execute(packageInGradleCache("setuptools-1.0.0.tar.gz"), [])
+        pipInstallAction.execute(packageInGradleCache("setuptools-1.0.0.tar.gz"), [], true)
 
         then:
         def e = thrown(PipExecutionException)
@@ -123,7 +123,7 @@ class PipInstallActionTest extends Specification {
         distInfo.createNewFile()
 
         when:
-        pipInstallAction.execute(packageInGradleCache("pyflakes-1.0.0.tar.gz"), [])
+        pipInstallAction.execute(packageInGradleCache("pyflakes-1.0.0.tar.gz"), [], true)
 
         then:
         1 * execSpec.commandLine(_) >> { List<List<String>> args ->
@@ -148,7 +148,7 @@ class PipInstallActionTest extends Specification {
         eggFile.createNewFile()
 
         when:
-        action.execute(packageInGradleCache("pyflakes-1.6.0.tar.gz"), [])
+        action.execute(packageInGradleCache("pyflakes-1.6.0.tar.gz"), [], true)
 
         then:
         0 * execSpec._
@@ -164,7 +164,7 @@ class PipInstallActionTest extends Specification {
         eggFile.createNewFile()
 
         when:
-        action.execute(packageInGradleCache("pyflakes-1.6.0.tar.gz"), [])
+        action.execute(packageInGradleCache("pyflakes-1.6.0.tar.gz"), [], true)
 
         then:
         0 * execSpec._

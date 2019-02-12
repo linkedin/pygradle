@@ -68,7 +68,7 @@ public class PipWheelAction extends AbstractPipAction {
     }
 
     @Override
-    void doPipOperation(PackageInfo packageInfo, List<String> extraArgs) {
+    void doPipOperation(PackageInfo packageInfo, List<String> extraArgs, boolean allowBuildingFromSdist) {
         throwIfPythonVersionIsNotSupported(packageInfo);
 
         if (!packageSettings.requiresSourceBuild(packageInfo) && doesWheelExist(packageInfo)) {

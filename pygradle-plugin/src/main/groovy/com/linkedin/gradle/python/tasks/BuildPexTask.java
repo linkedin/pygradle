@@ -17,7 +17,6 @@ package com.linkedin.gradle.python.tasks;
 
 import com.linkedin.gradle.python.extension.DeployableExtension;
 import com.linkedin.gradle.python.util.PexApplication;
-import com.linkedin.gradle.python.extension.PythonContainerTask;
 import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider;
 import com.linkedin.gradle.python.tasks.execution.TeeOutputContainer;
 import com.linkedin.gradle.python.util.ExtensionUtils;

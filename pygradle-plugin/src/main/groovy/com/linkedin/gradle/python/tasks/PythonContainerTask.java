@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.linkedin.gradle.python.extension;
+package com.linkedin.gradle.python.tasks;
 
 import org.gradle.api.Task;
 

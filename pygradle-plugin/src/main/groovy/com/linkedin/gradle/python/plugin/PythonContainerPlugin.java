@@ -16,10 +16,10 @@
 package com.linkedin.gradle.python.plugin;
 
 import com.linkedin.gradle.python.PythonExtension;
-import com.linkedin.gradle.python.util.ApplicationContainer;
 import com.linkedin.gradle.python.extension.DeployableExtension;
-import com.linkedin.gradle.python.extension.PythonContainerTask;
 import com.linkedin.gradle.python.tasks.BuildWheelsTask;
+import com.linkedin.gradle.python.tasks.PythonContainerTask;
+import com.linkedin.gradle.python.util.ApplicationContainer;
 import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.util.StandardTextValues;
 import org.gradle.api.Project;
@@ -77,6 +77,11 @@ public class PythonContainerPlugin extends PythonBasePlugin {
 
         // This must happen after build.gradle file evaluation.
         project.afterEvaluate(it -> {
+                /* Plumb the container tasks into the task hierarchy.  The
+                 * assemble task depends on all the implementers of
+                 * PythonContainerTask, and the deployable task depends on the
+                 * assemble task.
+                 */
                 applicationContainer.addDependencies(project);
                 applicationContainer.makeTasks(project);
 

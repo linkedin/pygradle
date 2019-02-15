@@ -77,13 +77,16 @@ public class PythonContainerPlugin extends PythonBasePlugin {
 
         // This must happen after build.gradle file evaluation.
         project.afterEvaluate(it -> {
+                // The application container might have changed.
+                final ApplicationContainer postContainer = pythonExtension.getApplicationContainer();
+
                 /* Plumb the container tasks into the task hierarchy.  The
                  * assemble task depends on all the implementers of
                  * PythonContainerTask, and the deployable task depends on the
                  * assemble task.
                  */
-                applicationContainer.addDependencies(project);
-                applicationContainer.makeTasks(project);
+                postContainer.addDependencies(project);
+                postContainer.makeTasks(project);
 
                 Task assemble = tasks.getByName(ApplicationContainer.TASK_ASSEMBLE_CONTAINERS);
                 Task parent = tasks.getByName(ApplicationContainer.TASK_BUILD_PROJECT_WHEEL);

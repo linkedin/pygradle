@@ -23,4 +23,23 @@ import java.util.Optional;
 
 public interface WheelCache extends Serializable {
     Optional<File> findWheel(String library, String version, PythonDetails pythonDetails);
+
+    /**
+     * Find wheel based on cache layer.
+     *
+     * @param library         name of the library
+     * @param version         version of the library
+     * @param pythonDetails   details on the python to find a wheel for
+     * @param wheelCacheLayer which {@link WheelCacheLayer} to fetch wheel
+     * @return a wheel that could be used in the target layer. If not found, {@code Optional.empty()}
+     */
+    Optional<File> findWheel(String library, String version, PythonDetails pythonDetails, WheelCacheLayer wheelCacheLayer);
+
+    /**
+     * Store given wheel file to target layer.
+     *
+     * @param wheelFile       the wheel file to store
+     * @param wheelCacheLayer which {@link WheelCacheLayer} to store wheel
+     */
+    void storeWheel(File wheelFile, WheelCacheLayer wheelCacheLayer);
 }

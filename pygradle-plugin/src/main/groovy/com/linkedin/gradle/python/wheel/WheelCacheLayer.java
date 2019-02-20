@@ -15,22 +15,23 @@
  */
 package com.linkedin.gradle.python.wheel;
 
-import com.linkedin.gradle.python.extension.PythonDetails;
+public enum WheelCacheLayer {
+    PROJECT_LAYER("projectLayer"),
+    HOST_LAYER("hostLayer");
 
-import java.io.File;
-import java.util.Optional;
+    private final String value;
 
-public class EmptyWheelCache implements WheelCache {
-    @Override
-    public Optional<File> findWheel(String library, String version, PythonDetails pythonDetails) {
-        return Optional.empty();
+    WheelCacheLayer(String val) {
+        this.value = val;
     }
 
     @Override
-    public Optional<File> findWheel(String library, String version, PythonDetails pythonDetails, WheelCacheLayer wheelCacheLayer) {
-        return Optional.empty();
+    public String toString() {
+        return value;
     }
 
-    @Override
-    public void storeWheel(File wheelFile, WheelCacheLayer wheelCacheLayer) { }
+    public String getValue() {
+        return value;
+    }
+
 }

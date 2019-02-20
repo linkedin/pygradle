@@ -121,15 +121,17 @@ public class PipInstallAction extends AbstractPipAction {
         }
     }
 
-    private List<String> makeCommandLine(PackageInfo packageInfo, List<String> extraArgs) {
+    private List<String> prepareCommandLine(PackageInfo packageInfo, List<String> extraArgs) {
         List<String> commandLine = new ArrayList<>();
         commandLine.addAll(baseInstallArguments());
         commandLine.addAll(extraArgs);
         commandLine.addAll(getGlobalOptions(packageInfo));
         commandLine.addAll(getInstallOptions(packageInfo));
 
-        Optional<File> cachedWheel = Optional.empty();
+        return commandLine;
+    }
 
+    private boolean appendCachedWheel(PackageInfo packageInfo, Optional<File> cachedWheel, List<String> commandLine) {
         if (!packageSettings.requiresSourceBuild(packageInfo)) {
             cachedWheel = wheelCache.findWheel(packageInfo.getName(), packageInfo.getVersion(), pythonDetails);
         }
@@ -139,9 +141,28 @@ public class PipInstallAction extends AbstractPipAction {
                 logger.lifecycle("{} from wheel: {}", packageInfo.toShortHand(), cachedWheel.get().getAbsolutePath());
             }
             commandLine.add(cachedWheel.get().getAbsolutePath());
-        } else {
-            commandLine.add(packageInfo.getPackageFile().getAbsolutePath());
+            return true;
         }
+
+        return false;
+    }
+
+    private List<String> makeCommandLine(PackageInfo packageInfo, List<String> extraArgs) {
+        List<String> commandLine = prepareCommandLine(packageInfo, extraArgs);
+        Optional<File> cachedWheel = Optional.empty();
+        boolean allowBuildingFromSdist = false;
+
+        while (!appendCachedWheel(packageInfo, cachedWheel, commandLine)) {
+            if (allowBuildingFromSdist) {
+                commandLine.add(packageInfo.getPackageFile().getAbsolutePath());
+                break;
+            } else {
+                // TODO: Make wheel from sdist, store to local cache and global cache if needed.
+            }
+
+            allowBuildingFromSdist = true;
+        }
+
         return commandLine;
     }
 

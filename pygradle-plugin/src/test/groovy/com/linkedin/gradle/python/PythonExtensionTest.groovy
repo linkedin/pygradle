@@ -123,7 +123,7 @@ class PythonExtensionTest extends Specification {
             settings.container = 'bogus'
 
         then:
-            PexApplication.isInstance(settings.applicationContainer)
+            settings.applicationContainer == null
 
         when:
             settings.containers.put('test', new TestableApplicationContainer())

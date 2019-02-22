@@ -80,6 +80,12 @@ public class PythonContainerPlugin extends PythonBasePlugin {
                 // The application container might have changed.
                 final ApplicationContainer postContainer = pythonExtension.getApplicationContainer();
 
+                if (postContainer == null) {
+                    throw new IllegalArgumentException(
+                        "Unknown Python application container: "
+                        + pythonExtension.getContainer());
+                }
+
                 /* Plumb the container tasks into the task hierarchy.  The
                  * assemble task depends on all the implementers of
                  * PythonContainerTask, and the deployable task depends on the

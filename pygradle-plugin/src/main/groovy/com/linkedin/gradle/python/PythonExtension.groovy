@@ -190,6 +190,10 @@ class PythonExtension {
     /* Use this as the programmatic API for getting the current container extension.
      */
     ApplicationContainer getApplicationContainer() {
-        return containers.get(container) ?: defaultContainer
+        // Why am I doing it this way?  Because if the container isn't set
+        // (i.e. it is null) I want to return the default container.  But if
+        // it's set to a bogus value, I want it to return the null so the
+        // caller will know they have a bogus value.
+        return container == null ? defaultContainer : containers.get(container)
     }
 }

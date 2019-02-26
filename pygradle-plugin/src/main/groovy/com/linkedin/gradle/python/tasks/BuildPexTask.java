@@ -22,7 +22,7 @@ import com.linkedin.gradle.python.tasks.execution.TeeOutputContainer;
 import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.util.internal.pex.FatPexGenerator;
 import com.linkedin.gradle.python.util.internal.pex.ThinPexGenerator;
-import com.linkedin.gradle.python.util.pex.DefaultPexEntryPointTemplateProvider;
+import com.linkedin.gradle.python.util.zipapp.DefaultPexEntryPointTemplateProvider;
 import com.linkedin.gradle.python.util.zipapp.EntryPointTemplateProvider;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.DefaultTask;

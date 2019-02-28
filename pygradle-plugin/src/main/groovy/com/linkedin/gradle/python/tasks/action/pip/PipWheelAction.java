@@ -104,20 +104,22 @@ public class PipWheelAction extends AbstractPipAction {
      * always build these locally.
      */
     private boolean doesWheelExist(PackageInfo packageInfo) {
-        Optional<File> wheel = wheelCache.findWheel(packageInfo.getName(), packageInfo.getVersion(), pythonDetails);
-        if (wheel.isPresent()) {
-            File wheelFile = wheel.get();
+        if (!packageSettings.isCustomized(packageInfo)) {
+            Optional<File> wheel = wheelCache.findWheel(packageInfo.getName(), packageInfo.getVersion(), pythonDetails);
+            if (wheel.isPresent()) {
+                File wheelFile = wheel.get();
 
-            try {
-                FileUtils.copyFile(wheelFile, new File(wheelExtension.getWheelCache(), wheelFile.getName()));
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
+                try {
+                    FileUtils.copyFile(wheelFile, new File(wheelExtension.getWheelCache(), wheelFile.getName()));
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
 
-            if (PythonHelpers.isPlainOrVerbose(project)) {
-                logger.lifecycle("Skipping {}, in wheel cache {}", packageInfo.toShortHand(), wheelFile);
+                if (PythonHelpers.isPlainOrVerbose(project)) {
+                    logger.lifecycle("Skipping {}, in wheel cache {}", packageInfo.toShortHand(), wheelFile);
+                }
+                return true;
             }
-            return true;
         }
 
         ConfigurableFileTree tree = project.fileTree(wheelExtension.getWheelCache(), action -> {

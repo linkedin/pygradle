@@ -133,7 +133,11 @@ public class PipInstallAction extends AbstractPipAction {
 
     private boolean appendCachedWheel(PackageInfo packageInfo, Optional<File> cachedWheel, List<String> commandLine) {
         if (!packageSettings.requiresSourceBuild(packageInfo)) {
-            cachedWheel = wheelCache.findWheel(packageInfo.getName(), packageInfo.getVersion(), pythonDetails);
+            // TODO: Check whether project layer cache exists.
+
+            if (!cachedWheel.isPresent() && !packageSettings.isCustomized(packageInfo)) {
+                cachedWheel = wheelCache.findWheel(packageInfo.getName(), packageInfo.getVersion(), pythonDetails);
+            }
         }
 
         if (cachedWheel.isPresent()) {

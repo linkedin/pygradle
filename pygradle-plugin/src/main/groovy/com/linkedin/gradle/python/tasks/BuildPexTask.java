@@ -16,7 +16,7 @@
 package com.linkedin.gradle.python.tasks;
 
 import com.linkedin.gradle.python.extension.DeployableExtension;
-import com.linkedin.gradle.python.util.PexApplication;
+import com.linkedin.gradle.python.extension.PexExtension;
 import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider;
 import com.linkedin.gradle.python.tasks.execution.TeeOutputContainer;
 import com.linkedin.gradle.python.util.ExtensionUtils;
@@ -38,7 +38,7 @@ import java.util.Map;
 
 
 /**
- * This task builds pex files; both 'thin' and 'fat' based on the settings on {@link PexApplication}
+ * This task builds pex files; both 'thin' and 'fat' based on the settings on {@link PexExtension}
  * <p>
  * If in 'fat' pex mode, each entry point will generate it's own pex.
  * <p>
@@ -78,7 +78,7 @@ public class BuildPexTask extends DefaultTask implements FailureReasonProvider, 
         Project project = getProject();
 
         DeployableExtension deployableExtension = ExtensionUtils.getPythonComponentExtension(project, DeployableExtension.class);
-        PexApplication pexExtension = ExtensionUtils.getPythonComponentExtension(project, PexApplication.class);
+        PexExtension pexExtension = ExtensionUtils.getPythonComponentExtension(project, PexExtension.class);
 
         // Recreate the pex cache if it exists so that we don't mistakenly use an old build's version of the local project.
         if (pexExtension.getPexCache().exists()) {

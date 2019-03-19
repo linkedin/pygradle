@@ -15,10 +15,10 @@
  */
 package com.linkedin.gradle.python
 
-import com.linkedin.gradle.python.util.ApplicationContainer
-import com.linkedin.gradle.python.util.PexApplication
+import com.linkedin.gradle.python.extension.PexExtension
 import com.linkedin.gradle.python.extension.PythonDetails
 import com.linkedin.gradle.python.extension.PythonDetailsFactory
+import com.linkedin.gradle.python.util.ApplicationContainer
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 
@@ -126,7 +126,7 @@ class PythonExtension {
             'PYGRADLE_PROJECT_VERSION': "${ -> project.version }",
         ]
 
-        defaultContainer = new PexApplication(project)
+        defaultContainer = new PexExtension(project)
         containers = [pex: defaultContainer]
 
         /*

@@ -13,16 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.util;
+package com.linkedin.gradle.python.extension;
 
 import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.tasks.BuildPexTask;
+import com.linkedin.gradle.python.util.ApplicationContainer;
+import com.linkedin.gradle.python.util.ExtensionUtils;
+import com.linkedin.gradle.python.util.OperatingSystem;
+import com.linkedin.gradle.python.util.StandardTextValues;
 import org.gradle.api.Project;
 
 import java.io.File;
 
 
-public class PexApplication implements ApplicationContainer {
+public class PexExtension implements ApplicationContainer {
     public static final String TASK_BUILD_PEX = "buildPex";
 
     private File cache;
@@ -30,7 +34,7 @@ public class PexApplication implements ApplicationContainer {
     private boolean isFat = OperatingSystem.current().isWindows();
     private boolean pythonWrapper = true;
 
-    public PexApplication(Project project) {
+    public PexExtension(Project project) {
         this.cache = new File(project.getBuildDir(), "pex-cache");
     }
 

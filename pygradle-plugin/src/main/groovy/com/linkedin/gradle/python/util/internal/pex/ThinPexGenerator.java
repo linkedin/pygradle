@@ -17,7 +17,7 @@ package com.linkedin.gradle.python.util.internal.pex;
 
 import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.extension.DeployableExtension;
-import com.linkedin.gradle.python.util.PexApplication;
+import com.linkedin.gradle.python.extension.PexExtension;
 import com.linkedin.gradle.python.util.EntryPointHelpers;
 import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.util.PexFileUtil;
@@ -57,7 +57,7 @@ public class ThinPexGenerator extends ThinZipappGenerator {
     @Override
     public void buildEntryPoints() throws Exception {
         PythonExtension extension = ExtensionUtils.getPythonExtension(project);
-        PexApplication pexExtension = ExtensionUtils.getPythonComponentExtension(extension, PexApplication.class);
+        PexExtension pexExtension = ExtensionUtils.getPythonComponentExtension(extension, PexExtension.class);
         DeployableExtension deployableExtension = ExtensionUtils.getPythonComponentExtension(
             extension, DeployableExtension.class);
 

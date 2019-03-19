@@ -15,9 +15,9 @@
  */
 package com.linkedin.gradle.python
 
-import com.linkedin.gradle.python.util.ApplicationContainer
-import com.linkedin.gradle.python.util.PexApplication
+import com.linkedin.gradle.python.extension.PexExtension
 import com.linkedin.gradle.python.extension.PythonDetailsFactory
+import com.linkedin.gradle.python.util.ApplicationContainer
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
@@ -117,7 +117,7 @@ class PythonExtensionTest extends Specification {
             settings.container = null
 
         then:
-            PexApplication.isInstance(settings.applicationContainer)
+            PexExtension.isInstance(settings.applicationContainer)
 
         when:
             settings.container = 'bogus'

@@ -25,7 +25,7 @@ public class PythonPexDistributionPlugin extends PythonContainerPlugin {
     public void applyTo(final Project project) {
         final PythonExtension pythonExtension = ExtensionUtils.getPythonExtension(project);
 
-        /* Explicit is better than implicit. */
+        // Even though this is the default, explicit is better than implicit.
         pythonExtension.setContainer("pex");
         super.applyTo(project);
     }

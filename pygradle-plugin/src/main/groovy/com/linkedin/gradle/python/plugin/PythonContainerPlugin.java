@@ -86,7 +86,8 @@ public class PythonContainerPlugin extends PythonBasePlugin {
                         + pythonExtension.getContainer());
                 }
 
-                /* Plumb the container tasks into the task hierarchy.  The
+                /*
+                 * Plumb the container tasks into the task hierarchy.  The
                  * assemble task depends on all the implementers of
                  * PythonContainerTask, and the deployable task depends on the
                  * assemble task.

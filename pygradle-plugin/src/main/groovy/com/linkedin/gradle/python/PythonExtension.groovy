@@ -82,7 +82,8 @@ class PythonExtension {
     /* Container of the details related to the venv/python instance */
     private final PythonDetails details
 
-    /* "Application container" defines the format for bundling the application
+    /*
+     * "Application container" defines the format for bundling the application
      * into a single file distribution.  Examples include pex, shiv, and xar.
      * Not all plugins using this extension support such containers, but for
      * u/i purposes, it's convenient to add this here.  This allows the
@@ -187,7 +188,8 @@ class PythonExtension {
         this.pinnedFile = pinnedFile
     }
 
-    /* Use this as the programmatic API for getting the current container extension.
+    /*
+     * Use this as the programmatic API for getting the current container extension.
      */
     ApplicationContainer getApplicationContainer() {
         // Why am I doing it this way?  Because if the container isn't set

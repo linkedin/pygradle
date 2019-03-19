@@ -46,6 +46,8 @@ public class PythonContainerPlugin extends PythonBasePlugin {
          * Build wheels, first of dependencies, then of the current project.
          * However, it's possible that we will have multiple containers
          * (e.g. pex and shiv), so be sure to only build the wheels once.
+         *
+         * TODO 2019-03-19: Adapt this to on-host layered caching.
          */
         TaskContainer tasks = project.getTasks();
 

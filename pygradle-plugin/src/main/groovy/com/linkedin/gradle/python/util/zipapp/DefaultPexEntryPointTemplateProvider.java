@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.util.pex;
+package com.linkedin.gradle.python.util.zipapp;
 
 import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.extension.CliExtension;
 import com.linkedin.gradle.python.util.ExtensionUtils;
-import com.linkedin.gradle.python.util.zipapp.EntryPointTemplateProvider;
-import com.linkedin.gradle.python.util.zipapp.TemplateProviderOptions;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
@@ -30,10 +28,10 @@ public class DefaultPexEntryPointTemplateProvider implements EntryPointTemplateP
     public String retrieveTemplate(TemplateProviderOptions options, boolean isPythonWrapper) throws IOException {
         PythonExtension extension = options.getExtension();
         CliExtension cliExtension = ExtensionUtils.findPythonComponentExtension(extension, CliExtension.class);
-        if (cliExtension != null && isPythonWrapper) {
-            return IOUtils.toString(DefaultPexEntryPointTemplateProvider.class.getResourceAsStream("/templates/pex_cli_entrypoint.py.template"));
-        } else {
-            return IOUtils.toString(DefaultPexEntryPointTemplateProvider.class.getResourceAsStream("/templates/pex_non_cli_entrypoint.sh.template"));
-        }
+        String template = (cliExtension != null && isPythonWrapper)
+            ? "/templates/pex_cli_entrypoint.py.template"
+            : "/templates/pex_non_cli_entrypoint.sh.template";
+
+        return IOUtils.toString(DefaultPexEntryPointTemplateProvider.class.getResourceAsStream(template));
     }
 }

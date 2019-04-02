@@ -27,7 +27,16 @@ import java.io.File;
 
 
 public class PexExtension implements ApplicationContainer {
-    public static final String TASK_BUILD_PEX = "buildPex";
+    // 2019-04-01(warsaw): For backward compatibility, we must expose a no-op
+    // buildPex task unconditionally.  This will be created in
+    // PythonContainerPlugin and tied into the task hierarchy in the right
+    // place.  realBuildPex task is the actual pex building task, but these
+    // are only needed if pexes are selected (and won't get created until
+    // after build.gradle evaluation).
+    //
+    // Yes, this is gross and we should deprecate this mess at our earliest convenience.
+    public static final String TASK_BUILD_PEX = "realBuildPex";
+    public static final String TASK_BUILD_NOOP_PEX = "buildPex";
 
     private File cache;
     // Default to fat zipapps on Windows, since our wrappers are fairly POSIX specific.

@@ -17,7 +17,9 @@ package com.linkedin.gradle.python.plugin;
 
 import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.extension.DeployableExtension;
+import com.linkedin.gradle.python.extension.PexExtension;
 import com.linkedin.gradle.python.tasks.BuildWheelsTask;
+import com.linkedin.gradle.python.tasks.NoopBuildPexTask;
 import com.linkedin.gradle.python.tasks.PythonContainerTask;
 import com.linkedin.gradle.python.util.ApplicationContainer;
 import com.linkedin.gradle.python.util.ExtensionUtils;
@@ -67,6 +69,10 @@ public class PythonContainerPlugin extends PythonBasePlugin {
              * generic Python builds.  E.g. we make the pex task depend on it.
              */
             Task assemble = tasks.create(ApplicationContainer.TASK_ASSEMBLE_CONTAINERS);
+
+            // Add this no-op task for backward compatibility.  See PexExtension for details.
+            Task noop = tasks.create(PexExtension.TASK_BUILD_NOOP_PEX, NoopBuildPexTask.class);
+            assemble.dependsOn(noop);
 
             Tar tar = tasks.create(ApplicationContainer.TASK_PACKAGE_DEPLOYABLE, Tar.class);
             tar.setCompression(Compression.GZIP);

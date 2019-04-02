@@ -27,7 +27,7 @@ jobs:
                     - ~/.gradle
             - run:
                 name: Run Build
-                command: ./gradlew build --console plain --max-workers=2
+                command: ./gradlew build --console plain --max-workers=2 --info
 
             - run:
                 name: Save test results

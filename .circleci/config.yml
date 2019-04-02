@@ -5,6 +5,7 @@ jobs:
             - image: openjdk:8-jdk
         environment:
             JVM_OPTS: -Xmx2048m
+            GRADLE_OPTS: -Dorg.gradle.daemon=false
         steps:
             - run:
                 name: Prepare System
@@ -27,7 +28,7 @@ jobs:
                     - ~/.gradle
             - run:
                 name: Run Build
-                command: ./gradlew build --console plain --max-workers=2 --info
+                command: ./gradlew build --console plain --max-workers=2
 
             - run:
                 name: Save test results

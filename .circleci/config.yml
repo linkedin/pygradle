@@ -4,8 +4,7 @@ jobs:
         docker:
             - image: openjdk:8-jdk
         environment:
-            JVM_OPTS: -Xmx2048m
-            GRADLE_OPTS: -Xmx2048m
+            _JAVA_OPTIONS: "-Xmx1024m -Xms256m"
         steps:
             - run:
                 name: Prepare System
@@ -44,8 +43,6 @@ jobs:
     deploy:
         docker:
             - image: openjdk:8-jdk
-        environment:
-            JVM_OPTS: -Xmx2048m
         steps:
             - checkout
 

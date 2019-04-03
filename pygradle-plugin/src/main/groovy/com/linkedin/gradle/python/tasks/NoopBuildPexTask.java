@@ -19,6 +19,7 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.Task;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
+import org.gradle.api.tasks.TaskAction;
 
 
 public class NoopBuildPexTask extends DefaultTask implements PythonContainerTask {
@@ -28,6 +29,9 @@ public class NoopBuildPexTask extends DefaultTask implements PythonContainerTask
         + "The buildPex task has been deprecated.\n"
         + "Please use the assemblerContainers task instead.\n"
         + "############################################################";
+
+    @TaskAction
+    public void noOp() { }
 
     public Task dependsOn(Object... paths) {
         LOG.warn(DISABLED_MESSAGE);

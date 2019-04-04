@@ -53,6 +53,13 @@ public class PythonContainerPlugin extends PythonBasePlugin {
          */
         TaskContainer tasks = project.getTasks();
 
+
+        // Add this no-op task for backward compatibility.  See PexExtension for details.
+        Task noop = tasks.findByName(PexExtension.TASK_BUILD_NOOP_PEX);
+        if (noop == null) {
+            noop = tasks.create(PexExtension.TASK_BUILD_NOOP_PEX, NoopBuildPexTask.class);
+        }
+
         if (tasks.findByName(ApplicationContainer.TASK_ASSEMBLE_CONTAINERS) == null) {
             BuildWheelsTask buildWheelsTask = tasks.create(ApplicationContainer.TASK_BUILD_WHEELS, BuildWheelsTask.class);
             buildWheelsTask.setInstallFileCollection(project.getConfigurations().getByName("python"));
@@ -63,15 +70,13 @@ public class PythonContainerPlugin extends PythonBasePlugin {
             projectWheelsTask.setEnvironment(pythonExtension.pythonEnvironmentDistgradle);
             projectWheelsTask.dependsOn(tasks.getByName(ApplicationContainer.TASK_BUILD_WHEELS));
 
-            /* This is just a lifecycle task which provides a convenient place
+            /*
+             * This is just a lifecycle task which provides a convenient place
              * to add specific container dependencies on, without those
              * extensions having to know too many intimate details about
              * generic Python builds.  E.g. we make the pex task depend on it.
              */
             Task assemble = tasks.create(ApplicationContainer.TASK_ASSEMBLE_CONTAINERS);
-
-            // Add this no-op task for backward compatibility.  See PexExtension for details.
-            Task noop = tasks.create(PexExtension.TASK_BUILD_NOOP_PEX, NoopBuildPexTask.class);
             assemble.dependsOn(noop);
 
             Tar tar = tasks.create(ApplicationContainer.TASK_PACKAGE_DEPLOYABLE, Tar.class);
@@ -85,31 +90,31 @@ public class PythonContainerPlugin extends PythonBasePlugin {
 
         // This must happen after build.gradle file evaluation.
         project.afterEvaluate(it -> {
-                // The application container might have changed.
-                final ApplicationContainer postContainer = pythonExtension.getApplicationContainer();
+            // The application container might have changed.
+            final ApplicationContainer postContainer = pythonExtension.getApplicationContainer();
 
-                if (postContainer == null) {
-                    throw new IllegalArgumentException(
-                        "Unknown Python application container: "
+            if (postContainer == null) {
+                throw new IllegalArgumentException(
+                    "Unknown Python application container: "
                         + pythonExtension.getContainer());
-                }
+            }
 
-                /*
-                 * Plumb the container tasks into the task hierarchy.  The
-                 * assemble task depends on all the implementers of
-                 * PythonContainerTask, and the deployable task depends on the
-                 * assemble task.
-                 */
-                postContainer.addDependencies(project);
-                postContainer.makeTasks(project);
+            /*
+             * Plumb the container tasks into the task hierarchy.  The
+             * assemble task depends on all the implementers of
+             * PythonContainerTask, and the deployable task depends on the
+             * assemble task.
+             */
+            postContainer.addDependencies(project);
+            postContainer.makeTasks(project);
 
-                Task assemble = tasks.getByName(ApplicationContainer.TASK_ASSEMBLE_CONTAINERS);
-                Task parent = tasks.getByName(ApplicationContainer.TASK_BUILD_PROJECT_WHEEL);
+            Task assemble = tasks.getByName(ApplicationContainer.TASK_ASSEMBLE_CONTAINERS);
+            Task parent = tasks.getByName(ApplicationContainer.TASK_BUILD_PROJECT_WHEEL);
 
-                for (Task task : tasks.withType(PythonContainerTask.class)) {
-                    assemble.dependsOn(task);
-                    task.dependsOn(parent);
-                }
-            });
+            for (Task task : tasks.withType(PythonContainerTask.class)) {
+                assemble.dependsOn(task);
+                task.dependsOn(parent);
+            }
+        });
     }
 }

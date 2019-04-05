@@ -104,9 +104,16 @@ public class PythonContainerPlugin extends PythonBasePlugin {
              * assemble task depends on all the implementers of
              * PythonContainerTask, and the deployable task depends on the
              * assemble task.
+             *
+             * While we're doing this though, suppress the deprecation warning
+             * normally thrown in NoopBuildPexTask when user code calls its
+             * .dependsOn().
              */
             postContainer.addDependencies(project);
             postContainer.makeTasks(project);
+
+            NoopBuildPexTask noopTask = (NoopBuildPexTask) tasks.findByName(PexExtension.TASK_BUILD_NOOP_PEX);
+            noopTask.suppressWarning = true;
 
             Task assemble = tasks.getByName(ApplicationContainer.TASK_ASSEMBLE_CONTAINERS);
             Task parent = tasks.getByName(ApplicationContainer.TASK_BUILD_PROJECT_WHEEL);
@@ -115,6 +122,9 @@ public class PythonContainerPlugin extends PythonBasePlugin {
                 assemble.dependsOn(task);
                 task.dependsOn(parent);
             }
+
+            // Turn the warning back on.
+            noopTask.suppressWarning = false;
         });
     }
 }

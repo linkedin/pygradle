@@ -27,14 +27,20 @@ public class NoopBuildPexTask extends DefaultTask implements PythonContainerTask
     private static final String DISABLED_MESSAGE =
           "######################### WARNING ##########################\n"
         + "The buildPex task has been deprecated.\n"
-        + "Please use the assemblerContainers task instead.\n"
+        + "Please use the assembleContainers task instead.\n"
         + "############################################################";
+
+    // This is used to suppress the warning when PythonContainerPlugin plumbs
+    // this task into the task hierarchy, which isn't user code.
+    public boolean suppressWarning = false;
 
     @TaskAction
     public void noOp() { }
 
     public Task dependsOn(Object... paths) {
-        LOG.warn(DISABLED_MESSAGE);
+        if (!suppressWarning) {
+            LOG.warn(DISABLED_MESSAGE);
+        }
         return super.dependsOn(paths);
     }
 }

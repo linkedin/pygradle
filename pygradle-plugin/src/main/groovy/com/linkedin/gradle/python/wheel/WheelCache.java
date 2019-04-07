@@ -22,24 +22,50 @@ import java.io.Serializable;
 import java.util.Optional;
 
 public interface WheelCache extends Serializable {
-    Optional<File> findWheel(String library, String version, PythonDetails pythonDetails);
+    /**
+     * Finds a wheel in the cache.
+     *
+     * <p>The wheel can be stored in any cache layer.</p>
+     *
+     * @param name package name
+     * @param version package version
+     * @param pythonDetails the Python interpreter and other details
+     * @return the wheel if found, otherwise {@code Optional.empty()}
+     */
+    Optional<File> findWheel(String name, String version, PythonDetails pythonDetails);
 
     /**
-     * Find wheel based on cache layer.
+     * Finds a wheel in the cache layer.
      *
-     * @param library         name of the library
-     * @param version         version of the library
-     * @param pythonDetails   details on the python to find a wheel for
-     * @param wheelCacheLayer which {@link WheelCacheLayer} to fetch wheel
-     * @return a wheel that could be used in the target layer. If not found, {@code Optional.empty()}
+     * @param name package name
+     * @param version package version
+     * @param pythonDetails the Python interpreter and other details
+     * @param wheelCacheLayer the {@link WheelCacheLayer} to fetch the wheel from
+     * @return the wheel if found in the specified layer, otherwise {@code Optional.empty()}
      */
-    Optional<File> findWheel(String library, String version, PythonDetails pythonDetails, WheelCacheLayer wheelCacheLayer);
+    Optional<File> findWheel(String name, String version, PythonDetails pythonDetails, WheelCacheLayer wheelCacheLayer);
 
     /**
-     * Store given wheel file to target layer.
+     * Stores the wheel file into all cache layers.
      *
-     * @param wheelFile       the wheel file to store
-     * @param wheelCacheLayer which {@link WheelCacheLayer} to store wheel
+     * @param wheel the wheel file to store
      */
-    void storeWheel(File wheelFile, WheelCacheLayer wheelCacheLayer);
+    void storeWheel(File wheel);
+
+    /**
+     * Stores the wheel file into the cache layer.
+     *
+     * @param wheel the wheel file to store
+     * @param wheelCacheLayer the {@link WheelCacheLayer} to store the wheel in
+     */
+    void storeWheel(File wheel, WheelCacheLayer wheelCacheLayer);
+
+    /**
+     * Gets the default directory for wheel build target.
+     *
+     * <p>This should be project layer cache directory</p>
+     *
+     * @return the directory used for wheel build target
+     */
+    Optional<File> getTargetDirectory();
 }

@@ -40,6 +40,20 @@ class PipActionHelpers {
         }
     }
 
+    static class CustomizedOverridePackageSettings extends DefaultPackageSettings {
+        private final List<String> override
+
+        CustomizedOverridePackageSettings(TemporaryFolder temporaryFolder, List<String> override) {
+            super(temporaryFolder.root)
+            this.override = override
+        }
+
+        @Override
+        boolean isCustomized(PackageInfo packageInfo) {
+            return override.contains(packageInfo.name)
+        }
+    }
+
     static class SupportedLanguageVersionOverridePackageSettings extends DefaultPackageSettings {
         private final Map<String, List<String>> override
 
@@ -66,12 +80,17 @@ class PipActionHelpers {
         List<String> getInstallOptions(PackageInfo packageInfo) {
             return override.getOrDefault(packageInfo.name, [])
         }
+
+        @Override
+        boolean isCustomized(PackageInfo packageInfo) {
+            return override.containsKey(packageInfo.name)
+        }
     }
 
     static class GlobalOptionOverridePackageSettings extends DefaultPackageSettings {
         private final Map<String, List<String>> override
 
-        GlobalOptionOverridePackageSettings(TemporaryFolder temporaryFolder, override) {
+        GlobalOptionOverridePackageSettings(TemporaryFolder temporaryFolder, Map<String, List<String>> override) {
             super(temporaryFolder.root)
             this.override = override
         }
@@ -79,6 +98,11 @@ class PipActionHelpers {
         @Override
         List<String> getGlobalOptions(PackageInfo packageInfo) {
             return override.getOrDefault(packageInfo.name, [])
+        }
+
+        @Override
+        boolean isCustomized(PackageInfo packageInfo) {
+            return override.containsKey(packageInfo.name)
         }
     }
 
@@ -94,19 +118,30 @@ class PipActionHelpers {
         Map<String, String> getEnvironment(PackageInfo packageInfo) {
             envOverride.getOrDefault(packageInfo.name, [:])
         }
+
+        @Override
+        boolean isCustomized(PackageInfo packageInfo) {
+            return envOverride.containsKey(packageInfo.name)
+        }
+
     }
 
     static class BuildOptionOverridePackageSetting extends DefaultPackageSettings {
-        private final Map<String, List<String>> envOverride
+        private final Map<String, List<String>> override
 
-        BuildOptionOverridePackageSetting(TemporaryFolder temporaryFolder, Map<String, List<String>> envOverride) {
+        BuildOptionOverridePackageSetting(TemporaryFolder temporaryFolder, Map<String, List<String>> override) {
             super(temporaryFolder.root)
-            this.envOverride = envOverride
+            this.override = override
         }
 
         @Override
         List<String> getBuildOptions(PackageInfo packageInfo) {
-            return envOverride.getOrDefault(packageInfo.name, [])
+            return override.getOrDefault(packageInfo.name, [])
+        }
+
+        @Override
+        boolean isCustomized(PackageInfo packageInfo) {
+            return override.containsKey(packageInfo.name)
         }
     }
 

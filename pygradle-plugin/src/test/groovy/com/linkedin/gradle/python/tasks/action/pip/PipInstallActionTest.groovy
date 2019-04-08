@@ -111,8 +111,7 @@ class PipInstallActionTest extends Specification {
         List<String> override = ['pyflakes']
         def settings = new PipActionHelpers.RequiresRebuildOverridePackageSettings(temporaryFolder, override)
         def execSpec = Mock(ExecSpec)
-        def mockWheelCache = Mock(WheelCache)
-        def pipInstallAction = createPipInstallAction(settings, execSpec, mockWheelCache)
+        def pipInstallAction = createPipInstallAction(settings, execSpec)
 
         def eggFile = pipInstallAction.sitePackagesPath.resolve("pyflakes-1.6.0-py3.6.egg-info").toFile()
         eggFile.parentFile.mkdirs()
@@ -123,7 +122,7 @@ class PipInstallActionTest extends Specification {
         distInfo.createNewFile()
 
         when:
-        pipInstallAction.execute(packageInGradleCache("pyflakes-1.0.0.tar.gz"), [])
+        pipInstallAction.execute(packageInGradleCache("pyflakes-1.6.0.tar.gz"), [])
 
         then:
         1 * execSpec.commandLine(_) >> { List<List<String>> args ->
@@ -134,8 +133,6 @@ class PipInstallActionTest extends Specification {
             assert it[2] == 'install'
             assert it[idx + 1] == '--ignore-installed'
         }
-
-        0 * mockWheelCache._
     }
 
     def 'will skip if package (egg) is installed'() {
@@ -165,6 +162,23 @@ class PipInstallActionTest extends Specification {
 
         when:
         action.execute(packageInGradleCache("pyflakes-1.6.0.tar.gz"), [])
+
+        then:
+        0 * execSpec._
+    }
+
+    def 'does not rebuild if only customized but present'() {
+        List<String> override = ['pyflakes']
+        def settings = new PipActionHelpers.CustomizedOverridePackageSettings(temporaryFolder, override)
+        def execSpec = Mock(ExecSpec)
+        def pipInstallAction = createPipInstallAction(settings, execSpec)
+
+        def distInfo = pipInstallAction.sitePackagesPath.resolve("pyflakes-1.6.0.dist-info").toFile()
+        distInfo.parentFile.mkdirs()
+        distInfo.createNewFile()
+
+        when:
+        pipInstallAction.execute(packageInGradleCache("pyflakes-1.6.0.tar.gz"), [])
 
         then:
         0 * execSpec._

@@ -17,16 +17,16 @@ package com.linkedin.gradle.python.extension;
 
 import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.tasks.BuildPexTask;
-import com.linkedin.gradle.python.util.ApplicationContainer;
 import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.util.OperatingSystem;
 import com.linkedin.gradle.python.util.StandardTextValues;
+import com.linkedin.gradle.python.util.ZipappContainer;
 import org.gradle.api.Project;
 
 import java.io.File;
 
 
-public class PexExtension implements ApplicationContainer {
+public class PexExtension implements ZipappContainer {
     // 2019-04-01(warsaw): For backward compatibility, we must expose a no-op
     // buildPex task unconditionally.  This will be created in
     // PythonContainerPlugin and tied into the task hierarchy in the right
@@ -123,5 +123,6 @@ public class PexExtension implements ApplicationContainer {
 
     public void makeTasks(Project project) {
         project.getTasks().create(TASK_BUILD_PEX, BuildPexTask.class);
+        isFat = ExtensionUtils.getPythonExtension(project).getZipapp().isFat();
     }
 }

@@ -44,7 +44,6 @@ public class LayeredWheelCache implements WheelCache, Serializable {
 
     @Override
     public Optional<File> findWheel(String name, String version, PythonDetails pythonDetails) {
-        // TODO: Make sure layeredCacheMap is a LinkedHashMap when we initialize it in the plugin.
         for (WheelCacheLayer wheelCacheLayer : layeredCacheMap.keySet()) {
             Optional<File> wheel = findWheel(name, version, pythonDetails.getVirtualEnvInterpreter(), wheelCacheLayer);
 
@@ -85,7 +84,7 @@ public class LayeredWheelCache implements WheelCache, Serializable {
 
     @Override
     public Optional<File> getTargetDirectory() {
-        return Optional.of(layeredCacheMap.get(WheelCacheLayer.PROJECT_LAYER));
+        return Optional.ofNullable(layeredCacheMap.get(WheelCacheLayer.PROJECT_LAYER));
     }
 
     /**

@@ -79,6 +79,16 @@ class FailureReasonProviderIntegrationTest extends Specification {
         | project.gradle.addListener(new MyTaskListener())
         |
         | version = '1.0.0'
+        |
+        | // allow it to build wheels by disabling layered wheel cache
+        | import com.linkedin.gradle.python.tasks.supports.SupportsWheelCache
+        | import com.linkedin.gradle.python.wheel.EmptyWheelCache
+        | afterEvaluate {
+        |     def wheelCache = new EmptyWheelCache()
+        |     tasks.withType(SupportsWheelCache) { SupportsWheelCache task ->
+        |         task.wheelCache = wheelCache
+        |     }
+        | }
         | ${ PyGradleTestBuilder.createRepoClosure() }
         """.stripMargin().stripIndent()
 

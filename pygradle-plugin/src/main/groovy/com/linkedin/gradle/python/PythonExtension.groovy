@@ -18,8 +18,8 @@ package com.linkedin.gradle.python
 import com.linkedin.gradle.python.extension.PexExtension
 import com.linkedin.gradle.python.extension.PythonDetails
 import com.linkedin.gradle.python.extension.PythonDetailsFactory
+import com.linkedin.gradle.python.extension.ZipappContainerExtension
 import com.linkedin.gradle.python.util.ApplicationContainer
-import com.linkedin.gradle.python.util.ZipappContainerStub
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 
@@ -104,7 +104,7 @@ class PythonExtension {
     public Map<String, ApplicationContainer> containers
     String container
     ApplicationContainer defaultContainer
-    ZipappContainerStub zipapp = new ZipappContainerStub()
+    ZipappContainerExtension zipapp = new ZipappContainerExtension()
 
     PythonExtension(Project project) {
         this.details = PythonDetailsFactory.makePythonDetails(project, null)

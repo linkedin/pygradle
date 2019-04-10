@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.util;
+package com.linkedin.gradle.python.extension;
+
+import com.linkedin.gradle.python.util.OperatingSystem;
 
 
 /**
@@ -29,7 +31,7 @@ package com.linkedin.gradle.python.util;
  * container format the user wants until *after* build.gradle is evaluated,
  * but of course they want to set the isFat flag *in* their build.gradle.
   */
-public class ZipappContainerStub implements ZipappContainer {
+public class ZipappContainerExtension {
     private boolean isFat = OperatingSystem.current().isWindows();
 
     public boolean isFat() {

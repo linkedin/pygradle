@@ -15,14 +15,15 @@
  */
 package com.linkedin.gradle.python.util;
 
-public interface ZipappContainer extends ApplicationContainer {
+
+public interface ZipappContainer {
     /**
-     * @return when <code>true</code>, then skinny pex's will be used.
+     * @return when <code>true</code>, a single zip application per entry point is produced.
      */
     public boolean isFat();
 
     /**
-     * @param fat when <code>true</code>, wrappers will be made all pointing to a single pex file.
+     * @param fat when <code>true</code>, a single zip application per entry point is produced.
      */
     public void setIsFat(boolean isFat);
 }

@@ -15,8 +15,6 @@
  */
 package com.linkedin.gradle.python.util;
 
-import org.gradle.api.Project;
-
 
 /**
  * This class provides a stub in PythonExtension so that build.gradle files
@@ -30,10 +28,7 @@ import org.gradle.api.Project;
  * `python.shiv.isFat`.  The reason we need this is that we don't know which
  * container format the user wants until *after* build.gradle is evaluated,
  * but of course they want to set the isFat flag *in* their build.gradle.
- *
- * Once build.gradle is evaluated, the setting of this flag is copied to the
- * actual zip application container instance.
- */
+  */
 public class ZipappContainerStub implements ZipappContainer {
     private boolean isFat = OperatingSystem.current().isWindows();
 
@@ -43,17 +38,5 @@ public class ZipappContainerStub implements ZipappContainer {
 
     public void setIsFat(boolean isFat) {
         this.isFat = isFat;
-    }
-
-    public void addExtensions(Project project) {
-        // Should we throw an exception?
-    }
-
-    public void addDependencies(Project project) {
-        // Should we throw an exception?
-    }
-
-    public void makeTasks(Project project) {
-        // Should we throw an exception?
     }
 }

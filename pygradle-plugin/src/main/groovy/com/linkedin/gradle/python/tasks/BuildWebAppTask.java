@@ -15,17 +15,17 @@
  */
 package com.linkedin.gradle.python.tasks;
 
-import com.linkedin.gradle.python.PythonExtension;
-import com.linkedin.gradle.python.extension.PexExtension;
-import com.linkedin.gradle.python.util.ExtensionUtils;
-import com.linkedin.gradle.python.util.PexFileUtil;
-import com.linkedin.gradle.python.util.entrypoint.EntryPointWriter;
-import com.linkedin.gradle.python.util.internal.pex.FatPexGenerator;
-import com.linkedin.gradle.python.util.internal.zipapp.DefaultTemplateProviderOptions;
+//import com.linkedin.gradle.python.PythonExtension;
+//import com.linkedin.gradle.python.extension.PexExtension;
+//import com.linkedin.gradle.python.util.ExtensionUtils;
+//import com.linkedin.gradle.python.util.PexFileUtil;
+//import com.linkedin.gradle.python.util.entrypoint.EntryPointWriter;
+//import com.linkedin.gradle.python.util.internal.pex.FatPexGenerator;
+//import com.linkedin.gradle.python.util.internal.zipapp.DefaultTemplateProviderOptions;
 import com.linkedin.gradle.python.util.zipapp.DefaultWebappEntryPointTemplateProvider;
 import com.linkedin.gradle.python.util.zipapp.EntryPointTemplateProvider;
 import org.gradle.api.DefaultTask;
-import org.gradle.api.Project;
+//import org.gradle.api.Project;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputFile;
@@ -34,7 +34,7 @@ import org.gradle.api.tasks.TaskAction;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+//import java.util.HashMap;
 import java.util.List;
 
 
@@ -67,11 +67,14 @@ public class BuildWebAppTask extends DefaultTask {
 
     @TaskAction
     public void buildWebapp() throws IOException, ClassNotFoundException {
+        /*
         Project project = getProject();
         PexExtension extension = ExtensionUtils.getPythonComponentExtension(project, PexExtension.class);
         PythonExtension pythonExtension = ExtensionUtils.getPythonExtension(project);
+        boolean isFat = pythonExtension.getZipapp().isFat();
 
-        if (extension.isFat()) {
+        System.out.println("BUILDWEBAPP: " + isFat);
+        if (isFat) {
             new FatPexGenerator(project, pexOptions).buildEntryPoint(
                 PexFileUtil.createFatPexFilename(executable.getName()), entryPoint, null);
         } else {
@@ -85,6 +88,7 @@ public class BuildWebAppTask extends DefaultTask {
                 false);
             new EntryPointWriter(project, template).writeEntryPoint(executable, substitutions);
         }
+        */
     }
 
     public void setExecutable(File executable) {

@@ -143,6 +143,8 @@ class PythonExtension {
         if (pythonEnvironment.containsKey('PYGRADLE_PROJECT_VERSION')) {
             throw new GradleException("Cannot proceed with `PYGRADLE_PROJECT_VERSION` set in environment!")
         }
+
+        project.getExtensions().add("zipapp", zipapp)
     }
 
     public void forceVersion(String group, String name, String version) {

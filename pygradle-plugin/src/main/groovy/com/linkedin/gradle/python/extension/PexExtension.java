@@ -17,16 +17,15 @@ package com.linkedin.gradle.python.extension;
 
 import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.tasks.BuildPexTask;
+import com.linkedin.gradle.python.util.ApplicationContainer;
 import com.linkedin.gradle.python.util.ExtensionUtils;
-import com.linkedin.gradle.python.util.OperatingSystem;
 import com.linkedin.gradle.python.util.StandardTextValues;
-import com.linkedin.gradle.python.util.ZipappContainer;
 import org.gradle.api.Project;
 
 import java.io.File;
 
 
-public class PexExtension implements ZipappContainer {
+public class PexExtension implements ApplicationContainer {
     // 2019-04-01(warsaw): For backward compatibility, we must expose a no-op
     // buildPex task unconditionally.  This will be created in
     // PythonContainerPlugin and tied into the task hierarchy in the right
@@ -39,12 +38,12 @@ public class PexExtension implements ZipappContainer {
     public static final String TASK_BUILD_NOOP_PEX = "buildPex";
 
     private File cache;
-    // Default to fat zipapps on Windows, since our wrappers are fairly POSIX specific.
-    private boolean isFat = OperatingSystem.current().isWindows();
     private boolean pythonWrapper = true;
+    private Project project;
 
     public PexExtension(Project project) {
         this.cache = new File(project.getBuildDir(), "pex-cache");
+        this.project = project;
     }
 
     public File getPexCache() {
@@ -53,40 +52,6 @@ public class PexExtension implements ZipappContainer {
 
     public void setPexCache(File pexCache) {
         cache = pexCache;
-    }
-
-    // These are kept for API backward compatibility.
-
-    /**
-     * @return when <code>true</code>, then skinny pex's will be used.
-     */
-    @Deprecated
-    public boolean isFatPex() {
-        return isFat();
-    }
-
-    /**
-     * @param fatPex when <code>true</code>, wrappers will be made all pointing to a single pex file.
-     */
-    @Deprecated
-    public void setFatPex(boolean fatPex) {
-        isFat = fatPex;
-     }
-
-    // Use these properties instead.
-
-    /**
-     * @return when <code>true</code>, then skinny pex's will be used.
-     */
-    public boolean isFat() {
-        return isFat;
-    }
-
-    /**
-     * @param fat when <code>true</code>, wrappers will be made all pointing to a single pex file.
-     */
-    public void setIsFat(boolean isFat) {
-        this.isFat = isFat;
     }
 
     /**
@@ -123,6 +88,16 @@ public class PexExtension implements ZipappContainer {
 
     public void makeTasks(Project project) {
         project.getTasks().create(TASK_BUILD_PEX, BuildPexTask.class);
-        isFat = ExtensionUtils.getPythonExtension(project).getZipapp().isFat();
     }
+
+    // For backward compatibility in build.gradle flies.
+    @Deprecated
+    public boolean isFatPex() {
+        return ExtensionUtils.getPythonExtension(project).getZipapp().isFat();
+    }
+
+    @Deprecated
+    public void setFatPex(boolean fatPex) {
+        ExtensionUtils.getPythonExtension(project).getZipapp().setIsFat(fatPex);
+     }
 }

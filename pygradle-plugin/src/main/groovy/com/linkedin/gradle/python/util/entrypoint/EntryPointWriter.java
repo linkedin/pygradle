@@ -15,16 +15,16 @@
  */
 package com.linkedin.gradle.python.util.entrypoint;
 
+import com.linkedin.gradle.python.extension.CliExtension;
 import com.linkedin.gradle.python.util.ExtensionUtils;
 import groovy.text.SimpleTemplateEngine;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.Project;
-import com.linkedin.gradle.python.extension.CliExtension;
-import com.linkedin.gradle.python.util.ZipappContainer;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+
 
 public class EntryPointWriter {
 
@@ -36,7 +36,7 @@ public class EntryPointWriter {
         this.template = template;
 
         this.isCliTool = ExtensionUtils.findPythonComponentExtension(project, CliExtension.class) != null;
-        this.isZipapp = ExtensionUtils.findPythonComponentExtension(project, ZipappContainer.class) != null;
+        this.isZipapp = ExtensionUtils.getPythonExtension(project).getZipapp().isFat();
     }
 
     public void writeEntryPoint(File location, Map<String, String> properties) throws IOException, ClassNotFoundException {

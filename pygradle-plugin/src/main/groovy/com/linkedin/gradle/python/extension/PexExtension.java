@@ -19,7 +19,6 @@ import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.tasks.BuildPexTask;
 import com.linkedin.gradle.python.util.ApplicationContainer;
 import com.linkedin.gradle.python.util.ExtensionUtils;
-import com.linkedin.gradle.python.util.OperatingSystem;
 import com.linkedin.gradle.python.util.StandardTextValues;
 import org.gradle.api.Project;
 
@@ -39,12 +38,12 @@ public class PexExtension implements ApplicationContainer {
     public static final String TASK_BUILD_NOOP_PEX = "buildPex";
 
     private File cache;
-    // Default to fat zipapps on Windows, since our wrappers are fairly POSIX specific.
-    private boolean isFat = OperatingSystem.current().isWindows();
     private boolean pythonWrapper = true;
+    private Project project;
 
     public PexExtension(Project project) {
         this.cache = new File(project.getBuildDir(), "pex-cache");
+        this.project = project;
     }
 
     public File getPexCache() {
@@ -53,40 +52,6 @@ public class PexExtension implements ApplicationContainer {
 
     public void setPexCache(File pexCache) {
         cache = pexCache;
-    }
-
-    // These are kept for API backward compatibility.
-
-    /**
-     * @return when <code>true</code>, then skinny pex's will be used.
-     */
-    @Deprecated
-    public boolean isFatPex() {
-        return isFat();
-    }
-
-    /**
-     * @param fatPex when <code>true</code>, wrappers will be made all pointing to a single pex file.
-     */
-    @Deprecated
-    public void setFatPex(boolean fatPex) {
-        isFat = fatPex;
-     }
-
-    // Use these properties instead.
-
-    /**
-     * @return when <code>true</code>, then skinny pex's will be used.
-     */
-    public boolean isFat() {
-        return isFat;
-    }
-
-    /**
-     * @param fat when <code>true</code>, wrappers will be made all pointing to a single pex file.
-     */
-    public void setIsFat(boolean isFat) {
-        this.isFat = isFat;
     }
 
     /**
@@ -122,6 +87,27 @@ public class PexExtension implements ApplicationContainer {
     }
 
     public void makeTasks(Project project) {
-        project.getTasks().create(TASK_BUILD_PEX, BuildPexTask.class);
+        project.getTasks().maybeCreate(TASK_BUILD_PEX, BuildPexTask.class);
     }
+
+    // For backward compatibility in build.gradle flies.
+    @Deprecated
+    public boolean isFatPex() {
+        return ExtensionUtils.getPythonComponentExtension(project, ZipappContainerExtension.class).isFat();
+    }
+
+    @Deprecated
+    public void setFatPex(boolean fatPex) {
+        ExtensionUtils.getPythonComponentExtension(project, ZipappContainerExtension.class).setIsFat(fatPex);
+     }
+
+    @Deprecated
+    public boolean isFat() {
+        return ExtensionUtils.getPythonComponentExtension(project, ZipappContainerExtension.class).isFat();
+    }
+
+    @Deprecated
+    public void setIsFat(boolean isFat) {
+        ExtensionUtils.getPythonComponentExtension(project, ZipappContainerExtension.class).setIsFat(isFat);
+     }
 }

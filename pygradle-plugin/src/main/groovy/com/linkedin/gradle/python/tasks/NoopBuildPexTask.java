@@ -22,7 +22,7 @@ import org.gradle.api.logging.Logging;
 import org.gradle.api.tasks.TaskAction;
 
 
-public class NoopBuildPexTask extends DefaultTask implements PythonContainerTask {
+public class NoopBuildPexTask extends DefaultTask implements PythonContainerTask, NoopTask {
     private static final Logger LOG = Logging.getLogger(NoopBuildPexTask.class);
     private static final String DISABLED_MESSAGE =
           "######################### WARNING ##########################\n"
@@ -32,7 +32,7 @@ public class NoopBuildPexTask extends DefaultTask implements PythonContainerTask
 
     // This is used to suppress the warning when PythonContainerPlugin plumbs
     // this task into the task hierarchy, which isn't user code.
-    public boolean suppressWarning = false;
+    private boolean suppressWarning = false;
 
     @TaskAction
     public void noOp() { }
@@ -42,5 +42,13 @@ public class NoopBuildPexTask extends DefaultTask implements PythonContainerTask
             LOG.warn(DISABLED_MESSAGE);
         }
         return super.dependsOn(paths);
+    }
+
+    public boolean suppressWarning() {
+        return suppressWarning;
+    }
+
+    public void setSuppressWarning(boolean suppressWarning) {
+        this.suppressWarning = suppressWarning;
     }
 }

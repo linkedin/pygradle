@@ -13,16 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.util;
 
-public interface ZipappContainer extends ApplicationContainer {
-    /**
-     * @return when <code>true</code>, then skinny pex's will be used.
-     */
-    public boolean isFat();
+package com.linkedin.gradle.python.tasks;
 
-    /**
-     * @param fat when <code>true</code>, wrappers will be made all pointing to a single pex file.
-     */
-    public void setIsFat(boolean isFat);
+
+public interface NoopTask {
+    public boolean suppressWarning();
+
+    public void setSuppressWarning(boolean warning);
 }

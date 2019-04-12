@@ -100,4 +100,14 @@ public class PexExtension implements ApplicationContainer {
     public void setFatPex(boolean fatPex) {
         ExtensionUtils.getPythonExtension(project).getZipapp().setIsFat(fatPex);
      }
+
+    @Deprecated
+    public boolean isFat() {
+        return ExtensionUtils.getPythonExtension(project).getZipapp().isFat();
+    }
+
+    @Deprecated
+    public void setIsFat(boolean isFat) {
+        ExtensionUtils.getPythonExtension(project).getZipapp().setIsFat(isFat);
+     }
 }

@@ -16,6 +16,7 @@
 package com.linkedin.gradle.python.tasks;
 
 import com.linkedin.gradle.python.PythonExtension;
+import com.linkedin.gradle.python.extension.ZipappContainerExtension;
 import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.util.PexFileUtil;
 import com.linkedin.gradle.python.util.entrypoint.EntryPointWriter;
@@ -73,7 +74,7 @@ public class BuildWebAppTask extends DefaultTask {
         // plugin will build the right container (i.e. .pex or .pyz).
         // However, for thin zipapps, we need additional wrapper scripts
         // generated (e.g. the gunicorn wrapper).
-        boolean isFat = extension.getZipapp().isFat();
+        boolean isFat = ExtensionUtils.getPythonComponentExtension(project, ZipappContainerExtension.class).isFat();
         if (isFat) {
             // 2019-04-11(warsaw): FIXME: For now, we're still hard coding pex
             // for the gunicorn file.  Make sure the `pex` dependency is

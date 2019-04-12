@@ -93,21 +93,21 @@ public class PexExtension implements ApplicationContainer {
     // For backward compatibility in build.gradle flies.
     @Deprecated
     public boolean isFatPex() {
-        return ExtensionUtils.getPythonExtension(project).getZipapp().isFat();
+        return ExtensionUtils.getPythonComponentExtension(project, ZipappContainerExtension.class).isFat();
     }
 
     @Deprecated
     public void setFatPex(boolean fatPex) {
-        ExtensionUtils.getPythonExtension(project).getZipapp().setIsFat(fatPex);
+        ExtensionUtils.getPythonComponentExtension(project, ZipappContainerExtension.class).setIsFat(fatPex);
      }
 
     @Deprecated
     public boolean isFat() {
-        return ExtensionUtils.getPythonExtension(project).getZipapp().isFat();
+        return ExtensionUtils.getPythonComponentExtension(project, ZipappContainerExtension.class).isFat();
     }
 
     @Deprecated
     public void setIsFat(boolean isFat) {
-        ExtensionUtils.getPythonExtension(project).getZipapp().setIsFat(isFat);
+        ExtensionUtils.getPythonComponentExtension(project, ZipappContainerExtension.class).setIsFat(isFat);
      }
 }

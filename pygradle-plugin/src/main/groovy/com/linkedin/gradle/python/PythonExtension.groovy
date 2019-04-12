@@ -18,7 +18,6 @@ package com.linkedin.gradle.python
 import com.linkedin.gradle.python.extension.PexExtension
 import com.linkedin.gradle.python.extension.PythonDetails
 import com.linkedin.gradle.python.extension.PythonDetailsFactory
-import com.linkedin.gradle.python.extension.ZipappContainerExtension
 import com.linkedin.gradle.python.util.ApplicationContainer
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -104,7 +103,6 @@ class PythonExtension {
     public Map<String, ApplicationContainer> containers
     String container
     ApplicationContainer defaultContainer
-    ZipappContainerExtension zipapp = new ZipappContainerExtension()
 
     PythonExtension(Project project) {
         this.details = PythonDetailsFactory.makePythonDetails(project, null)
@@ -143,8 +141,6 @@ class PythonExtension {
         if (pythonEnvironment.containsKey('PYGRADLE_PROJECT_VERSION')) {
             throw new GradleException("Cannot proceed with `PYGRADLE_PROJECT_VERSION` set in environment!")
         }
-
-        project.getExtensions().add("zipapp", zipapp)
     }
 
     public void forceVersion(String group, String name, String version) {

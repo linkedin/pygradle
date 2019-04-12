@@ -17,6 +17,7 @@ package com.linkedin.gradle.python.tasks;
 
 import com.linkedin.gradle.python.extension.DeployableExtension;
 import com.linkedin.gradle.python.extension.PexExtension;
+import com.linkedin.gradle.python.extension.ZipappContainerExtension;
 import com.linkedin.gradle.python.tasks.execution.FailureReasonProvider;
 import com.linkedin.gradle.python.tasks.execution.TeeOutputContainer;
 import com.linkedin.gradle.python.util.ExtensionUtils;
@@ -88,7 +89,7 @@ public class BuildPexTask extends DefaultTask implements FailureReasonProvider, 
 
         deployableExtension.getDeployableBuildDir().mkdirs();
 
-        boolean isFat = ExtensionUtils.getPythonExtension(project).getZipapp().isFat();
+        boolean isFat = ExtensionUtils.getPythonComponentExtension(project, ZipappContainerExtension.class).isFat();
         if (isFat) {
             new FatPexGenerator(project, pexOptions).buildEntryPoints();
         } else {

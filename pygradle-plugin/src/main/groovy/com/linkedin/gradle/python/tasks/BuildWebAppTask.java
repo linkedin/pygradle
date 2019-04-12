@@ -15,17 +15,16 @@
  */
 package com.linkedin.gradle.python.tasks;
 
-//import com.linkedin.gradle.python.PythonExtension;
-//import com.linkedin.gradle.python.extension.PexExtension;
-//import com.linkedin.gradle.python.util.ExtensionUtils;
-//import com.linkedin.gradle.python.util.PexFileUtil;
-//import com.linkedin.gradle.python.util.entrypoint.EntryPointWriter;
-//import com.linkedin.gradle.python.util.internal.pex.FatPexGenerator;
-//import com.linkedin.gradle.python.util.internal.zipapp.DefaultTemplateProviderOptions;
+import com.linkedin.gradle.python.PythonExtension;
+import com.linkedin.gradle.python.util.ExtensionUtils;
+import com.linkedin.gradle.python.util.PexFileUtil;
+import com.linkedin.gradle.python.util.entrypoint.EntryPointWriter;
+import com.linkedin.gradle.python.util.internal.pex.FatPexGenerator;
+import com.linkedin.gradle.python.util.internal.zipapp.DefaultTemplateProviderOptions;
 import com.linkedin.gradle.python.util.zipapp.DefaultWebappEntryPointTemplateProvider;
 import com.linkedin.gradle.python.util.zipapp.EntryPointTemplateProvider;
 import org.gradle.api.DefaultTask;
-//import org.gradle.api.Project;
+import org.gradle.api.Project;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputFile;
@@ -34,7 +33,7 @@ import org.gradle.api.tasks.TaskAction;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-//import java.util.HashMap;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -67,14 +66,18 @@ public class BuildWebAppTask extends DefaultTask {
 
     @TaskAction
     public void buildWebapp() throws IOException, ClassNotFoundException {
-        /*
         Project project = getProject();
-        PexExtension extension = ExtensionUtils.getPythonComponentExtension(project, PexExtension.class);
-        PythonExtension pythonExtension = ExtensionUtils.getPythonExtension(project);
-        boolean isFat = pythonExtension.getZipapp().isFat();
+        PythonExtension extension = ExtensionUtils.getPythonExtension(project);
 
-        System.out.println("BUILDWEBAPP: " + isFat);
+        // Regardless of whether fat or thin zipapps are used, the container
+        // plugin will build the right container (i.e. .pex or .pyz).
+        // However, for thin zipapps, we need additional wrapper scripts
+        // generated (e.g. the gunicorn wrapper).
+        boolean isFat = extension.getZipapp().isFat();
         if (isFat) {
+            // 2019-04-11(warsaw): FIXME: For now, we're still hard coding pex
+            // for the gunicorn file.  Make sure the `pex` dependency is
+            // installed.
             new FatPexGenerator(project, pexOptions).buildEntryPoint(
                 PexFileUtil.createFatPexFilename(executable.getName()), entryPoint, null);
         } else {
@@ -84,11 +87,10 @@ public class BuildWebAppTask extends DefaultTask {
             substitutions.put("toolName", project.getName());
             String template = templateProvider.retrieveTemplate(
                 // Use the shell wrapper for web applications.
-                new DefaultTemplateProviderOptions(project, pythonExtension, entryPoint),
+                new DefaultTemplateProviderOptions(project, extension, entryPoint),
                 false);
             new EntryPointWriter(project, template).writeEntryPoint(executable, substitutions);
         }
-        */
     }
 
     public void setExecutable(File executable) {
@@ -108,5 +110,4 @@ public class BuildWebAppTask extends DefaultTask {
     public void setTemplateProvider(EntryPointTemplateProvider templateProvider) {
         this.templateProvider = templateProvider;
     }
-
 }

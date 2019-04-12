@@ -15,9 +15,10 @@
  */
 package com.linkedin.gradle.python.plugin;
 
-import com.linkedin.gradle.python.util.ApplicationContainer;
 import com.linkedin.gradle.python.extension.DeployableExtension;
+import com.linkedin.gradle.python.extension.PexExtension;
 import com.linkedin.gradle.python.tasks.BuildWebAppTask;
+import com.linkedin.gradle.python.util.ApplicationContainer;
 import com.linkedin.gradle.python.util.ExtensionUtils;
 import org.gradle.api.Project;
 
@@ -33,10 +34,14 @@ public class PythonWebApplicationPlugin extends PythonBasePlugin {
 
     @Override
     public void applyTo(final Project project) {
-
         project.getPlugins().apply(PythonContainerPlugin.class);
 
         final DeployableExtension deployableExtension = ExtensionUtils.maybeCreateDeployableExtension(project);
+
+        // 2019-04-11(warsaw): FIXME: For now, we're still hard coding pex
+        // for the gunicorn file.  Make sure the `pex` dependency is
+        // installed.
+        new PexExtension(project).addDependencies(project);
 
         /*
          * Build a gunicorn pex file.

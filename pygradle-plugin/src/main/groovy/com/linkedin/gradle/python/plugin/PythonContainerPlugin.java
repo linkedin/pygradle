@@ -18,6 +18,7 @@ package com.linkedin.gradle.python.plugin;
 import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.extension.DeployableExtension;
 import com.linkedin.gradle.python.extension.PexExtension;
+import com.linkedin.gradle.python.extension.ZipappContainerExtension;
 import com.linkedin.gradle.python.tasks.BuildWheelsTask;
 import com.linkedin.gradle.python.tasks.NoopBuildPexTask;
 import com.linkedin.gradle.python.tasks.PythonContainerTask;
@@ -42,6 +43,8 @@ public class PythonContainerPlugin extends PythonBasePlugin {
         final DeployableExtension deployableExtension = ExtensionUtils.maybeCreateDeployableExtension(project);
         final ApplicationContainer applicationContainer = pythonExtension.getApplicationContainer();
 
+        ExtensionUtils.maybeCreate(project, "zipapp", ZipappContainerExtension.class);
+
         applicationContainer.addExtensions(project);
 
         /*
@@ -52,7 +55,6 @@ public class PythonContainerPlugin extends PythonBasePlugin {
          * TODO 2019-03-19: Adapt this to on-host layered caching.
          */
         TaskContainer tasks = project.getTasks();
-
 
         // Add this no-op task for backward compatibility.  See PexExtension for details.
         Task noop = tasks.findByName(PexExtension.TASK_BUILD_NOOP_PEX);

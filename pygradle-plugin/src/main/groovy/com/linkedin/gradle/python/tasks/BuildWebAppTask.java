@@ -68,17 +68,17 @@ public class BuildWebAppTask extends DefaultTask {
     @TaskAction
     public void buildWebapp() throws IOException, ClassNotFoundException {
         Project project = getProject();
-        PythonExtension extension = ExtensionUtils.getPythonExtension(project);
+        PythonExtension pythonExtension = ExtensionUtils.getPythonExtension(project);
+        ZipappContainerExtension zipappExtension = ExtensionUtils.getPythonComponentExtension(
+            project, ZipappContainerExtension.class);
 
         // Regardless of whether fat or thin zipapps are used, the container
         // plugin will build the right container (i.e. .pex or .pyz).
         // However, for thin zipapps, we need additional wrapper scripts
         // generated (e.g. the gunicorn wrapper).
-        boolean isFat = ExtensionUtils.getPythonComponentExtension(project, ZipappContainerExtension.class).isFat();
-        if (isFat) {
+        if (zipappExtension.isFat()) {
             // 2019-04-11(warsaw): FIXME: For now, we're still hard coding pex
-            // for the gunicorn file.  Make sure the `pex` dependency is
-            // installed.
+            // for the gunicorn file.
             new FatPexGenerator(project, pexOptions).buildEntryPoint(
                 PexFileUtil.createFatPexFilename(executable.getName()), entryPoint, null);
         } else {
@@ -88,7 +88,7 @@ public class BuildWebAppTask extends DefaultTask {
             substitutions.put("toolName", project.getName());
             String template = templateProvider.retrieveTemplate(
                 // Use the shell wrapper for web applications.
-                new DefaultTemplateProviderOptions(project, extension, entryPoint),
+                new DefaultTemplateProviderOptions(project, pythonExtension, entryPoint),
                 false);
             new EntryPointWriter(project, template).writeEntryPoint(executable, substitutions);
         }

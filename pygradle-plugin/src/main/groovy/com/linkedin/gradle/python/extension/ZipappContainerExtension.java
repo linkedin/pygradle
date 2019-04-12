@@ -30,7 +30,7 @@ import com.linkedin.gradle.python.util.OperatingSystem;
  * `python.shiv.isFat`.  The reason we need this is that we don't know which
  * container format the user wants until *after* build.gradle is evaluated,
  * but of course they want to set the isFat flag *in* their build.gradle.
-  */
+ */
 public class ZipappContainerExtension {
     private boolean isFat = OperatingSystem.current().isWindows();
 

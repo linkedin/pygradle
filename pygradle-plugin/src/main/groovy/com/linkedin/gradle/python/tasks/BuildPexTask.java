@@ -80,6 +80,8 @@ public class BuildPexTask extends DefaultTask implements FailureReasonProvider, 
 
         DeployableExtension deployableExtension = ExtensionUtils.getPythonComponentExtension(project, DeployableExtension.class);
         PexExtension pexExtension = ExtensionUtils.getPythonComponentExtension(project, PexExtension.class);
+        ZipappContainerExtension zipappExtension = ExtensionUtils.getPythonComponentExtension(
+            project, ZipappContainerExtension.class);
 
         // Recreate the pex cache if it exists so that we don't mistakenly use an old build's version of the local project.
         if (pexExtension.getPexCache().exists()) {
@@ -89,8 +91,7 @@ public class BuildPexTask extends DefaultTask implements FailureReasonProvider, 
 
         deployableExtension.getDeployableBuildDir().mkdirs();
 
-        boolean isFat = ExtensionUtils.getPythonComponentExtension(project, ZipappContainerExtension.class).isFat();
-        if (isFat) {
+        if (zipappExtension.isFat()) {
             new FatPexGenerator(project, pexOptions).buildEntryPoints();
         } else {
             new ThinPexGenerator(project, pexOptions, templateProvider, additionalProperties).buildEntryPoints();

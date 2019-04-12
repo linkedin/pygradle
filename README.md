@@ -1,7 +1,6 @@
 # PyGradle
 
 [![CircleCI](https://img.shields.io/circleci/project/github/linkedin/pygradle.svg?style=flat-square)](https://circleci.com/gh/linkedin/pygradle)
-[![Travis](https://img.shields.io/travis/linkedin/pygradle.svg?style=flat-square)](https://travis-ci.org/linkedin/pygradle)
 [![AppVeyor](https://img.shields.io/appveyor/ci/ethankhall/pygradle.svg?style=flat-square)](https://ci.appveyor.com/project/ethankhall/pygradle)
 [![Bintray](https://img.shields.io/bintray/v/linkedin/maven/pygradle-plugin.svg?style=flat-square)](https://bintray.com/linkedin/maven/pygradle-plugin)
 [![Linkedin](https://img.shields.io/badge/opensource-linkedin-blue.svg?style=flat-square)](https://engineering.linkedin.com/)

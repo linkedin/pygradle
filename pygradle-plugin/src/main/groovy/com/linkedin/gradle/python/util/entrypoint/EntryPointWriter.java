@@ -20,7 +20,7 @@ import groovy.text.SimpleTemplateEngine;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.Project;
 import com.linkedin.gradle.python.extension.CliExtension;
-import com.linkedin.gradle.python.util.ZipappContainer;
+import com.linkedin.gradle.python.extension.ZipappExtension;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +36,7 @@ public class EntryPointWriter {
         this.template = template;
 
         this.isCliTool = ExtensionUtils.findPythonComponentExtension(project, CliExtension.class) != null;
-        this.isZipapp = ExtensionUtils.findPythonComponentExtension(project, ZipappContainer.class) != null;
+        this.isZipapp = ExtensionUtils.findPythonComponentExtension(project, ZipappExtension.class) != null;
     }
 
     public void writeEntryPoint(File location, Map<String, String> properties) throws IOException, ClassNotFoundException {

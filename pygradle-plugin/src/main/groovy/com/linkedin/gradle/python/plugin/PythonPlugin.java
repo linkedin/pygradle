@@ -130,6 +130,9 @@ public class PythonPlugin implements Plugin<Project> {
         project.getPlugins().apply(InstallDependenciesPlugin.class);
         project.getPlugins().apply(ValidationPlugin.class);
         project.getPlugins().apply(DocumentationPlugin.class);
+
+        project.getPlugins().apply(LayeredWheelCachePlugin.class);
+
         PyPiRepoUtil.setupPyGradleRepo(project);
     }
 

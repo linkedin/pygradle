@@ -15,14 +15,21 @@
  */
 package com.linkedin.gradle.python.extension;
 
+import com.linkedin.gradle.python.wheel.WheelCacheLayer;
 import org.gradle.api.Project;
 
 import java.io.File;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Optional;
 
 
 public class WheelExtension {
 
     private File wheelCache;
+    private File hostLayerWheelCache;
+    private File projectLayerWheelCache;
+    private Map<WheelCacheLayer, File> layeredCacheMap = new LinkedHashMap<>();
 
     public WheelExtension(Project project) {
         wheelCache = new File(project.getBuildDir(), "wheel-cache");
@@ -34,5 +41,27 @@ public class WheelExtension {
 
     public void setWheelCache(File wheelCache) {
         this.wheelCache = wheelCache;
+    }
+
+    public Optional<File> getHostLayerWheelCache() {
+        return Optional.ofNullable(hostLayerWheelCache);
+    }
+
+    public void setHostLayerWheelCache(File hostLayerWheelCache) {
+        this.hostLayerWheelCache = hostLayerWheelCache;
+        layeredCacheMap.put(WheelCacheLayer.HOST_LAYER, this.hostLayerWheelCache);
+    }
+
+    public Optional<File> getProjectLayerWheelCache() {
+        return Optional.ofNullable(projectLayerWheelCache);
+    }
+
+    public void setProjectLayerWheelCache(File projectLayerWheelCache) {
+        this.projectLayerWheelCache = projectLayerWheelCache;
+        layeredCacheMap.put(WheelCacheLayer.PROJECT_LAYER, this.projectLayerWheelCache);
+    }
+
+    public Map<WheelCacheLayer, File> getLayeredCacheMap() {
+        return layeredCacheMap;
     }
 }

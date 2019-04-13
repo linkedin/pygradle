@@ -1,0 +1,63 @@
+/*
+ * Copyright 2016 LinkedIn Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.linkedin.gradle.python.tasks;
+
+import com.linkedin.gradle.python.extension.WheelExtension;
+import com.linkedin.gradle.python.util.ExtensionUtils;
+import org.gradle.api.DefaultTask;
+import org.gradle.api.tasks.OutputDirectory;
+import org.gradle.api.tasks.TaskAction;
+
+import java.io.File;
+import java.util.Optional;
+
+
+public class LayeredWheelCacheTask extends DefaultTask {
+    public static final String TASK_LAYERED_WHEEL_CACHE = "layeredWheelCacheTask";
+
+    @TaskAction
+    public void makeCacheDirectories() {
+        /*
+         * We do not need to do:
+         *     getProject().mkdir(getHostLayerWheelCache());
+         *     getProject().mkdir(getProjectLayerWheelCache());
+         * because the @OutputDirectory annotation on the getters below
+         * ensures they get created.
+         */
+    }
+
+    @OutputDirectory
+    public File getHostLayerWheelCache() {
+        WheelExtension wheelExtension = ExtensionUtils.getPythonComponentExtension(getProject(), WheelExtension.class);
+        Optional<File> cacheDir =  wheelExtension.getHostLayerWheelCache();
+        if (!cacheDir.isPresent()) {
+            cacheDir = Optional.of(new File(getProject().getGradle().getGradleUserHomeDir(), "pygradle/wheel-cache"));
+            wheelExtension.setHostLayerWheelCache(cacheDir.get());
+        }
+        return cacheDir.get();
+    }
+
+    @OutputDirectory
+    public File getProjectLayerWheelCache() {
+        WheelExtension wheelExtension = ExtensionUtils.getPythonComponentExtension(getProject(), WheelExtension.class);
+        Optional<File> cacheDir =  wheelExtension.getProjectLayerWheelCache();
+        if (!cacheDir.isPresent()) {
+            cacheDir = Optional.of(new File(getProject().getBuildDir(), "wheel-cache"));
+            wheelExtension.setProjectLayerWheelCache(cacheDir.get());
+        }
+        return cacheDir.get();
+    }
+}

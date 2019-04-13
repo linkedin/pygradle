@@ -39,13 +39,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+
 
 public class PipInstallAction extends AbstractPipAction {
 
     private static Logger logger = Logging.getLogger(PipInstallAction.class);
 
     private final Path sitePackagesPath;
+    private final WheelBuilder wheelBuilder;
 
     public PipInstallAction(PackageSettings<PackageInfo> packageSettings,
                             Project project,
@@ -54,8 +55,14 @@ public class PipInstallAction extends AbstractPipAction {
                             WheelCache wheelCache, EnvironmentMerger environmentMerger,
                             Spec<PackageInfo> packageExcludeFilter) {
         super(packageSettings, project, externalExec, baseEnvironment, pythonDetails, wheelCache,
-            environmentMerger, packageExcludeFilter);
+                environmentMerger, packageExcludeFilter);
         this.sitePackagesPath = findSitePackages(pythonDetails);
+        this.wheelBuilder = new WheelBuilder(packageSettings, project, externalExec, baseEnvironment, pythonDetails,
+                wheelCache, environmentMerger, packageExcludeFilter);
+    }
+
+    public Path getSitePackagesPath() {
+        return sitePackagesPath;
     }
 
     private static Path findSitePackages(PythonDetails pythonDetails) {
@@ -121,51 +128,13 @@ public class PipInstallAction extends AbstractPipAction {
         }
     }
 
-    private List<String> prepareCommandLine(PackageInfo packageInfo, List<String> extraArgs) {
+    private List<String> makeCommandLine(PackageInfo packageInfo, List<String> extraArgs) {
         List<String> commandLine = new ArrayList<>();
         commandLine.addAll(baseInstallArguments());
         commandLine.addAll(extraArgs);
         commandLine.addAll(getGlobalOptions(packageInfo));
         commandLine.addAll(getInstallOptions(packageInfo));
-
-        return commandLine;
-    }
-
-    private boolean appendCachedWheel(PackageInfo packageInfo, Optional<File> cachedWheel, List<String> commandLine) {
-        if (!packageSettings.requiresSourceBuild(packageInfo)) {
-            // TODO: Check whether project layer cache exists.
-
-            if (!cachedWheel.isPresent() && !packageSettings.isCustomized(packageInfo)) {
-                cachedWheel = wheelCache.findWheel(packageInfo.getName(), packageInfo.getVersion(), pythonDetails);
-            }
-        }
-
-        if (cachedWheel.isPresent()) {
-            if (PythonHelpers.isPlainOrVerbose(project)) {
-                logger.lifecycle("{} from wheel: {}", packageInfo.toShortHand(), cachedWheel.get().getAbsolutePath());
-            }
-            commandLine.add(cachedWheel.get().getAbsolutePath());
-            return true;
-        }
-
-        return false;
-    }
-
-    private List<String> makeCommandLine(PackageInfo packageInfo, List<String> extraArgs) {
-        List<String> commandLine = prepareCommandLine(packageInfo, extraArgs);
-        Optional<File> cachedWheel = Optional.empty();
-        boolean allowBuildingFromSdist = false;
-
-        while (!appendCachedWheel(packageInfo, cachedWheel, commandLine)) {
-            if (allowBuildingFromSdist) {
-                commandLine.add(packageInfo.getPackageFile().getAbsolutePath());
-                break;
-            } else {
-                // TODO: Make wheel from sdist, store to local cache and global cache if needed.
-            }
-
-            allowBuildingFromSdist = true;
-        }
+        commandLine.add(wheelBuilder.getPackage(packageInfo, extraArgs).toString());
 
         return commandLine;
     }

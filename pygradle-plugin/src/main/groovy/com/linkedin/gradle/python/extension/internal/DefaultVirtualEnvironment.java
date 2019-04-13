@@ -64,7 +64,7 @@ public class DefaultVirtualEnvironment implements VirtualEnvironment {
         return findExecutable(prefixBuilder(), name);
     }
 
-    static File findExecutable(Path path, String name) {
+    public static File findExecutable(Path path, String name) {
         return path.resolve(OperatingSystem.current().getExecutableName(name)).toFile();
     }
 

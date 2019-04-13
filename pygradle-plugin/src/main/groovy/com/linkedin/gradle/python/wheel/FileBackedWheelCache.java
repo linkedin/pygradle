@@ -38,36 +38,37 @@ public class FileBackedWheelCache implements WheelCache, Serializable {
         this.pythonAbiContainer = pythonAbiContainer;
     }
 
-    /**
-     * Find's a wheel in the wheel cache.
-     *
-     * @param library       name of the library
-     * @param version       version of the library
-     * @param pythonDetails details on the python to find a wheel for
-     * @return A wheel that could be used in it's place. If not found, {@code Optional.empty()}
-     */
     @Override
-    public Optional<File> findWheel(String library, String version, PythonDetails pythonDetails) {
-        return findWheel(library, version, pythonDetails.getVirtualEnvInterpreter());
+    public Optional<File> findWheel(String name, String version, PythonDetails pythonDetails) {
+        return findWheel(name, version, pythonDetails.getVirtualEnvInterpreter());
     }
 
     @Override
-    public Optional<File> findWheel(String library, String version, PythonDetails pythonDetails, WheelCacheLayer wheelCacheLayer) {
+    public Optional<File> findWheel(String name, String version, PythonDetails pythonDetails,
+                                    WheelCacheLayer wheelCacheLayer) {
         return Optional.empty();
     }
 
     @Override
-    public void storeWheel(File wheelFile, WheelCacheLayer wheelCacheLayer) { }
+    public void storeWheel(File wheel) { }
+
+    @Override
+    public void storeWheel(File wheel, WheelCacheLayer wheelCacheLayer) { }
+
+    @Override
+    public Optional<File> getTargetDirectory() {
+        return Optional.empty();
+    }
 
     /**
-     * Find's a wheel in the wheel cache.
+     * Finds a wheel in the cache.
      *
-     * @param library          name of the library
-     * @param version          version of the library
-     * @param pythonExecutable Python Executable
-     * @return A wheel that could be used in it's place. If not found, {@code Optional.empty()}
+     * @param name package name
+     * @param version package version
+     * @param pythonExecutable Python interpreter executable file
+     * @return the wheel if found in the cache, otherwise {@code Optional.empty()}
      */
-    public Optional<File> findWheel(String library, String version, File pythonExecutable) {
+    public Optional<File> findWheel(String name, String version, File pythonExecutable) {
         if (cacheDir == null) {
             return Optional.empty();
         }
@@ -79,13 +80,13 @@ public class FileBackedWheelCache implements WheelCache, Serializable {
          * See PEP 427: https://www.python.org/dev/peps/pep-0427/
          */
         String wheelPrefix = (
-                library.replace("-", "_")
+                name.replace("-", "_")
                 + "-"
                 + version.replace("-", "_")
                 + "-"
         );
-        logger.info("Searching for {} {} with prefix {}", library, version, wheelPrefix);
-        File[] files = cacheDir.listFiles((dir, name) -> name.startsWith(wheelPrefix) && name.endsWith(".whl"));
+        logger.info("Searching for {} {} with prefix {}", name, version, wheelPrefix);
+        File[] files = cacheDir.listFiles((dir, entry) -> entry.startsWith(wheelPrefix) && entry.endsWith(".whl"));
 
         if (files == null) {
             return Optional.empty();
@@ -96,7 +97,7 @@ public class FileBackedWheelCache implements WheelCache, Serializable {
             .map(Optional::get)
             .collect(Collectors.toList());
 
-        logger.info("Wheels for version of library: {}", wheelDetails);
+        logger.info("Wheels for version of package: {}", wheelDetails);
 
         Optional<PythonWheelDetails> foundWheel = wheelDetails.stream()
             .filter(it -> wheelMatches(pythonExecutable, it))

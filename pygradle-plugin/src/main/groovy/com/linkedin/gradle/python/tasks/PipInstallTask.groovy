@@ -119,7 +119,7 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider, Suppo
     void pipInstall() {
         def extension = ExtensionUtils.getPythonExtension(project)
 
-        ProgressLoggerFactory progressLoggerFactory = getServices().get(ProgressLoggerFactory)
+        ProgressLoggerFactory progressLoggerFactory = (ProgressLoggerFactory) getServices().get(ProgressLoggerFactory)
         ProgressLogger progressLogger = progressLoggerFactory.newOperation(PipInstallTask)
         progressLogger.setDescription("Installing Libraries")
 

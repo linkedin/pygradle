@@ -42,52 +42,63 @@ public class LayeredWheelCache implements WheelCache, Serializable {
         this.pythonAbiContainer = pythonAbiContainer;
     }
 
-    /**
-     * Find a wheel from all wheel cache layers.
-     *
-     * @param library       name of the library
-     * @param version       version of the library
-     * @param pythonDetails details on the python to find a wheel for
-     * @return A wheel that could be used in it's place. If not found, {@code Optional.empty()}
-     */
     @Override
-    public Optional<File> findWheel(String library, String version, PythonDetails pythonDetails) {
+    public Optional<File> findWheel(String name, String version, PythonDetails pythonDetails) {
         // TODO: Make sure layeredCacheMap is a LinkedHashMap when we initialize it in the plugin.
         for (WheelCacheLayer wheelCacheLayer : layeredCacheMap.keySet()) {
-            Optional<File> layerResult = findWheelInLayer(library, version, pythonDetails.getVirtualEnvInterpreter(), wheelCacheLayer);
+            Optional<File> wheel = findWheel(name, version, pythonDetails.getVirtualEnvInterpreter(), wheelCacheLayer);
 
-            if (layerResult.isPresent()) {
-                return layerResult;
+            if (wheel.isPresent()) {
+                return wheel;
             }
         }
 
         return Optional.empty();
     }
 
-    /**
-     * Find wheel based on cache layer.
-     *
-     * @param library         name of the library
-     * @param version         version of the library
-     * @param pythonDetails   details on the python to find a wheel for
-     * @param wheelCacheLayer which {@link WheelCacheLayer} to fetch wheel
-     * @return a wheel that could be used in the target layer. If not found, {@code Optional.empty()}
-     */
     @Override
-    public Optional<File> findWheel(String library, String version, PythonDetails pythonDetails, WheelCacheLayer wheelCacheLayer) {
-        return findWheelInLayer(library, version, pythonDetails.getVirtualEnvInterpreter(), wheelCacheLayer);
+    public Optional<File> findWheel(String name, String version, PythonDetails pythonDetails,
+                                    WheelCacheLayer wheelCacheLayer) {
+        return findWheel(name, version, pythonDetails.getVirtualEnvInterpreter(), wheelCacheLayer);
+    }
+
+
+    @Override
+    public void storeWheel(File wheel) {
+        for (WheelCacheLayer wheelCacheLayer : layeredCacheMap.keySet()) {
+            storeWheel(wheel, wheelCacheLayer);
+        }
+    }
+
+    @Override
+    public void storeWheel(File wheel, WheelCacheLayer wheelCacheLayer) {
+        File cacheDir = layeredCacheMap.get(wheelCacheLayer);
+
+        if (wheel != null && cacheDir != null) {
+            try {
+                Files.copy(wheel.toPath(), new File(cacheDir, wheel.getName()).toPath());
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
+    }
+
+    @Override
+    public Optional<File> getTargetDirectory() {
+        return Optional.of(layeredCacheMap.get(WheelCacheLayer.PROJECT_LAYER));
     }
 
     /**
      * Find a wheel from target layer.
      *
-     * @param library          name of the library
-     * @param version          version of the library
-     * @param pythonExecutable python executable
-     * @param wheelCacheLayer  which {@link WheelCacheLayer} to fetch wheel
-     * @return A wheel that could be used in it's place. If not found, {@code Optional.empty()}
+     * @param name package name
+     * @param version package version
+     * @param pythonExecutable Python interpreter executable file
+     * @param wheelCacheLayer the {@link WheelCacheLayer} to fetch the wheel from
+     * @return the wheel if found in the specified layer, otherwise {@code Optional.empty()}
      */
-    public Optional<File> findWheelInLayer(String library, String version, File pythonExecutable, WheelCacheLayer wheelCacheLayer) {
+    private Optional<File> findWheel(String name, String version, File pythonExecutable,
+                                    WheelCacheLayer wheelCacheLayer) {
         File cacheDir = layeredCacheMap.get(wheelCacheLayer);
 
         if (cacheDir == null) {
@@ -101,13 +112,13 @@ public class LayeredWheelCache implements WheelCache, Serializable {
          * See PEP 427: https://www.python.org/dev/peps/pep-0427/
          */
         String wheelPrefix = (
-                library.replace("-", "_")
+                name.replace("-", "_")
                 + "-"
                 + version.replace("-", "_")
                 + "-"
         );
-        logger.info("Searching for {} {} with prefix {}", library, version, wheelPrefix);
-        File[] files = cacheDir.listFiles((dir, name) -> name.startsWith(wheelPrefix) && name.endsWith(".whl"));
+        logger.info("Searching for {} {} with prefix {}", name, version, wheelPrefix);
+        File[] files = cacheDir.listFiles((dir, entry) -> entry.startsWith(wheelPrefix) && entry.endsWith(".whl"));
 
         if (files == null) {
             return Optional.empty();
@@ -118,7 +129,7 @@ public class LayeredWheelCache implements WheelCache, Serializable {
             .map(Optional::get)
             .collect(Collectors.toList());
 
-        logger.info("Wheels for version of library: {}", wheelDetails);
+        logger.info("Wheels for version of package: {}", wheelDetails);
 
         Optional<PythonWheelDetails> foundWheel = wheelDetails.stream()
             .filter(it -> wheelMatches(pythonExecutable, it))
@@ -127,25 +138,6 @@ public class LayeredWheelCache implements WheelCache, Serializable {
         logger.info("Found artifacts: {}", foundWheel);
 
         return foundWheel.map(it -> it.getFile());
-    }
-
-    /**
-     * Store given wheel file to target layer.
-     *
-     * @param wheelFile       the wheel file to store
-     * @param wheelCacheLayer which {@link WheelCacheLayer} to store wheel
-     */
-    @Override
-    public void storeWheel(File wheelFile, WheelCacheLayer wheelCacheLayer) {
-        File cacheDir = layeredCacheMap.get(wheelCacheLayer);
-
-        if (wheelFile != null && cacheDir != null) {
-            try {
-                Files.copy(wheelFile.toPath(), new File(cacheDir, wheelFile.getName()).toPath());
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        }
     }
 
     private boolean wheelMatches(File pythonExecutable, PythonWheelDetails wheelDetails) {

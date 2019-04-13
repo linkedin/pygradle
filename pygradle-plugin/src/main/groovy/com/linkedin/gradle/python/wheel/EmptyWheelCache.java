@@ -22,15 +22,23 @@ import java.util.Optional;
 
 public class EmptyWheelCache implements WheelCache {
     @Override
-    public Optional<File> findWheel(String library, String version, PythonDetails pythonDetails) {
+    public Optional<File> findWheel(String name, String version, PythonDetails pythonDetails) {
         return Optional.empty();
     }
 
     @Override
-    public Optional<File> findWheel(String library, String version, PythonDetails pythonDetails, WheelCacheLayer wheelCacheLayer) {
+    public Optional<File> findWheel(String name, String version, PythonDetails pythonDetails, WheelCacheLayer wheelCacheLayer) {
         return Optional.empty();
     }
 
     @Override
-    public void storeWheel(File wheelFile, WheelCacheLayer wheelCacheLayer) { }
+    public void storeWheel(File wheel) { }
+
+    @Override
+    public void storeWheel(File wheel, WheelCacheLayer wheelCacheLayer) { }
+
+    @Override
+    public Optional<File> getTargetDirectory() {
+        return Optional.empty();
+    }
 }

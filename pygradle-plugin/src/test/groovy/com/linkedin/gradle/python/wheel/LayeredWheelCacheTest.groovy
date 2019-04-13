@@ -34,79 +34,125 @@ class LayeredWheelCacheTest extends Specification {
     private Map<WheelCacheLayer, File> cacheMap
     private DefaultPythonDetails pythonDetails
     private LayeredWheelCache cache
+    private File otherCache
 
     void setup() {
         projectLayerCache = temporaryFolder.newFolder('project-cache')
         hostLayerCache = temporaryFolder.newFolder('host-cache')
+        otherCache = temporaryFolder.newFolder('other-cache')
 
         def virtualEnv = temporaryFolder.newFile('venv')
         pythonExec = new File(virtualEnv, 'bin/python')
+        pythonDetails = new DefaultPythonDetails(new ProjectBuilder().build(), virtualEnv)
 
         def formats = new DefaultPythonAbiContainer()
         formats.addSupportedAbi(new AbiDetails(pythonExec, 'py2', 'none', 'any'))
 
-        pythonDetails = new DefaultPythonDetails(new ProjectBuilder().build(), virtualEnv)
-        cacheMap = [(WheelCacheLayer.PROJECT_LAYER): projectLayerCache, (WheelCacheLayer.HOST_LAYER): hostLayerCache]
+        cacheMap = [
+            (WheelCacheLayer.PROJECT_LAYER): projectLayerCache,
+            (WheelCacheLayer.HOST_LAYER): hostLayerCache,
+        ]
         cache = new LayeredWheelCache(cacheMap, formats)
     }
 
     def "can find Sphinx-1.6.3 in host layer"() {
-        setup:
+        setup: "put the wheel in host layer only"
         new File(hostLayerCache, 'Sphinx-1.6.3-py2.py3-none-any.whl').createNewFile()
 
-        expect:
+        expect: "wheel is found in host layer, but not in project layer"
         cache.findWheel('Sphinx', '1.6.3', pythonDetails, WheelCacheLayer.HOST_LAYER).isPresent()
         !cache.findWheel('Sphinx', '1.6.3', pythonDetails, WheelCacheLayer.PROJECT_LAYER).isPresent()
     }
 
     def "can find Sphinx-1.6.3 in project layer"() {
-        setup:
+        setup: "put the wheel in project layer only"
         new File(projectLayerCache, 'Sphinx-1.6.3-py2.py3-none-any.whl').createNewFile()
 
-        expect:
+        expect: "wheel is in project layer, but not in host layer"
         cache.findWheel('Sphinx', '1.6.3', pythonDetails, WheelCacheLayer.PROJECT_LAYER).isPresent()
         !cache.findWheel('Sphinx', '1.6.3', pythonDetails, WheelCacheLayer.HOST_LAYER).isPresent()
     }
 
     def "can find Sphinx-1.6.3 in all layers"() {
-        setup:
+        setup: "put the wheel in both layers"
         new File(hostLayerCache, 'Sphinx-1.6.3-py2.py3-none-any.whl').createNewFile()
         new File(projectLayerCache, 'Sphinx-1.6.3-py2.py3-none-any.whl').createNewFile()
 
-        expect:
+        expect: "wheel is in both layers"
         cache.findWheel('Sphinx', '1.6.3', pythonDetails, WheelCacheLayer.HOST_LAYER).isPresent()
         cache.findWheel('Sphinx', '1.6.3', pythonDetails, WheelCacheLayer.PROJECT_LAYER).isPresent()
     }
 
-    def "can find Sphinx-1.6.3 despite layers"() {
-        setup:
+    def "can find Sphinx-1.6.3 regardless of layers when in project layer"() {
+        setup: "put the wheel in project layer"
         new File(projectLayerCache, 'Sphinx-1.6.3-py2.py3-none-any.whl').createNewFile()
 
-        expect:
+        expect: "wheel is found without the need to specify the layer"
         cache.findWheel('Sphinx', '1.6.3', pythonDetails).isPresent()
     }
 
-    def "cannot find Sphinx-1.6.3 if not put to any cache layer"() {
-        expect:
+    def "can find Sphinx-1.6.3 regardless of layers when in host layer"() {
+        setup: "put the wheel in host layer"
+        new File(hostLayerCache, 'Sphinx-1.6.3-py2.py3-none-any.whl').createNewFile()
+
+        expect: "wheel is found without the need to specify the layer"
+        cache.findWheel('Sphinx', '1.6.3', pythonDetails).isPresent()
+    }
+
+    def "cannot find Sphinx-1.6.3 if not stored in any cache layer"() {
+        expect: "wheel is not found in any layer"
         !cache.findWheel('Sphinx', '1.6.3', pythonDetails).isPresent()
     }
 
-    def "can find Sphinx-1.6.3 from target folder"() {
-        setup:
-        new File(hostLayerCache, 'Sphinx-1.6.3-py2.py3-none-any.whl').createNewFile()
-
-        expect:
-        cache.findWheelInLayer('Sphinx', '1.6.3', pythonExec, WheelCacheLayer.HOST_LAYER).isPresent()
-        !cache.findWheelInLayer('Sphinx', '1.6.3', pythonExec, WheelCacheLayer.PROJECT_LAYER).isPresent()
-    }
-
-    def "can store Sphinx-1.6.3 to target layer"() {
-        setup:
+    def "can store Sphinx-1.6.3 to host layer from project layer"() {
+        setup: "building the wheel in the project layer is the default"
         def wheelFile  = new File(projectLayerCache, 'Sphinx-1.6.3-py2.py3-none-any.whl')
         wheelFile.createNewFile()
+
+        when: "wheel is stored in host layer"
         cache.storeWheel(wheelFile, WheelCacheLayer.HOST_LAYER)
 
-        expect:
+        then: "wheel is found in host layer"
         cache.findWheel('Sphinx', '1.6.3', pythonDetails, WheelCacheLayer.HOST_LAYER).isPresent()
     }
+
+    def "can store Sphinx-1.6.3 to project layer from other cache"() {
+        setup: "put the wheel in another cache"
+        def wheelFile  = new File(otherCache, 'Sphinx-1.6.3-py2.py3-none-any.whl')
+        wheelFile.createNewFile()
+
+        when: "wheel is stored in project layer only"
+        cache.storeWheel(wheelFile, WheelCacheLayer.PROJECT_LAYER)
+
+        then: "wheel is found in project layer, but not in host layer"
+        cache.findWheel('Sphinx', '1.6.3', pythonDetails, WheelCacheLayer.PROJECT_LAYER).isPresent()
+        !cache.findWheel('Sphinx', '1.6.3', pythonDetails, WheelCacheLayer.HOST_LAYER).isPresent()
+    }
+
+    def "can store Sphinx-1.6.3 to host layer from other cache"() {
+        setup: "put the wheel in another cache"
+        def wheelFile  = new File(otherCache, 'Sphinx-1.6.3-py2.py3-none-any.whl')
+        wheelFile.createNewFile()
+
+        when: "wheel is stored in host layer only"
+        cache.storeWheel(wheelFile, WheelCacheLayer.HOST_LAYER)
+
+        then: "wheel is found in host layer, but not in project layer"
+        !cache.findWheel('Sphinx', '1.6.3', pythonDetails, WheelCacheLayer.PROJECT_LAYER).isPresent()
+        cache.findWheel('Sphinx', '1.6.3', pythonDetails, WheelCacheLayer.HOST_LAYER).isPresent()
+    }
+
+    def "can store Sphinx-1.6.3 to both layers"() {
+        setup: "put the wheel in another cache"
+        def wheelFile  = new File(otherCache, 'Sphinx-1.6.3-py2.py3-none-any.whl')
+        wheelFile.createNewFile()
+
+        when: "wheel is stored without specifying layer"
+        cache.storeWheel(wheelFile)
+
+        then: "wheel is found in both layers"
+        cache.findWheel('Sphinx', '1.6.3', pythonDetails, WheelCacheLayer.PROJECT_LAYER).isPresent()
+        cache.findWheel('Sphinx', '1.6.3', pythonDetails, WheelCacheLayer.HOST_LAYER).isPresent()
+    }
+
 }

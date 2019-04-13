@@ -15,29 +15,25 @@
  */
 package com.linkedin.gradle.python.plugin;
 
-import com.linkedin.gradle.python.util.ApplicationContainer;
 import com.linkedin.gradle.python.tasks.GenerateCompletionsTask;
 import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.util.StandardTextValues;
 import org.gradle.api.Project;
-import org.gradle.api.tasks.TaskContainer;
 
 
-public class PythonCliDistributionPlugin extends PythonContainerPlugin {
+public class PythonCliDistributionPlugin extends PythonBasePlugin {
 
     public static final String TASK_GENERATE_COMPLETIONS = "generateCompletions";
 
     @Override
     public void applyTo(Project project) {
-        project.getPlugins().apply(PythonContainerPlugin.class);
+        project.getPlugins().apply(PythonPexDistributionPlugin.class);
         ExtensionUtils.maybeCreateCliExtension(project);
 
-        TaskContainer tasks = project.getTasks();
+        GenerateCompletionsTask completionsTask = project.getTasks().create(TASK_GENERATE_COMPLETIONS, GenerateCompletionsTask.class);
+        completionsTask.dependsOn(project.getTasks().getByName(StandardTextValues.TASK_INSTALL_PROJECT.getValue()));
 
-        GenerateCompletionsTask completionsTask = tasks.create(TASK_GENERATE_COMPLETIONS, GenerateCompletionsTask.class);
-        completionsTask.dependsOn(tasks.getByName(StandardTextValues.TASK_INSTALL_PROJECT.getValue()));
-
-        tasks.getByName(ApplicationContainer.TASK_ASSEMBLE_CONTAINERS)
-            .dependsOn(project.getTasks().getByName(TASK_GENERATE_COMPLETIONS));
+        project.getTasks().getByName(PythonPexDistributionPlugin.TASK_BUILD_PEX).dependsOn(project.getTasks().getByName(TASK_GENERATE_COMPLETIONS));
     }
+
 }

@@ -34,6 +34,7 @@ import com.linkedin.gradle.python.util.PackageInfo
 import com.linkedin.gradle.python.util.PackageSettings
 import com.linkedin.gradle.python.util.internal.TaskTimer
 import com.linkedin.gradle.python.wheel.EmptyWheelCache
+import com.linkedin.gradle.python.wheel.LayeredWheelCache
 import com.linkedin.gradle.python.wheel.WheelCache
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
@@ -79,7 +80,10 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, Support
 
     @TaskAction
     void buildWheelsTask() {
-        buildWheels(project, DependencyOrder.getConfigurationFiles(installFileCollection), getPythonDetails())
+        // With LayeredWheelCache, heels are already built where this task would put them.
+        if (!(wheelCache instanceof LayeredWheelCache)) {
+            buildWheels(project, DependencyOrder.getConfigurationFiles(installFileCollection), getPythonDetails())
+        }
     }
 
     /**
@@ -117,7 +121,7 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, Support
      */
     private void buildWheels(Project project, Collection<File> installables, PythonDetails pythonDetails) {
 
-        ProgressLoggerFactory progressLoggerFactory = getServices().get(ProgressLoggerFactory)
+        ProgressLoggerFactory progressLoggerFactory = (ProgressLoggerFactory) getServices().get(ProgressLoggerFactory)
         ProgressLogger progressLogger = progressLoggerFactory.newOperation(BuildWheelsTask)
         progressLogger.setDescription("Building Wheels")
         progressLogger.started()

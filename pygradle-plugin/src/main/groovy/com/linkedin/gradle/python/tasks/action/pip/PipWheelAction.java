@@ -108,11 +108,14 @@ public class PipWheelAction extends AbstractPipAction {
             Optional<File> wheel = wheelCache.findWheel(packageInfo.getName(), packageInfo.getVersion(), pythonDetails);
             if (wheel.isPresent()) {
                 File wheelFile = wheel.get();
+                File wheelCopy = new File(wheelExtension.getWheelCache(), wheelFile.getName());
 
-                try {
-                    FileUtils.copyFile(wheelFile, new File(wheelExtension.getWheelCache(), wheelFile.getName()));
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e);
+                if (!wheelFile.equals(wheelCopy)) {
+                    try {
+                        FileUtils.copyFile(wheelFile, wheelCopy);
+                    } catch (IOException e) {
+                        throw new UncheckedIOException(e);
+                    }
                 }
 
                 if (PythonHelpers.isPlainOrVerbose(project)) {

@@ -151,16 +151,31 @@ public class WheelBuilder extends AbstractPipAction {
 
         String name = packageInfo.getName();
         String version = packageInfo.getVersion();
-        boolean isProject = isProjectDirectory(packageInfo);
+        boolean isDirectory = isPackageDirectory(packageInfo);
+        boolean isProject = isDirectory && project.getProjectDir().equals(packageFile);
         Optional<File> wheel;
 
         /*
          * Current project is a directory, not a package, so version may be null.
-         * Compensate for that.
+         * Set it to project's version.
+         * The generated code, such as rest.li can also be a path to directory.
+         * In that case the version will also be null and we need to set it to
+         * project's version.
          */
-        if (isProject) {
-            name = project.getName();
+        if (isDirectory) {
+            if (isProject) {
+                name = project.getName();
+            }
             version = project.getVersion().toString();
+        }
+
+        /*
+         * Safety belt.
+         * This should be impossible and prevented by PackageInfo parsing already.
+         * However, if either of name/version is still null, return the original back.
+         */
+        if (name == null || version == null) {
+            return packageFile;
         }
 
         // set the flag for doPipOperation
@@ -262,10 +277,10 @@ public class WheelBuilder extends AbstractPipAction {
         return cleanArgs;
     }
 
-    private boolean isProjectDirectory(PackageInfo packageInfo) {
+    private boolean isPackageDirectory(PackageInfo packageInfo) {
         File packageDir = packageInfo.getPackageFile();
         String version = packageInfo.getVersion();
-        return version == null && Files.isDirectory(packageDir.toPath()) && project.getProjectDir().equals(packageDir);
+        return version == null && Files.isDirectory(packageDir.toPath());
     }
 
     // Use of pythonEnvironment may hide really customized packages. Catch them!

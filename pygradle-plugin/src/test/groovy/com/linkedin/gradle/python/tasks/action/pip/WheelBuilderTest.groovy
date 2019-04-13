@@ -383,6 +383,31 @@ class WheelBuilderTest extends Specification {
         }
     }
 
+    def 'builds generated code wheel but getting the project version for it'() {
+        setup: "do not return wheel from cache layers on first attempt"
+        def execSpec = Mock(ExecSpec)
+        def fakeWheel = 'fake/project-dir/wheel'
+        def stubWheelCache = Stub(WheelCache) {
+            getTargetDirectory() >> Optional.of(new File('fake/project-dir'))
+            findWheel(!null, !null, !null, WheelCacheLayer.PROJECT_LAYER) >>> [
+                Optional.empty(), Optional.of(new File(fakeWheel))]
+            findWheel(!null, !null, !null, WheelCacheLayer.HOST_LAYER) >> Optional.empty()
+        }
+        def wheelBuilder = createWheelBuilder(execSpec, stubWheelCache)
+        def generatedDir = temporaryFolder.newFolder('build', 'generated', wheelBuilder.project.getName())
+
+        when: "we request the generated code directory to be built"
+        def pkg = wheelBuilder.getPackage(PackageInfo.fromPath(generatedDir), [])
+
+        then: "wheel is built and returned for install"
+        assert pkg.toString() == fakeWheel
+        1 * execSpec.commandLine(_) >> { List<List<String>> args ->
+            println args
+            def it = args[0]
+            assert it[2] == 'wheel'
+        }
+    }
+
     def "wheel with matching custom environment is built"() {
         setup: "return wheel stub from host layer only"
         def execSpec = Mock(ExecSpec)

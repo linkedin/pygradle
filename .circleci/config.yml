@@ -4,10 +4,10 @@ jobs:
         docker:
             - image: openjdk:8-jdk
         environment:
-            JVM_OPTS: -Xmx2048m
+            _JAVA_OPTIONS: "-Xmx1024m -Xms256m"
         steps:
             - run:
-                name: Prepair System
+                name: Prepare System
                 command: |
                     apt-get update && apt-get -y upgrade
                     apt-get install -y python2.7 python3.5
@@ -43,8 +43,6 @@ jobs:
     deploy:
         docker:
             - image: openjdk:8-jdk
-        environment:
-            JVM_OPTS: -Xmx2048m
         steps:
             - checkout
 

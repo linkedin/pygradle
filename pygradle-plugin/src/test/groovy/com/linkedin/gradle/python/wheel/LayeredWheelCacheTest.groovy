@@ -155,4 +155,18 @@ class LayeredWheelCacheTest extends Specification {
         cache.findWheel('Sphinx', '1.6.3', pythonDetails, WheelCacheLayer.HOST_LAYER).isPresent()
     }
 
+    def "stores over already present wheel"() {
+        setup: "put the wheel in both caches"
+        def wheelFile  = new File(otherCache, 'Sphinx-1.6.3-py2.py3-none-any.whl')
+        wheelFile.createNewFile()
+        cache.storeWheel(wheelFile)
+        def wheelInHostLayer = cache.findWheel('Sphinx', '1.6.3', pythonDetails, WheelCacheLayer.HOST_LAYER).get()
+
+        when: "wheel is stored from host to project layer without raising an exception"
+        cache.storeWheel(wheelInHostLayer, WheelCacheLayer.PROJECT_LAYER)
+
+        then: "wheel is found in both layers"
+        cache.findWheel('Sphinx', '1.6.3', pythonDetails, WheelCacheLayer.PROJECT_LAYER).isPresent()
+        cache.findWheel('Sphinx', '1.6.3', pythonDetails, WheelCacheLayer.HOST_LAYER).isPresent()
+    }
 }

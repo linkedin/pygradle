@@ -16,18 +16,20 @@
 package com.linkedin.gradle.python.wheel;
 
 import com.linkedin.gradle.python.extension.PythonDetails;
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.gradle.api.logging.Logger;
-import org.gradle.api.logging.Logging;
 
 
 public class LayeredWheelCache implements WheelCache, Serializable {
@@ -74,8 +76,29 @@ public class LayeredWheelCache implements WheelCache, Serializable {
         File cacheDir = layeredCacheMap.get(wheelCacheLayer);
 
         if (wheel != null && cacheDir != null) {
+            /*
+             * We want the attributes of the file preserved.
+             * Also, we want to overwrite the existing file when present.
+             * Although it seems unlikely, because we look for the wheel
+             * before trying to store it, the following scenario is possible
+             * and observed in testing.
+             *
+             * When two sub-projects do not find the wheel in any layer
+             * of the cache during build, they both proceed with the build
+             * into their respective project layers. One of them finishes
+             * first and also stores the wheel into the host layer, if not
+             * customized. The second one then must not fail trying to
+             * overwrite the existing file.
+             *
+             * Alternatively, we could check for existence of the target file
+             * and avoid overwriting. Notice that legacy code in PipWheelAction
+             * used FileUtils.copyFile from org.apache.commons.io.FileUtils
+             * which overwrites by default. We chose the same. It's simpler
+             * and perhaps even safer if this happens under any other scenario.
+             */
             try {
-                Files.copy(wheel.toPath(), new File(cacheDir, wheel.getName()).toPath());
+                Files.copy(wheel.toPath(), new File(cacheDir, wheel.getName()).toPath(),
+                    StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }

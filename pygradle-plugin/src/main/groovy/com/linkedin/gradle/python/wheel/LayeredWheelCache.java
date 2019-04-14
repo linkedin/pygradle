@@ -23,13 +23,15 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.UncheckedIOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static java.nio.file.StandardCopyOption.COPY_ATTRIBUTES;
 
 
 public class LayeredWheelCache implements WheelCache, Serializable {
@@ -77,28 +79,28 @@ public class LayeredWheelCache implements WheelCache, Serializable {
 
         if (wheel != null && cacheDir != null) {
             /*
-             * We want the attributes of the file preserved.
-             * Also, we want to overwrite the existing file when present.
-             * Although it seems unlikely, because we look for the wheel
+             * Although it seemed unlikely, because we look for the wheel
              * before trying to store it, the following scenario is possible
              * and observed in testing.
              *
-             * When two sub-projects do not find the wheel in any layer
-             * of the cache during build, they both proceed with the build
-             * into their respective project layers. One of them finishes
-             * first and also stores the wheel into the host layer, if not
-             * customized. The second one then must not fail trying to
-             * overwrite the existing file.
+             * When two (or more) sub-projects do not find the wheel in any
+             * layer of the cache during build, they all proceed with the
+             * build into their respective project layers. One of them
+             * finishes first and stores the wheel into the host layer,
+             * if wheel build is not customized. The others then do not
+             * need to store the same wheel.
              *
-             * Alternatively, we could check for existence of the target file
-             * and avoid overwriting. Notice that legacy code in PipWheelAction
-             * used FileUtils.copyFile from org.apache.commons.io.FileUtils
-             * which overwrites by default. We chose the same. It's simpler
-             * and perhaps even safer if this happens under any other scenario.
+             * We do not try to overwrite the existing file, but instead
+             * catch the exception and log it. The try-catch avoids race
+             * conditions here much better than conditional expressions.
+             * We re-throw other exceptions.
+             *
+             * The file attributes are preserved after copy.
              */
             try {
-                Files.copy(wheel.toPath(), new File(cacheDir, wheel.getName()).toPath(),
-                    StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(wheel.toPath(), new File(cacheDir, wheel.getName()).toPath(), COPY_ATTRIBUTES);
+            } catch (FileAlreadyExistsException e) {
+                logger.info("Wheel {} already stored in {}", wheel.getName(), cacheDir.toString());
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }

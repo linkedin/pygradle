@@ -59,7 +59,7 @@ class WheelBuilderTest extends Specification {
         def pkg = wheelBuilder.getPackage(packageInGradleCache("foo-1.0.0.tar.gz"), [])
 
         then: "we get the wheel from project layer without any rebuilding"
-        assert pkg.toString() == expected
+        pkg.toString() == expected
         0 * execSpec._
     }
 
@@ -81,8 +81,8 @@ class WheelBuilderTest extends Specification {
         def pkg = wheelBuilder.getPackage(packageInGradleCache("foo-1.0.0.tar.gz"), [])
 
         then: "we get the wheel from host layer without any rebuilding and store it into project layer too"
-        assert pkg.toString() == expected
-        assert storeCounter == 1
+        pkg.toString() == expected
+        storeCounter == 1
         0 * execSpec._
     }
 
@@ -99,7 +99,7 @@ class WheelBuilderTest extends Specification {
         def pkg = wheelBuilder.getPackage(packageInGradleCache("foo-1.0.0.tar.gz"), [])
 
         then: "wheel is built but if it's not present after that, the source package is returned as fallback"
-        assert pkg == packageInGradleCache("foo-1.0.0.tar.gz").getPackageFile()
+        pkg == packageInGradleCache("foo-1.0.0.tar.gz").getPackageFile()
         1 * execSpec.commandLine(_) >> { List<List<String>> args ->
             println args
             def it = args[0]
@@ -126,8 +126,8 @@ class WheelBuilderTest extends Specification {
         def pkg = wheelBuilder.getPackage(packageInGradleCache("foo-1.0.0.tar.gz"), [])
 
         then: "wheel is built excluding PythonEnvironment, then stored into host layer and returned"
-        assert pkg.toString() == expected
-        assert storeCounter == 1
+        pkg.toString() == expected
+        storeCounter == 1
         1 * execSpec.environment([:])
         1 * execSpec.commandLine(_) >> { List<List<String>> args ->
             println args
@@ -152,7 +152,7 @@ class WheelBuilderTest extends Specification {
         def pkg = wheelBuilder.getPackage(packageInGradleCache("foo-1.0.0.tar.gz"), ["--upgrade", "--ignore-installed"])
 
         then: "wheel is built and there are no incompatible options"
-        assert pkg.toString() == expected
+        pkg.toString() == expected
         1 * execSpec.environment([:])
         1 * execSpec.commandLine(_) >> { List<List<String>> args ->
             println args
@@ -299,7 +299,7 @@ class WheelBuilderTest extends Specification {
             assert it[2] == 'wheel'
             assert !it.any { entry -> entry == '--ignore-installed' }
         }
-        assert storeCounter == 0
+        storeCounter == 0
     }
 
     def 'does not rebuild if customized but present'() {
@@ -320,8 +320,8 @@ class WheelBuilderTest extends Specification {
         def pkg = wheelBuilder.getPackage(packageInGradleCache("pyflakes-1.6.0.tar.gz"), [])
 
         then: "we do not rebuild it or store it into host layer"
-        assert pkg.toString() == expected
-        assert storeCounter == 0
+        pkg.toString() == expected
+        storeCounter == 0
         0 * execSpec._
     }
 
@@ -343,8 +343,8 @@ class WheelBuilderTest extends Specification {
         def pkg = wheelBuilder.getPackage(packageInGradleCache("pyflakes-1.6.0.tar.gz"), [])
 
         then: "we build it and get the wheel, but do not store it into host layer"
-        assert pkg.toString() == expected
-        assert storeCounter == 0
+        pkg.toString() == expected
+        storeCounter == 0
         1 * execSpec.commandLine(_) >> { List<List<String>> args ->
             println args
             def it = args[0]
@@ -374,8 +374,8 @@ class WheelBuilderTest extends Specification {
         def pkg = wheelBuilder.getPackage(PackageInfo.fromPath(wheelBuilder.project.getProjectDir()), [])
 
         then: "wheel is built but not stored to host layer and project directory returned for editable install"
-        assert pkg.toString() == wheelBuilder.project.getProjectDir().toString()
-        assert storeCounter == 0
+        pkg.toString() == wheelBuilder.project.getProjectDir().toString()
+        storeCounter == 0
         1 * execSpec.commandLine(_) >> { List<List<String>> args ->
             println args
             def it = args[0]
@@ -400,7 +400,7 @@ class WheelBuilderTest extends Specification {
         def pkg = wheelBuilder.getPackage(PackageInfo.fromPath(generatedDir), [])
 
         then: "wheel is built and returned for install"
-        assert pkg.toString() == fakeWheel
+        pkg.toString() == fakeWheel
         1 * execSpec.commandLine(_) >> { List<List<String>> args ->
             println args
             def it = args[0]
@@ -428,8 +428,8 @@ class WheelBuilderTest extends Specification {
         def pkg = wheelBuilder.getPackage(packageInGradleCache("numpy-12.0.0.tar.gz"), [])
 
         then: "we do not get it from the host layer but build the custom wheel instead and get it from project layer"
-        assert pkg.toString() == fakeWheel
-        assert storeCounter == 0
+        pkg.toString() == fakeWheel
+        storeCounter == 0
         1 * execSpec.commandLine(_) >> { List<List<String>> args ->
             println args
             def it = args[0]

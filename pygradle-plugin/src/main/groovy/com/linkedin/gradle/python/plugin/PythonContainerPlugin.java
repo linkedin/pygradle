@@ -21,6 +21,7 @@ import com.linkedin.gradle.python.extension.PexExtension;
 import com.linkedin.gradle.python.extension.ZipappContainerExtension;
 import com.linkedin.gradle.python.tasks.BuildWheelsTask;
 import com.linkedin.gradle.python.tasks.NoopBuildPexTask;
+import com.linkedin.gradle.python.tasks.NoopTask;
 import com.linkedin.gradle.python.tasks.PythonContainerTask;
 import com.linkedin.gradle.python.util.ApplicationContainer;
 import com.linkedin.gradle.python.util.ExtensionUtils;
@@ -114,19 +115,21 @@ public class PythonContainerPlugin extends PythonBasePlugin {
             postContainer.addDependencies(project);
             postContainer.makeTasks(project);
 
-            NoopBuildPexTask noopTask = (NoopBuildPexTask) tasks.findByName(PexExtension.TASK_BUILD_NOOP_PEX);
-            noopTask.suppressWarning = true;
-
             Task assemble = tasks.getByName(ApplicationContainer.TASK_ASSEMBLE_CONTAINERS);
             Task parent = tasks.getByName(ApplicationContainer.TASK_BUILD_PROJECT_WHEEL);
 
             for (Task task : tasks.withType(PythonContainerTask.class)) {
+                if (task instanceof NoopTask) {
+                    ((NoopTask)task).setSuppressWarning(true);
+                }
+
                 assemble.dependsOn(task);
                 task.dependsOn(parent);
-            }
 
-            // Turn the warning back on.
-            noopTask.suppressWarning = false;
+                if (task instanceof NoopTask) {
+                    ((NoopTask)task).setSuppressWarning(false);
+                }
+            }
         });
     }
 }

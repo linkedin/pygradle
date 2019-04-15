@@ -80,8 +80,8 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, Support
 
     @TaskAction
     void buildWheelsTask() {
-        // With LayeredWheelCache, heels are already built where this task would put them.
-        if (!(wheelCache instanceof LayeredWheelCache)) {
+        // With LayeredWheelCache, wheels are almost always already built where this task would put them.
+        if (!wheelCache.isWheelsReady()) {
             buildWheels(project, DependencyOrder.getConfigurationFiles(installFileCollection), getPythonDetails())
         }
     }

@@ -55,6 +55,11 @@ class LayeredWheelCacheTest extends Specification {
         cache = new LayeredWheelCache(cacheMap, formats)
     }
 
+    def "target directory is present"() {
+        expect: "returns project layer cache"
+        cache.targetDirectory.get() == projectLayerCache
+    }
+
     def "can find Sphinx-1.6.3 in host layer"() {
         setup: "put the wheel in host layer only"
         new File(hostLayerCache, 'Sphinx-1.6.3-py2.py3-none-any.whl').createNewFile()
@@ -160,13 +165,76 @@ class LayeredWheelCacheTest extends Specification {
         def wheelFile  = new File(otherCache, 'Sphinx-1.6.3-py2.py3-none-any.whl')
         wheelFile.createNewFile()
         cache.storeWheel(wheelFile)
-        def wheelCopy = cache.findWheel('Sphinx', '1.6.3', pythonDetails, WheelCacheLayer.PROJECT_LAYER).get()
+        def wheel = cache.findWheel('Sphinx', '1.6.3', pythonDetails, WheelCacheLayer.HOST_LAYER).get()
 
         when: "wheel is stored from host to project layer without raising an exception"
-        cache.storeWheel(wheelCopy, WheelCacheLayer.HOST_LAYER)
+        cache.storeWheel(wheel, WheelCacheLayer.PROJECT_LAYER)
 
         then: "wheel is found in both layers"
         cache.findWheel('Sphinx', '1.6.3', pythonDetails, WheelCacheLayer.PROJECT_LAYER).isPresent()
         cache.findWheel('Sphinx', '1.6.3', pythonDetails, WheelCacheLayer.HOST_LAYER).isPresent()
+    }
+
+    def "store does not fail if the wheel does not exist"() {
+        setup: "have a non-existent wheel"
+        def wheel = new File(temporaryFolder.newFolder('another'), 'Sphinx-1.6.3-py2.py3-none-any.whl')
+
+        when: "attempt to store it in project layer"
+        cache.storeWheel(wheel, WheelCacheLayer.PROJECT_LAYER)
+
+        then: "wheel is not found in any layers; wheels not ready flag raised"
+        !cache.findWheel('Sphinx', '1.6.3', pythonDetails, WheelCacheLayer.PROJECT_LAYER).isPresent()
+        !cache.findWheel('Sphinx', '1.6.3', pythonDetails, WheelCacheLayer.HOST_LAYER).isPresent()
+        !cache.wheelsReady
+    }
+
+    def "store does not fail if the path is missing"() {
+        setup: "put the wheel in host layer and have non-existent directory"
+        new File(hostLayerCache, 'Sphinx-1.6.3-py2.py3-none-any.whl').createNewFile()
+        def anotherDir = new File(temporaryFolder.newFolder('another'), 'cache-dir')
+        cacheMap[WheelCacheLayer.PROJECT_LAYER] = anotherDir
+        def wheel = cache.findWheel('Sphinx', '1.6.3', pythonDetails, WheelCacheLayer.HOST_LAYER).get()
+
+        when: "attempt to store in project layer"
+        cache.storeWheel(wheel, WheelCacheLayer.PROJECT_LAYER)
+
+        then: "wheel is found only in host layer; wheels not ready flag is raised; directory is created"
+        !cache.findWheel('Sphinx', '1.6.3', pythonDetails, WheelCacheLayer.PROJECT_LAYER).isPresent()
+        cache.findWheel('Sphinx', '1.6.3', pythonDetails, WheelCacheLayer.HOST_LAYER).isPresent()
+        !cache.wheelsReady
+        anotherDir.exists()
+
+        cleanup: "restore cache map"
+        cacheMap[WheelCacheLayer.PROJECT_LAYER] = projectLayerCache
+    }
+
+    def "store fails if the cache is not directory"() {
+        setup: "put the wheel in host layer and have a file instead of directory"
+        new File(hostLayerCache, 'Sphinx-1.6.3-py2.py3-none-any.whl').createNewFile()
+        def notDir = temporaryFolder.newFile('oops')
+        cacheMap[WheelCacheLayer.PROJECT_LAYER] = notDir
+        def wheel = cache.findWheel('Sphinx', '1.6.3', pythonDetails, WheelCacheLayer.HOST_LAYER).get()
+
+        when: "attempt to store in project layer"
+        cache.storeWheel(wheel, WheelCacheLayer.PROJECT_LAYER)
+
+        then: "wheel is found only in host layer; wheels not ready flag is raised"
+        thrown(UncheckedIOException)
+        !cache.findWheel('Sphinx', '1.6.3', pythonDetails, WheelCacheLayer.PROJECT_LAYER).isPresent()
+        cache.findWheel('Sphinx', '1.6.3', pythonDetails, WheelCacheLayer.HOST_LAYER).isPresent()
+
+        cleanup: "restore cache map"
+        cacheMap[WheelCacheLayer.PROJECT_LAYER] = projectLayerCache
+    }
+
+    def "find in a null cache directory returns empty"() {
+        setup: "change the layer to null"
+        cacheMap[WheelCacheLayer.PROJECT_LAYER] = null
+
+        expect: "try to find a wheel and it's not present"
+        !cache.findWheel('Sphinx', '1.6.3', pythonDetails, WheelCacheLayer.PROJECT_LAYER).isPresent()
+
+        cleanup: "restore cache map"
+        cacheMap[WheelCacheLayer.PROJECT_LAYER] = projectLayerCache
     }
 }

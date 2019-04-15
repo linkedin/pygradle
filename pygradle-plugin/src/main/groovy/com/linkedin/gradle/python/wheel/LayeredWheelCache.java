@@ -25,6 +25,7 @@ import java.io.Serializable;
 import java.io.UncheckedIOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -41,9 +42,13 @@ public class LayeredWheelCache implements WheelCache, Serializable {
     private final Map<WheelCacheLayer, File> layeredCacheMap;
     private final PythonAbiContainer pythonAbiContainer;
 
+    private boolean wheelsReady;
+
     public LayeredWheelCache(Map<WheelCacheLayer, File> layeredCacheMap, PythonAbiContainer pythonAbiContainer) {
         this.layeredCacheMap = layeredCacheMap;
         this.pythonAbiContainer = pythonAbiContainer;
+        // Assume that we'll succeed building all wheels.
+        wheelsReady = true;
     }
 
     @Override
@@ -101,6 +106,28 @@ public class LayeredWheelCache implements WheelCache, Serializable {
                 Files.copy(wheel.toPath(), new File(cacheDir, wheel.getName()).toPath(), COPY_ATTRIBUTES);
             } catch (FileAlreadyExistsException e) {
                 logger.info("Wheel {} already stored in {}", wheel.getName(), cacheDir.toString());
+            } catch (NoSuchFileException e) {
+                // Not really the end of the world if we cannot store from one layer into another.
+                logger.info("Could not store the wheel {} into {}.", wheel.getName(), cacheDir.toString());
+                if (!wheel.exists()) {
+                    // Shouldn't happen. In our current use we always store after finding it in another layer.
+                    logger.info("The wheel file does not exist");
+                } else if (!cacheDir.exists()) {
+                    /*
+                     * This can happen when a rogue custom task from the project's Gradle
+                     * settings either directly changes build directory or triggers a cleanup
+                     * task by satisfying its conditions. Such custom tasks are usually injected
+                     * without any proper scheduling and "dependsOn" use.
+                     */
+                    logger.info("The cache directory does not exist.");
+                    if (cacheDir.mkdirs()) {
+                        logger.info("It was successfully recreated.");
+                    }
+                }
+                if (wheelCacheLayer == WheelCacheLayer.PROJECT_LAYER) {
+                    // Let build wheels task know that we missed to prepare at least one wheel.
+                    setWheelsReady(false);
+                }
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -110,6 +137,16 @@ public class LayeredWheelCache implements WheelCache, Serializable {
     @Override
     public Optional<File> getTargetDirectory() {
         return Optional.ofNullable(layeredCacheMap.get(WheelCacheLayer.PROJECT_LAYER));
+    }
+
+    @Override
+    public boolean isWheelsReady() {
+        return wheelsReady;
+    }
+
+    @Override
+    public void setWheelsReady(boolean wheelsReady) {
+        this.wheelsReady = wheelsReady;
     }
 
     /**

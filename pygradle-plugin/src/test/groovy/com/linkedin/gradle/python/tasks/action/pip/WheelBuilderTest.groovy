@@ -15,7 +15,6 @@
  */
 package com.linkedin.gradle.python.tasks.action.pip
 
-import com.linkedin.gradle.python.exception.PipExecutionException
 import com.linkedin.gradle.python.extension.PythonDetailsFactory
 import com.linkedin.gradle.python.extension.PythonDetailsTestDouble
 import com.linkedin.gradle.python.extension.internal.DefaultVirtualEnvironment
@@ -166,19 +165,24 @@ class WheelBuilderTest extends Specification {
     def "wheel build adds environment after failed build without customization"() {
         setup: "do not return wheel from cache layers"
         def execSpec = Mock(ExecSpec)
+        def ready = true
         def stubWheelCache = Stub(WheelCache) {
             getTargetDirectory() >> Optional.of(new File('fake/project-dir'))
             findWheel(*_) >> Optional.empty()
+            setWheelsReady(!null) >> { boolean r -> ready = r }
         }
         def wheelBuilder = createWheelBuilder(null, new ExternalExecFailTestDouble(execSpec), stubWheelCache)
+        def sdistPkg = packageInGradleCache("foo-1.0.0.tar.gz")
 
         when: "we request package that is not cache"
-        wheelBuilder.getPackage(packageInGradleCache("foo-1.0.0.tar.gz"), [])
+        def pkg = wheelBuilder.getPackage(sdistPkg, [])
 
-        then: "wheel is rebuilt without PythonEnvironment, then with the environment, and error thrown if both fail"
-        thrown(PipExecutionException)
+        then: "wheel is rebuilt without environment, then with it; package returned if both fail; wheel not ready flag"
         1 * execSpec.environment([:])
         1 * execSpec.environment(['CPPFLAGS':'bogus', 'LDFLAGS':'bogus'])
+        pkg == sdistPkg.getPackageFile()
+        !ready
+
     }
 
     def "uses environment"() {

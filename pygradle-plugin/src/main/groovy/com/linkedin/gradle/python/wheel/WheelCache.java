@@ -68,4 +68,21 @@ public interface WheelCache extends Serializable {
      * @return the directory used for wheel build target
      */
     Optional<File> getTargetDirectory();
+
+    /**
+     * Tells if all wheels are ready for packing into a container.
+     *
+     * <p>If they are, we do not need to run a legacy build wheels task.
+     * Otherwise, at least some still need building.</p>
+     *
+     * @return true when all wheels were built into the project layer cache
+     */
+    boolean isWheelsReady();
+
+    /**
+     * Sets the flag whether the wheels are ready for packing into a container.
+     *
+     * @param wheelsReady indicator of wheel readiness for packing.
+     */
+    void setWheelsReady(boolean wheelsReady);
 }

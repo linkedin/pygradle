@@ -60,6 +60,14 @@ public class FileBackedWheelCache implements WheelCache, Serializable {
         return Optional.empty();
     }
 
+    @Override
+    public boolean isWheelsReady() {
+        return false;
+    }
+
+    @Override
+    public void setWheelsReady(boolean wheelsReady) { }
+
     /**
      * Finds a wheel in the cache.
      *

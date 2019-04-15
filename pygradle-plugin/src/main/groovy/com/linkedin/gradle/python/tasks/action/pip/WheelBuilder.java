@@ -60,7 +60,7 @@ public class WheelBuilder extends AbstractPipAction {
 
     // Environment variables used for a specific package only and customizing its build.
     private static final Map<String, List<String>> CUSTOM_ENVIRONMENT = Collections.unmodifiableMap(Stream.of(
-        new AbstractMap.SimpleEntry<>("numpy", Arrays.asList("BLAS", "OPENBLAS", "ATLAS")),
+        new AbstractMap.SimpleEntry<>("numpy", Arrays.asList("ATLAS", "BLAS", "LAPACK", "OPENBLAS")),
         new AbstractMap.SimpleEntry<>("pycurl", Collections.singletonList("PYCURL_SSL_LIBRARY"))
     ).collect(Collectors.toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue)));
 
@@ -219,9 +219,13 @@ public class WheelBuilder extends AbstractPipAction {
                  * Then retry.
                  */
                 customBuild = true;
-                execute(packageInfo, extraArgs);
+                try {
+                    execute(packageInfo, extraArgs);
+                } catch (PipExecutionException ignored) {
+                    wheelCache.setWheelsReady(false);
+                }
             } else {
-                throw e;
+                wheelCache.setWheelsReady(false);
             }
         }
 

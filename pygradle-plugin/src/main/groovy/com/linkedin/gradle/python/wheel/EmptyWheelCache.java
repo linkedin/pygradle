@@ -41,4 +41,12 @@ public class EmptyWheelCache implements WheelCache {
     public Optional<File> getTargetDirectory() {
         return Optional.empty();
     }
+
+    @Override
+    public boolean isWheelsReady() {
+        return false;
+    }
+
+    @Override
+    public void setWheelsReady(boolean wheelsReady) { }
 }

@@ -120,14 +120,14 @@ public class PythonContainerPlugin extends PythonBasePlugin {
 
             for (Task task : tasks.withType(PythonContainerTask.class)) {
                 if (task instanceof NoopTask) {
-                    ((NoopTask)task).setSuppressWarning(true);
+                    ((NoopTask) task).setSuppressWarning(true);
                 }
 
                 assemble.dependsOn(task);
                 task.dependsOn(parent);
 
                 if (task instanceof NoopTask) {
-                    ((NoopTask)task).setSuppressWarning(false);
+                    ((NoopTask) task).setSuppressWarning(false);
                 }
             }
         });

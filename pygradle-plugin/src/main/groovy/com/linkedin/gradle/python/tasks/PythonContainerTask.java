@@ -13,20 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.plugin;
 
-import com.linkedin.gradle.python.PythonExtension;
-import com.linkedin.gradle.python.util.ExtensionUtils;
-import org.gradle.api.Project;
+package com.linkedin.gradle.python.tasks;
+
+import org.gradle.api.Task;
 
 
-public class PythonPexDistributionPlugin extends PythonContainerPlugin {
-    @Override
-    public void applyTo(final Project project) {
-        final PythonExtension pythonExtension = ExtensionUtils.getPythonExtension(project);
-
-        // Even though this is the default, explicit is better than implicit.
-        pythonExtension.setContainer("pex");
-        super.applyTo(project);
-    }
+public interface PythonContainerTask extends Task {
 }

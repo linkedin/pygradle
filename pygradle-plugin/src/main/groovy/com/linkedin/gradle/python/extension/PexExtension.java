@@ -15,13 +15,29 @@
  */
 package com.linkedin.gradle.python.extension;
 
+import com.linkedin.gradle.python.PythonExtension;
+import com.linkedin.gradle.python.tasks.BuildPexTask;
+import com.linkedin.gradle.python.util.ApplicationContainer;
+import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.util.OperatingSystem;
+import com.linkedin.gradle.python.util.StandardTextValues;
 import org.gradle.api.Project;
 
 import java.io.File;
 
 
-public class PexExtension implements ZipappExtension {
+public class PexExtension implements ApplicationContainer {
+    // 2019-04-01(warsaw): For backward compatibility, we must expose a no-op
+    // buildPex task unconditionally.  This will be created in
+    // PythonContainerPlugin and tied into the task hierarchy in the right
+    // place.  realBuildPex task is the actual pex building task, but these
+    // are only needed if pexes are selected (and won't get created until
+    // after build.gradle evaluation).
+    //
+    // Yes, this is gross and we should deprecate this mess at our earliest convenience.
+    public static final String TASK_BUILD_PEX = "realBuildPex";
+    public static final String TASK_BUILD_NOOP_PEX = "buildPex";
+
     private File cache;
     // Default to fat zipapps on Windows, since our wrappers are fairly POSIX specific.
     private boolean isFat = OperatingSystem.current().isWindows();
@@ -92,5 +108,20 @@ public class PexExtension implements ZipappExtension {
 
     public void setCache(File cache) {
         this.cache = cache;
+    }
+
+    public void addExtensions(Project project) {
+        ExtensionUtils.maybeCreatePexExtension(project);
+    }
+
+    public void addDependencies(Project project) {
+        final PythonExtension extension = ExtensionUtils.getPythonExtension(project);
+
+        project.getDependencies().add(StandardTextValues.CONFIGURATION_BUILD_REQS.getValue(),
+            extension.forcedVersions.get("pex"));
+    }
+
+    public void makeTasks(Project project) {
+        project.getTasks().create(TASK_BUILD_PEX, BuildPexTask.class);
     }
 }

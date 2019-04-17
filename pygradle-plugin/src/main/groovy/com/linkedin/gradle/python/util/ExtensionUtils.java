@@ -28,7 +28,7 @@ import org.gradle.api.plugins.ExtensionContainer;
 public class ExtensionUtils {
 
     private ExtensionUtils() {
-        //private constructor for util class
+        // Private constructor for utils class.
     }
 
     public static <T> T maybeCreate(Project project, String name, Class<T> type, Object... args) {

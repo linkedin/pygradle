@@ -149,23 +149,21 @@ public class WheelBuilder extends AbstractPipAction {
             return packageFile;
         }
 
+        // Project wheel will be built after the editable install for development.
+        if (isPackageDirectory(packageInfo) && project.getProjectDir().equals(packageFile)) {
+            return packageFile;
+        }
+
         String name = packageInfo.getName();
         String version = packageInfo.getVersion();
-        boolean isDirectory = isPackageDirectory(packageInfo);
-        boolean isProject = isDirectory && project.getProjectDir().equals(packageFile);
         Optional<File> wheel;
 
         /*
-         * Current project is a directory, not a package, so version may be null.
-         * Set it to project's version.
-         * The generated code, such as rest.li can also be a path to directory.
-         * In that case the version will also be null and we need to set it to
+         * The generated code, such as rest.li can be a path to directory.
+         * In that case the version will be null and we need to set it to
          * project's version.
          */
-        if (isDirectory) {
-            if (isProject) {
-                name = project.getName();
-            }
+        if (isPackageDirectory(packageInfo)) {
             version = project.getVersion().toString();
         }
 
@@ -188,20 +186,14 @@ public class WheelBuilder extends AbstractPipAction {
             wheel = wheelCache.findWheel(name, version, pythonDetails, WheelCacheLayer.PROJECT_LAYER);
             if (wheel.isPresent()) {
                 packageFile = wheel.get();
-                if (PythonHelpers.isPlainOrVerbose(project)) {
-                    logger.lifecycle("{} from wheel: {}",
-                            packageInfo.toShortHand(), packageFile.getAbsolutePath());
-                }
+                logLifecycle(packageInfo, packageFile);
                 return packageFile;
             } else if (!customBuild) {
                 wheel = wheelCache.findWheel(name, version, pythonDetails, WheelCacheLayer.HOST_LAYER);
                 if (wheel.isPresent()) {
                     packageFile = wheel.get();
                     wheelCache.storeWheel(packageFile, WheelCacheLayer.PROJECT_LAYER);
-                    if (PythonHelpers.isPlainOrVerbose(project)) {
-                        logger.lifecycle("{} from wheel: {}",
-                            packageInfo.toShortHand(), packageFile.getAbsolutePath());
-                    }
+                    logLifecycle(packageInfo, packageFile);
                     return packageFile;
                 }
             }
@@ -235,16 +227,6 @@ public class WheelBuilder extends AbstractPipAction {
             if (!customBuild) {
                 wheelCache.storeWheel(packageFile, WheelCacheLayer.HOST_LAYER);
             }
-        }
-
-        /*
-         * After ensuring we have a wheel built for our project,
-         * we still return the project directory back to PipInstallAction
-         * so that it can install it in editable (development) mode
-         * into virtualenv.
-         */
-        if (isProject) {
-            return packageInfo.getPackageFile();
         }
 
         return packageFile;
@@ -297,5 +279,12 @@ public class WheelBuilder extends AbstractPipAction {
             }
         }
         return false;
+    }
+
+    private void logLifecycle(PackageInfo packageInfo, File packageFile) {
+        if (PythonHelpers.isPlainOrVerbose(project)) {
+            logger.lifecycle("{} from wheel: {}",
+                packageInfo.toShortHand(), packageFile.getAbsolutePath());
+        }
     }
 }

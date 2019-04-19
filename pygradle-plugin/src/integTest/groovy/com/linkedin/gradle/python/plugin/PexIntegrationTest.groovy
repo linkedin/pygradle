@@ -150,4 +150,61 @@ class PexIntegrationTest extends Specification {
         then:
         out.toString() == "Hello World${System.getProperty("line.separator")}".toString()
     }
+
+    def "can build fat pex with isFat"() {
+        given:
+        testProjectDir.buildFile << """\
+        | plugins {
+        |     id 'com.linkedin.python-pex'
+        | }
+        | version = '1.0.0'
+        | python {
+        |   pex {
+        |     isFat = true
+        |   }
+        | }
+        | ${PyGradleTestBuilder.createRepoClosure()}
+        """.stripMargin().stripIndent()
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withArguments('build', '--stacktrace')
+            .withPluginClasspath()
+            .withDebug(true)
+            .build()
+        println result.output
+
+        then:
+
+        result.output.contains("BUILD SUCCESS")
+        result.task(':foo:flake8').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:installPythonRequirements').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:installTestRequirements').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:createVirtualEnvironment').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:installProject').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:pytest').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:check').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:build').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:buildPex').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:assembleContainers').outcome == TaskOutcome.SUCCESS
+
+        Path deployablePath = testProjectDir.root.toPath().resolve(Paths.get('foo', 'build', 'deployable', "bin"))
+        def pexFile = deployablePath.resolve(PexFileUtil.createFatPexFilename('hello_world'))
+
+        pexFile.toFile().exists()
+
+        when: "we have a pex file"
+        def line = new String(pexFile.bytes, "UTF-8").substring(0, 100)
+
+        then: "its shebang line is not pointing to a virtualenv"
+        line.startsWith("#!") && !line.contains("venv")
+
+        when:
+        def out = ExecUtils.run(pexFile)
+        println out
+
+        then:
+        out.toString() == "Hello World${System.getProperty("line.separator")}".toString()
+    }
 }

@@ -16,7 +16,7 @@
 package com.linkedin.gradle.python.tasks;
 
 import com.linkedin.gradle.python.PythonExtension;
-import com.linkedin.gradle.python.extension.PexExtension;
+import com.linkedin.gradle.python.extension.ZipappContainerExtension;
 import com.linkedin.gradle.python.util.ExtensionUtils;
 import com.linkedin.gradle.python.util.PexFileUtil;
 import com.linkedin.gradle.python.util.entrypoint.EntryPointWriter;
@@ -68,10 +68,17 @@ public class BuildWebAppTask extends DefaultTask {
     @TaskAction
     public void buildWebapp() throws IOException, ClassNotFoundException {
         Project project = getProject();
-        PexExtension extension = ExtensionUtils.getPythonComponentExtension(project, PexExtension.class);
         PythonExtension pythonExtension = ExtensionUtils.getPythonExtension(project);
+        ZipappContainerExtension zipappExtension = ExtensionUtils.getPythonComponentExtension(
+            project, ZipappContainerExtension.class);
 
-        if (extension.isFat()) {
+        // Regardless of whether fat or thin zipapps are used, the container
+        // plugin will build the right container (i.e. .pex or .pyz).
+        // However, for thin zipapps, we need additional wrapper scripts
+        // generated (e.g. the gunicorn wrapper).
+        if (zipappExtension.isFat()) {
+            // 2019-04-11(warsaw): FIXME: For now, we're still hard coding pex
+            // for the gunicorn file.
             new FatPexGenerator(project, pexOptions).buildEntryPoint(
                 PexFileUtil.createFatPexFilename(executable.getName()), entryPoint, null);
         } else {
@@ -104,5 +111,4 @@ public class BuildWebAppTask extends DefaultTask {
     public void setTemplateProvider(EntryPointTemplateProvider templateProvider) {
         this.templateProvider = templateProvider;
     }
-
 }

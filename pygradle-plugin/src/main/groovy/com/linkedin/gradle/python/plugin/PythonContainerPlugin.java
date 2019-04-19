@@ -18,8 +18,10 @@ package com.linkedin.gradle.python.plugin;
 import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.extension.DeployableExtension;
 import com.linkedin.gradle.python.extension.PexExtension;
+import com.linkedin.gradle.python.extension.ZipappContainerExtension;
 import com.linkedin.gradle.python.tasks.BuildWheelsTask;
 import com.linkedin.gradle.python.tasks.NoopBuildPexTask;
+import com.linkedin.gradle.python.tasks.NoopTask;
 import com.linkedin.gradle.python.tasks.PythonContainerTask;
 import com.linkedin.gradle.python.util.ApplicationContainer;
 import com.linkedin.gradle.python.util.ExtensionUtils;
@@ -42,6 +44,8 @@ public class PythonContainerPlugin extends PythonBasePlugin {
         final DeployableExtension deployableExtension = ExtensionUtils.maybeCreateDeployableExtension(project);
         final ApplicationContainer applicationContainer = pythonExtension.getApplicationContainer();
 
+        ExtensionUtils.maybeCreate(project, "zipapp", ZipappContainerExtension.class);
+
         applicationContainer.addExtensions(project);
 
         /*
@@ -52,7 +56,6 @@ public class PythonContainerPlugin extends PythonBasePlugin {
          * TODO 2019-03-19: Adapt this to on-host layered caching.
          */
         TaskContainer tasks = project.getTasks();
-
 
         // Add this no-op task for backward compatibility.  See PexExtension for details.
         Task noop = tasks.findByName(PexExtension.TASK_BUILD_NOOP_PEX);
@@ -112,19 +115,21 @@ public class PythonContainerPlugin extends PythonBasePlugin {
             postContainer.addDependencies(project);
             postContainer.makeTasks(project);
 
-            NoopBuildPexTask noopTask = (NoopBuildPexTask) tasks.findByName(PexExtension.TASK_BUILD_NOOP_PEX);
-            noopTask.suppressWarning = true;
-
             Task assemble = tasks.getByName(ApplicationContainer.TASK_ASSEMBLE_CONTAINERS);
             Task parent = tasks.getByName(ApplicationContainer.TASK_BUILD_PROJECT_WHEEL);
 
             for (Task task : tasks.withType(PythonContainerTask.class)) {
+                if (task instanceof NoopTask) {
+                    ((NoopTask) task).setSuppressWarning(true);
+                }
+
                 assemble.dependsOn(task);
                 task.dependsOn(parent);
-            }
 
-            // Turn the warning back on.
-            noopTask.suppressWarning = false;
+                if (task instanceof NoopTask) {
+                    ((NoopTask) task).setSuppressWarning(false);
+                }
+            }
         });
     }
 }

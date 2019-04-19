@@ -34,7 +34,6 @@ import com.linkedin.gradle.python.util.PackageInfo
 import com.linkedin.gradle.python.util.PackageSettings
 import com.linkedin.gradle.python.util.internal.TaskTimer
 import com.linkedin.gradle.python.wheel.EmptyWheelCache
-import com.linkedin.gradle.python.wheel.LayeredWheelCache
 import com.linkedin.gradle.python.wheel.WheelCache
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
@@ -80,8 +79,12 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, Support
 
     @TaskAction
     void buildWheelsTask() {
-        // With LayeredWheelCache, wheels are almost always already built where this task would put them.
-        if (!wheelCache.isWheelsReady()) {
+        /*
+         * With LayeredWheelCache, wheels are almost always already built where this task would put them.
+         * Project wheel is an exception.
+         */
+        boolean isProject = installFileCollection.size() == 1 && installFileCollection.contains(project.getProjectDir())
+        if (isProject || !wheelCache.isWheelsReady()) {
             buildWheels(project, DependencyOrder.getConfigurationFiles(installFileCollection), getPythonDetails())
         }
     }

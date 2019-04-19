@@ -359,32 +359,20 @@ class WheelBuilderTest extends Specification {
         }
     }
 
-    def 'builds project wheel but returns the project itself'() {
+    def 'does not build project wheel but returns the project itself'() {
         setup: "do not return wheel from cache layers on first attempt"
         def execSpec = Mock(ExecSpec)
-        def fakeWheel = 'fake/project-dir/wheel'
-        // Cardinality of calls on stubs cannot be asserted, as opposed to mocks, so we keep the counter.
-        def storeCounter = 0
         def stubWheelCache = Stub(WheelCache) {
             getTargetDirectory() >> Optional.of(new File('fake/project-dir'))
-            findWheel(!null, !null, !null, WheelCacheLayer.PROJECT_LAYER) >>> [
-                Optional.empty(), Optional.of(new File(fakeWheel))]
-            findWheel(!null, !null, !null, WheelCacheLayer.HOST_LAYER) >> Optional.empty()
-            storeWheel(!null, WheelCacheLayer.HOST_LAYER) >> { storeCounter++ }
         }
         def wheelBuilder = createWheelBuilder(execSpec, stubWheelCache)
 
         when: "we request project to be built"
         def pkg = wheelBuilder.getPackage(PackageInfo.fromPath(wheelBuilder.project.getProjectDir()), [])
 
-        then: "wheel is built but not stored to host layer and project directory returned for editable install"
+        then: "wheel is not built and project directory is returned for editable install"
         pkg.toString() == wheelBuilder.project.getProjectDir().toString()
-        storeCounter == 0
-        1 * execSpec.commandLine(_) >> { List<List<String>> args ->
-            println args
-            def it = args[0]
-            assert it[2] == 'wheel'
-        }
+        0 * execSpec._
     }
 
     def 'builds generated code wheel but getting the project version for it'() {

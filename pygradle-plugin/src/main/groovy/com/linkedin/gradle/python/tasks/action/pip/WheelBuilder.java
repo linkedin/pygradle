@@ -232,6 +232,44 @@ public class WheelBuilder extends AbstractPipAction {
         return packageFile;
     }
 
+    /**
+     * Update the flag for wheel readiness.
+     *
+     * <p>This method is called to ensure the wheel is present in the
+     * wheel cache when we expect it to be there. If the wheel is not
+     * found, we'll drop the wheels ready flag to indicate that some
+     * wheels need to be rebuilt. The dropped flag will trigger full
+     * execution of buildWheels task later and, thus, ensure that all
+     * the wheels needed for the deployable zipapp are present when
+     * it's being packaged.</p>
+     *
+     * <p>Here's one possible scenario where this kind of update is
+     * necessary. When a user deletes wheels or the whole wheel-cache
+     * manually, but does not delete the virtualenv, we may find the
+     * package in the virtualenv, while it may be missing in the wheel
+     * cache.</p>
+     *
+     * <p>The update is skipped if the flag is already dropped.</p>
+     */
+    // package-private
+    void updateWheelReadiness(PackageInfo packageInfo) {
+        if (wheelCache.isWheelsReady()) {
+            String name = packageInfo.getName();
+            String version = packageInfo.getVersion();
+            Optional<File> wheel;
+
+            if (name == null || version == null) {
+                wheel = Optional.empty();
+            } else {
+                wheel = wheelCache.findWheel(name, version, pythonDetails, WheelCacheLayer.PROJECT_LAYER);
+            }
+
+            if (!wheel.isPresent()) {
+                wheelCache.setWheelsReady(false);
+            }
+        }
+    }
+
     private List<String> makeCommandLine(PackageInfo packageInfo, List<String> extraArgs) {
         List<String> commandLine = new ArrayList<>();
         Optional<File> targetDir = wheelCache.getTargetDirectory();

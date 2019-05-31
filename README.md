@@ -41,7 +41,7 @@ demonstrative Artifactory instance, and a few project examples is available in
 our detailed [getting started](docs/getting-started.md) guide.
 
 Although not required, if you've never used Gradle before, you might
-find reading Gradle's [user guide](https://docs.gradle.org/3.3/userguide/userguide.html)
+find reading Gradle's [user guide](https://docs.gradle.org/current/userguide/userguide.html)
 helpful.
 
 ## Plugins

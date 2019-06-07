@@ -27,6 +27,7 @@ import com.linkedin.gradle.python.util.PackageInfo
 import com.linkedin.gradle.python.util.PackageSettings
 import com.linkedin.gradle.python.wheel.WheelCache
 import com.linkedin.gradle.python.wheel.WheelCacheLayer
+import org.gradle.api.logging.Logger
 import org.gradle.process.ExecSpec
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Rule
@@ -174,7 +175,7 @@ class WheelBuilderTest extends Specification {
         def wheelBuilder = createWheelBuilder(null, new ExternalExecFailTestDouble(execSpec), stubWheelCache)
         def sdistPkg = packageInGradleCache("foo-1.0.0.tar.gz")
 
-        when: "we request package that is not cache"
+        when: "we request package that is not in cache"
         def pkg = wheelBuilder.getPackage(sdistPkg, [])
 
         then: "wheel is rebuilt without environment, then with it; package returned if both fail; wheel not ready flag"
@@ -182,7 +183,6 @@ class WheelBuilderTest extends Specification {
         1 * execSpec.environment(['CPPFLAGS':'bogus', 'LDFLAGS':'bogus'])
         pkg == sdistPkg.getPackageFile()
         !ready
-
     }
 
     def "uses environment"() {
@@ -427,6 +427,156 @@ class WheelBuilderTest extends Specification {
             def it = args[0]
             assert it[2] == 'wheel'
         }
+    }
+
+    def "update wheel readiness works"() {
+        setup: "prepare wheel cache returns to return a wheel once and no wheel second time"
+        def execSpec = Mock(ExecSpec)
+        def expected = 'fake/project-dir/wheel'
+        boolean ready = true
+        def stubWheelCache = Stub(WheelCache) {
+            getTargetDirectory() >> Optional.of(new File('fake/project-dir'))
+            findWheel(!null, !null, !null, WheelCacheLayer.PROJECT_LAYER) >>> [
+                Optional.of(new File(expected)), Optional.empty()]
+            setWheelsReady(!null) >> { boolean r -> ready = r }
+            isWheelsReady() >> { ready }
+        }
+        def wheelBuilder = createWheelBuilder(execSpec, stubWheelCache)
+        def sdistPkg = packageInGradleCache("foo-1.0.0.tar.gz")
+        def testPkg = PackageInfo.fakeFromOther(sdistPkg, null, null)
+
+        when: "we ask for wheel that's present in the wheel cache"
+        wheelBuilder.updateWheelReadiness(sdistPkg)
+
+        then: "the wheel readiness flag is still up"
+        ready
+
+        when: "we ask for wheel that's not in the wheel cache"
+        wheelBuilder.updateWheelReadiness(packageInGradleCache("foo-2.0.0.tar.gz"))
+
+        then: "the wheel readiness flag would be dropped down"
+        !ready
+
+        when: "the package has null name or version the flag gets set up"
+        ready = true
+        wheelBuilder.updateWheelReadiness(testPkg)
+
+        then: "the wheel readiness flag gets dropped down again without search"
+        !ready
+    }
+
+    def "logger can be obtained"() {
+        setup: "prepare wheel cache mock"
+        def execSpec = Mock(ExecSpec)
+        def mockWheelCache = Mock(WheelCache)
+        def wheelBuilder = createWheelBuilder(execSpec, mockWheelCache)
+
+        when: "we ask for the logger"
+        def logger = wheelBuilder.getLogger()
+
+        then: "we get the object of correct type"
+        logger instanceof Logger
+    }
+
+    /*
+     * The tests below cover the code paths that are not normally exercised and require fakes.
+     */
+
+    def "empty command line does not build wheel"() {
+        setup: "prepare wheel cache to return no target directory on second call"
+        def execSpec = Mock(ExecSpec)
+        // Cardinality of calls on stubs cannot be asserted, as opposed to mocks, so we keep the counter.
+        def findCounter = 0
+        def stubWheelCache = Stub(WheelCache) {
+            getTargetDirectory() >>> [
+                Optional.of(new File('fake/project-dir')), Optional.empty()]
+            findWheel(*_) >> {
+                findCounter++
+                Optional.empty()
+            }
+        }
+        def wheelBuilder = createWheelBuilder(execSpec, stubWheelCache)
+
+        when: "we try to build wheel that's not found in cache layers"
+        def pkg = wheelBuilder.getPackage(packageInGradleCache("foo-1.0.0.tar.gz"), [])
+
+        then: "we attempt to build but do not run empty command line and return the package instead"
+        pkg == packageInGradleCache("foo-1.0.0.tar.gz").getPackageFile()
+        0 * execSpec._
+        // Search should have happened in the project layer, then host layer, and then after attempted build.
+        findCounter == 3
+    }
+
+    def "empty target directory does not build wheel"() {
+        setup: "prepare wheel cache to return no target directory on first call"
+        def execSpec = Mock(ExecSpec)
+        // Cardinality of calls on stubs cannot be asserted, as opposed to mocks, so we keep the counter.
+        def findCounter = 0
+        def stubWheelCache = Stub(WheelCache) {
+            getTargetDirectory() >> Optional.empty()
+            findWheel(*_) >> {
+                findCounter++
+                Optional.empty()
+            }
+        }
+        def wheelBuilder = createWheelBuilder(execSpec, stubWheelCache)
+
+        when: "we try to build wheel that's not found in cache layers"
+        def pkg = wheelBuilder.getPackage(packageInGradleCache("foo-1.0.0.tar.gz"), [])
+
+        then: "we leave without attempting the search or build"
+        pkg == packageInGradleCache("foo-1.0.0.tar.gz").getPackageFile()
+        0 * execSpec._
+        findCounter == 0
+    }
+
+    def "null name or version return package instead of wheel"() {
+        setup: "prepare wheel cache and test package info object"
+        def execSpec = Mock(ExecSpec)
+        // Cardinality of calls on stubs cannot be asserted, as opposed to mocks, so we keep the counter.
+        def findCounter = 0
+        def stubWheelCache = Stub(WheelCache) {
+            getTargetDirectory() >> Optional.of(new File('fake/project-dir'))
+            findWheel(*_) >> {
+                findCounter++
+                Optional.empty()
+            }
+        }
+        def wheelBuilder = createWheelBuilder(execSpec, stubWheelCache)
+        def sdistPkg = packageInGradleCache("foo-1.0.0.tar.gz")
+        def testPkg = PackageInfo.fakeFromOther(sdistPkg, null, null)
+
+        when: "we try to build wheel for package with null name and version"
+        def pkg = wheelBuilder.getPackage(testPkg, [])
+
+        then: "we leave without attempting the search or build"
+        pkg == sdistPkg.getPackageFile()
+        0 * execSpec._
+        findCounter == 0
+    }
+
+    def "failed custom wheel build drops wheel readiness flag"() {
+        setup: "do not return wheel from cache layers"
+        List<String> override = ['foo']
+        def settings = new PipActionHelpers.CustomizedOverridePackageSettings(temporaryFolder, override)
+        def execSpec = Mock(ExecSpec)
+        def ready = true
+        def stubWheelCache = Stub(WheelCache) {
+            getTargetDirectory() >> Optional.of(new File('fake/project-dir'))
+            findWheel(*_) >> Optional.empty()
+            setWheelsReady(!null) >> { boolean r -> ready = r }
+        }
+        def wheelBuilder = createWheelBuilder(settings, new ExternalExecFailTestDouble(execSpec), stubWheelCache, [:])
+        def sdistPkg = packageInGradleCache("foo-1.0.0.tar.gz")
+
+        when: "we request package that is not cache"
+        def pkg = wheelBuilder.getPackage(sdistPkg, [])
+
+        then: "wheel is rebuilt without environment, then with it; package returned if both fail; wheel not ready flag"
+        1 * execSpec.environment([:])
+        pkg == sdistPkg.getPackageFile()
+        !ready
+
     }
 
     private WheelBuilder createWheelBuilder(PackageSettings settings, ExecSpec execSpec, WheelCache wheelCache) {

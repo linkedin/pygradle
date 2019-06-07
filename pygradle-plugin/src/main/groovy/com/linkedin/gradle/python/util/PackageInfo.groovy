@@ -36,7 +36,7 @@ class PackageInfo {
     }
 
     @Deprecated
-    public static PackageInfo fromPath(String packagePath) {
+    static PackageInfo fromPath(String packagePath) {
         return fromPath(new File(packagePath))
     }
 
@@ -67,7 +67,7 @@ class PackageInfo {
      * <p>
      * @param packagePath The path to a Python package.
      */
-    public static PackageInfo fromPath(File packagePath) {
+    static PackageInfo fromPath(File packagePath) {
         def extensionRegex = /\.tar\.gz|\.zip|\.tar|\.tar\.bz2|\.tgz|\.whl/
         def nameVersionRegex = /^(?<name>[a-zA-Z0-9._\-]+)-(?<version>([0-9][0-9a-z\.]+(-.*)*))$/
 
@@ -97,16 +97,30 @@ class PackageInfo {
         }
     }
 
-    public static PackageInfo fromPath(Path packagePath) {
+    static PackageInfo fromPath(Path packagePath) {
         return fromPath(packagePath.toFile())
     }
 
     @Override
-    public String toString() {
+    String toString() {
         return name + "-" + version + "@" + packageFile
     }
 
-    public String toShortHand() {
+    String toShortHand() {
         return version ? "${name}-${version}" : name
+    }
+
+    /**
+     * Makes PackageInfo from other object with new name and version.
+     *
+     * <p>Used for testing.</p>
+     *
+     * @param packageInfo other PackageInfo object
+     * @param name new name, usually null for testing
+     * @param version new version, usually null for testing
+     * @return test PackageInfo object
+     */
+    static PackageInfo fakeFromOther(PackageInfo packageInfo, String name, String version) {
+        return new PackageInfo(packageInfo.packageFile, name, version)
     }
 }

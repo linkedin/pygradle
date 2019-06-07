@@ -91,10 +91,11 @@ public class PipInstallAction extends AbstractPipAction {
         File dist = sitePackagesPath.resolve(sanitizedName + "-" + packageInfo.getVersion() + ".dist-info").toFile();
 
         if (!packageSettings.requiresSourceBuild(packageInfo)
-            && (project.file(egg).exists() || project.file(dist).exists())) {
+                && (project.file(egg).exists() || project.file(dist).exists())) {
             if (PythonHelpers.isPlainOrVerbose(project)) {
                 logger.lifecycle("Skipping {} - Installed", packageInfo.toShortHand());
             }
+            wheelBuilder.updateWheelReadiness(packageInfo);
             return;
         }
 

@@ -101,7 +101,7 @@ public class ValidationPlugin implements Plugin<Project> {
          *
          * This uses the mypy.ini file if present to configure mypy.
          */
-        MypyExtension mypy = ExtensionUtils.maybeCreate(project, "mypy", MypyExtension.class);
+        MypyExtension mypy = ExtensionUtils.maybeCreate(project, "mypy", MypyExtension.class, project);
         project.getTasks().create(TASK_MYPY.getValue(), MypyTask.class,
             task -> task.onlyIf(it -> project.file(settings.srcDir).exists() && mypy.isRun()));
 

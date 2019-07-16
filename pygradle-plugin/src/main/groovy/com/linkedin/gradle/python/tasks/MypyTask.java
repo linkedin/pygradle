@@ -15,7 +15,10 @@
  */
 package com.linkedin.gradle.python.tasks;
 
+import com.linkedin.gradle.python.extension.MypyExtension;
 import com.linkedin.gradle.python.extension.PythonDetails;
+import com.linkedin.gradle.python.util.ExtensionUtils;
+import org.gradle.api.Project;
 import org.gradle.process.ExecResult;
 
 
@@ -24,7 +27,10 @@ public class MypyTask extends AbstractPythonMainSourceDefaultTask {
     public void preExecution() {
         PythonDetails mypyDetails = getPythonDetails();
         args(mypyDetails.getVirtualEnvironment().findExecutable("mypy").getAbsolutePath());
-        args(getPythonExtension().srcDir);
+
+        Project project = getProject();
+        MypyExtension mypy = ExtensionUtils.maybeCreate(project, "mypy", MypyExtension.class, project);
+        args(mypy.getArguments());
     }
 
     public void processResults(ExecResult results) {

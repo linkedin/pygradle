@@ -15,8 +15,18 @@
  */
 package com.linkedin.gradle.python.extension;
 
+import org.gradle.api.Project;
+import com.linkedin.gradle.python.util.ExtensionUtils;
+
+
 public class MypyExtension {
     private boolean run;
+    private String[] arguments = null;
+    private String srcDir;
+
+    public MypyExtension(Project project) {
+        srcDir = ExtensionUtils.getPythonExtension(project).srcDir;
+    }
 
     public boolean isRun() {
         return run;
@@ -24,5 +34,16 @@ public class MypyExtension {
 
     public void setRun(boolean run) {
         this.run = run;
+    }
+
+    public void setArguments(String argumentString) {
+        arguments = argumentString.split("\\s+");
+    }
+
+    public String[] getArguments() {
+        if (arguments == null) {
+            return new String[]{srcDir};
+        }
+        return arguments;
     }
 }

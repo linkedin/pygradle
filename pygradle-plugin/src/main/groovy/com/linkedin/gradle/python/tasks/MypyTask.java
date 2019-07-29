@@ -29,8 +29,13 @@ public class MypyTask extends AbstractPythonMainSourceDefaultTask {
         args(mypyDetails.getVirtualEnvironment().findExecutable("mypy").getAbsolutePath());
 
         Project project = getProject();
-        MypyExtension mypy = ExtensionUtils.maybeCreate(project, "mypy", MypyExtension.class, project);
-        args(mypy.getArguments());
+        MypyExtension mypy = ExtensionUtils.getPythonComponentExtension(project, MypyExtension.class);
+
+        String[] arguments = mypy.getArguments();
+        if (arguments == null) {
+            arguments = new String[]{getPythonExtension().srcDir};
+        }
+        args(arguments);
     }
 
     public void processResults(ExecResult results) {

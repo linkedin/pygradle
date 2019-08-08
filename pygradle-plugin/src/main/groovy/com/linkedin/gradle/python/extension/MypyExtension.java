@@ -15,8 +15,10 @@
  */
 package com.linkedin.gradle.python.extension;
 
+
 public class MypyExtension {
     private boolean run;
+    private String[] arguments = null;
 
     public boolean isRun() {
         return run;
@@ -24,5 +26,13 @@ public class MypyExtension {
 
     public void setRun(boolean run) {
         this.run = run;
+    }
+
+    public void setArguments(String argumentString) {
+        arguments = argumentString.split("\\s+");
+    }
+
+    public String[] getArguments() {
+        return arguments;
     }
 }

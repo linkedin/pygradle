@@ -21,11 +21,11 @@ import org.apache.http.HttpHost
 @Slf4j
 class ProxyDetector {
 
-    private final static String HTTP_PROXY_HOST="http.proxyHost"
-    private final static String HTTP_PROXY_PORT="http.proxyPort"
+    private final static String HTTP_PROXY_HOST = "http.proxyHost"
+    private final static String HTTP_PROXY_PORT = "http.proxyPort"
 
     static maybeGetHttpProxy() {
-        int proxyPort=-1
+        int proxyPort = -1
 
         def proxyPortString = System.getProperty(HTTP_PROXY_PORT)
         def proxyHost = System.getProperty(HTTP_PROXY_HOST)

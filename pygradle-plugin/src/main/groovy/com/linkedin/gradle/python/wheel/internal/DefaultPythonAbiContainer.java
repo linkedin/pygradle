@@ -50,6 +50,13 @@ public class DefaultPythonAbiContainer implements EditablePythonAbiContainer, Py
             .anyMatch(it -> contains(it, pythonTags, abiTags, platformTags));
     }
 
+    @Override
+    public EditablePythonAbiContainer copy() {
+        DefaultPythonAbiContainer container = new DefaultPythonAbiContainer();
+        container.supportedAbis = new ArrayList<>(supportedAbis);
+        return container;
+    }
+
     private static boolean contains(AbiDetails triple, String[] pythonTags, String[] abiTags, String[] platformTags) {
         return contains(triple.getPythonTag(), pythonTags)
             && contains(triple.getAbiTag(), abiTags)

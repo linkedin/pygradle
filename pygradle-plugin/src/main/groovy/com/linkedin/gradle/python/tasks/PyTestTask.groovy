@@ -16,7 +16,7 @@
 package com.linkedin.gradle.python.tasks
 
 import groovy.transform.CompileStatic
-import org.gradle.api.internal.tasks.options.Option
+import org.gradle.api.tasks.options.Option
 import org.gradle.process.ExecResult
 
 /**

@@ -62,7 +62,6 @@ public class ParallelWheelGenerationTask extends DefaultTask implements Supports
 
     private static final Logger logger = Logging.getLogger(ParallelWheelGenerationTask.class);
 
-    @Input
     private WheelCache wheelCache;
 
     private Set<String> currentPackages = Collections.newSetFromMap(new ConcurrentHashMap<>());
@@ -249,6 +248,7 @@ public class ParallelWheelGenerationTask extends DefaultTask implements Supports
         this.filesToConvert = filesToConvert;
     }
 
+    @Input
     public WheelCache getWheelCache() {
         return wheelCache;
     }

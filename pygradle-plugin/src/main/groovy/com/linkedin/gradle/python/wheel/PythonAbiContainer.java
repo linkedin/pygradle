@@ -36,4 +36,9 @@ public interface PythonAbiContainer extends Serializable {
      * @return true is the python exec is compatible
      */
     boolean matchesSupportedVersion(File pythonExecutable, String pythonTag, String abiTag, String platformTag);
+
+    /**
+     * Create and return a new object with the same containers
+     */
+    PythonAbiContainer copy();
 }

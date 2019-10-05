@@ -21,6 +21,7 @@ import com.linkedin.gradle.python.plugin.internal.InstallDependenciesPlugin;
 import com.linkedin.gradle.python.plugin.internal.ValidationPlugin;
 import com.linkedin.gradle.python.tasks.CleanSaveVenvTask;
 import com.linkedin.gradle.python.tasks.GenerateSetupPyTask;
+import com.linkedin.gradle.python.tasks.GetProbedTagsTask;
 import com.linkedin.gradle.python.tasks.InstallVirtualEnvironmentTask;
 import com.linkedin.gradle.python.tasks.PinRequirementsTask;
 import com.linkedin.gradle.python.tasks.provides.ProvidesVenv;
@@ -49,6 +50,7 @@ import static com.linkedin.gradle.python.util.StandardTextValues.CONFIGURATION_T
 import static com.linkedin.gradle.python.util.StandardTextValues.CONFIGURATION_VENV;
 import static com.linkedin.gradle.python.util.StandardTextValues.CONFIGURATION_WHEEL;
 import static com.linkedin.gradle.python.util.StandardTextValues.TASK_CLEAN_SAVE_VENV;
+import static com.linkedin.gradle.python.util.StandardTextValues.TASK_GET_PROBED_TAGS;
 import static com.linkedin.gradle.python.util.StandardTextValues.TASK_PIN_REQUIREMENTS;
 import static com.linkedin.gradle.python.util.StandardTextValues.TASK_SETUP_LINKS;
 import static com.linkedin.gradle.python.util.StandardTextValues.TASK_SETUP_PY_WRITER;
@@ -103,12 +105,18 @@ public class PythonPlugin implements Plugin<Project> {
             task.dependsOn(pinRequirementsTask);
             task.setPythonDetails(settings.getDetails());
         });
+        // Ensure that ABI container is populated when virtual environment creation task is up-to-date.
+        project.getTasks().create(TASK_GET_PROBED_TAGS.getValue(), GetProbedTagsTask.class, task -> {
+            task.dependsOn(TASK_VENV_CREATE.getValue());
+            task.setPythonDetails(settings.getDetails());
+        });
 
         /*
          * Creates a link so users can activate into the virtual environment.
          */
         project.getTasks().create(TASK_SETUP_LINKS.getValue(), task -> {
             task.dependsOn(project.getTasks().getByName(TASK_VENV_CREATE.getValue()));
+            task.dependsOn(project.getTasks().getByName(TASK_GET_PROBED_TAGS.getValue()));
             task.getOutputs().file(settings.getDetails().getActivateLink());
 
             task.doLast(it -> {

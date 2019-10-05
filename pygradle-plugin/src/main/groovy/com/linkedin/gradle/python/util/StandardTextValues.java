@@ -48,6 +48,7 @@ public enum StandardTextValues {
     TASK_PYTEST("pytest"),
     TASK_SETUP_LINKS("installLinks"),
     TASK_VENV_CREATE("createVirtualEnvironment"),
+    TASK_GET_PROBED_TAGS("getProbedTags"),
     TASK_PIN_REQUIREMENTS("pinRequirements"),
     TASK_SETUP_PY_WRITER("generateSetupPy"),
     DOCUMENTATION_GROUP("documentation"),

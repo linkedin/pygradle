@@ -33,8 +33,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-class ProbeVenvInfoAction {
+public class ProbeVenvInfoAction {
 
+    private static final String PROBE_DIR_NAME = "probe-venv";
     private static final Logger logger = Logging.getLogger(ProbeVenvInfoAction.class);
 
     private ProbeVenvInfoAction() {
@@ -50,6 +51,25 @@ class ProbeVenvInfoAction {
         }
     }
 
+    /**
+     * Populate the ABI container with supported wheel tags from probed environment.
+     *
+     * @param project current project
+     * @param pythonDetails current python details
+     * @param editablePythonAbiContainer the ABI container object to populate
+     */
+    public static void getProbedTags(Project project,
+                                    PythonDetails pythonDetails,
+                                    EditablePythonAbiContainer editablePythonAbiContainer) {
+        File probeDir = new File(project.getBuildDir(), PROBE_DIR_NAME);
+        File supportedAbiFormatsFile = getSupportedAbiFormatsFile(probeDir, pythonDetails);
+        try {
+            getSavedTags(pythonDetails, editablePythonAbiContainer, supportedAbiFormatsFile);
+        } catch (IOException e) {
+            logger.info("Unable to probe venv for supported wheel tags. Ignoring the error. May slow the build.");
+        }
+    }
+
     private static void doProbe(Project project, PythonDetails pythonDetails,
                           EditablePythonAbiContainer editablePythonAbiContainer) throws IOException {
         InputStream wheelApiResource = ProbeVenvInfoAction.class.getClassLoader()
@@ -58,7 +78,7 @@ class ProbeVenvInfoAction {
         byte[] buffer = new byte[wheelApiResource.available()];
         wheelApiResource.read(buffer);
 
-        File probeDir = new File(project.getBuildDir(), "probe-venv");
+        File probeDir = new File(project.getBuildDir(), PROBE_DIR_NAME);
         probeDir.mkdirs();
 
         OutputStream outStream = new FileOutputStream(getPythonFileForSupportedWheels(probeDir));
@@ -71,7 +91,20 @@ class ProbeVenvInfoAction {
             execSpec.args(supportedAbiFormatsFile.getAbsolutePath());
         });
 
+        /*
+         * The code for this function was originally here.
+         * Still making this call to benefit AbstractPythonInfrastructureDefaultTask,
+         * although it's not necessary for InstallVirtualEnvironmentTask because
+         * GetProbedTagsTask will get the tags.
+         */
+        getSavedTags(pythonDetails, editablePythonAbiContainer, supportedAbiFormatsFile);
+    }
+
+    private static void getSavedTags(PythonDetails pythonDetails,
+                                     EditablePythonAbiContainer editablePythonAbiContainer,
+                                     File supportedAbiFormatsFile) throws IOException {
         JsonArray array = Json.parse(new FileReader(supportedAbiFormatsFile)).asArray();
+
         for (JsonValue jsonValue : array) {
             JsonObject entry = jsonValue.asObject();
             String pythonTag = entry.get("pythonTag").asString();

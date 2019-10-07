@@ -60,6 +60,7 @@ class PythonPluginIntegrationTest extends Specification {
         result.task(':foo:installPythonRequirements').outcome == TaskOutcome.SUCCESS
         result.task(':foo:installTestRequirements').outcome == TaskOutcome.SUCCESS
         result.task(':foo:createVirtualEnvironment').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:getProbedTags').outcome == TaskOutcome.SUCCESS
         result.task(':foo:installProject').outcome == TaskOutcome.SUCCESS
         result.task(':foo:pytest').outcome == TaskOutcome.SUCCESS
         result.task(':foo:check').outcome == TaskOutcome.SUCCESS
@@ -122,6 +123,7 @@ class PythonPluginIntegrationTest extends Specification {
         result.task(':foo:installPythonRequirements').outcome == TaskOutcome.SUCCESS
         result.task(':foo:installTestRequirements').outcome == TaskOutcome.SUCCESS
         result.task(':foo:createVirtualEnvironment').outcome == TaskOutcome.SUCCESS
+        result.task(':foo:getProbedTags').outcome == TaskOutcome.SUCCESS
         result.task(':foo:installProject').outcome == TaskOutcome.SUCCESS
         result.task(':foo:pytest').outcome == TaskOutcome.SUCCESS
         result.task(':foo:check').outcome == TaskOutcome.SUCCESS

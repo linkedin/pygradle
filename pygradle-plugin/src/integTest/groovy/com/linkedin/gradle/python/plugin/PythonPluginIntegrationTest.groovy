@@ -65,8 +65,8 @@ class PythonPluginIntegrationTest extends Specification {
         result.task(':foo:pytest').outcome == TaskOutcome.SUCCESS
         result.task(':foo:check').outcome == TaskOutcome.SUCCESS
         result.task(':foo:build').outcome == TaskOutcome.SUCCESS
+        // The coverage task should run since 'coverage' was passed explicitly as an argument
         result.task(':foo:coverage').outcome == TaskOutcome.SUCCESS
-
 
         when:
         println "========================"
@@ -100,6 +100,9 @@ class PythonPluginIntegrationTest extends Specification {
         |   details {
         |       virtualEnvPrompt = 'pyGradle!'
         |   }
+        |   coverage {
+        |       run = true
+        |   }
         |}
         |
         |buildDir = 'build2'
@@ -125,7 +128,10 @@ class PythonPluginIntegrationTest extends Specification {
         result.task(':foo:createVirtualEnvironment').outcome == TaskOutcome.SUCCESS
         result.task(':foo:getProbedTags').outcome == TaskOutcome.SUCCESS
         result.task(':foo:installProject').outcome == TaskOutcome.SUCCESS
-        result.task(':foo:pytest').outcome == TaskOutcome.SUCCESS
+        // The coverage task should run since we set it in the build.gradle file
+        result.task(':foo:coverage').outcome == TaskOutcome.SUCCESS
+        // The pytest task should be skipped since we are running coverage
+        result.task(':foo:pytest').outcome == TaskOutcome.SKIPPED
         result.task(':foo:check').outcome == TaskOutcome.SUCCESS
         result.task(':foo:build').outcome == TaskOutcome.SUCCESS
         !installOrderSorted(result.output, ':foo:installSetupRequirements', ':foo:installBuildRequirements')

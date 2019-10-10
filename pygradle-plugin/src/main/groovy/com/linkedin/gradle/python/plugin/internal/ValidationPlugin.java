@@ -56,13 +56,18 @@ public class ValidationPlugin implements Plugin<Project> {
         project.getTasks().withType(AbstractPythonTestSourceDefaultTask.class,
             task -> task.dependsOn(project.getTasks().getByName(TASK_INSTALL_PROJECT.getValue())));
 
+        CoverageExtension cov = ExtensionUtils.maybeCreate(project, "coverage", CoverageExtension.class);
         /*
          * Run tests using py.test.
          *
          * This uses the ``setup.cfg`` if present to configure py.test.
+         * Pytest task will not be run if coverage is set to true, unless explicitly executed. If coverage is enabled,
+         * the coverage task will execute the test suite.
          */
         project.getTasks().create(TASK_PYTEST.getValue(), PyTestTask.class,
-            task -> task.onlyIf(it -> project.file(settings.testDir).exists()));
+            task -> task.onlyIf(it -> project.file(settings.testDir).exists()
+                && (!cov.isRun() || project.getGradle().getStartParameter().getTaskNames().contains(TASK_PYTEST.getValue()))
+            ));
 
         // Add a dependency to task ``check`` to depend on our Python plugin's ``pytest`` task
         project.getTasks().getByName(TASK_CHECK.getValue())
@@ -73,7 +78,6 @@ public class ValidationPlugin implements Plugin<Project> {
          *
          * This uses the ``setup.cfg`` if present to configure py.test.
          */
-        CoverageExtension cov = ExtensionUtils.maybeCreate(project, "coverage", CoverageExtension.class);
         project.getTasks().create(TASK_COVERAGE.getValue(), PyCoverageTask.class,
             task -> task.onlyIf(it -> project.file(settings.testDir).exists()
                                 /* The test suite and other environments run

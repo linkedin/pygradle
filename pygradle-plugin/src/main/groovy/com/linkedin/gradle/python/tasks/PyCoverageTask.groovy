@@ -76,6 +76,7 @@ class PyCoverageTask extends PyTestTask {
 
         CoverageXmlReporter coverageXmlReport = new CoverageXmlReporter(coverage)
         coverageReport.text = coverageXmlReport.generateXML()
+        super.processResults(execResult)
     }
 
     static class ParseOutputStream {

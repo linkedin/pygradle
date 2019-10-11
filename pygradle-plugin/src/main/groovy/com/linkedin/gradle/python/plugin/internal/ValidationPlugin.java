@@ -26,8 +26,11 @@ import com.linkedin.gradle.python.tasks.MypyTask;
 import com.linkedin.gradle.python.tasks.PyCoverageTask;
 import com.linkedin.gradle.python.tasks.PyTestTask;
 import com.linkedin.gradle.python.util.ExtensionUtils;
+import java.util.function.BiPredicate;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
 
 import static com.linkedin.gradle.python.util.StandardTextValues.TASK_CHECK;
 import static com.linkedin.gradle.python.util.StandardTextValues.TASK_CHECKSTYLE;
@@ -39,6 +42,8 @@ import static com.linkedin.gradle.python.util.StandardTextValues.TASK_MYPY;
 import static com.linkedin.gradle.python.util.StandardTextValues.TASK_PYTEST;
 
 public class ValidationPlugin implements Plugin<Project> {
+    private final static Logger LOG = Logging.getLogger(ValidationPlugin.class);
+
     @Override
     public void apply(final Project project) {
 
@@ -56,7 +61,12 @@ public class ValidationPlugin implements Plugin<Project> {
         project.getTasks().withType(AbstractPythonTestSourceDefaultTask.class,
             task -> task.dependsOn(project.getTasks().getByName(TASK_INSTALL_PROJECT.getValue())));
 
-        CoverageExtension cov = ExtensionUtils.maybeCreate(project, "coverage", CoverageExtension.class);
+        CoverageExtension cov = ExtensionUtils.maybeCreate(project, TASK_COVERAGE.getValue(), CoverageExtension.class);
+
+        BiPredicate<String, Boolean> pytestOrCoverage = (taskName, covShouldBeEnabled) ->
+            project.file(settings.testDir).exists() && (cov.isRun() == covShouldBeEnabled
+                // Task should be run if it is explicitly invoked.
+                || project.getGradle().getStartParameter().getTaskNames().contains(taskName));
         /*
          * Run tests using py.test.
          *
@@ -65,9 +75,14 @@ public class ValidationPlugin implements Plugin<Project> {
          * the coverage task will execute the test suite.
          */
         project.getTasks().create(TASK_PYTEST.getValue(), PyTestTask.class,
-            task -> task.onlyIf(it -> project.file(settings.testDir).exists()
-                && (!cov.isRun() || project.getGradle().getStartParameter().getTaskNames().contains(TASK_PYTEST.getValue()))
-            ));
+            task -> task.onlyIf(it -> {
+                boolean shouldRun = pytestOrCoverage.test(TASK_PYTEST.getValue(), false);
+                if (!shouldRun) {
+                    LOG.info("Skipping pytest task; Either you don't have tests written or coverage is enabled and "
+                        + "pytests will be run during the coverage task instead.");
+                }
+                return shouldRun;
+            }));
 
         // Add a dependency to task ``check`` to depend on our Python plugin's ``pytest`` task
         project.getTasks().getByName(TASK_CHECK.getValue())
@@ -78,15 +93,9 @@ public class ValidationPlugin implements Plugin<Project> {
          *
          * This uses the ``setup.cfg`` if present to configure py.test.
          */
+
         project.getTasks().create(TASK_COVERAGE.getValue(), PyCoverageTask.class,
-            task -> task.onlyIf(it -> project.file(settings.testDir).exists()
-                                /* The test suite and other environments run
-                                 * the coverage task explicitly, so check
-                                 * whether the flag is set *or* its been
-                                 * explicitly invoked.
-                                 */
-                                && (cov.isRun() || project.getGradle().getStartParameter().getTaskNames().contains("coverage"))
-                                ));
+            task -> task.onlyIf(it -> pytestOrCoverage.test(TASK_COVERAGE.getValue(), true)));
 
         // Make task "check" depend on coverage task.
         project.getTasks().getByName(TASK_CHECK.getValue())

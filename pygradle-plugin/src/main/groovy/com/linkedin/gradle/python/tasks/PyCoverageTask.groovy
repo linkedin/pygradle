@@ -21,7 +21,6 @@ import groovy.transform.CompileStatic
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.output.TeeOutputStream
 import org.gradle.api.tasks.OutputDirectory
-import org.gradle.api.tasks.OutputFile
 import org.gradle.process.ExecResult
 
 import java.util.regex.Pattern
@@ -38,8 +37,7 @@ class PyCoverageTask extends PyTestTask {
         return project.file("${ project.buildDir }/coverage")
     }
 
-    @OutputFile
-    File getCoverageReport() {
+    private File getCoverageReport() {
         return project.file("${ project.buildDir }/coverage/coverage.xml")
     }
 

@@ -48,6 +48,8 @@ class DefaultProjectLayoutRule extends ExternalResource implements ProjectLayout
     }
 
     public File buildFile
+    public File setupCfg
+    public File testFile
 
     @Override
     void before() throws Throwable {
@@ -133,10 +135,10 @@ class DefaultProjectLayoutRule extends ExternalResource implements ProjectLayout
         newFile(Paths.get(PROJECT_NAME_DIR, 'setup.py').toString()) << PyGradleTestBuilder.createSetupPy()
 
         // Create the setup.cfg file
-        newFile(Paths.get(PROJECT_NAME_DIR, 'setup.cfg').toString()) << PyGradleTestBuilder.createSetupCfg()
+        setupCfg = newFile(Paths.get(PROJECT_NAME_DIR, 'setup.cfg').toString()) << PyGradleTestBuilder.createSetupCfg()
 
         // Create the test directory and a simple test
-        newFile(Paths.get(PROJECT_NAME_DIR, 'test', 'test_a.py').toString()) << '''\
+        testFile = newFile(Paths.get(PROJECT_NAME_DIR, 'test', 'test_a.py').toString()) << '''\
             | from foo.hello import generate_welcome
             |
             |

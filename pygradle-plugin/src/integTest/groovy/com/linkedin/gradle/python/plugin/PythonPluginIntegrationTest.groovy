@@ -153,4 +153,65 @@ class PythonPluginIntegrationTest extends Specification {
         sorted.sort()
         return collected == sorted
     }
+
+    def "test pytest and coverage failure"() {
+        when:
+        testProjectDir.buildFile << """
+        |plugins {
+        |    id 'com.linkedin.python'
+        |}
+        |repositories {
+        |   pyGradlePyPi()
+        |}
+        |python {
+        |   coverage {
+        |       run = true
+        |   }
+        |}
+        """.stripMargin().stripIndent()
+
+        testProjectDir.setupCfg.text = """
+        | [flake8]
+        | ignore = E121,E123,E226,W292
+        | max-line-length = 160
+        |
+        | [tool:pytest]
+        | addopts = --ignore build/ --ignore dist/
+        | testpaths = test/
+        |
+        | [coverage:report]
+        | fail_under = ${failUnder}
+        | show_missing = true
+        |
+        | [coverage:run]
+        | branch = true
+        | omit =
+        |
+        """.stripMargin().stripIndent()
+
+        testProjectDir.testFile << """
+        |
+        | def test_insanity():
+        |     assert ${assertionVal}
+        |
+        """.stripMargin().stripIndent()
+
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withArguments('build', '-i')
+            .withPluginClasspath()
+            .withDebug(true)
+            .buildAndFail()
+        println result.output
+
+        then:
+        println result.output
+        result.task(':foo:coverage').outcome == TaskOutcome.FAILED
+
+        where:
+        failUnder | assertionVal
+        "100"     | "True"
+        "100"     | "False"
+        "10"      | "False"
+    }
 }

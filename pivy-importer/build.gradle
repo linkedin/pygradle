@@ -65,7 +65,7 @@ task importRequiredDependencies(type: JavaExec) { task ->
         'setuptools-git:1.2',
         'six:1.11.0',
         'Sphinx:1.8.1',
-        'virtualenv:16.0.0',
+        'virtualenv:16.1.0',
         'wheel:0.31.1',
     ].join(" ")
     def forceDeps = [

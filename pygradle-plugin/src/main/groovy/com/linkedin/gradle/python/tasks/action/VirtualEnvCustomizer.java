@@ -19,6 +19,7 @@ import com.linkedin.gradle.python.extension.PythonDetails;
 import com.linkedin.gradle.python.tasks.exec.ExternalExec;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
+import org.gradle.process.ExecResult;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -31,7 +32,8 @@ import java.nio.file.StandardOpenOption;
 import java.util.function.Consumer;
 
 public class VirtualEnvCustomizer implements Consumer<File> {
-
+    private static final int NO_CHANGE = 0;
+    private static final int CHANGED = 1;
     private static final Logger log = Logging.getLogger(VirtualEnvCustomizer.class);
 
     private final String distutilsCfg;
@@ -57,12 +59,30 @@ public class VirtualEnvCustomizer implements Consumer<File> {
                 throw new UncheckedIOException(e);
             }
 
+            // Since virtualenv-16.2.0 the rebuild script was renamed and relocated.
+            Path rebuildScriptPath = path.resolve(Paths.get("bin", "rebuild-script.py"));
+            if (!Files.exists(rebuildScriptPath)) {
+                rebuildScriptPath = path.resolve(Paths.get("tasks", "update_embedded.py"));
+            }
+
             final ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            exec.exec(execSpec -> {
-                execSpec.commandLine(pythonDetails.getSystemPythonInterpreter(), path.resolve(Paths.get("bin", "rebuild-script.py")).toFile());
+            final File rebuildScript = rebuildScriptPath.toFile();
+            ExecResult execResult = exec.exec(execSpec -> {
+                execSpec.commandLine(pythonDetails.getSystemPythonInterpreter(), rebuildScript);
                 execSpec.setStandardOutput(stream);
                 execSpec.setErrorOutput(stream);
+                execSpec.setIgnoreExitValue(true);
             });
+
+            /*
+             * Starting with virtualenv-16.1.0 the rebuild script returns 1 when there's a change.
+             * Since the change is exactly what we want, we cannot allow the failure for exit code 1.
+             */
+            if (execResult.getExitValue() != NO_CHANGE && execResult.getExitValue() != CHANGED) {
+                log.lifecycle(stream.toString());
+                execResult.assertNormalExitValue();
+            }
+
             log.info("Customized distutils.cfg");
         }
     }

@@ -75,7 +75,7 @@ class PythonExtension {
         'setuptools-git': ['group': 'pypi', 'name': 'setuptools-git', 'version': '1.2'],
         'six'           : ['group': 'pypi', 'name': 'six', 'version': '1.11.0'],
         'Sphinx'        : ['group': 'pypi', 'name': 'Sphinx', 'version': '1.8.1'],
-        'virtualenv'    : ['group': 'pypi', 'name': 'virtualenv', 'version': '16.0.0'],
+        'virtualenv'    : ['group': 'pypi', 'name': 'virtualenv', 'version': '16.1.0'],
         'wheel'         : ['group': 'pypi', 'name': 'wheel', 'version': '0.31.1'],
     ]
 

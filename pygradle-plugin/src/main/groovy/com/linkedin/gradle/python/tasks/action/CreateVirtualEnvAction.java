@@ -73,14 +73,19 @@ public class CreateVirtualEnvAction {
             customize.accept(packageDir);
         }
 
+        // In virtualenv-16.1.0 the install script was relocated and will be in 17+.
+        Path installScriptPath = Paths.get(packageDir.toString(), "virtualenv.py");
+        if (!Files.exists(installScriptPath)) {
+            installScriptPath = Paths.get(packageDir.toString(), "src", "virtualenv.py");
+        }
+
+        final File installScript = installScriptPath.toFile();
         OutputStream outputStream = new ByteArrayOutputStream();
         ExecResult execResult = project.exec(execSpec -> {
             container.setOutputs(execSpec);
-            // For virtualenv >= 16.1, use and invoke via `-m virtualenv` below.
-            // execSpec.environment("PYTHONPATH", new File(packageDir, "src"));
             execSpec.commandLine(
                 pythonDetails.getSystemPythonInterpreter(),
-                new File(packageDir, "virtualenv.py"),
+                installScript,
                 "--never-download",
                 "--python", pythonDetails.getSystemPythonInterpreter(),
                 "--prompt", pythonDetails.getVirtualEnvPrompt(),

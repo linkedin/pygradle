@@ -21,7 +21,6 @@ import groovy.transform.CompileStatic
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.output.TeeOutputStream
 import org.gradle.api.tasks.OutputDirectory
-import org.gradle.api.tasks.OutputFile
 import org.gradle.process.ExecResult
 
 import java.util.regex.Pattern
@@ -34,10 +33,13 @@ import java.util.regex.Pattern
 class PyCoverageTask extends PyTestTask {
 
     @OutputDirectory
-    File coverageOutputDir = project.file("${ project.buildDir }/coverage")
+    File getCoverageOutputDir() {
+        return project.file("${ project.buildDir }/coverage")
+    }
 
-    @OutputFile
-    File coverageReport = project.file("${ project.buildDir }/coverage/coverage.xml")
+    private File getCoverageReport() {
+        return project.file("${ project.buildDir }/coverage/coverage.xml")
+    }
 
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream()
 
@@ -76,6 +78,7 @@ class PyCoverageTask extends PyTestTask {
 
         CoverageXmlReporter coverageXmlReport = new CoverageXmlReporter(coverage)
         coverageReport.text = coverageXmlReport.generateXML()
+        super.processResults(execResult)
     }
 
     static class ParseOutputStream {

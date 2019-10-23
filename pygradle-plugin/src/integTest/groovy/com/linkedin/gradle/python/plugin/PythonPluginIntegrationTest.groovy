@@ -65,8 +65,8 @@ class PythonPluginIntegrationTest extends Specification {
         result.task(':foo:pytest').outcome == TaskOutcome.SUCCESS
         result.task(':foo:check').outcome == TaskOutcome.SUCCESS
         result.task(':foo:build').outcome == TaskOutcome.SUCCESS
+        // The coverage task should run since 'coverage' was passed explicitly as an argument
         result.task(':foo:coverage').outcome == TaskOutcome.SUCCESS
-
 
         when:
         println "========================"
@@ -100,6 +100,9 @@ class PythonPluginIntegrationTest extends Specification {
         |   details {
         |       virtualEnvPrompt = 'pyGradle!'
         |   }
+        |   coverage {
+        |       run = true
+        |   }
         |}
         |
         |buildDir = 'build2'
@@ -125,7 +128,10 @@ class PythonPluginIntegrationTest extends Specification {
         result.task(':foo:createVirtualEnvironment').outcome == TaskOutcome.SUCCESS
         result.task(':foo:getProbedTags').outcome == TaskOutcome.SUCCESS
         result.task(':foo:installProject').outcome == TaskOutcome.SUCCESS
-        result.task(':foo:pytest').outcome == TaskOutcome.SUCCESS
+        // The coverage task should run since we set it in the build.gradle file
+        result.task(':foo:coverage').outcome == TaskOutcome.SUCCESS
+        // The pytest task should be skipped since we are running coverage
+        result.task(':foo:pytest').outcome == TaskOutcome.SKIPPED
         result.task(':foo:check').outcome == TaskOutcome.SUCCESS
         result.task(':foo:build').outcome == TaskOutcome.SUCCESS
         !installOrderSorted(result.output, ':foo:installSetupRequirements', ':foo:installBuildRequirements')
@@ -146,5 +152,66 @@ class PythonPluginIntegrationTest extends Specification {
         }
         sorted.sort()
         return collected == sorted
+    }
+
+    def "test pytest and coverage failure"() {
+        when:
+        testProjectDir.buildFile << """
+        |plugins {
+        |    id 'com.linkedin.python'
+        |}
+        |repositories {
+        |   pyGradlePyPi()
+        |}
+        |python {
+        |   coverage {
+        |       run = true
+        |   }
+        |}
+        """.stripMargin().stripIndent()
+
+        testProjectDir.setupCfg.text = """
+        | [flake8]
+        | ignore = E121,E123,E226,W292
+        | max-line-length = 160
+        |
+        | [tool:pytest]
+        | addopts = --ignore build/ --ignore dist/
+        | testpaths = test/
+        |
+        | [coverage:report]
+        | fail_under = ${failUnder}
+        | show_missing = true
+        |
+        | [coverage:run]
+        | branch = true
+        | omit =
+        |
+        """.stripMargin().stripIndent()
+
+        testProjectDir.testFile << """
+        |
+        | def test_insanity():
+        |     assert ${assertionVal}
+        |
+        """.stripMargin().stripIndent()
+
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withArguments('build', '-i')
+            .withPluginClasspath()
+            .withDebug(true)
+            .buildAndFail()
+        println result.output
+
+        then:
+        println result.output
+        result.task(':foo:coverage').outcome == TaskOutcome.FAILED
+
+        where:
+        failUnder | assertionVal
+        "100"     | "True"
+        "100"     | "False"
+        "10"      | "False"
     }
 }

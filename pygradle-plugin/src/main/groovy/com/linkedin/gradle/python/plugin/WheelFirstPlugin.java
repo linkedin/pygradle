@@ -50,7 +50,7 @@ public class WheelFirstPlugin implements Plugin<Project> {
         project.getPlugins().withType(PythonPlugin.class, plugin -> {
 
             EditablePythonAbiContainer supportedWheelFormats = ExtensionUtils.getEditablePythonAbiContainer(project);
-            FileBackedWheelCache wheelCache = new FileBackedWheelCache(cacheDir, supportedWheelFormats);
+            FileBackedWheelCache wheelCache = new FileBackedWheelCache(cacheDir, supportedWheelFormats.copy());
 
             tasks.withType(ProvidesVenv.class, it -> it.setEditablePythonAbiContainer(supportedWheelFormats));
 

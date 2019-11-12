@@ -125,7 +125,7 @@ class DependencyOrderTest extends Specification {
         configuration = Stub(Configuration) {
             getIncoming() >> Stub(ResolvableDependencies) {
                 getResolutionResult() >> Stub(ResolutionResult) {
-                    getRoot() >> root
+                    it.getRoot() >> root
                 }
             }
             getResolvedConfiguration() >> Stub(ResolvedConfiguration) {
@@ -155,7 +155,7 @@ class DependencyOrderTest extends Specification {
 
     def "postOrderDependencies handles circular dependencies well"() {
         setup: "make the root with circular dependencies"
-        def dependencies = new LinkedHashSet<ResolvedComponentResult>()
+        def deps = new LinkedHashSet<ResolvedComponentResult>()
         def seen = new HashSet<ComponentIdentifier>()
 
         // add the 4th branch for circular dependency test
@@ -167,11 +167,11 @@ class DependencyOrderTest extends Specification {
         }
 
         when: "called with circular dependencies in the tree"
-        DependencyOrder.postOrderDependencies(root, seen, dependencies)
+        DependencyOrder.postOrderDependencies(root, seen, deps)
 
         then: "returns dependencies in post-order cutting the recursion at the circular dependency"
         // comparing string representations because sets would match even with a wrong order
-        dependencies.toString() == expectedDependencies.toString()
+        deps.toString() == expectedDependencies.toString()
 
         cleanup:
         expectedDependencies.removeAll(expectedCircularBranch)

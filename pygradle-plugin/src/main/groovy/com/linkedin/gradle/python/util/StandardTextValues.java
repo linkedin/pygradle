@@ -30,7 +30,6 @@ public enum StandardTextValues {
     CONFIGURATION_TEST("test"),
     CONFIGURATION_VENV("venv"),
     CONFIGURATION_WHEEL("wheel"),
-    CONFIGURATION_FLAKE8("flake8"),
     TASK_BUILD_DOCS("buildDocs"),
     TASK_CLEAN_SAVE_VENV("cleanSaveVenv"),
     TASK_CHECK("check"),

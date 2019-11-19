@@ -16,14 +16,8 @@
 package com.linkedin.gradle.python.tasks;
 
 import com.linkedin.gradle.python.PythonExtension;
-import com.linkedin.gradle.python.extension.PythonDetails;
-import com.linkedin.gradle.python.extension.PythonDetailsFactory;
-import com.linkedin.gradle.python.tasks.supports.SupportsDistutilsCfg;
-import com.linkedin.gradle.python.tasks.supports.SupportsPackageFiltering;
-import com.linkedin.gradle.python.tasks.supports.SupportsPackageInfoSettings;
 import com.linkedin.gradle.python.util.ExtensionUtils;
 import org.apache.commons.io.FileUtils;
-import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.process.ExecResult;
@@ -31,50 +25,22 @@ import org.gradle.process.ExecResult;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Flake8Task extends AbstractPythonInfrastructureDefaultTask implements SupportsPackageInfoSettings,
-    SupportsDistutilsCfg, SupportsPackageFiltering {
+public class Flake8Task extends AbstractPythonMainSourceDefaultTask {
 
     private static final Logger log = Logging.getLogger(Flake8Task.class);
 
-    @Override
-    public File getVenvPath() {
-        return getProject().getBuildDir().toPath().resolve(Paths.get("infra-venv", "flake8")).toFile();
-    }
-
-    @Override
-    public Configuration getInstallConfiguration() {
-        return getProject().getConfigurations().getByName("flake8");
-    }
-
-    @Override
-    public PythonDetails getPythonDetails() {
-        PythonDetails projectPythonDetails = ExtensionUtils.getPythonExtension(getProject()).getDetails();
-        return PythonDetailsFactory.withNewVenv(getProject(), projectPythonDetails, getVenvPath());
-    }
-
-    @Override
-    protected boolean isVenvReady() {
-        PythonDetails flake8Python = getPythonDetails();
-        File flake8Exec = flake8Python.getVirtualEnvironment().findExecutable("flake8");
-        return flake8Exec.exists() && flake8Exec.isFile();
-    }
-
     public void preExecution() {
-        PythonDetails flake8Python = getPythonDetails();
-
-        File flake8Exec = flake8Python.getVirtualEnvironment().findExecutable("flake8");
+        PythonExtension pythonExtension = ExtensionUtils.getPythonExtension(getProject());
+        File flake8Exec = pythonExtension.getDetails().getVirtualEnvironment().findExecutable("flake8");
 
         /*
          Modified to only include folders that exist. if no folders exist, then
          the task isn't actually run.
          */
-        PythonExtension pythonExtension = getPythonExtension();
-
         List<String> paths = new ArrayList<>();
         if (getProject().file(pythonExtension.srcDir).exists()) {
             log.info("Flake8: adding {}", pythonExtension.srcDir);

@@ -4,7 +4,7 @@ jobs:
         docker:
             - image: openjdk:8-jdk
         environment:
-            _JAVA_OPTIONS: "-Xmx1024m -Xms256m"
+            _JAVA_OPTIONS: "-Xmx768m -Xms256m"
             GRADLE_OPTS: -Dorg.gradle.jvmargs=-Xmx1024m -Dorg.gradle.daemon=false
         steps:
             - run:

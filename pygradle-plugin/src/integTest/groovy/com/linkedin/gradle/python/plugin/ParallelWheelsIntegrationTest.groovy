@@ -92,20 +92,6 @@ class ParallelWheelsIntegrationTest extends Specification {
 
         then:
         out.toString() == "Hello World${ System.getProperty("line.separator") }".toString()
-
-        when:
-        println "======================="
-        result = GradleRunner.create()
-            .withProjectDir(testProjectDir.root)
-
-            .withArguments('flake8', '--stacktrace', '--info')
-            .withPluginClasspath()
-            .withDebug(true)
-            .build()
-        println result.output
-
-        then:
-        result.task(':foo:parallelWheels') == null //the task isn't part of the graph
     }
 
     @IgnoreIf({ OperatingSystem.current() == OperatingSystem.WINDOWS })

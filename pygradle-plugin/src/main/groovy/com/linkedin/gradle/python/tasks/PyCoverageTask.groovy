@@ -73,8 +73,10 @@ class PyCoverageTask extends PyTestTask {
         String htmlDir = streamProcessor.htmlDir
         String coverage = streamProcessor.coverage
 
-
-        FileUtils.copyDirectoryToDirectory(project.file(htmlDir), coverageOutputDir)
+        // If there is no coverage to report, then the htmlDir value will be empty
+        if (htmlDir != null) {
+            FileUtils.copyDirectoryToDirectory(project.file(htmlDir), coverageOutputDir)
+        }
 
         CoverageXmlReporter coverageXmlReport = new CoverageXmlReporter(coverage)
         coverageReport.text = coverageXmlReport.generateXML()

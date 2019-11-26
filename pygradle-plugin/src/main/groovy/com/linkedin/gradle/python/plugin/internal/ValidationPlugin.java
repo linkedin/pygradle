@@ -16,17 +16,13 @@
 package com.linkedin.gradle.python.plugin.internal;
 
 import com.linkedin.gradle.python.PythonExtension;
-import com.linkedin.gradle.python.extension.BlackExtension;
-import com.linkedin.gradle.python.extension.IsortExtension;
 import com.linkedin.gradle.python.extension.MypyExtension;
 import com.linkedin.gradle.python.extension.CoverageExtension;
 import com.linkedin.gradle.python.tasks.AbstractPythonMainSourceDefaultTask;
 import com.linkedin.gradle.python.tasks.AbstractPythonTestSourceDefaultTask;
-import com.linkedin.gradle.python.tasks.BlackTask;
 import com.linkedin.gradle.python.tasks.CheckStyleGeneratorTask;
 import com.linkedin.gradle.python.tasks.Flake8Task;
 import com.linkedin.gradle.python.tasks.MypyTask;
-import com.linkedin.gradle.python.tasks.IsortTask;
 import com.linkedin.gradle.python.tasks.PyCoverageTask;
 import com.linkedin.gradle.python.tasks.PyTestTask;
 import com.linkedin.gradle.python.util.ExtensionUtils;
@@ -36,7 +32,6 @@ import org.gradle.api.Project;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 
-import static com.linkedin.gradle.python.util.StandardTextValues.TASK_BLACK;
 import static com.linkedin.gradle.python.util.StandardTextValues.TASK_CHECK;
 import static com.linkedin.gradle.python.util.StandardTextValues.TASK_CHECKSTYLE;
 import static com.linkedin.gradle.python.util.StandardTextValues.TASK_COVERAGE;
@@ -44,7 +39,6 @@ import static com.linkedin.gradle.python.util.StandardTextValues.TASK_FLAKE;
 import static com.linkedin.gradle.python.util.StandardTextValues.TASK_INSTALL_BUILD_REQS;
 import static com.linkedin.gradle.python.util.StandardTextValues.TASK_INSTALL_PROJECT;
 import static com.linkedin.gradle.python.util.StandardTextValues.TASK_MYPY;
-import static com.linkedin.gradle.python.util.StandardTextValues.TASK_ISORT;
 import static com.linkedin.gradle.python.util.StandardTextValues.TASK_PYTEST;
 
 public class ValidationPlugin implements Plugin<Project> {
@@ -118,7 +112,7 @@ public class ValidationPlugin implements Plugin<Project> {
         /*
          * Run mypy.
          *
-         * This uses the setup.cfg (or mypy.ini) file if present to configure mypy.
+         * This uses the mypy.ini file if present to configure mypy.
          */
         MypyExtension mypy = ExtensionUtils.maybeCreate(project, "mypy", MypyExtension.class);
         project.getTasks().create(TASK_MYPY.getValue(), MypyTask.class,
@@ -127,28 +121,6 @@ public class ValidationPlugin implements Plugin<Project> {
         // Make task "check" depend on mypy task.
         project.getTasks().getByName(TASK_CHECK.getValue())
             .dependsOn(project.getTasks().getByName(TASK_MYPY.getValue()));
-
-        /*
-         * Run isort.
-         */
-        IsortExtension isort = ExtensionUtils.maybeCreate(project, "isort", IsortExtension.class);
-        project.getTasks().create(TASK_ISORT.getValue(), IsortTask.class,
-            task -> task.onlyIf(it -> project.file(settings.srcDir).exists() && isort.isRun()));
-
-        // Make task "check" depend on isort task.
-        project.getTasks().getByName(TASK_CHECK.getValue())
-            .dependsOn(project.getTasks().getByName(TASK_ISORT.getValue()));
-
-        /*
-         * Run black.
-         */
-        BlackExtension black = ExtensionUtils.maybeCreate(project, "black", BlackExtension.class);
-        project.getTasks().create(TASK_BLACK.getValue(), BlackTask.class,
-            task -> task.onlyIf(it -> project.file(settings.srcDir).exists() && black.isRun()));
-
-        // Make task "check" depend on black task.
-        project.getTasks().getByName(TASK_CHECK.getValue())
-            .dependsOn(project.getTasks().getByName(TASK_BLACK.getValue()));
 
         /*
          * Create checkstyle styled report from flake

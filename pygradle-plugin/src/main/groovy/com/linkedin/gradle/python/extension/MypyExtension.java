@@ -15,8 +15,24 @@
  */
 package com.linkedin.gradle.python.extension;
 
-import com.linkedin.gradle.python.extension.internal.DefaultExternalTool;
 
+public class MypyExtension {
+    private boolean run;
+    private String[] arguments = null;
 
-public class MypyExtension extends DefaultExternalTool {
+    public boolean isRun() {
+        return run;
+    }
+
+    public void setRun(boolean run) {
+        this.run = run;
+    }
+
+    public void setArguments(String argumentString) {
+        arguments = argumentString.split("\\s+");
+    }
+
+    public String[] getArguments() {
+        return arguments;
+    }
 }

@@ -77,10 +77,12 @@ class ProjectDetails {
                 // skip alpha/beta/release candidate versions
                 continue
             }
-            if (VersionRange.compareVersions(release, start) > 0 || (release == start && range.includeStart)) {
+            if (VersionRange.compareVersions(release, start) > 0 ||
+                    ((release == start || VersionRange.compareVersions(release, start) == 0) && range.includeStart)) {
                 matchingRange.add(release)
             }
-            if (VersionRange.compareVersions(release, end) > 0 || (release == end && !range.includeEnd)) {
+            if (VersionRange.compareVersions(release, end) > 0 ||
+                    ((release == end || VersionRange.compareVersions(release, end) == 0) && !range.includeEnd)) {
                 break
             }
         }

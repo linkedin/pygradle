@@ -26,9 +26,9 @@ class Flake8TaskIntegrationTest extends Specification {
 
     @Rule
     final DefaultProjectLayoutRule testProjectDir = new DefaultProjectLayoutRule()
+    def bazPy
 
-    def "a passing flake8"() {
-        given:
+    def setup() {
         testProjectDir.buildFile << """\
         |plugins {
         |    id 'com.linkedin.python'
@@ -36,7 +36,10 @@ class Flake8TaskIntegrationTest extends Specification {
         |
         |${ PyGradleTestBuilder.createRepoClosure() }
         """.stripMargin().stripIndent()
+        bazPy = new File(testProjectDir.root, 'foo/src/foo/baz.py')
+    }
 
+    def "a passing flake8"() {
         when:
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
@@ -46,22 +49,12 @@ class Flake8TaskIntegrationTest extends Specification {
         println result.output
 
         then:
-
         result.task(':foo:flake8').outcome == TaskOutcome.SUCCESS
     }
 
     def "a failing flake8"() {
         given:
-        testProjectDir.buildFile << """\
-        |plugins {
-        |    id 'com.linkedin.python'
-        |}
-        |
-        |${ PyGradleTestBuilder.createRepoClosure() }
-        """.stripMargin().stripIndent()
-
-        def baxPy = new File(testProjectDir.root, 'foo/src/foo/baz.py')
-        baxPy.text = '''
+        bazPy.text = '''
         |import os, sys
         '''.stripMargin().stripIndent()
 
@@ -76,5 +69,59 @@ class Flake8TaskIntegrationTest extends Specification {
         then:
         result.output.contains('baz.py:2:10: E401 multiple imports on one line')
         result.task(':foo:flake8').outcome == TaskOutcome.FAILED
+    }
+
+    def "flake8 fails even with ignore"() {
+        given:
+        testProjectDir.buildFile << '''
+        | import com.linkedin.gradle.python.tasks.Flake8Task
+        | tasks.withType(Flake8Task) { Flake8Task task ->
+        |     task.setIgnoreRules(["E401"] as Set)
+        | }
+        '''.stripMargin().stripIndent()
+
+        bazPy.text = '''
+        |import os, sys
+        |'''.stripMargin().stripIndent()
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withArguments('flake8', '-s', '-i')
+            .withPluginClasspath()
+            .buildAndFail()
+        println result.output
+
+        then:
+        result.output.contains("baz.py:2:1: F401 'os' imported but unused")
+        result.task(':foo:flake8').outcome == TaskOutcome.FAILED
+    }
+
+    def "warning for a newly failing flake8"() {
+        given:
+        testProjectDir.buildFile << '''
+        | import com.linkedin.gradle.python.tasks.Flake8Task
+        | tasks.withType(Flake8Task) { Flake8Task task ->
+        |     task.setIgnoreRules(["E401", "F401"] as Set)
+        | }
+        '''.stripMargin().stripIndent()
+
+        bazPy.text = '''
+        |import os, sys
+        |'''.stripMargin().stripIndent()
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withArguments('flake8', '-s', '-i')
+            .withPluginClasspath()
+            .build()
+        println result.output
+
+        then:
+        result.output.contains('The flake8 version has been recently updated, which added the following new rules:')
+        result.output.contains('baz.py:2:10: E401 multiple imports on one line')
+        result.output.contains("baz.py:2:1: F401 'os' imported but unused")
+        result.task(':foo:flake8').outcome == TaskOutcome.SUCCESS
     }
 }

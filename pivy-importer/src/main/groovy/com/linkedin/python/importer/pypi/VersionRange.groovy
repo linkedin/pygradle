@@ -70,10 +70,24 @@ class VersionRange {
         }
         if (v1.size() == v2.size()) {
             return 0
-        } else if (i < v2.size()) {
+        }
+        // Make sure 0.3 matches 0.3.0, etc.
+        if (i < v1.size() && isOnlyZeroesRemain(v1, i) || i < v2.size() && isOnlyZeroesRemain(v2, i)) {
+            return 0
+        }
+        if (i < v2.size()) {
             return (v2[i] < 0) ? 1 : -1
         }
         return (v1[i] < 0) ? -1 : 1
+    }
+
+    static boolean isOnlyZeroesRemain(List<Integer> v, int start) {
+        for (int i = start; i < v.size(); i++) {
+            if (v[i] != 0) {
+                return false
+            }
+        }
+        return true
     }
 
 }

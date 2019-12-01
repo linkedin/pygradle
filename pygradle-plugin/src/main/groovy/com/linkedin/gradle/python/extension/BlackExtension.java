@@ -18,5 +18,5 @@ package com.linkedin.gradle.python.extension;
 import com.linkedin.gradle.python.extension.internal.DefaultExternalTool;
 
 
-public class MypyExtension extends DefaultExternalTool {
+public class BlackExtension extends DefaultExternalTool {
 }

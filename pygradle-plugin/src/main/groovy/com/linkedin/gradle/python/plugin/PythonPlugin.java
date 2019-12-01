@@ -160,6 +160,8 @@ public class PythonPlugin implements Plugin<Project> {
         project.getConfigurations().create(CONFIGURATION_TEST.getValue());
         project.getConfigurations().create(CONFIGURATION_VENV.getValue());
         project.getConfigurations().create(CONFIGURATION_WHEEL.getValue());
+        // TODO: Kept for compatibility. Remove when not needed (very soon).
+        project.getConfigurations().create("flake8");
     }
 
     /*

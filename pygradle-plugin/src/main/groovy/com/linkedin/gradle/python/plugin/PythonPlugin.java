@@ -155,13 +155,16 @@ public class PythonPlugin implements Plugin<Project> {
 
         project.getConfigurations().create(CONFIGURATION_BOOTSTRAP_REQS.getValue());
         project.getConfigurations().create(CONFIGURATION_SETUP_REQS.getValue());
-        project.getConfigurations().create(CONFIGURATION_BUILD_REQS.getValue());
+        Configuration buildReq = project.getConfigurations().create(CONFIGURATION_BUILD_REQS.getValue());
         project.getConfigurations().create(CONFIGURATION_PYDOCS.getValue());
         project.getConfigurations().create(CONFIGURATION_TEST.getValue());
         project.getConfigurations().create(CONFIGURATION_VENV.getValue());
         project.getConfigurations().create(CONFIGURATION_WHEEL.getValue());
-        // TODO: Kept for compatibility. Remove when not needed (very soon).
-        project.getConfigurations().create("flake8");
+        // TODO: Kept for backwards compatibility. Remove when not needed (very soon).
+        // Even though flake8 is no longer in its own virtual env, users may still be adding libraries through the
+        // flake8 configuration, which still needs to be added to the build config so those libraries exist in the venv.
+        Configuration flake8 = project.getConfigurations().create("flake8");
+        buildReq.extendsFrom(flake8);
     }
 
     /*

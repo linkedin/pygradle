@@ -65,7 +65,7 @@ class PythonExtension {
 
     /** A way to define forced versions of libraries */
     public Map<String, Map<String, String>> forcedVersions = [
-        'flake8'        : ['group': 'pypi', 'name': 'flake8', 'version': '3.6.0'],
+        'flake8'        : ['group': 'pypi', 'name': 'flake8', 'version': '3.7.9'],
         'pex'           : ['group': 'pypi', 'name': 'pex', 'version': '1.5.2'],
         'pip'           : ['group': 'pypi', 'name': 'pip', 'version': '18.1'],
         'pytest'        : ['group': 'pypi', 'name': 'pytest', 'version': '3.10.0'],

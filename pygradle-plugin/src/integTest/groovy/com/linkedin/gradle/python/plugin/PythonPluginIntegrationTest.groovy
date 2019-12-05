@@ -30,11 +30,18 @@ class PythonPluginIntegrationTest extends Specification {
     def "can build library"() {
         given:
         testProjectDir.buildFile << """
-        |plugins {
-        |    id 'com.linkedin.python'
-        |    id 'com.linkedin.python-wheel-dist'
-        |}
+        | plugins {
+        |     id 'com.linkedin.python'
+        |     id 'com.linkedin.python-wheel-dist'
+        | }
         |
+        | python {
+        |     pipConfig = [:]
+        |     for (String command : ['install', 'wheel', 'download']) {
+        |         pipConfig.put(command, [:])
+        |         pipConfig.get(command).put('no-build-isolation', 'false')
+        |     }
+        | }
         |${PyGradleTestBuilder.createRepoClosure()}
         """.stripMargin().stripIndent()
 
@@ -88,24 +95,29 @@ class PythonPluginIntegrationTest extends Specification {
     def "can use external library"() {
         given:
         testProjectDir.buildFile << """
-        |plugins {
-        |    id 'com.linkedin.python'
-        |}
+        | plugins {
+        |     id 'com.linkedin.python'
+        | }
         |
-        |repositories {
-        |   pyGradlePyPi()
-        |}
+        | repositories {
+        |     pyGradlePyPi()
+        | }
         |
-        |python {
-        |   details {
-        |       virtualEnvPrompt = 'pyGradle!'
-        |   }
-        |   coverage {
-        |       run = true
-        |   }
-        |}
+        | python {
+        |     details {
+        |         virtualEnvPrompt = 'pyGradle!'
+        |     }
+        |     coverage {
+        |         run = true
+        |     }
+        |     pipConfig = [:]
+        |     for (String command : ['install', 'wheel', 'download']) {
+        |         pipConfig.put(command, [:])
+        |         pipConfig.get(command).put('no-build-isolation', 'false')
+        |     }
+        | }
         |
-        |buildDir = 'build2'
+        | buildDir = 'build2'
         """.stripMargin().stripIndent()
 
         when:
@@ -157,17 +169,22 @@ class PythonPluginIntegrationTest extends Specification {
     def "test pytest and coverage failure"() {
         when:
         testProjectDir.buildFile << """
-        |plugins {
-        |    id 'com.linkedin.python'
-        |}
-        |repositories {
-        |   pyGradlePyPi()
-        |}
-        |python {
-        |   coverage {
-        |       run = true
-        |   }
-        |}
+        | plugins {
+        |     id 'com.linkedin.python'
+        | }
+        | repositories {
+        |     pyGradlePyPi()
+        | }
+        | python {
+        |     coverage {
+        |         run = true
+        |     }
+        |     pipConfig = [:]
+        |     for (String command : ['install', 'wheel', 'download']) {
+        |         pipConfig.put(command, [:])
+        |         pipConfig.get(command).put('no-build-isolation', 'false')
+        |     }
+        | }
         """.stripMargin().stripIndent()
 
         testProjectDir.setupCfg.text = """

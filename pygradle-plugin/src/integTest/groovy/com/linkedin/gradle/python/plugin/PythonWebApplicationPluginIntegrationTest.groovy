@@ -35,17 +35,22 @@ class PythonWebApplicationPluginIntegrationTest extends Specification {
     def "can build web-app"() {
         given:
         testProjectDir.buildFile << """\
-        |plugins {
-        |    id 'com.linkedin.python-web-app'
-        |}
+        | plugins {
+        |     id 'com.linkedin.python-web-app'
+        | }
         |
-        |python {
-        |  pex {
-        |    fatPex = true
-        |  }
-        |}
+        | python {
+        |     pex {
+        |        fatPex = true
+        |     }
+        |     pipConfig = [:]
+        |     for (String command : ['install', 'wheel', 'download']) {
+        |         pipConfig.put(command, [:])
+        |         pipConfig.get(command).put('no-build-isolation', 'false')
+        |     }
+        | }
         |
-        |version = '1.2.3'
+        | version = '1.2.3'
         |${PyGradleTestBuilder.createRepoClosure()}
         """.stripMargin().stripIndent()
 

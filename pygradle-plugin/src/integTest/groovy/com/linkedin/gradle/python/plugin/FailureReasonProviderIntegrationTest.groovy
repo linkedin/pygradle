@@ -34,6 +34,14 @@ class FailureReasonProviderIntegrationTest extends Specification {
         | plugins {
         |     id 'com.linkedin.python-pex'
         | }
+        !
+        | python{
+        |     pipConfig = [:]
+        |     for (String command : ['install', 'wheel', 'download']) {
+        |         pipConfig.put(command, [:])
+        |         pipConfig.get(command).put('no-build-isolation', 'false')
+        |     }
+        | }
         |
         | configurations {
         |    testProj

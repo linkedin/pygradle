@@ -52,7 +52,7 @@ task importRequiredDependencies(type: JavaExec) { task ->
         'sphinx_rtd_theme:0.1.0=sphinx_rtd_theme:0.1.1',      // candidate for removal
     ].join(",")
     def packagesToInclude = [
-        'flake8:3.6.0',
+        'flake8:3.7.9',
         'Flask:0.12.2',
         'pbr:5.1.1',
         'pex:1.5.2',

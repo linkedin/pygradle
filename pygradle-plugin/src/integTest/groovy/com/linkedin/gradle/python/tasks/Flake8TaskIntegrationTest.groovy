@@ -30,10 +30,17 @@ class Flake8TaskIntegrationTest extends Specification {
     def "a passing flake8"() {
         given:
         testProjectDir.buildFile << """\
-        |plugins {
-        |    id 'com.linkedin.python'
-        |}
+        | plugins {
+        |     id 'com.linkedin.python'
+        | }
         |
+        | python {
+        |     pipConfig = [:]
+        |     for (String command : ['install', 'wheel', 'download']) {
+        |         pipConfig.put(command, [:])
+        |         pipConfig.get(command).put('no-build-isolation', 'false')
+        |     }
+        | }
         |${ PyGradleTestBuilder.createRepoClosure() }
         """.stripMargin().stripIndent()
 
@@ -53,10 +60,17 @@ class Flake8TaskIntegrationTest extends Specification {
     def "a failing flake8"() {
         given:
         testProjectDir.buildFile << """\
-        |plugins {
-        |    id 'com.linkedin.python'
-        |}
+        | plugins {
+        |     id 'com.linkedin.python'
+        | }
         |
+        | python {
+        |     pipConfig = [:]
+        |     for (String command : ['install', 'wheel', 'download']) {
+        |         pipConfig.put(command, [:])
+        |         pipConfig.get(command).put('no-build-isolation', 'false')
+        |     }
+        | }
         |${ PyGradleTestBuilder.createRepoClosure() }
         """.stripMargin().stripIndent()
 

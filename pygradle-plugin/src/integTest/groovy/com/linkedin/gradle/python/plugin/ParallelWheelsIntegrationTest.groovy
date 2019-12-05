@@ -45,9 +45,14 @@ class ParallelWheelsIntegrationTest extends Specification {
         | apply plugin: com.linkedin.gradle.python.plugin.WheelFirstPlugin
         | version = '1.0.0'
         | python {
-        |   pex {
-        |     fatPex = false
-        |   }
+        |     pex {
+        |         fatPex = false
+        |     }
+        |     pipConfig = [:]
+        |     for (String command : ['install', 'wheel', 'download']) {
+        |         pipConfig.put(command, [:])
+        |         pipConfig.get(command).put('no-build-isolation', 'false')
+        |     }
         | }
         | ${ PyGradleTestBuilder.createRepoClosure() }
         """.stripMargin().stripIndent()
@@ -104,6 +109,13 @@ class ParallelWheelsIntegrationTest extends Specification {
         | apply plugin: com.linkedin.gradle.python.plugin.WheelFirstPlugin
         |
         | version = '1.0.0'
+        | python {
+        |     pipConfig = [:]
+        |     for (String command : ['install', 'wheel', 'download']) {
+        |         pipConfig.put(command, [:])
+        |         pipConfig.get(command).put('no-build-isolation', 'false')
+        |     }
+        | }
         | ${ PyGradleTestBuilder.createRepoClosure() }
         """.stripMargin().stripIndent()
 

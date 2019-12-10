@@ -17,6 +17,8 @@ package com.linkedin.gradle.python.tasks;
 
 import com.linkedin.gradle.python.PythonExtension;
 import com.linkedin.gradle.python.util.ExtensionUtils;
+import java.util.HashSet;
+import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
@@ -32,8 +34,31 @@ import java.util.List;
 public class Flake8Task extends AbstractPythonMainSourceDefaultTask {
 
     private static final Logger log = Logging.getLogger(Flake8Task.class);
+    // Track whether the current run is excluding the new rules
+    private Boolean ignoringNewRules = false;
+    private String firstRunOutput = null;
+
+    // Set of flake8 rules to ignore (i.e. warn if these checks fail, rather than failing the task)
+    private Set<String> ignoreRules = new HashSet<>();
+
+    private static final String IGNORED_RULES_MSG = "######################### WARNING ##########################\n"
+        + "The flake8 version has been recently updated, which added the following new rules:\n"
+        + "%s\n"  // This will be replaced with the set of ignored rules
+        + "Your project is failing for one or more of these rules. Please address them, as they will be enforced soon.\n"
+        + "%s############################################################\n";
+
+    // Provide the ability to set the ignored rules for testing purposes,
+    // but mainly so that users can enforce the use of a different version of flake8 in their plugins.
+    public void setIgnoreRules(Set<String> ignoreRules) {
+        this.ignoreRules = ignoreRules;
+    }
+
+    public Set<String> getIgnoreRules() {
+        return ignoreRules;
+    }
 
     public void preExecution() {
+        ignoreExitValue = true;
         PythonExtension pythonExtension = ExtensionUtils.getPythonExtension(getProject());
         File flake8Exec = pythonExtension.getDetails().getVirtualEnvironment().findExecutable("flake8");
 
@@ -77,6 +102,19 @@ public class Flake8Task extends AbstractPythonMainSourceDefaultTask {
 
     @Override
     public void processResults(ExecResult execResult) {
-        //Not needed
+        // If the first run of flake8 fails, trying running it again but ignoring the
+        // rules/checks added by the previous version bump.
+        if ((execResult.getExitValue() != 0) && !ignoringNewRules && (ignoreRules.size() > 0)) {
+            ignoringNewRules = true;
+            firstRunOutput = this.output;
+            subArgs("--extend-ignore=" + String.join(",", ignoreRules));
+            executePythonProcess();
+        } else if ((execResult.getExitValue() == 0) && ignoringNewRules) {
+            // The previous run failed, but flake8 succeeds when we ignore the most recent rules.
+            // Warn the user that they are failing one or more of the new rules.
+            log.warn(String.format(IGNORED_RULES_MSG, String.join(", ", ignoreRules), firstRunOutput));
+        } else {
+            execResult.assertNormalExitValue();
+        }
     }
 }

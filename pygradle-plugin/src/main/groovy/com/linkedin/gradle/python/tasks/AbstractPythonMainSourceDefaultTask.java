@@ -55,7 +55,7 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask im
     private List<String> subArguments = new ArrayList<>();
     private PythonExtension extension;
     private PythonDetails pythonDetails;
-    private String output;
+    protected String output;
 
     @Input
     public List<String> additionalArguments = new ArrayList<>();
@@ -135,7 +135,11 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask im
     }
 
     @TaskAction
-    public void executePythonProcess() {
+    public void executeTask() {
+        executePythonProcess();
+    }
+
+    void executePythonProcess() {
         preExecution();
 
         final TeeOutputContainer container = new TeeOutputContainer(stdOut, errOut);

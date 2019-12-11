@@ -136,11 +136,11 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask im
 
     @TaskAction
     public void executeTask() {
+        preExecution();
         executePythonProcess();
     }
 
     void executePythonProcess() {
-        preExecution();
 
         final TeeOutputContainer container = new TeeOutputContainer(stdOut, errOut);
 

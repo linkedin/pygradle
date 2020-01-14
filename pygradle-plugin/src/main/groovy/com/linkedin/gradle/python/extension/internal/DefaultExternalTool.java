@@ -13,10 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.linkedin.gradle.python.extension;
-
-import com.linkedin.gradle.python.extension.internal.DefaultExternalTool;
+package com.linkedin.gradle.python.extension.internal;
 
 
-public class MypyExtension extends DefaultExternalTool {
+public class DefaultExternalTool {
+    private boolean run;
+    private String[] arguments = null;
+
+    public boolean isRun() {
+        return run;
+    }
+
+    public void setRun(boolean run) {
+        this.run = run;
+    }
+
+    public void setArguments(String argumentString) {
+        arguments = argumentString.split("\\s+");
+    }
+
+    public String[] getArguments() {
+        return arguments;
+    }
 }

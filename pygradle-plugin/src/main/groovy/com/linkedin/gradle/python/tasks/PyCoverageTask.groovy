@@ -75,11 +75,11 @@ class PyCoverageTask extends PyTestTask {
 
         // If there is no coverage to report, then the htmlDir value will be empty
         if (htmlDir != null) {
-            FileUtils.copyDirectoryToDirectory(project.file(htmlDir), coverageOutputDir)
+            FileUtils.copyDirectoryToDirectory(project.file(htmlDir), getCoverageOutputDir())
         }
 
         CoverageXmlReporter coverageXmlReport = new CoverageXmlReporter(coverage)
-        coverageReport.text = coverageXmlReport.generateXML()
+        getCoverageReport().text = coverageXmlReport.generateXML()
         super.processResults(execResult)
     }
 

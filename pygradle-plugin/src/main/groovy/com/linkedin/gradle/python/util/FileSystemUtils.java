@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class FileSystemUtils {
 
@@ -39,13 +40,14 @@ public class FileSystemUtils {
          * Check if the file exists because the link checking logic in Gradle differs
          * between Linux and OS X machines.
          */
+        Path destinationPath = destination.toPath();
         if (OperatingSystem.current().isUnix()) {
-            if (!Files.exists(destination.toPath())) {
-                Files.createSymbolicLink(destination.toPath(), target.toPath());
+            if (!Files.exists(destinationPath)) {
+                Files.createSymbolicLink(destinationPath, destinationPath.getParent().relativize(target.toPath()));
             }
         } else {
-            if (!Files.exists(destination.toPath())) {
-                Files.copy(target.toPath(), destination.toPath());
+            if (!Files.exists(destinationPath)) {
+                Files.copy(target.toPath(), destinationPath);
             }
         }
     }

@@ -18,7 +18,6 @@ package com.linkedin.python.importer.deps
 import com.linkedin.python.importer.pypi.PypiApiCache
 import com.linkedin.python.importer.util.ProxyDetector
 import groovy.util.logging.Slf4j
-import org.apache.commons.io.FilenameUtils
 import org.apache.http.client.fluent.Request
 
 @Slf4j
@@ -58,10 +57,7 @@ abstract class DependencyDownloader {
     abstract downloadDependency(
         String dep, boolean latestVersions, boolean allowPreReleases, boolean fetchExtras, boolean lenient)
 
-    protected static File downloadArtifact(File destDir, String url) {
-
-        def filename = FilenameUtils.getName(new URL(url).getPath())
-        def contents = new File(destDir, filename)
+    protected static File downloadArtifact(File contents, String url) {
 
         if (!contents.exists()) {
             def proxy = ProxyDetector.maybeGetHttpProxy()
@@ -88,12 +84,27 @@ abstract class DependencyDownloader {
     }
 
     /**
-     * Get the actual module name from artifact name, which has the correct letter case.
+     * Get the module name from artifact name, which has the correct letter case.
      * @param filename the filename of artifact
      * @param revision module version
-     * @return actual module name, which is from PyPI
+     * @return module name
      */
-    static String getActualModuleNameFromFilename(String filename, String revision) {
+    static String getModuleNameFromFilename(String filename, String revision) {
         return filename.substring(0, filename.indexOf(revision) - 1)
+    }
+
+    /**
+     * Compose filename from artifact file name and module name.
+     * Makes filename that has to be compatible with ivy layout pattern <code>[module]-[revision].[ext]</code>,
+     * where <code>[module]</code> is from PyPI metadata.
+     * @param name module name from PyPI metadata
+     * @param filename the filename of artifact
+     * @param revision module version
+     * @return
+     */
+    static String buildFilenameByModuleName(String moduleName, String filename, String revision) {
+        final String moduleNameFromFilename = getModuleNameFromFilename(filename, revision)
+
+        return filename.replace(moduleNameFromFilename, moduleName)
     }
 }

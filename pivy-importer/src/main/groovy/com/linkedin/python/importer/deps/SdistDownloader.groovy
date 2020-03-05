@@ -18,6 +18,7 @@ package com.linkedin.python.importer.deps
 import com.linkedin.python.importer.distribution.SourceDistPackage
 import com.linkedin.python.importer.ivy.IvyFileWriter
 import groovy.util.logging.Slf4j
+
 import java.nio.file.Paths
 
 @Slf4j
@@ -58,13 +59,16 @@ class SdistDownloader extends DependencyDownloader {
         }
 
         // make sure the module name has the right letter case and dash or underscore as PyPI
-        name = getActualModuleNameFromFilename(sdistDetails.filename, version)
+        name = projectDetails.name
         log.info("Pulling in $name:$version")
 
         def destDir = Paths.get(ivyRepoRoot.absolutePath, SOURCE_DIST_ORG, name, version).toFile()
         destDir.mkdirs()
 
-        def sdistArtifact = downloadArtifact(destDir, sdistDetails.url)
+        def filename = buildFilenameByModuleName(name, sdistDetails.filename, version)
+        def contents = new File(destDir, filename)
+
+        def sdistArtifact = downloadArtifact(contents, sdistDetails.url)
         def packageDependencies = new SourceDistPackage(name, version, sdistArtifact, cache, dependencySubstitution)
             .getDependencies(latestVersions, allowPreReleases, fetchExtras, lenient)
 

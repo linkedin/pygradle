@@ -80,7 +80,7 @@ class DependencyDownloaderTest extends Specification {
         assert dependencyDownloader.processedDependencies.contains(testProject)
     }
 
-    def "get actual module name from filename"() {
+    def "get module name from filename"() {
         given:
         String testSdistFilename
         String actualModuleName
@@ -88,31 +88,80 @@ class DependencyDownloaderTest extends Specification {
 
         when:
         testSdistFilename = "zc.buildout-2.12.1.tar.gz"
-        actualModuleName = DependencyDownloader.getActualModuleNameFromFilename(testSdistFilename, "2.12.1")
+        actualModuleName = DependencyDownloader.getModuleNameFromFilename(testSdistFilename, "2.12.1")
         expectedModuleName = "zc.buildout"
         then:
         actualModuleName == expectedModuleName
 
         when:
         testSdistFilename = "google-api-python-client-1.7.3.tar.gz"
-        actualModuleName = DependencyDownloader.getActualModuleNameFromFilename(testSdistFilename, "1.7.3")
+        actualModuleName = DependencyDownloader.getModuleNameFromFilename(testSdistFilename, "1.7.3")
         expectedModuleName = "google-api-python-client"
         then:
         actualModuleName == expectedModuleName
 
         when:
         testSdistFilename = "sphinx_rtd_theme-0.4.0-py2.py3-none-any.whl"
-        actualModuleName = DependencyDownloader.getActualModuleNameFromFilename(testSdistFilename, "0.4.0")
+        actualModuleName = DependencyDownloader.getModuleNameFromFilename(testSdistFilename, "0.4.0")
         expectedModuleName = "sphinx_rtd_theme"
         then:
         actualModuleName == expectedModuleName
 
         when:
         testSdistFilename = "psycopg2_binary-2.7.5-cp34-cp34m-macosx_10_6_intel.macosx_10_9_intel.macosx_10_9_x86_64.macosx_10_10_intel.macosx_10_10_x86_64.whl"
-        actualModuleName = DependencyDownloader.getActualModuleNameFromFilename(testSdistFilename, "2.7.5")
+        actualModuleName = DependencyDownloader.getModuleNameFromFilename(testSdistFilename, "2.7.5")
         expectedModuleName = "psycopg2_binary"
 
         then:
         assert actualModuleName == expectedModuleName
+    }
+
+    def "build filename by module name"() {
+        given:
+        String testSdistFilename
+        String moduleName
+        String filename
+        String expectedFilename
+
+        when:
+        moduleName = "zc.buildout"
+        testSdistFilename = "zc.buildout-2.12.1.tar.gz"
+        filename = DependencyDownloader.buildFilenameByModuleName(moduleName, testSdistFilename, "2.12.1")
+        expectedFilename = "zc.buildout-2.12.1.tar.gz"
+        then:
+        filename == expectedFilename
+
+        when:
+        moduleName = "google-api-python-client"
+        testSdistFilename = "google-api-python-client-1.7.3.tar.gz"
+        filename = DependencyDownloader.buildFilenameByModuleName(moduleName, testSdistFilename, "1.7.3")
+        expectedFilename = "google-api-python-client-1.7.3.tar.gz"
+        then:
+        filename == expectedFilename
+
+        when:
+        moduleName = "sphinx-rtd-theme"
+        testSdistFilename = "sphinx_rtd_theme-0.4.0-py2.py3-none-any.whl"
+        filename = DependencyDownloader.buildFilenameByModuleName(moduleName, testSdistFilename, "0.4.0")
+        expectedFilename = "sphinx-rtd-theme-0.4.0-py2.py3-none-any.whl"
+        then:
+        filename == expectedFilename
+
+        when:
+        moduleName = "psycopg2-binary"
+        testSdistFilename = "psycopg2_binary-2.7.5-cp34-cp34m-macosx_10_6_intel.macosx_10_9_intel.macosx_10_9_x86_64.macosx_10_10_intel.macosx_10_10_x86_64.whl"
+        filename = DependencyDownloader.buildFilenameByModuleName(moduleName, testSdistFilename, "2.7.5")
+        expectedFilename = "psycopg2-binary-2.7.5-cp34-cp34m-macosx_10_6_intel.macosx_10_9_intel.macosx_10_9_x86_64.macosx_10_10_intel.macosx_10_10_x86_64.whl"
+        then:
+        filename == expectedFilename
+
+        when:
+        moduleName = "typed_ast"
+        testSdistFilename = "typed-ast-1.3.2.tar.gz"
+        filename = DependencyDownloader.buildFilenameByModuleName(moduleName, testSdistFilename, "1.3.2")
+        expectedFilename = "typed_ast-1.3.2.tar.gz"
+
+        then:
+        assert filename == expectedFilename
     }
 }

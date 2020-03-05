@@ -18,7 +18,6 @@ package com.linkedin.python.importer.deps
 import com.linkedin.python.importer.pypi.PypiApiCache
 import com.linkedin.python.importer.util.ProxyDetector
 import groovy.util.logging.Slf4j
-import org.apache.commons.io.FilenameUtils
 import org.apache.http.client.fluent.Request
 
 @Slf4j

@@ -1,4 +1,2 @@
 include ':pygradle-plugin'
 include ':pivy-importer'
-include ':examples'
-include ':examples:working-example-project'

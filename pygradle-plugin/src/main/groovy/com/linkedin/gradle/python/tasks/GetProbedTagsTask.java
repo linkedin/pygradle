@@ -20,6 +20,7 @@ import com.linkedin.gradle.python.tasks.action.ProbeVenvInfoAction;
 import com.linkedin.gradle.python.tasks.provides.ProvidesVenv;
 import com.linkedin.gradle.python.wheel.EditablePythonAbiContainer;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
 
 
@@ -46,6 +47,7 @@ public class GetProbedTagsTask extends DefaultTask implements ProvidesVenv {
         this.editablePythonAbiContainer = editablePythonAbiContainer;
     }
 
+    @Input
     public PythonDetails getPythonDetails() {
         return pythonDetails;
     }

@@ -263,12 +263,14 @@ public class ParallelWheelGenerationTask extends DefaultTask implements Supports
     }
 
     @Override
+    @Internal
     public PackageSettings<PackageInfo> getPackageSettings() {
         return this.packageSettings;
     }
 
     @Nullable
     @Override
+    @Internal
     public Spec<PackageInfo> getPackageExcludeFilter() {
         return packageFilter;
     }

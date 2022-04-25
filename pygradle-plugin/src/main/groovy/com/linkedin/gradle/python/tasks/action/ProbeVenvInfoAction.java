@@ -27,11 +27,11 @@ import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 
 public class ProbeVenvInfoAction {
 
@@ -72,17 +72,23 @@ public class ProbeVenvInfoAction {
 
     private static void doProbe(Project project, PythonDetails pythonDetails,
                           EditablePythonAbiContainer editablePythonAbiContainer) throws IOException {
-        InputStream wheelApiResource = ProbeVenvInfoAction.class.getClassLoader()
-            .getResourceAsStream("templates/wheel-api.py");
 
-        byte[] buffer = new byte[wheelApiResource.available()];
-        wheelApiResource.read(buffer);
+
+
 
         File probeDir = new File(project.getBuildDir(), PROBE_DIR_NAME);
         probeDir.mkdirs();
 
-        OutputStream outStream = new FileOutputStream(getPythonFileForSupportedWheels(probeDir));
-        outStream.write(buffer);
+
+        try (InputStream wheelApiResource = ProbeVenvInfoAction.class.getClassLoader()
+                .getResourceAsStream("templates/wheel-api.py");
+             OutputStream outStream = Files.newOutputStream(getPythonFileForSupportedWheels(probeDir).toPath())) {
+            byte[] buffer = new byte[10240];
+            int length;
+            while ((length = wheelApiResource.read(buffer)) > 0) {
+                outStream.write(buffer, 0, length);
+            }
+        }
 
         File supportedAbiFormatsFile = getSupportedAbiFormatsFile(probeDir, pythonDetails);
         project.exec(execSpec -> {

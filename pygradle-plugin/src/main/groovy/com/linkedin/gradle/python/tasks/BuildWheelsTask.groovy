@@ -162,6 +162,7 @@ class BuildWheelsTask extends DefaultTask implements SupportsWheelCache, Support
     }
 
     @Override
+    @Internal
     String getReason() {
         return lastInstallMessage
     }

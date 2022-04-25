@@ -40,6 +40,7 @@ import org.gradle.api.file.FileCollection
 import org.gradle.api.specs.Spec
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.internal.logging.progress.ProgressLogger
@@ -71,16 +72,21 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider, Suppo
     Map<String, String> environment
 
     @Input
-    @Optional
     boolean sorted = true
 
+    @Internal
     PackageSettings<PackageInfo> packageSettings
+
+    @Internal
     EnvironmentMerger environmentMerger = new DefaultEnvironmentMerger()
+
+    @Internal
     ExternalExec externalExec = new ProjectExternalExec(getProject())
 
     /**
      * Will return true when the package should be excluded from being installed.
      */
+    @Internal
     Spec<PackageInfo> packageExcludeFilter = null
 
     private String lastInstallMessage = null
@@ -156,6 +162,7 @@ class PipInstallTask extends DefaultTask implements FailureReasonProvider, Suppo
     }
 
     @Override
+    @Internal
     String getReason() {
         return lastInstallMessage
     }

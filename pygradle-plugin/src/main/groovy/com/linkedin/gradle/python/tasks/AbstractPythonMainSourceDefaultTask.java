@@ -76,6 +76,7 @@ abstract public class AbstractPythonMainSourceDefaultTask extends DefaultTask im
         return new String[]{"**/*.pyc", "**/*.pyo", "**/__pycache__/", "**/*.egg-info/"};
     }
 
+    @Internal
     public PythonExtension getPythonExtension() {
         if (null == extension) {
             extension = getProject().getExtensions().getByType(PythonExtension.class);

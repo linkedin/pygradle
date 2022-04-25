@@ -45,7 +45,7 @@ class PyCoverageTask extends PyTestTask {
 
     PyCoverageTask() {
         super()
-        stdOut = new TeeOutputStream(stdOut, outputStream)
+        stdOut = new TeeOutputStream(System.out, outputStream)
     }
 
     /**
